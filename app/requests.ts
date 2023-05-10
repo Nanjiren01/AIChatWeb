@@ -67,6 +67,7 @@ function getHeaders() {
 
 export function requestOpenaiClient(path: string) {
   const openaiUrl = useAccessStore.getState().openaiUrl;
+  // console.log('openaiUrl = ' + openaiUrl)
   return (body: any, method = "POST") =>
     fetch(openaiUrl + path, {
       method,
@@ -86,7 +87,7 @@ export async function requestChat(
   });
 
   const res = await requestOpenaiClient("v1/chat/completions")(req);
-
+  // console.log('res', res)
   try {
     const response = (await res.json()) as ChatResponse;
     return response;
@@ -167,6 +168,7 @@ export async function requestChatStream(
 
   try {
     const openaiUrl = useAccessStore.getState().openaiUrl;
+    // console.log('openai url = ' + openaiUrl)
     const res = await fetch(openaiUrl + "v1/chat/completions", {
       method: "POST",
       headers: {
@@ -176,6 +178,7 @@ export async function requestChatStream(
       body: JSON.stringify(req),
       signal: controller.signal,
     });
+    // console.log('res', res)
 
     clearTimeout(reqTimeoutId);
 
@@ -195,6 +198,7 @@ export async function requestChatStream(
       while (true) {
         const resTimeoutId = setTimeout(() => finish(), TIME_OUT_MS);
         const content = await reader?.read();
+        // console.log('content', content)
         clearTimeout(resTimeoutId);
 
         if (!content || !content.value) {
@@ -202,6 +206,7 @@ export async function requestChatStream(
         }
 
         const text = decoder.decode(content.value, { stream: true });
+        // console.log('text', text)
         responseText += text;
 
         const done = content.done;
