@@ -4,6 +4,7 @@
 <h1 align="center">AI Chat Web</h1>
   
 [简体中文](./README_CN.md)
+</div>
 
 Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), this repository will add some magic functions, like login, register...
 
