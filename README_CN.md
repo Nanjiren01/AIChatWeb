@@ -3,7 +3,13 @@
 
 <h1 align="center">AI Chat Web</h1>
 
-在项目[ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git)的基础上增加登录，注册等功能
+  
+[English](./README.md)
+</div>
+
+本项目是在[ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git)的基础上增加登录，注册等功能（注意，由于登录注册需要后台支持，因此本项目需要单独部署后端服务才可以运行）
+
+**本项目不再支持在vercel上正常运行**
 
 ## 规划功能
 
