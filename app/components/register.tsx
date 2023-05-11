@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 
-import styles from "./login.module.scss";
+import styles from "./register.module.scss";
 
 import CloseIcon from "../icons/close.svg";
-import { Input, List, ListItem, Modal, PasswordInput } from "./ui-lib";
+import { Input, List, ListItem, PasswordInput } from "./ui-lib";
 
 import { IconButton } from "./button";
 import { useAuthStore, useAccessStore } from "../store";
@@ -13,7 +13,7 @@ import { Path } from "../constant";
 import { ErrorBoundary } from "./error";
 import { useNavigate } from "react-router-dom";
 
-export function Login() {
+export function Register() {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
@@ -33,13 +33,19 @@ export function Login() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  function login() {
+  const [comfirmedPassword, setComfirmedPassword] = useState("");
+  function register() {
+    if (password != comfirmedPassword) {
+      alert("两次输入的密码不一致！");
+      return;
+    }
     // if (username.length <)
     setLoadingUsage(true);
     authStore
-      .login(username, password)
+      .register(name, username, password)
       .then((result) => {
         console.log("result", result);
       })
@@ -53,10 +59,10 @@ export function Login() {
       <div className="window-header">
         <div className="window-header-title">
           <div className="window-header-main-title">
-            {Locale.LoginPage.Title}
+            {Locale.RegisterPage.Title}
           </div>
           <div className="window-header-sub-title">
-            {Locale.LoginPage.SubTitle}
+            {Locale.RegisterPage.SubTitle}
           </div>
         </div>
         <div className="window-actions">
@@ -65,40 +71,65 @@ export function Login() {
               icon={<CloseIcon />}
               onClick={() => navigate(Path.Home)}
               bordered
-              title={Locale.LoginPage.Actions.Close}
+              title={Locale.RegisterPage.Actions.Close}
             />
           </div>
         </div>
       </div>
-      <div className={styles["login"]}>
+      <div className={styles["register"]}>
         <List>
           <ListItem
-            title={Locale.LoginPage.Username.Title}
-            subTitle={Locale.LoginPage.Username.SubTitle}
+            title={Locale.RegisterPage.Name.Title}
+            subTitle={Locale.RegisterPage.Name.SubTitle}
           >
             <Input
-              value={username}
+              value={name}
               rows={1}
+              placeholder={Locale.RegisterPage.Name.Placeholder}
               onChange={(e) => {
-                setUsername(e.currentTarget.value);
-                //console.log(e)
-                //accessStore.updateCode(e.currentTarget.value);
+                setName(e.currentTarget.value);
               }}
             />
           </ListItem>
 
           <ListItem
-            title={Locale.LoginPage.Password.Title}
-            subTitle={Locale.LoginPage.Password.SubTitle}
+            title={Locale.RegisterPage.Username.Title}
+            subTitle={Locale.RegisterPage.Username.SubTitle}
+          >
+            <Input
+              value={username}
+              rows={1}
+              placeholder={Locale.RegisterPage.Username.Placeholder}
+              onChange={(e) => {
+                setUsername(e.currentTarget.value);
+              }}
+            />
+          </ListItem>
+
+          <ListItem
+            title={Locale.RegisterPage.Password.Title}
+            subTitle={Locale.RegisterPage.Password.SubTitle}
           >
             <PasswordInput
               value={password}
               type="text"
-              placeholder={Locale.LoginPage.Password.Placeholder}
+              placeholder={Locale.RegisterPage.Password.Placeholder}
               onChange={(e) => {
-                // console.log(e)
                 setPassword(e.currentTarget.value);
-                // accessStore.updateCode(e.currentTarget.value);
+              }}
+            />
+          </ListItem>
+
+          <ListItem
+            title={Locale.RegisterPage.ConfirmedPassword.Title}
+            subTitle={Locale.RegisterPage.ConfirmedPassword.SubTitle}
+          >
+            <PasswordInput
+              value={comfirmedPassword}
+              type="text"
+              placeholder={Locale.RegisterPage.ConfirmedPassword.Placeholder}
+              onChange={(e) => {
+                setComfirmedPassword(e.currentTarget.value);
               }}
             />
           </ListItem>
@@ -106,20 +137,20 @@ export function Login() {
           <ListItem>
             <IconButton
               type="primary"
-              text={Locale.LoginPage.Title}
+              text={Locale.RegisterPage.Title}
               block={true}
               onClick={() => {
                 console.log(username, password);
-                login();
+                register();
               }}
             />
           </ListItem>
 
           <ListItem>
             <IconButton
-              text={Locale.LoginPage.GoToRegister}
+              text={Locale.RegisterPage.GoToLogin}
               onClick={() => {
-                navigate(Path.Register);
+                navigate(Path.Login);
               }}
             />
           </ListItem>

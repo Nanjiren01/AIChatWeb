@@ -71,6 +71,35 @@ const cn = {
     Actions: {
       Close: "关闭",
     },
+    GoToRegister: "前往注册",
+  },
+  RegisterPage: {
+    Title: "注册",
+    SubTitle: "注册后赠送免费额度哦",
+    Name: {
+      Title: "昵称",
+      SubTitle: "",
+      Placeholder: "请输入昵称，可不填",
+    },
+    Username: {
+      Title: "用户名",
+      SubTitle: "",
+      Placeholder: "请输入用户名",
+    },
+    Password: {
+      Title: "密码",
+      SubTitle: "",
+      Placeholder: "请输入密码",
+    },
+    ConfirmedPassword: {
+      Title: "确认密码",
+      SubTitle: "",
+      Placeholder: "请再次输入密码",
+    },
+    Actions: {
+      Close: "关闭",
+    },
+    GoToLogin: "前往登录",
   },
   Settings: {
     Title: "设置",

@@ -1,5 +1,6 @@
 import type { ChatRequest, ChatResponse } from "./api/openai/typing";
 import type { LoginResponse } from "./api/login/route";
+import type { RegisterResponse } from "./api/register/route";
 import {
   Message,
   ModelConfig,
@@ -193,6 +194,58 @@ export async function requestLogin(
       return;
     }
     console.error("login result error(2)", res);
+    options?.onError({
+      name: "unknown error",
+      message: "unknown error",
+    });
+  } catch (err) {
+    console.error("NetWork Error", err);
+    options?.onError(err as Error);
+  }
+}
+
+export async function requestRegister(
+  name: string,
+  username: string,
+  password: string,
+  options?: {
+    onError: (error: Error, statusCode?: number) => void;
+  },
+) {
+  //const openaiUrl = useAccessStore.getState().openaiUrl;
+  try {
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", //,
+        //...getHeaders(),
+      },
+      body: JSON.stringify({ name, username, password }), //,
+      //signal: controller.signal,
+    });
+    if (res.status == 200) {
+      let json: RegisterResponse;
+      try {
+        json = (await res.json()) as RegisterResponse;
+      } catch (e) {
+        console.error("json formatting failure", e);
+        options?.onError({
+          name: "json formatting failure",
+          message: "json formatting failure",
+        });
+        return;
+      }
+      if (json.code == 0) {
+        return json.data;
+      } else {
+        options?.onError({
+          name: json.message,
+          message: json.message,
+        });
+      }
+      return;
+    }
+    console.error("register result error(2)", res);
     options?.onError({
       name: "unknown error",
       message: "unknown error",
