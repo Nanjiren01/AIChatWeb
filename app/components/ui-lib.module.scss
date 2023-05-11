@@ -201,5 +201,6 @@
   background-color: var(--white);
   color: var(--black);
   resize: none;
-  min-width: 50px;
+  min-width: 180px;
+  box-sizing: border-box;
 }

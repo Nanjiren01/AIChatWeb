@@ -37,6 +37,11 @@
   border: var(--border-in-light);
 }
 
+.block {
+  display: block;
+  width: 100%;
+}
+
 .icon-button:hover {
   border-color: var(--primary);
 }

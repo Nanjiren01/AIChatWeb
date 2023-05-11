@@ -231,6 +231,8 @@ input[type="password"] {
   padding: 0 10px;
   max-width: 50%;
   font-family: inherit;
+  box-sizing: border-box;
+  min-width: 180px;
 }
 
 div.math {
@@ -328,10 +330,12 @@ pre {
 
   .password-eye {
     margin-right: 4px;
+    height: 40px;
   }
 
   .password-input {
-    min-width: 80%;
+    min-width: 180px;
+    text-align: left;
   }
 }
 

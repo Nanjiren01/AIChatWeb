@@ -1,9 +1,11 @@
 import type { ChatRequest, ChatResponse } from "./api/openai/typing";
+import type { LoginResponse } from "./api/login/route";
 import {
   Message,
   ModelConfig,
   ModelType,
   useAccessStore,
+  useAuthStore,
   useAppConfig,
   useChatStore,
 } from "./store";
@@ -44,14 +46,18 @@ const makeRequestParam = (
 };
 
 function getHeaders() {
+  const authStore = useAuthStore.getState();
   const accessStore = useAccessStore.getState();
   let headers: Record<string, string> = {};
 
   const makeBearer = (token: string) => `Bearer ${token.trim()}`;
   const validString = (x: string) => x && x.length > 0;
 
+  if (validString(authStore.token)) {
+    headers.Authorization = makeBearer(authStore.token);
+  }
   // use user's api key first
-  if (validString(accessStore.token)) {
+  else if (validString(accessStore.token)) {
     headers.Authorization = makeBearer(accessStore.token);
   } else if (
     accessStore.enabledAccessControl() &&
@@ -67,7 +73,7 @@ function getHeaders() {
 
 export function requestOpenaiClient(path: string) {
   const openaiUrl = useAccessStore.getState().openaiUrl;
-  // console.log('openaiUrl = ' + openaiUrl)
+  // console.log('openaiUrl = ', openaiUrl, 'path = ', path)
   return (body: any, method = "POST") =>
     fetch(openaiUrl + path, {
       method,
@@ -86,7 +92,7 @@ export async function requestChat(
     overrideModel: options?.model,
   });
 
-  const res = await requestOpenaiClient("v1/chat/completions")(req);
+  const res = await requestOpenaiClient("chatgpt/v1/chat/completions")(req);
   // console.log('res', res)
   try {
     const response = (await res.json()) as ChatResponse;
@@ -146,6 +152,57 @@ export async function requestUsage() {
   };
 }
 
+export async function requestLogin(
+  username: string,
+  password: string,
+  options?: {
+    onError: (error: Error, statusCode?: number) => void;
+  },
+) {
+  //const openaiUrl = useAccessStore.getState().openaiUrl;
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", //,
+        //...getHeaders(),
+      },
+      body: JSON.stringify({ username, password }), //,
+      //signal: controller.signal,
+    });
+    if (res.status == 200) {
+      let json: LoginResponse;
+      try {
+        json = (await res.json()) as LoginResponse;
+      } catch (e) {
+        console.error("json formatting failure", e);
+        options?.onError({
+          name: "json formatting failure",
+          message: "json formatting failure",
+        });
+        return;
+      }
+      if (json.code == 0) {
+        return json.data;
+      } else {
+        options?.onError({
+          name: json.message,
+          message: json.message,
+        });
+      }
+      return;
+    }
+    console.error("login result error(2)", res);
+    options?.onError({
+      name: "unknown error",
+      message: "unknown error",
+    });
+  } catch (err) {
+    console.error("NetWork Error", err);
+    options?.onError(err as Error);
+  }
+}
+
 export async function requestChatStream(
   messages: Message[],
   options?: {
@@ -169,7 +226,7 @@ export async function requestChatStream(
   try {
     const openaiUrl = useAccessStore.getState().openaiUrl;
     // console.log('openai url = ' + openaiUrl)
-    const res = await fetch(openaiUrl + "v1/chat/completions", {
+    const res = await fetch(openaiUrl + "chatgpt/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

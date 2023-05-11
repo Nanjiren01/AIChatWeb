@@ -22,6 +22,7 @@ async function createStream(res: Response) {
           try {
             // const json = JSON.parse(data);
             // const text = json.choices[0].delta.content;
+            // console.log('data', data)
             const queue = encoder.encode(data);
             controller.enqueue(queue);
           } catch (e) {
@@ -53,10 +54,10 @@ async function handle(
 ) {
   console.log("[OpenAI Route] params ", params);
 
-  req.headers.set(
-    "Authorization",
-    "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhaWNoYXQiLCJpYXQiOjE2ODM2ODA0ODQsImV4cCI6MTY4Mzc2Njg4NH0.MW1VEaRvk0_jlUgp65votPg6n1jguTDm46X9Kwy7DqKgDHqaqH6OFaF_yUYbT9LmuRxI5PFAda61iAXmgZBosA",
-  );
+  // req.headers.set(
+  //   "Authorization",
+  //   "Bearer ",
+  // );
   // const authResult = auth(req);
   // if (authResult.error) {
   //   return NextResponse.json(authResult, {

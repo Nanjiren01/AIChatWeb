@@ -21,13 +21,13 @@ export async function requestOpenai(req: NextRequest) {
   console.log("[Proxy] ", openaiPath);
   console.log("[Base Url]", baseUrl);
 
-  if (process.env.OPENAI_ORG_ID) {
-    console.log("[Org ID]", process.env.OPENAI_ORG_ID);
-  }
+  // if (process.env.OPENAI_ORG_ID) {
+  //   console.log("[Org ID]", process.env.OPENAI_ORG_ID);
+  // }
 
-  if (!authValue || !authValue.startsWith("Bearer sk-")) {
-    console.error("[OpenAI Request] invalid api key provided", authValue);
-  }
+  // if (!authValue || !authValue.startsWith("Bearer sk-")) {
+  //   console.error("[OpenAI Request] invalid api key provided", authValue);
+  // }
 
   return fetch(`${baseUrl}/${openaiPath}`, {
     headers: {
@@ -41,4 +41,35 @@ export async function requestOpenai(req: NextRequest) {
     method: req.method,
     body: req.body,
   });
+}
+
+export async function request(req: NextRequest) {
+  let baseUrl = BASE_URL;
+
+  if (!baseUrl.startsWith("http")) {
+    baseUrl = `${PROTOCOL}://${baseUrl}`;
+  }
+  const authValue = req.headers.get("Authorization") ?? "";
+  const uri = `${req.nextUrl.pathname}${req.nextUrl.search}`.replaceAll(
+    "/api/",
+    "",
+  );
+  // console.log(`url = ${baseUrl}/${uri}`)
+  return fetch(`${baseUrl}/${uri}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: authValue,
+    },
+    cache: "no-store",
+    method: req.method,
+    body: req.body,
+  });
+}
+
+export interface Response<T> {
+  code: number;
+
+  message: string;
+
+  data: T;
 }

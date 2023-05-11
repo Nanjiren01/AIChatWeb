@@ -3,8 +3,7 @@ import { SubmitKey } from "../store/config";
 const cn = {
   WIP: "该功能仍在开发中……",
   Error: {
-    Unauthorized:
-      "访问密码不正确或为空，请前往[设置](/#/settings)页输入正确的访问密码，或者填入你自己的 OpenAI API Key。",
+    Unauthorized: "您还未登录，请前往[登录页](/#/login)",
   },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} 条对话`,
@@ -55,6 +54,23 @@ const cn = {
     DeleteChat: "确认删除选中的对话？",
     DeleteToast: "已删除会话",
     Revert: "撤销",
+  },
+  LoginPage: {
+    Title: "登录",
+    SubTitle: "登录后可跟AI交流",
+    Username: {
+      Title: "用户名",
+      SubTitle: "",
+      Placeholder: "请输入用户名",
+    },
+    Password: {
+      Title: "密码",
+      SubTitle: "",
+      Placeholder: "请输入密码",
+    },
+    Actions: {
+      Close: "关闭",
+    },
   },
   Settings: {
     Title: "设置",

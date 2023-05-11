@@ -7,6 +7,7 @@ export function IconButton(props: {
   icon?: JSX.Element;
   type?: "primary" | "danger";
   text?: string;
+  block?: boolean;
   bordered?: boolean;
   shadow?: boolean;
   className?: string;
@@ -18,8 +19,8 @@ export function IconButton(props: {
       className={
         styles["icon-button"] +
         ` ${props.bordered && styles.border} ${props.shadow && styles.shadow} ${
-          props.className ?? ""
-        } clickable ${styles[props.type ?? ""]}`
+          props.block && styles.block
+        } ${props.className ?? ""} clickable ${styles[props.type ?? ""]}`
       }
       onClick={props.onClick}
       title={props.title}
@@ -43,3 +44,13 @@ export function IconButton(props: {
     </button>
   );
 }
+
+// export function Button(props: {
+//   onClick?: () => void;
+// }) {
+//   return (
+//     <button>
+
+//     </button>
+//   )
+// }

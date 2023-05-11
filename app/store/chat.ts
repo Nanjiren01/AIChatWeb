@@ -281,6 +281,19 @@ export const useChatStore = create<ChatStore>()(
           onMessage(content, done) {
             // stream response
             if (done) {
+              try {
+                const jsonContent = JSON.parse(content);
+                if (
+                  jsonContent &&
+                  jsonContent.code > 10000 &&
+                  jsonContent.code < 10100
+                ) {
+                  this.onError({ message: "aborted", name: "aborted" }, 401);
+                  return;
+                }
+              } catch (e) {
+                // ignore
+              }
               botMessage.streaming = false;
               botMessage.content = content;
               get().onNewMessage(botMessage);
