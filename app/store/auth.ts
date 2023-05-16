@@ -8,6 +8,7 @@ export interface AuthStore {
   token: string;
   username: string;
   login: (username: string, password: string) => Promise<any>;
+  logout: () => void;
   register: (name: string, username: string, password: string) => Promise<any>;
 }
 
@@ -19,40 +20,45 @@ export const useAuthStore = create<AuthStore>()(
       token: "",
 
       async login(username, password) {
-        set(() => ({
-          username,
-        }));
+        // set(() => ({
+        //   username,
+        // }));
 
         let result = await requestLogin(username, password, {
           onError: (err) => {
             console.error(err);
           },
         });
-        set(() => ({
-          username,
-          token: result?.token || "",
-        }));
         console.log("result", result);
+        if (result && result.code == 0) {
+          set(() => ({
+            username,
+            token: result.data?.token || "",
+          }));
+        }
 
         return result;
       },
-      async register(name, username, password) {
+      logout() {
         set(() => ({
-          name,
-          username,
+          username: "",
+          token: "",
         }));
-
+      },
+      async register(name, username, password) {
         let result = await requestRegister(name, username, password, {
           onError: (err) => {
             console.error(err);
           },
         });
-        set(() => ({
-          name,
-          username,
-          token: result?.token || "",
-        }));
         console.log("result", result);
+        if (result && result.code == 0) {
+          set(() => ({
+            name,
+            username,
+            token: result.data?.token || "",
+          }));
+        }
 
         return result;
       },

@@ -153,13 +153,19 @@ export async function requestUsage() {
   };
 }
 
+export interface LoginResult {
+  code: number;
+  message: string;
+  data?: any;
+}
+
 export async function requestLogin(
   username: string,
   password: string,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
-) {
+): Promise<LoginResult> {
   //const openaiUrl = useAccessStore.getState().openaiUrl;
   try {
     const res = await fetch("/api/login", {
@@ -181,26 +187,35 @@ export async function requestLogin(
           name: "json formatting failure",
           message: "json formatting failure",
         });
-        return;
+        return {
+          code: -1,
+          message: "json formatting failure",
+        };
       }
-      if (json.code == 0) {
-        return json.data;
-      } else {
+      if (json.code != 0) {
         options?.onError({
           name: json.message,
           message: json.message,
         });
       }
-      return;
+      return json;
     }
     console.error("login result error(2)", res);
     options?.onError({
       name: "unknown error",
       message: "unknown error",
     });
+    return {
+      code: -1,
+      message: "unknown error",
+    };
   } catch (err) {
     console.error("NetWork Error", err);
     options?.onError(err as Error);
+    return {
+      code: -1,
+      message: "NetWork Error",
+    };
   }
 }
 
@@ -235,15 +250,13 @@ export async function requestRegister(
         });
         return;
       }
-      if (json.code == 0) {
-        return json.data;
-      } else {
+      if (json.code != 0) {
         options?.onError({
           name: json.message,
           message: json.message,
         });
       }
-      return;
+      return json;
     }
     console.error("register result error(2)", res);
     options?.onError({

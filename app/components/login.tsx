@@ -12,6 +12,7 @@ import Locale from "../locales";
 import { Path } from "../constant";
 import { ErrorBoundary } from "./error";
 import { useNavigate } from "react-router-dom";
+import { showToast } from "../components/ui-lib";
 
 export function Login() {
   const navigate = useNavigate();
@@ -38,14 +39,24 @@ export function Login() {
   function login() {
     // if (username.length <)
     setLoadingUsage(true);
+    showToast(Locale.LoginPage.Toast.Logining);
     authStore
       .login(username, password)
       .then((result) => {
         console.log("result", result);
+        if (result && result.code == 0) {
+          showToast(Locale.LoginPage.Toast.Success);
+          navigate(Path.Chat);
+        } else if (result && result.message) {
+          showToast(result.message);
+        }
       })
       .finally(() => {
         setLoadingUsage(false);
       });
+  }
+  function logout() {
+    setTimeout(() => authStore.logout(), 500);
   }
 
   return (
@@ -76,53 +87,73 @@ export function Login() {
             title={Locale.LoginPage.Username.Title}
             subTitle={Locale.LoginPage.Username.SubTitle}
           >
-            <Input
-              value={username}
-              rows={1}
-              onChange={(e) => {
-                setUsername(e.currentTarget.value);
-                //console.log(e)
-                //accessStore.updateCode(e.currentTarget.value);
-              }}
-            />
+            {authStore.username ? (
+              <span>{authStore.username}</span>
+            ) : (
+              <Input
+                value={username}
+                rows={1}
+                onChange={(e) => {
+                  setUsername(e.currentTarget.value);
+                  //console.log(e)
+                  //accessStore.updateCode(e.currentTarget.value);
+                }}
+              />
+            )}
           </ListItem>
 
-          <ListItem
-            title={Locale.LoginPage.Password.Title}
-            subTitle={Locale.LoginPage.Password.SubTitle}
-          >
-            <PasswordInput
-              value={password}
-              type="text"
-              placeholder={Locale.LoginPage.Password.Placeholder}
-              onChange={(e) => {
-                // console.log(e)
-                setPassword(e.currentTarget.value);
-                // accessStore.updateCode(e.currentTarget.value);
-              }}
-            />
-          </ListItem>
+          {authStore.username ? (
+            <></>
+          ) : (
+            <ListItem
+              title={Locale.LoginPage.Password.Title}
+              subTitle={Locale.LoginPage.Password.SubTitle}
+            >
+              <PasswordInput
+                value={password}
+                type="text"
+                placeholder={Locale.LoginPage.Password.Placeholder}
+                onChange={(e) => {
+                  // console.log(e)
+                  setPassword(e.currentTarget.value);
+                  // accessStore.updateCode(e.currentTarget.value);
+                }}
+              />
+            </ListItem>
+          )}
 
           <ListItem>
             <IconButton
               type="primary"
-              text={Locale.LoginPage.Title}
+              text={
+                authStore.username
+                  ? Locale.LoginPage.Actions.Logout
+                  : Locale.LoginPage.Actions.Login
+              }
               block={true}
               onClick={() => {
-                console.log(username, password);
-                login();
+                if (authStore.username) {
+                  logout();
+                } else {
+                  console.log(username, password);
+                  login();
+                }
               }}
             />
           </ListItem>
 
-          <ListItem>
-            <IconButton
-              text={Locale.LoginPage.GoToRegister}
-              onClick={() => {
-                navigate(Path.Register);
-              }}
-            />
-          </ListItem>
+          {authStore.username ? (
+            <></>
+          ) : (
+            <ListItem>
+              <IconButton
+                text={Locale.LoginPage.GoToRegister}
+                onClick={() => {
+                  navigate(Path.Register);
+                }}
+              />
+            </ListItem>
+          )}
         </List>
       </div>
     </ErrorBoundary>

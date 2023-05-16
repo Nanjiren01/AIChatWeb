@@ -70,6 +70,12 @@ const cn = {
     },
     Actions: {
       Close: "关闭",
+      Login: "登录",
+      Logout: "退出登录",
+    },
+    Toast: {
+      Success: "登录成功",
+      Logining: "登录中……",
     },
     GoToRegister: "前往注册",
   },
@@ -98,6 +104,14 @@ const cn = {
     },
     Actions: {
       Close: "关闭",
+    },
+    Toast: {
+      Success: "注册成功，正在前往聊天……",
+      Registering: "注册中……",
+      Failed: "注册失败！",
+      FailedWithReason: "注册失败！原因：",
+      PasswordNotTheSame: "两次输入的密码不一致！",
+      PasswordEmpty: "密码不能为空！",
     },
     GoToLogin: "前往登录",
   },

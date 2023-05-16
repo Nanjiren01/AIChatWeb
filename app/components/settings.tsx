@@ -211,21 +211,21 @@ export function Settings() {
   const remoteId = formatVersionDate(updateStore.remoteVersion);
   const hasNewVersion = currentVersion !== remoteId;
 
-  function checkUpdate(force = false) {
-    setCheckingUpdate(true);
-    updateStore.getLatestVersion(force).then(() => {
-      setCheckingUpdate(false);
-    });
+  // function checkUpdate(force = false) {
+  //   setCheckingUpdate(true);
+  //   updateStore.getLatestVersion(force).then(() => {
+  //     setCheckingUpdate(false);
+  //   });
 
-    console.log(
-      "[Update] local version ",
-      new Date(+updateStore.version).toLocaleString(),
-    );
-    console.log(
-      "[Update] remote version ",
-      new Date(+updateStore.remoteVersion).toLocaleString(),
-    );
-  }
+  //   console.log(
+  //     "[Update] local version ",
+  //     new Date(+updateStore.version).toLocaleString(),
+  //   );
+  //   console.log(
+  //     "[Update] remote version ",
+  //     new Date(+updateStore.remoteVersion).toLocaleString(),
+  //   );
+  // }
 
   const usage = {
     used: updateStore.used,
@@ -251,13 +251,13 @@ export function Settings() {
   const customCount = promptStore.getUserPrompts().length ?? 0;
   const [shouldShowPromptModal, setShowPromptModal] = useState(false);
 
-  const showUsage = accessStore.isAuthorized();
-  useEffect(() => {
-    // checks per minutes
-    checkUpdate();
-    showUsage && checkUsage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // const showUsage = accessStore.isAuthorized();
+  // useEffect(() => {
+  //   // checks per minutes
+  //   checkUpdate();
+  //   showUsage && checkUsage();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   useEffect(() => {
     const keydownEvent = (e: KeyboardEvent) => {
@@ -341,7 +341,7 @@ export function Settings() {
               </div>
             </Popover>
           </ListItem>
-
+          {/* 
           <ListItem
             title={Locale.Settings.Update.Version(currentVersion ?? "unknown")}
             subTitle={
@@ -365,7 +365,7 @@ export function Settings() {
                 onClick={() => checkUpdate(true)}
               />
             )}
-          </ListItem>
+          </ListItem> */}
 
           <ListItem title={Locale.Settings.SendKey}>
             <select
@@ -470,7 +470,7 @@ export function Settings() {
           </ListItem>
         </List>
 
-        <List>
+        {/* <List>
           {enabledAccessControl ? (
             <ListItem
               title={Locale.Settings.AccessCode.Title}
@@ -487,9 +487,9 @@ export function Settings() {
             </ListItem>
           ) : (
             <></>
-          )}
+          )} */}
 
-          {!accessStore.hideUserApiKey ? (
+        {/* {!accessStore.hideUserApiKey ? (
             <ListItem
               title={Locale.Settings.Token.Title}
               subTitle={Locale.Settings.Token.SubTitle}
@@ -503,8 +503,8 @@ export function Settings() {
                 }}
               />
             </ListItem>
-          ) : null}
-
+          ) : null} */}
+        {/* 
           <ListItem
             title={Locale.Settings.Usage.Title}
             subTitle={
@@ -528,7 +528,7 @@ export function Settings() {
               />
             )}
           </ListItem>
-        </List>
+        </List> */}
 
         <List>
           <ListItem

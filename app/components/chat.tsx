@@ -27,6 +27,7 @@ import {
   useChatStore,
   BOT_HELLO,
   createMessage,
+  useAuthStore,
   useAccessStore,
   Theme,
   useAppConfig,
@@ -410,6 +411,16 @@ export function Chat() {
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const navigate = useNavigate();
+
+  const authStore = useAuthStore();
+
+  useEffect(() => {
+    const isLoggedIn = authStore.username != null && authStore.username != "";
+    console.log("isLoggedIn", isLoggedIn);
+    if (!isLoggedIn) {
+      navigate("/login");
+    }
+  }, [authStore, navigate]);
 
   const onChatBodyScroll = (e: HTMLElement) => {
     const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 100;

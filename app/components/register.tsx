@@ -12,6 +12,7 @@ import Locale from "../locales";
 import { Path } from "../constant";
 import { ErrorBoundary } from "./error";
 import { useNavigate } from "react-router-dom";
+import { showToast } from "../components/ui-lib";
 
 export function Register() {
   const navigate = useNavigate();
@@ -38,16 +39,38 @@ export function Register() {
   const [password, setPassword] = useState("");
   const [comfirmedPassword, setComfirmedPassword] = useState("");
   function register() {
+    if (password == null || password.length == 0) {
+      showToast(Locale.RegisterPage.Toast.PasswordEmpty);
+      return;
+    }
     if (password != comfirmedPassword) {
-      alert("两次输入的密码不一致！");
+      // alert("两次输入的密码不一致！");
+      showToast(Locale.RegisterPage.Toast.PasswordNotTheSame);
       return;
     }
     // if (username.length <)
     setLoadingUsage(true);
+    showToast(Locale.RegisterPage.Toast.Registering);
     authStore
       .register(name, username, password)
       .then((result) => {
         console.log("result", result);
+        if (!result) {
+          showToast(Locale.RegisterPage.Toast.Failed);
+          return;
+        }
+        if (result.code == 0) {
+          showToast(Locale.RegisterPage.Toast.Success);
+          navigate(Path.Chat);
+        } else {
+          if (result.message) {
+            showToast(
+              Locale.RegisterPage.Toast.FailedWithReason + result.message,
+            );
+          } else {
+            showToast(Locale.RegisterPage.Toast.Failed);
+          }
+        }
       })
       .finally(() => {
         setLoadingUsage(false);
