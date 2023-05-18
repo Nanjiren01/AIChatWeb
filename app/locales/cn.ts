@@ -3,7 +3,7 @@ import { SubmitKey } from "../store/config";
 const cn = {
   WIP: "该功能仍在开发中……",
   Error: {
-    Unauthorized: "您还未登录，请前往[登录页](/#/login)",
+    Unauthorized: "登录信息已过期，请前往[登录页](/#/login)",
   },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} 条对话`,
@@ -114,6 +114,30 @@ const cn = {
       PasswordEmpty: "密码不能为空！",
     },
     GoToLogin: "前往登录",
+  },
+  Profile: {
+    Title: "个人中心",
+    SubTitle: "个人中心",
+    Username: "账号",
+    Tokens: {
+      Title: "tokens",
+      SubTitle: "剩余tokens数量",
+    },
+    ChatCount: {
+      Title: "询问次数",
+      SubTitle: "剩余询问次数（GPT3.5等）",
+    },
+    AdvanceChatCount: {
+      Title: "询问次数（GPT4）",
+      SubTitle: "聊天询问次数（GPT4）",
+    },
+    DrawCount: {
+      Title: "绘图次数",
+      SubTitle: "剩余绘图次数",
+    },
+    Actions: {
+      Close: "关闭",
+    },
   },
   Settings: {
     Title: "设置",

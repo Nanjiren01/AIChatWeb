@@ -20,10 +20,10 @@ async function createStream(res: Response) {
             return;
           }
           try {
-            // const json = JSON.parse(data);
-            // const text = json.choices[0].delta.content;
-            // console.log('data', data)
-            const queue = encoder.encode(data);
+            const json = JSON.parse(data);
+            const text = json.choices[0].delta.content;
+            // console.log('text', text)
+            const queue = encoder.encode(text);
             controller.enqueue(queue);
           } catch (e) {
             controller.error(e);
@@ -70,7 +70,12 @@ async function handle(
 
     const contentType = api.headers.get("Content-Type") ?? "";
 
-    // console.log('contentType', contentType, 'includes stream: ', contentType.includes("stream"))
+    console.log(
+      "contentType",
+      contentType,
+      "includes stream: ",
+      contentType.includes("stream"),
+    );
     // streaming response
     if (contentType.includes("stream")) {
       const stream = await createStream(api);

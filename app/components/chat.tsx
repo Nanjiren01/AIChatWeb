@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import SendWhiteIcon from "../icons/send-white.svg";
 import BrainIcon from "../icons/brain.svg";
 import RenameIcon from "../icons/rename.svg";
+import UserIcon from "../icons/user.svg";
 import ExportIcon from "../icons/share.svg";
 import ReturnIcon from "../icons/return.svg";
 import CopyIcon from "../icons/copy.svg";
@@ -649,9 +650,9 @@ export function Chat() {
           </div>
           <div className="window-action-button">
             <IconButton
-              icon={<RenameIcon />}
+              icon={<UserIcon />}
               bordered
-              onClick={renameSession}
+              onClick={() => navigate(Path.Profile)}
             />
           </div>
           <div className="window-action-button">
