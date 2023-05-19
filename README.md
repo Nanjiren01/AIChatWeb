@@ -21,6 +21,24 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 5. 服务端消息保存（Chat Saved by Server）
 6. ...
 
+
+
+## 后续功能规划 Plan
+
+1. 修改密码（Change password）
+2. 邮箱验证码注册，图形验证码注册（Email Register, Verification Code For Registering）
+3. 网站标题和Logo定制（Customization of Website Title and Logo）
+4. 邀请机制（邀请赠送额度）（Registration Invitation Mechanism）
+5. 绘图功能（midjourney）
+6. 基于用户的调用频率限制  Call Rate Limit 
+7. 敏感词拦截
+8. 对接支付系统 Pay
+9. 对接发卡平台
+10. 多模型支持（Claude、Bard……）
+11. 更多惊喜 More
+
+
+
 ## 预览Preview
 
 ### 聊天 Chat
@@ -60,8 +78,6 @@ https://github.com/Nanjiren01/AIChatConsole
 
 https://github.com/Nanjiren01/AIChatAdmin
 
-后端项目正在整理中……
-
 
 
 ## License 
@@ -90,3 +106,5 @@ see [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git)
 11. 更多惊喜 More
 
 <img src="./docs/images/xingqiu.jpeg" width="500px" alt="AIChatAdmin知识星球"/>
+
+随着功能的不断完善，知识星球价格逐步提升
