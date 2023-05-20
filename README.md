@@ -17,9 +17,7 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 1. 用户管理（User Management）（√）
 2. 额度管理（Quota Management）（√）
 3. 注册额度赠送（√）
-4. 图形验证码注册（Verification Code For Registering）
-5. 服务端消息保存（Chat Saved by Server）
-6. ...
+4. ...
 
 
 
@@ -32,10 +30,12 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 5. 绘图功能（midjourney）
 6. 基于用户的调用频率限制  Call Rate Limit 
 7. 敏感词拦截
-8. 对接支付系统 Pay
-9. 对接发卡平台
-10. 多模型支持（Claude、Bard……）
-11. 更多惊喜 More
+8. 服务端消息保存（Chat Saved by Server）
+9. 仪表盘（新增用户数曲线图、聊天数量曲线图）Dashboard
+10. 对接支付系统 Pay
+11. 对接发卡平台
+12. 多模型支持（Claude、Bard……）
+13. 更多惊喜 More
 
 
 
