@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  db:
+    image: yeguangsuixing/aichat-db:0.0.1
+    container_name: aichat-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+    - "3310:3306"
+    volumes:
+    - ./mysql_data:/var/lib/mysql
+
+  admin:
+    image: yeguangsuixing/aichat-admin:0.0.1
+    container_name: aichat-admin
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DB_URL: jdbc:mysql://aichat-db:3306/aichat?useSSL=false&serverTimezone=UTC%2B8
+      DB_USERNAME: root
+      DB_PASSWORD: 123456
+      SUPERADMIN_USERNAME: aichat
+      SUPERADMIN_PASSWORD: aichatadmin
+      PASSWORD_SALT: any-is-ok
+    ports:
+      - "8082:8080"
+
+  web:
+    image: yeguangsuixing/aichat-web:0.0.1
+    container_name: aichat-web
+    restart: always
+    depends_on:
+      - admin
+    ports:
+      - "3003:3000"
+    environment:
+      BASE_URL: http://aichat-admin:8080
+
+  console:
+    image: yeguangsuixing/aichat-console:0.0.1
+    container_name: aichat-console
+    restart: always
+    depends_on:
+      - admin
+    ports:
+      - "8033:80"
+
+
