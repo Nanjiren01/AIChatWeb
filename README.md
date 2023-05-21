@@ -12,6 +12,16 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 **This projecrt can NOT run on the vercel.**
 
+## 演示地址
+
+前台 http://8.219.162.127
+
+后台 http://8.219.162.127:8080
+账号：aichat
+密码：aichatadmin
+
+**温馨提示，由于后台开放，请勿在演示站中输入敏感信息**
+
 ## 功能（Function）
 
 1. 用户管理（User Management）（√）
