@@ -48,7 +48,7 @@ export function Profile() {
     profileStore.fetch(authStore.token).then(() => {
       console.log("dddd");
     });
-  }, []);
+  }, [profileStore, authStore]);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 

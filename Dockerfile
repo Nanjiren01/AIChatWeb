@@ -1,4 +1,4 @@
-注意：此文件正在更新中
+
 
 FROM node:18-alpine AS base
 
@@ -10,7 +10,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 
-RUN yarn config set registry 'https://registry.npmmirror.com/'
+#RUN yarn config set registry 'https://registry.npmmirror.com/'
 RUN yarn install
 
 FROM base AS builder

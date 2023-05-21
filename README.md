@@ -81,7 +81,7 @@ https://github.com/Nanjiren01/AIChatAdmin
 
 
 ## License 
-see [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git)
+本仓库是基于仓库 [Yidadaa's ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web) 的996许可证，以[MIT license](./LICENSE)的形式重新分发。
 
 
 
@@ -100,10 +100,12 @@ see [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git)
 5. 绘图功能（midjourney）
 6. 基于用户的调用频率限制  Call Rate Limit 
 7. 敏感词拦截
-8. 对接支付系统 Pay
-9. 对接发卡平台
-10. 多模型支持（Claude、Bard……）
-11. 更多惊喜 More
+8. 服务端消息保存（Chat Saved by Server）
+9. 仪表盘（新增用户数曲线图、聊天数量曲线图）Dashboard
+10. 对接支付系统 Pay
+11. 对接发卡平台
+12. 多模型支持（Claude、Bard……）
+13. 更多惊喜 More
 
 <img src="./docs/images/xingqiu.jpeg" width="500px" alt="AIChatAdmin知识星球"/>
 

@@ -58,6 +58,90 @@ const en: LocaleType = {
     DeleteToast: "Chat Deleted",
     Revert: "Revert",
   },
+  LoginPage: {
+    Title: "登录",
+    SubTitle: "登录后可跟AI交流",
+    Username: {
+      Title: "用户名",
+      SubTitle: "",
+      Placeholder: "请输入用户名",
+    },
+    Password: {
+      Title: "密码",
+      SubTitle: "",
+      Placeholder: "请输入密码",
+    },
+    Actions: {
+      Close: "关闭",
+      Login: "登录",
+      Logout: "退出登录",
+    },
+    Toast: {
+      Success: "登录成功",
+      Logining: "登录中……",
+    },
+    GoToRegister: "前往注册",
+  },
+  RegisterPage: {
+    Title: "注册",
+    SubTitle: "注册后赠送免费额度哦",
+    Name: {
+      Title: "昵称",
+      SubTitle: "",
+      Placeholder: "请输入昵称，可不填",
+    },
+    Username: {
+      Title: "用户名",
+      SubTitle: "",
+      Placeholder: "请输入用户名",
+    },
+    Password: {
+      Title: "密码",
+      SubTitle: "",
+      Placeholder: "请输入密码",
+    },
+    ConfirmedPassword: {
+      Title: "确认密码",
+      SubTitle: "",
+      Placeholder: "请再次输入密码",
+    },
+    Actions: {
+      Close: "关闭",
+    },
+    Toast: {
+      Success: "注册成功，正在前往聊天……",
+      Registering: "注册中……",
+      Failed: "注册失败！",
+      FailedWithReason: "注册失败！原因：",
+      PasswordNotTheSame: "两次输入的密码不一致！",
+      PasswordEmpty: "密码不能为空！",
+    },
+    GoToLogin: "前往登录",
+  },
+  Profile: {
+    Title: "个人中心",
+    SubTitle: "个人中心",
+    Username: "账号",
+    Tokens: {
+      Title: "tokens",
+      SubTitle: "剩余tokens数量",
+    },
+    ChatCount: {
+      Title: "询问次数",
+      SubTitle: "剩余询问次数（GPT3.5等）",
+    },
+    AdvanceChatCount: {
+      Title: "询问次数（GPT4）",
+      SubTitle: "聊天询问次数（GPT4）",
+    },
+    DrawCount: {
+      Title: "绘图次数",
+      SubTitle: "剩余绘图次数",
+    },
+    Actions: {
+      Close: "关闭",
+    },
+  },
   Settings: {
     Title: "Settings",
     SubTitle: "All Settings",
