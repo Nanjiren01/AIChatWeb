@@ -24,6 +24,7 @@ import {
 import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
 import { useMaskStore } from "../store/mask";
+import { useWebsiteConfigStore } from "../store/website";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -108,6 +109,11 @@ function Screen() {
   const location = useLocation();
   const isHome = location.pathname === Path.Home;
   const isMobileScreen = useMobileScreen();
+
+  const { fetchWebsiteConfig } = useWebsiteConfigStore();
+  useEffect(() => {
+    fetchWebsiteConfig();
+  }, [fetchWebsiteConfig]);
 
   return (
     <div

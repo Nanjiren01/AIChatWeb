@@ -15,6 +15,7 @@ import PluginIcon from "../icons/plugin.svg";
 import Locale from "../locales";
 
 import { useAppConfig, useChatStore } from "../store";
+import { useWebsiteConfigStore } from "../store/website";
 
 import {
   MAX_SIDEBAR_WIDTH,
@@ -113,6 +114,8 @@ export function SideBar(props: { className?: string }) {
 
   useHotKey();
 
+  const websiteConfigStore = useWebsiteConfigStore();
+
   return (
     <div
       className={`${styles.sidebar} ${props.className} ${
@@ -120,9 +123,11 @@ export function SideBar(props: { className?: string }) {
       }`}
     >
       <div className={styles["sidebar-header"]}>
-        <div className={styles["sidebar-title"]}>AI Chat</div>
+        <div className={styles["sidebar-title"]}>
+          {websiteConfigStore.title || "AI Chat"}
+        </div>
         <div className={styles["sidebar-sub-title"]}>
-          Build your own AI assistant.
+          {websiteConfigStore.subTitle || "Build your own AI assistant."}
         </div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
           <ChatGptIcon />
