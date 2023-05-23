@@ -2,13 +2,14 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { StoreKey } from "../constant";
 import { requestLogin } from "../requests";
-import { requestRegister } from "../requests";
+import { requestRegister, requestSendEmailCode } from "../requests";
 
 export interface AuthStore {
   token: string;
   username: string;
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
+  sendEmailCode: (email: string) => Promise<any>;
   register: (name: string, username: string, password: string) => Promise<any>;
 }
 
@@ -44,6 +45,14 @@ export const useAuthStore = create<AuthStore>()(
           username: "",
           token: "",
         }));
+      },
+      async sendEmailCode(email) {
+        let result = await requestSendEmailCode(email, {
+          onError: (err) => {
+            console.error(err);
+          },
+        });
+        return result;
       },
       async register(name, username, password) {
         let result = await requestRegister(name, username, password, {

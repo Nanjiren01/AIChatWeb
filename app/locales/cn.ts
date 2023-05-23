@@ -87,6 +87,16 @@ const cn = {
       SubTitle: "",
       Placeholder: "请输入昵称，可不填",
     },
+    Email: {
+      Title: "邮箱",
+      SubTitle: "",
+      Placeholder: "请输入邮箱",
+    },
+    EmailCode: {
+      Title: "验证码",
+      SubTitle: "系统将向您邮箱发送的验证码",
+      Placeholder: "请输入验证码",
+    },
     Username: {
       Title: "用户名",
       SubTitle: "",
@@ -114,6 +124,12 @@ const cn = {
       PasswordEmpty: "密码不能为空！",
     },
     GoToLogin: "前往登录",
+    SendEmailCode: "发送验证码",
+    EmailCodeSending: "验证码发送中",
+    EmailCodeSent: "验证码已发送，请查看邮箱",
+    EmailIsEmpty: "请输入邮箱",
+    EmailCodeSentFrequently: "验证码发送过于频繁，请稍后再试",
+    EmailFormatError: "邮箱格式不正确",
   },
   Profile: {
     Title: "个人中心",

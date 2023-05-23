@@ -36,9 +36,38 @@ export function Register() {
   }, []);
 
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailCode, setEmailCode] = useState("");
+  const [emailCodeSending, setEmailCodeSending] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [comfirmedPassword, setComfirmedPassword] = useState("");
+  function handleClickSendEmailCode() {
+    if (email === null || email == "") {
+      showToast(Locale.RegisterPage.EmailIsEmpty);
+      return;
+    }
+    setEmailCodeSending(true);
+    authStore
+      .sendEmailCode(email)
+      .then((resp) => {
+        if (resp.code == 0) {
+          showToast(Locale.RegisterPage.EmailCodeSent);
+          return;
+        }
+        if (resp.code == 10121) {
+          showToast(Locale.RegisterPage.EmailFormatError);
+          return;
+        } else if (resp.code == 10122) {
+          showToast(Locale.RegisterPage.EmailCodeSentFrequently);
+          return;
+        }
+        showToast(resp.message);
+      })
+      .finally(() => {
+        setEmailCodeSending(false);
+      });
+  }
   function register() {
     if (password == null || password.length == 0) {
       showToast(Locale.RegisterPage.Toast.PasswordEmpty);
@@ -115,9 +144,47 @@ export function Register() {
           </ListItem>
 
           <ListItem
-            title={Locale.RegisterPage.Username.Title}
-            subTitle={Locale.RegisterPage.Username.SubTitle}
+            title={Locale.RegisterPage.Email.Title}
+            subTitle={Locale.RegisterPage.Email.SubTitle}
           >
+            <Input
+              value={email}
+              rows={1}
+              placeholder={Locale.RegisterPage.Email.Placeholder}
+              onChange={(e) => {
+                setEmail(e.currentTarget.value);
+              }}
+            />
+          </ListItem>
+
+          <ListItem>
+            <IconButton
+              text={
+                emailCodeSending
+                  ? Locale.RegisterPage.EmailCodeSending
+                  : Locale.RegisterPage.SendEmailCode
+              }
+              onClick={() => {
+                handleClickSendEmailCode();
+              }}
+            />
+          </ListItem>
+
+          <ListItem
+            title={Locale.RegisterPage.EmailCode.Title}
+            subTitle={Locale.RegisterPage.EmailCode.SubTitle}
+          >
+            <Input
+              value={emailCode}
+              rows={1}
+              placeholder={Locale.RegisterPage.EmailCode.Placeholder}
+              onChange={(e) => {
+                setEmailCode(e.currentTarget.value);
+              }}
+            />
+          </ListItem>
+
+          <ListItem subTitle={Locale.RegisterPage.Username.SubTitle}>
             <Input
               value={username}
               rows={1}

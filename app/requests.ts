@@ -285,6 +285,65 @@ export async function requestRegister(
   }
 }
 
+export async function requestSendEmailCode(
+  email: string,
+  options?: {
+    onError: (error: Error, statusCode?: number) => void;
+  },
+): Promise<RegisterResult> {
+  //const openaiUrl = useAccessStore.getState().openaiUrl;
+  try {
+    const res = await fetch("/api/sendRegisterEmailCode", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", //,
+        //...getHeaders(),
+      },
+      body: JSON.stringify({ email }), //,
+      //signal: controller.signal,
+    });
+    if (res.status == 200) {
+      let json: RegisterResponse;
+      try {
+        json = (await res.json()) as RegisterResponse;
+      } catch (e) {
+        console.error("json formatting failure", e);
+        options?.onError({
+          name: "json formatting failure",
+          message: "json formatting failure",
+        });
+        return {
+          code: -1,
+          message: "json formatting failure",
+        };
+      }
+      if (json.code != 0) {
+        options?.onError({
+          name: json.message,
+          message: json.message,
+        });
+      }
+      return json;
+    }
+    console.error("register result error(2)", res);
+    options?.onError({
+      name: "unknown error",
+      message: "unknown error",
+    });
+    return {
+      code: -1,
+      message: "unknown error",
+    };
+  } catch (err) {
+    console.error("NetWork Error", err);
+    options?.onError(err as Error);
+    return {
+      code: -1,
+      message: "NetWork Error",
+    };
+  }
+}
+
 export async function requestChatStream(
   messages: Message[],
   options?: {
