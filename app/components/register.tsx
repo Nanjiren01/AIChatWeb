@@ -6,7 +6,7 @@ import CloseIcon from "../icons/close.svg";
 import { Input, List, ListItem, PasswordInput } from "./ui-lib";
 
 import { IconButton } from "./button";
-import { useAuthStore, useAccessStore } from "../store";
+import { useAuthStore, useAccessStore, useWebsiteConfigStore } from "../store";
 
 import Locale from "../locales";
 import { Path } from "../constant";
@@ -18,6 +18,7 @@ export function Register() {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
+  const { registerPageSubTitle } = useWebsiteConfigStore();
 
   const [loadingUsage, setLoadingUsage] = useState(false);
 
@@ -84,9 +85,7 @@ export function Register() {
           <div className="window-header-main-title">
             {Locale.RegisterPage.Title}
           </div>
-          <div className="window-header-sub-title">
-            {Locale.RegisterPage.SubTitle}
-          </div>
+          <div className="window-header-sub-title">{registerPageSubTitle}</div>
         </div>
         <div className="window-actions">
           <div className="window-action-button">

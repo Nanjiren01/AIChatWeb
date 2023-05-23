@@ -6,7 +6,7 @@ import CloseIcon from "../icons/close.svg";
 import { Input, List, ListItem, Modal, PasswordInput } from "./ui-lib";
 
 import { IconButton } from "./button";
-import { useAuthStore, useAccessStore } from "../store";
+import { useAuthStore, useAccessStore, useWebsiteConfigStore } from "../store";
 
 import Locale from "../locales";
 import { Path } from "../constant";
@@ -18,6 +18,7 @@ export function Login() {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
+  const { loginPageSubTitle } = useWebsiteConfigStore();
 
   const [loadingUsage, setLoadingUsage] = useState(false);
 
@@ -66,9 +67,7 @@ export function Login() {
           <div className="window-header-main-title">
             {Locale.LoginPage.Title}
           </div>
-          <div className="window-header-sub-title">
-            {Locale.LoginPage.SubTitle}
-          </div>
+          <div className="window-header-sub-title">{loginPageSubTitle}</div>
         </div>
         <div className="window-actions">
           <div className="window-action-button">

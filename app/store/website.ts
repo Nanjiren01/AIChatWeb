@@ -5,12 +5,16 @@ import { StoreKey } from "../constant";
 export interface WebsiteConfigStore {
   title: string;
   subTitle: string;
+  loginPageSubTitle: string;
+  registerPageSubTitle: string;
   fetchWebsiteConfig: () => Promise<any>;
 }
 
 export interface WebsiteConfig {
   title: string;
   subTitle: string;
+  loginPageSubTitle: string;
+  registerPageSubTitle: string;
 }
 export interface WebsiteConfigData {
   websiteContent: WebsiteConfig;
@@ -24,6 +28,8 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
     (set, get) => ({
       title: "",
       subTitle: "",
+      loginPageSubTitle: "",
+      registerPageSubTitle: "",
 
       async fetchWebsiteConfig() {
         return fetch("/api/globalConfig/website", {
@@ -36,6 +42,8 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
             set(() => ({
               title: website.title,
               subTitle: website.subTitle,
+              loginPageSubTitle: website.loginPageSubTitle,
+              registerPageSubTitle: website.registerPageSubTitle,
             }));
             return res;
           })
