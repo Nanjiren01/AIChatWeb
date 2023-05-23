@@ -35,7 +35,7 @@ services:
     depends_on:
       - admin
     ports:
-      - "3003:3000"
+      - "80:3000"
     environment:
       BASE_URL: http://aichat-admin:8080
 
@@ -46,5 +46,5 @@ services:
     depends_on:
       - admin
     ports:
-      - "8033:80"
+      - "8080:80"
 
