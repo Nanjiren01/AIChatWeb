@@ -2,7 +2,7 @@ version: '3'
 
 services:
   db:
-    image: nanjiren01/aichat-db:0.0.1
+    image: nanjiren01/aichat-db
     container_name: aichat-db
     restart: always
     environment:
@@ -13,7 +13,7 @@ services:
     - ./mysql_data:/var/lib/mysql
 
   admin:
-    image: nanjiren01/aichat-admin:0.0.1
+    image: nanjiren01/aichat-admin
     container_name: aichat-admin
     restart: always
     depends_on:
@@ -29,7 +29,7 @@ services:
       - "8082:8080"
 
   web:
-    image: nanjiren01/aichat-web:0.0.1
+    image: nanjiren01/aichat-web
     container_name: aichat-web
     restart: always
     depends_on:
@@ -40,7 +40,7 @@ services:
       BASE_URL: http://aichat-admin:8080
 
   console:
-    image: nanjiren01/aichat-console:0.0.1
+    image: nanjiren01/aichat-console
     container_name: aichat-console
     restart: always
     depends_on:
