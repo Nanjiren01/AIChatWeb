@@ -2,6 +2,7 @@
 <img src="./docs/images/icon.svg" alt="预览"/>
 
 <h1 align="center">AI Chat Web</h1>
+<a href="#一键部署">一键部署</a>
 </div>
 
 Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), this repository added some magic functions, like login, register...
@@ -88,7 +89,44 @@ https://github.com/Nanjiren01/AIChatConsole
 
 https://github.com/Nanjiren01/AIChatAdmin
 
+## 一键部署
 
+1. 在云厂商购买一台合适配置的服务器，操作系统选择CentOS 7.9（其他版本未测试）
+2. 在安全组中放行80端口和8080端口
+3. 连接云服务器，在命令行中运行以下代码
+
+```shell
+bash < (curl -s https://raw.githubusercontent.com/Nanjiren01/AIChatWeb/main/scripts/setup.sh)
+```
+
+命令运行过程中，需要输入超级管理员的账号和密码，如下所示：
+
+```text
+Please input the super admin username. 
+Only letters and numbers are supported, the length should between 6 and 20, and they cannot start with a number.
+Username: aichat888
+Super Admin Username is valid.
+Please input the super admin password. 
+Only letters and numbers are supported, and the length should between 6 and 20. 
+You can change it on the web page after the Application running
+Password: aichat888
+Super Admin Password is valid.
+```
+
+当出现以下提示，说明部署成功
+
+```shell
+[+] Running 5/5
+ ✔ Network root_default      Created
+ ✔ Container aichat-db       Started
+ ✔ Container aichat-admin    Started
+ ✔ Container aichat-console  Started
+ ✔ Container aichat-web      Started         
+```
+
+稍等几秒钟应用初始化，即可打开http://IP访问前台页面，打开http://IP:8080访问后台服务。
+
+由于在命令行中设定的密码较为简单（只包含字母和数字），建议应用启动后，尽快进入后台修改超管密码。
 
 ## License 
 本仓库是基于仓库 [Yidadaa's ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web) 的996许可证，以[MIT license](./LICENSE)的形式重新分发。
