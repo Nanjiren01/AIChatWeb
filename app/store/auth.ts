@@ -10,7 +10,13 @@ export interface AuthStore {
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
   sendEmailCode: (email: string) => Promise<any>;
-  register: (name: string, username: string, password: string) => Promise<any>;
+  register: (
+    name: string,
+    username: string,
+    password: string,
+    captchaId: string,
+    captchaInput: string,
+  ) => Promise<any>;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -54,12 +60,19 @@ export const useAuthStore = create<AuthStore>()(
         });
         return result;
       },
-      async register(name, username, password) {
-        let result = await requestRegister(name, username, password, {
-          onError: (err) => {
-            console.error(err);
+      async register(name, username, password, captchaId, captchaInput) {
+        let result = await requestRegister(
+          name,
+          username,
+          password,
+          captchaId,
+          captchaInput,
+          {
+            onError: (err) => {
+              console.error(err);
+            },
           },
-        });
+        );
         console.log("result", result);
         if (result && result.code == 0) {
           set(() => ({

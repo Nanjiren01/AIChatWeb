@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 import styles from "./register.module.scss";
 
@@ -18,9 +19,15 @@ export function Register() {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
-  const { registerPageSubTitle } = useWebsiteConfigStore();
+  const { registerPageSubTitle, registerTypes } = useWebsiteConfigStore();
+  const registerType = registerTypes[0];
+  const REG_TYPE_ONLY_USERNAME = "OnlyUsername";
+  const REG_TYPE_USERNAME_WITH_CAPTCHA = "OnlyUsernameWithCaptcha";
+  const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
+    "UsernameAndEmailWithCaptchaAndCode";
 
   const [loadingUsage, setLoadingUsage] = useState(false);
+  const [captcha, setCaptcha] = useState("");
 
   useEffect(() => {
     const keydownEvent = (e: KeyboardEvent) => {
@@ -35,6 +42,20 @@ export function Register() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  function generateUUID() {
+    var d = new Date().getTime();
+    var uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        var r = (d + Math.random() * 16) % 16 | 0;
+        d = Math.floor(d / 16);
+        return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
+      },
+    );
+    return uuid;
+  }
+
+  const [captchaId] = useState("register-" + generateUUID());
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [emailCode, setEmailCode] = useState("");
@@ -42,6 +63,7 @@ export function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [comfirmedPassword, setComfirmedPassword] = useState("");
+  const [captchaInput, setCaptchaInput] = useState("");
   function handleClickSendEmailCode() {
     if (email === null || email == "") {
       showToast(Locale.RegisterPage.EmailIsEmpty);
@@ -73,16 +95,40 @@ export function Register() {
       showToast(Locale.RegisterPage.Toast.PasswordEmpty);
       return;
     }
-    if (password != comfirmedPassword) {
-      // alert("两次输入的密码不一致！");
-      showToast(Locale.RegisterPage.Toast.PasswordNotTheSame);
-      return;
+    if (
+      registerType == REG_TYPE_ONLY_USERNAME ||
+      registerType == REG_TYPE_USERNAME_WITH_CAPTCHA
+    ) {
+      if (password != comfirmedPassword) {
+        // alert("两次输入的密码不一致！");
+        showToast(Locale.RegisterPage.Toast.PasswordNotTheSame);
+        return;
+      }
+      if (registerType == REG_TYPE_USERNAME_WITH_CAPTCHA) {
+        if (captchaInput === null || captchaInput.length === 0) {
+          showToast(Locale.RegisterPage.CaptchaIsEmpty);
+          return;
+        } else if (captchaInput.length !== 4) {
+          showToast(Locale.RegisterPage.CaptchaLengthError);
+          return;
+        }
+      }
+    } else if (
+      registerType == REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE
+    ) {
+      if (email === null || email == "") {
+        showToast(Locale.RegisterPage.EmailIsEmpty);
+        return;
+      }
+      if (emailCode === null || emailCode === "") {
+        showToast(Locale.RegisterPage.EmailCodeEmpty);
+        return;
+      }
     }
-    // if (username.length <)
     setLoadingUsage(true);
     showToast(Locale.RegisterPage.Toast.Registering);
     authStore
-      .register(name, username, password)
+      .register(name, username, password, captchaId, captchaInput)
       .then((result) => {
         console.log("result", result);
         if (!result) {
@@ -106,6 +152,22 @@ export function Register() {
         setLoadingUsage(false);
       });
   }
+  function getRegisterCaptcha(captchaId: string) {
+    // console.log('getRegisterCaptcha', captchaId)
+    fetch("/api/getRegisterCaptcha?captchaId=" + captchaId, {
+      method: "get",
+    }).then(async (resp) => {
+      const result = await resp.json();
+      if (result.code != 0) {
+        showToast(result.message);
+      } else {
+        setCaptcha("data:image/jpg;base64," + result.data);
+      }
+    });
+  }
+  useEffect(() => {
+    getRegisterCaptcha(captchaId);
+  }, [captchaId]);
 
   return (
     <ErrorBoundary>
@@ -143,48 +205,58 @@ export function Register() {
             />
           </ListItem>
 
+          {registerType ===
+          REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE ? (
+            <>
+              <ListItem
+                title={Locale.RegisterPage.Email.Title}
+                subTitle={Locale.RegisterPage.Email.SubTitle}
+              >
+                <Input
+                  value={email}
+                  rows={1}
+                  placeholder={Locale.RegisterPage.Email.Placeholder}
+                  onChange={(e) => {
+                    setEmail(e.currentTarget.value);
+                  }}
+                />
+              </ListItem>
+
+              <ListItem>
+                <IconButton
+                  text={
+                    emailCodeSending
+                      ? Locale.RegisterPage.EmailCodeSending
+                      : Locale.RegisterPage.SendEmailCode
+                  }
+                  onClick={() => {
+                    handleClickSendEmailCode();
+                  }}
+                />
+              </ListItem>
+
+              <ListItem
+                title={Locale.RegisterPage.EmailCode.Title}
+                subTitle={Locale.RegisterPage.EmailCode.SubTitle}
+              >
+                <Input
+                  value={emailCode}
+                  rows={1}
+                  placeholder={Locale.RegisterPage.EmailCode.Placeholder}
+                  onChange={(e) => {
+                    setEmailCode(e.currentTarget.value);
+                  }}
+                />
+              </ListItem>
+            </>
+          ) : (
+            <></>
+          )}
+
           <ListItem
-            title={Locale.RegisterPage.Email.Title}
-            subTitle={Locale.RegisterPage.Email.SubTitle}
+            title={Locale.RegisterPage.Username.Title}
+            subTitle={Locale.RegisterPage.Username.SubTitle}
           >
-            <Input
-              value={email}
-              rows={1}
-              placeholder={Locale.RegisterPage.Email.Placeholder}
-              onChange={(e) => {
-                setEmail(e.currentTarget.value);
-              }}
-            />
-          </ListItem>
-
-          <ListItem>
-            <IconButton
-              text={
-                emailCodeSending
-                  ? Locale.RegisterPage.EmailCodeSending
-                  : Locale.RegisterPage.SendEmailCode
-              }
-              onClick={() => {
-                handleClickSendEmailCode();
-              }}
-            />
-          </ListItem>
-
-          <ListItem
-            title={Locale.RegisterPage.EmailCode.Title}
-            subTitle={Locale.RegisterPage.EmailCode.SubTitle}
-          >
-            <Input
-              value={emailCode}
-              rows={1}
-              placeholder={Locale.RegisterPage.EmailCode.Placeholder}
-              onChange={(e) => {
-                setEmailCode(e.currentTarget.value);
-              }}
-            />
-          </ListItem>
-
-          <ListItem subTitle={Locale.RegisterPage.Username.SubTitle}>
             <Input
               value={username}
               rows={1}
@@ -209,19 +281,65 @@ export function Register() {
             />
           </ListItem>
 
-          <ListItem
-            title={Locale.RegisterPage.ConfirmedPassword.Title}
-            subTitle={Locale.RegisterPage.ConfirmedPassword.SubTitle}
-          >
-            <PasswordInput
-              value={comfirmedPassword}
-              type="text"
-              placeholder={Locale.RegisterPage.ConfirmedPassword.Placeholder}
-              onChange={(e) => {
-                setComfirmedPassword(e.currentTarget.value);
-              }}
-            />
-          </ListItem>
+          {registerType == REG_TYPE_ONLY_USERNAME ||
+          registerType == REG_TYPE_USERNAME_WITH_CAPTCHA ? (
+            <>
+              <ListItem
+                title={Locale.RegisterPage.ConfirmedPassword.Title}
+                subTitle={Locale.RegisterPage.ConfirmedPassword.SubTitle}
+              >
+                <PasswordInput
+                  value={comfirmedPassword}
+                  type="text"
+                  placeholder={
+                    Locale.RegisterPage.ConfirmedPassword.Placeholder
+                  }
+                  onChange={(e) => {
+                    setComfirmedPassword(e.currentTarget.value);
+                  }}
+                />
+              </ListItem>
+            </>
+          ) : (
+            <></>
+          )}
+
+          {registerType == REG_TYPE_USERNAME_WITH_CAPTCHA ? (
+            <>
+              <ListItem title={Locale.RegisterPage.Captcha}>
+                <div>
+                  {captcha ? (
+                    <img
+                      alt={Locale.RegisterPage.Captcha}
+                      src={captcha}
+                      width="100"
+                      height="40"
+                      title={Locale.RegisterPage.CaptchaTitle}
+                      style={{ cursor: "pointer" }}
+                      onClick={(e) => getRegisterCaptcha(captchaId)}
+                    />
+                  ) : (
+                    <></>
+                  )}
+                </div>
+              </ListItem>
+              <ListItem
+                title={Locale.RegisterPage.CaptchaInput.Title}
+                subTitle={Locale.RegisterPage.CaptchaInput.SubTitle}
+              >
+                <Input
+                  value={captchaInput}
+                  rows={1}
+                  placeholder={Locale.RegisterPage.CaptchaInput.Placeholder}
+                  onChange={(e) => {
+                    setCaptchaInput(e.currentTarget.value);
+                  }}
+                />
+              </ListItem>
+            </>
+          ) : (
+            <></>
+          )}
 
           <ListItem>
             <IconButton

@@ -228,6 +228,8 @@ export async function requestRegister(
   name: string,
   username: string,
   password: string,
+  captchaId: string,
+  captchaInput: string,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
@@ -240,7 +242,13 @@ export async function requestRegister(
         "Content-Type": "application/json", //,
         //...getHeaders(),
       },
-      body: JSON.stringify({ name, username, password }), //,
+      body: JSON.stringify({
+        name,
+        username,
+        password,
+        captchaId,
+        captcha: captchaInput,
+      }), //,
       //signal: controller.signal,
     });
     if (res.status == 200) {

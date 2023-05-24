@@ -130,6 +130,16 @@ const cn = {
     EmailIsEmpty: "请输入邮箱",
     EmailCodeSentFrequently: "验证码发送过于频繁，请稍后再试",
     EmailFormatError: "邮箱格式不正确",
+    EmailCodeEmpty: "请输入邮箱验证码",
+    Captcha: "",
+    CaptchaTitle: "点击刷新验证码",
+    CaptchaIsEmpty: "请输入图形验证码",
+    CaptchaLengthError: "图形验证码长度不正确",
+    CaptchaInput: {
+      Title: "图形验证码",
+      SubTitle: "",
+      Placeholder: "请输入图中的验证码",
+    },
   },
   Profile: {
     Title: "个人中心",
