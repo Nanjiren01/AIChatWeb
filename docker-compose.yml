@@ -22,6 +22,10 @@ services:
       DEFAULT_CHAT_COUNT: 20
       DEFAULT_ADVANCED_CHAT_COUNT: 2
       DEFAULT_DRAW_COUNT: 0
+      MAIL_HOST: smtp.qq.com
+      MAIL_PORT: 25
+      MAIL_USERNAME: your-email-username
+      MAIL_PASSWORD: your-email-password
     ports:
       - "8082:8080"
 
