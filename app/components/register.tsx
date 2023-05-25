@@ -66,7 +66,7 @@ export function Register() {
   const [captchaInput, setCaptchaInput] = useState("");
   function handleClickSendEmailCode() {
     if (email === null || email == "") {
-      showToast(Locale.RegisterPage.EmailIsEmpty);
+      showToast(Locale.RegisterPage.Toast.EmailIsEmpty);
       return;
     }
     setEmailCodeSending(true);
@@ -74,14 +74,14 @@ export function Register() {
       .sendEmailCode(email)
       .then((resp) => {
         if (resp.code == 0) {
-          showToast(Locale.RegisterPage.EmailCodeSent);
+          showToast(Locale.RegisterPage.Toast.EmailCodeSent);
           return;
         }
         if (resp.code == 10121) {
-          showToast(Locale.RegisterPage.EmailFormatError);
+          showToast(Locale.RegisterPage.Toast.EmailFormatError);
           return;
         } else if (resp.code == 10122) {
-          showToast(Locale.RegisterPage.EmailCodeSentFrequently);
+          showToast(Locale.RegisterPage.Toast.EmailCodeSentFrequently);
           return;
         }
         showToast(resp.message);
@@ -100,7 +100,6 @@ export function Register() {
       registerType == REG_TYPE_USERNAME_WITH_CAPTCHA
     ) {
       if (password != comfirmedPassword) {
-        // alert("两次输入的密码不一致！");
         showToast(Locale.RegisterPage.Toast.PasswordNotTheSame);
         return;
       }
@@ -117,18 +116,26 @@ export function Register() {
       registerType == REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE
     ) {
       if (email === null || email == "") {
-        showToast(Locale.RegisterPage.EmailIsEmpty);
+        showToast(Locale.RegisterPage.Toast.EmailIsEmpty);
         return;
       }
       if (emailCode === null || emailCode === "") {
-        showToast(Locale.RegisterPage.EmailCodeEmpty);
+        showToast(Locale.RegisterPage.Toast.EmailCodeEmpty);
         return;
       }
     }
     setLoadingUsage(true);
     showToast(Locale.RegisterPage.Toast.Registering);
     authStore
-      .register(name, username, password, captchaId, captchaInput)
+      .register(
+        name,
+        username,
+        password,
+        captchaId,
+        captchaInput,
+        email,
+        emailCode,
+      )
       .then((result) => {
         console.log("result", result);
         if (!result) {
@@ -226,9 +233,10 @@ export function Register() {
                 <IconButton
                   text={
                     emailCodeSending
-                      ? Locale.RegisterPage.EmailCodeSending
-                      : Locale.RegisterPage.SendEmailCode
+                      ? Locale.RegisterPage.Toast.EmailCodeSending
+                      : Locale.RegisterPage.Toast.SendEmailCode
                   }
+                  disabled={emailCodeSending}
                   onClick={() => {
                     handleClickSendEmailCode();
                   }}

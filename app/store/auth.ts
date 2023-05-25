@@ -16,6 +16,8 @@ export interface AuthStore {
     password: string,
     captchaId: string,
     captchaInput: string,
+    email: string,
+    code: string,
   ) => Promise<any>;
 }
 
@@ -60,13 +62,23 @@ export const useAuthStore = create<AuthStore>()(
         });
         return result;
       },
-      async register(name, username, password, captchaId, captchaInput) {
+      async register(
+        name,
+        username,
+        password,
+        captchaId,
+        captchaInput,
+        email,
+        code,
+      ) {
         let result = await requestRegister(
           name,
           username,
           password,
           captchaId,
           captchaInput,
+          email,
+          code,
           {
             onError: (err) => {
               console.error(err);

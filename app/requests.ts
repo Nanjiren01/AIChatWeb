@@ -230,6 +230,8 @@ export async function requestRegister(
   password: string,
   captchaId: string,
   captchaInput: string,
+  email: string,
+  code: string,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
@@ -248,6 +250,8 @@ export async function requestRegister(
         password,
         captchaId,
         captcha: captchaInput,
+        email,
+        code,
       }), //,
       //signal: controller.signal,
     });
