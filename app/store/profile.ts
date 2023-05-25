@@ -11,7 +11,7 @@ export interface ProfileStore {
   advanceChatCount: number;
   drawCount: number;
 
-  fetch: (token: string) => Promise<any>;
+  fetchProfile: (token: string) => Promise<any>;
 }
 
 let fetchState = 0; // 0 not fetch, 1 fetching, 2 done
@@ -25,7 +25,7 @@ export const useProfileStore = create<ProfileStore>()(
       advanceChatCount: 0,
       drawCount: 0,
 
-      async fetch(token: string) {
+      async fetchProfile(token: string) {
         // console.log('token ', token)
         return fetch("/api/users/profile", {
           method: "get",

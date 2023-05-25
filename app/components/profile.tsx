@@ -44,11 +44,11 @@ export function Profile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const { fetchProfile } = profileStore;
+  const { token } = authStore;
   useEffect(() => {
-    profileStore.fetch(authStore.token).then(() => {
-      console.log("dddd");
-    });
-  }, [profileStore, authStore]);
+    fetchProfile(token);
+  }, [fetchProfile, token]);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
