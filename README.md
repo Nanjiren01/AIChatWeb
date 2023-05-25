@@ -23,30 +23,32 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 **温馨提示，由于后台开放，请勿在演示站中输入敏感信息**
 
-## 功能（Function）
+本项目区分社区版，及Pro版
+
+## 社区版功能 Community Function
 
 1. 用户管理（User Management）（√）
 2. 额度管理（Quota Management）（√）
 3. 注册额度赠送（√）
+3. 邮箱验证码注册，图形验证码注册（Email Register, Verification Code For Registering）（√）
+3. 网站标题及Logo定制（Customization of Website Title and Logo）
+3. 自定义敏感词拦截
+3. 基于用户的调用频率限制  Call Rate Limit 
+3. 修改密码（Change password）
+3. 绘图功能（midjourney）
 4. ...
 
 
 
-## 后续功能规划 Plan
+## Pro版功能规划 Pro Function Plan
 
-1. 修改密码（Change password）
-2. 邮箱验证码注册，图形验证码注册（Email Register, Verification Code For Registering）
-3. 网站标题和Logo定制（Customization of Website Title and Logo）
-4. 邀请机制（邀请赠送额度）（Registration Invitation Mechanism）
-5. 绘图功能（midjourney）
-6. 基于用户的调用频率限制  Call Rate Limit 
-7. 敏感词拦截
-8. 服务端消息保存（Chat Saved by Server）
-9. 仪表盘（新增用户数曲线图、聊天数量曲线图）Dashboard
-10. 对接支付系统 Pay
-11. 对接发卡平台
-12. 多模型支持（Claude、Bard……）
-13. 更多惊喜 More
+1. 邀请机制（邀请赠送额度）（Registration Invitation Mechanism）
+2. 服务端消息保存（Chat Saved by Server）
+3. 仪表盘（新增用户数曲线图、聊天数量曲线图）Dashboard
+4. 对接支付系统 Pay
+5. 对接发卡平台
+6. 多模型支持（Claude、Bard……）
+7. 更多惊喜 More
 
 
 
@@ -133,28 +135,27 @@ Super Admin Password is valid.
 
 
 
-### 本项目QQ交流群
+### 加入QQ交流群、微信群获取更多内容
 
-<img src="./docs/images/QQ.jpeg" width="400px" alt="QQ"/>
+<img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
 
+<img src="./docs/images/wechat.jpg" width="400px" alt="wechat" style="display: inline-block" />
 
+## Pro版本
 
-### 更多功能和最新资讯，请关注知识星球
+### pro版本获取，请关注知识星球
 
-1. 修改密码（Change password）
-2. 邮箱验证码注册，图形验证码注册（Email Register, Verification Code For Registering）
-3. 网站标题和Logo定制（Customization of Website Title and Logo）
-4. 邀请机制（邀请赠送额度）（Registration Invitation Mechanism）
-5. 绘图功能（midjourney）
-6. 基于用户的调用频率限制  Call Rate Limit 
-7. 敏感词拦截
-8. 服务端消息保存（Chat Saved by Server）
-9. 仪表盘（新增用户数曲线图、聊天数量曲线图）Dashboard
-10. 对接支付系统 Pay
-11. 对接发卡平台
-12. 多模型支持（Claude、Bard……）
-13. 更多惊喜 More
+### 加入知识星球，有可能获得免费定制服务
 
 <img src="./docs/images/xingqiu.jpeg" width="500px" alt="AIChatAdmin知识星球"/>
 
-随着功能的不断完善，知识星球价格逐步提升
+当前星球价格为98元，随着功能的不断完善，知识星球价格逐步提升
+
+### pro版本规划路线（从上往下逐步完成）
+
+1. 对接支付系统 Pay
+2. 邀请机制（邀请赠送额度）
+3. 仪表盘（新增用户数曲线图、聊天数量曲线图）
+4. 对接发卡平台
+5. 服务端消息保存（Chat Saved by Server）
+6. 多模型支持（Claude、Bard……）
