@@ -25,30 +25,34 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 本项目区分社区版，及Pro版
 
-## 社区版功能 Community Function
+## 社区版功能 AIChat Community Function
 
-1. 用户管理（User Management）（√）
-2. 额度管理（Quota Management）（√）
-3. 注册额度赠送（√）
-3. 邮箱验证码注册，图形验证码注册（Email Register, Verification Code For Registering）（√）
-3. 网站标题及Logo定制（Customization of Website Title and Logo）
-3. 自定义敏感词拦截
-3. 基于用户的调用频率限制  Call Rate Limit 
-3. 修改密码（Change password）
-3. 绘图功能（midjourney）
-4. ...
+| 功能                                                      | 进度 |
+| --------------------------------------------------------- | -------- |
+| 用户管理（User Management）                               |    ✔已完成     |
+| 额度管理（Quota Management）                              |    ✔已完成     |
+| 注册额度赠送（Registration limit gift）                   |    ✔已完成     |
+| 邮箱验证码注册（Email verification code registration）    |    ✔已完成     |
+| 图形验证码注册（Graphic verification code registration）  |    ✔已完成     |
+| 网站标题及Logo定制（Website Title and Logo Customization）|   进行中      |
+| 自定义敏感词拦截（Custom sensitive word interception）    |   进行中       |
+| 基于用户的调用频率限制（User based call frequency limit） |   ✔已完成       |
+| 修改密码（Change password）                               |   进行中       |
+| 绘图功能（Drawing function）                              |   进行中       |
 
 
 
-## Pro版功能规划 Pro Function Plan
+## Pro版功能 AIChat Pro Function
 
-1. 邀请机制（邀请赠送额度）（Registration Invitation Mechanism）
-2. 服务端消息保存（Chat Saved by Server）
-3. 仪表盘（新增用户数曲线图、聊天数量曲线图）Dashboard
-4. 对接支付系统 Pay
-5. 对接发卡平台
-6. 多模型支持（Claude、Bard……）
-7. 更多惊喜 More
+| 功能                                                         | 进度     |
+| ------------------------------------------------------------ | -------- |
+| 社区版的全功能（Full functionality of the community version） | ✔        |
+| 邀请机制（Invitation mechanism）                             | 进行中   |
+| 服务端消息保存（Chat Saved by Server）                       | 进行中   |
+| 仪表盘（new user count curve, chat count curve）             | 进行中   |
+| 对接支付系统（Connect to the payment system Pay）            | 进行中   |
+| 对接发卡平台（Docking with card issuing platforms）          | 进行中   |
+| 多模型支持（Multiple model support）                         | 长期进行 |
 
 
 
