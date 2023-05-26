@@ -11,7 +11,7 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 **本项目不再支持在vercel上正常运行**
 
-**This projecrt can NOT run on the vercel.**
+**This project can NOT run on the vercel.**
 
 ## 演示地址
 
