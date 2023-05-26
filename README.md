@@ -105,7 +105,7 @@ https://github.com/Nanjiren01/AIChatAdmin
 bash <(curl -s https://raw.githubusercontent.com/Nanjiren01/AIChatWeb/main/scripts/setup.sh)
 ```
 
-命令运行过程中，需要输入超级管理员的账号和密码，如下所示：
+命令运行过程中，需要设置超级管理员的账号和密码（请将aichat888更改为自己的账号密码并牢记），如下所示：
 
 ```text
 Please input the super admin username. 
