@@ -3,6 +3,8 @@
 
 <h1 align="center">AI Chat Web</h1>
 <a href="#一键部署">一键部署</a>
+·
+<a href="https://www.nanjiren.online" target="_blank">官 网</a>
 </div>
 
 Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), this repository added some magic functions, like login, register...
