@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" style="margin-bottom: 10px;">
 <img src="./docs/images/icon.svg" alt="预览"/>
 
 <h1 align="center">AI Chat Web</h1>
