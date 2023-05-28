@@ -17,7 +17,7 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 前台 http://chat.nanjiren.online
 
-后台 http://chat.nanjiren.online:8080
+后台 http://admin.nanjiren.online
 账号：aichat
 密码：aichatadmin
 
