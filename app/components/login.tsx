@@ -70,6 +70,7 @@ export function Login() {
               <Input
                 value={username}
                 rows={1}
+                placeholder={Locale.LoginPage.Username.Placeholder}
                 onChange={(e) => {
                   setUsername(e.currentTarget.value);
                 }}

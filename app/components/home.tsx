@@ -27,6 +27,7 @@ import { useMaskStore } from "../store/mask";
 import { useWebsiteConfigStore } from "../store/website";
 
 import { LoginPage } from "./LoginPage";
+import { RegisterPage } from "./RegisterPage";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -139,7 +140,8 @@ function Screen() {
           <Route path={Path.Settings} element={<Settings />} />
           {/* <Route path={Path.Login} element={<Login />} /> */}
           <Route path={Path.Login} element={<LoginPage />} />
-          <Route path={Path.Register} element={<Register />} />
+          {/* <Route path={Path.Register} element={<Register />} /> */}
+          <Route path={Path.Register} element={<RegisterPage />} />
           <Route path={Path.Profile} element={<Profile />} />
         </Routes>
       </div>

@@ -85,7 +85,7 @@ const cn = {
     Name: {
       Title: "昵称",
       SubTitle: "",
-      Placeholder: "请输入昵称，可不填",
+      Placeholder: "请输入昵称（可不填）",
     },
     Email: {
       Title: "邮箱",

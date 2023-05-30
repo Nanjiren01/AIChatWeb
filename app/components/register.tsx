@@ -178,25 +178,11 @@ export function Register() {
 
   return (
     <ErrorBoundary>
-      <div className="window-header">
-        <div className="window-header-title">
-          <div className="window-header-main-title">
-            {Locale.RegisterPage.Title}
-          </div>
-          <div className="window-header-sub-title">{registerPageSubTitle}</div>
-        </div>
-        <div className="window-actions">
-          <div className="window-action-button">
-            <IconButton
-              icon={<CloseIcon />}
-              onClick={() => navigate(Path.Home)}
-              bordered
-              title={Locale.RegisterPage.Actions.Close}
-            />
-          </div>
-        </div>
-      </div>
       <div className={styles["register"]}>
+        <div className="register-title">
+          <h2>{Locale.RegisterPage.Title}</h2>
+          <h3>{registerPageSubTitle}</h3>
+        </div>
         <List>
           <ListItem
             title={Locale.RegisterPage.Name.Title}
