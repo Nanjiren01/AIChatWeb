@@ -5,6 +5,7 @@ import SendWhiteIcon from "../icons/send-white.svg";
 import BrainIcon from "../icons/brain.svg";
 import RenameIcon from "../icons/rename.svg";
 import UserIcon from "../icons/user.svg";
+import CartIcon from "../icons/cart-outline.svg";
 import ExportIcon from "../icons/share.svg";
 import ReturnIcon from "../icons/return.svg";
 import CopyIcon from "../icons/copy.svg";
@@ -646,6 +647,13 @@ export function Chat() {
               bordered
               title={Locale.Chat.Actions.ChatList}
               onClick={() => navigate(Path.Home)}
+            />
+          </div>
+          <div className="window-action-button">
+            <IconButton
+              icon={<CartIcon />}
+              bordered
+              onClick={() => navigate(Path.Pricing)}
             />
           </div>
           <div className="window-action-button">

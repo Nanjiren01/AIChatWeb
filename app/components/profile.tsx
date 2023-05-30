@@ -151,6 +151,17 @@ export function Profile() {
         <List>
           <ListItem>
             <IconButton
+              text={Locale.Profile.Actions.Pricing}
+              block={true}
+              type="primary"
+              onClick={() => {
+                navigate(Path.Pricing);
+              }}
+            />
+          </ListItem>
+
+          <ListItem>
+            <IconButton
               text={Locale.LoginPage.Actions.Logout}
               block={true}
               onClick={() => {
