@@ -26,6 +26,8 @@ import { useAppConfig } from "../store/config";
 import { useMaskStore } from "../store/mask";
 import { useWebsiteConfigStore } from "../store/website";
 
+import { LoginPage } from "./LoginPage";
+
 export function Loading(props: { noLogo?: boolean }) {
   return (
     <div className={styles["loading-content"] + " no-dark"}>
@@ -135,7 +137,8 @@ function Screen() {
           <Route path={Path.Masks} element={<MaskPage />} />
           <Route path={Path.Chat} element={<Chat />} />
           <Route path={Path.Settings} element={<Settings />} />
-          <Route path={Path.Login} element={<Login />} />
+          {/* <Route path={Path.Login} element={<Login />} /> */}
+          <Route path={Path.Login} element={<LoginPage />} />
           <Route path={Path.Register} element={<Register />} />
           <Route path={Path.Profile} element={<Profile />} />
         </Routes>
