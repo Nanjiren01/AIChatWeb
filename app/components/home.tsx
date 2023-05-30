@@ -69,6 +69,7 @@ const MaskPage = dynamic(async () => (await import("./mask")).MaskPage, {
 
 export function useSwitchTheme() {
   const config = useAppConfig();
+  const useWebsiteConfig = useWebsiteConfigStore();
 
   useEffect(() => {
     document.body.classList.remove("light");
@@ -96,6 +97,10 @@ export function useSwitchTheme() {
       metaDescriptionLight?.setAttribute("content", themeColor);
     }
   }, [config.theme]);
+
+  useEffect(() => {
+    document.title = useWebsiteConfig.title || "AI Chat";
+  }, [useWebsiteConfig.title]);
 }
 
 const useHasHydrated = () => {
