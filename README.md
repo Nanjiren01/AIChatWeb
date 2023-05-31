@@ -25,6 +25,17 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 **温馨提示，由于后台开放，请勿在演示站中输入敏感信息**
 
+## 优秀案例
+
+
+### YOURS-AI
+网址：[https://junmao.shop/](https://junmao.shop/)
+用户：300+
+
+### NEU-GPT
+网址：[https://neu.zxyt.top/](https://neu.zxyt.top/)
+用户：150+
+
 本项目区分社区版，及Pro版
 
 ## 社区版功能 AIChat Community Function
