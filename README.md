@@ -8,7 +8,7 @@
 ·
 <a href="#演示地址">演示地址</a>
 ·
-<a href="#优秀案例">优秀案例</a>
+<a href="#知识星球优秀案例">优秀案例</a>
 </div>
 
 Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), this repository added some magic functions, like login, register...
