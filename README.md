@@ -5,6 +5,10 @@
 <a href="#一键部署">一键部署</a>
 ·
 <a href="https://www.nanjiren.online" target="_blank">官 网</a>
+·
+<a href="#演示地址">演示地址</a>
+·
+<a href="#优秀案例">优秀案例</a>
 </div>
 
 Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), this repository added some magic functions, like login, register...
@@ -25,16 +29,6 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 **温馨提示，由于后台开放，请勿在演示站中输入敏感信息**
 
-## 优秀案例
-
-
-### YOURS-AI
-网址：[https://junmao.shop/](https://junmao.shop/)
-用户：300+
-
-### NEU-GPT
-网址：[https://neu.zxyt.top/](https://neu.zxyt.top/)
-用户：150+
 
 本项目区分社区版，及Pro版
 
@@ -158,15 +152,26 @@ Super Admin Password is valid.
 
 <img src="./docs/images/wechat2.jpg" width="400px" alt="wechat" style="display: inline-block" />
 
-## Pro版本
+## 知识星球
 
-### pro版本获取，请关注知识星球
-
-### 加入知识星球，有可能获得免费定制服务
+加入知识星球福利
+- 免费获取AIChat pro版
+- 有可能获得免费定制服务
+- 优秀案例展示
 
 <img src="./docs/images/xingqiu.jpeg" width="500px" alt="AIChatAdmin知识星球"/>
 
 当前星球价格为98元，随着功能的不断完善，知识星球价格逐步提升
+
+## 优秀案例
+
+### YOURS-AI
+网址：[https://junmao.shop/](https://junmao.shop/)
+用户：300+
+
+### NEU-GPT
+网址：[https://neu.zxyt.top/](https://neu.zxyt.top/)
+用户：150+
 
 ### pro版本规划路线（从上往下逐步完成）
 
