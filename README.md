@@ -158,12 +158,17 @@ Super Admin Password is valid.
 - 免费获取AIChat pro版
 - 有可能获得免费定制服务
 - 优秀案例展示
+- 高级教程（包括HTTPS搭建、域名注册、服务器购买、高级套餐页制作）
+- ChatGPT高级使用手册
+- 新功能优先体验
 
-<img src="./docs/images/xingqiu.jpeg" width="500px" alt="AIChatAdmin知识星球"/>
 
 当前星球价格为98元，随着功能的不断完善，知识星球价格逐步提升
 
-## 优秀案例
+<img src="./docs/images/xingqiu.jpeg" width="500px" alt="AIChatAdmin知识星球"/>
+
+
+## 知识星球优秀案例
 
 ### YOURS-AI
 网址：[https://junmao.shop/](https://junmao.shop/)
