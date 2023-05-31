@@ -145,7 +145,7 @@ Super Admin Password is valid.
 
 <img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
 
-<img src="./docs/images/wechat.jpg" width="400px" alt="wechat" style="display: inline-block" />
+<img src="./docs/images/wechat2.jpg" width="400px" alt="wechat" style="display: inline-block" />
 
 ## Pro版本
 
