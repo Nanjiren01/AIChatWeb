@@ -1,13 +1,8 @@
 import { useState, useEffect } from "react";
-
 import styles from "./login.module.scss";
-
-import CloseIcon from "../icons/close.svg";
 import { Input, List, ListItem, Modal, PasswordInput } from "./ui-lib";
-
 import { IconButton } from "./button";
 import { useAuthStore, useAccessStore, useWebsiteConfigStore } from "../store";
-
 import Locale from "../locales";
 import { Path } from "../constant";
 import { ErrorBoundary } from "./error";
@@ -32,19 +27,16 @@ export function Login() {
     return () => {
       document.removeEventListener("keydown", keydownEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   function login() {
-    // if (username.length <)
     setLoadingUsage(true);
     showToast(Locale.LoginPage.Toast.Logining);
     authStore
       .login(username, password)
       .then((result) => {
-        console.log("result", result);
         if (result && result.code == 0) {
           showToast(Locale.LoginPage.Toast.Success);
           navigate(Path.Chat);
@@ -62,25 +54,11 @@ export function Login() {
 
   return (
     <ErrorBoundary>
-      <div className="window-header">
-        <div className="window-header-title">
-          <div className="window-header-main-title">
-            {Locale.LoginPage.Title}
-          </div>
-          <div className="window-header-sub-title">{loginPageSubTitle}</div>
-        </div>
-        <div className="window-actions">
-          <div className="window-action-button">
-            <IconButton
-              icon={<CloseIcon />}
-              onClick={() => navigate(Path.Home)}
-              bordered
-              title={Locale.LoginPage.Actions.Close}
-            />
-          </div>
-        </div>
-      </div>
       <div className={styles["login"]}>
+        <div className="login-title">
+          <h2>{Locale.LoginPage.Title}</h2>
+          <h3>{loginPageSubTitle}</h3>
+        </div>
         <List>
           <ListItem
             title={Locale.LoginPage.Username.Title}
@@ -92,15 +70,13 @@ export function Login() {
               <Input
                 value={username}
                 rows={1}
+                placeholder={Locale.LoginPage.Username.Placeholder}
                 onChange={(e) => {
                   setUsername(e.currentTarget.value);
-                  //console.log(e)
-                  //accessStore.updateCode(e.currentTarget.value);
                 }}
               />
             )}
           </ListItem>
-
           {authStore.username ? (
             <></>
           ) : (
@@ -113,14 +89,11 @@ export function Login() {
                 type="text"
                 placeholder={Locale.LoginPage.Password.Placeholder}
                 onChange={(e) => {
-                  // console.log(e)
                   setPassword(e.currentTarget.value);
-                  // accessStore.updateCode(e.currentTarget.value);
                 }}
               />
             </ListItem>
           )}
-
           <ListItem>
             <IconButton
               type="primary"
@@ -134,13 +107,11 @@ export function Login() {
                 if (authStore.username) {
                   logout();
                 } else {
-                  console.log(username, password);
                   login();
                 }
               }}
             />
           </ListItem>
-
           {authStore.username ? (
             <></>
           ) : (
