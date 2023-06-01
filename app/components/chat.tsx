@@ -413,7 +413,8 @@ export function Chat() {
   const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
-  const { chatPageSubTitle } = useWebsiteConfigStore();
+  const websiteConfigStore = useWebsiteConfigStore();
+  const { chatPageSubTitle } = websiteConfigStore;
   const navigate = useNavigate();
 
   const authStore = useAuthStore();
@@ -490,7 +491,9 @@ export function Chat() {
   const doSubmit = (userInput: string) => {
     if (userInput.trim() === "") return;
     setIsLoading(true);
-    chatStore.onUserInput(userInput).then(() => setIsLoading(false));
+    chatStore
+      .onUserInput(userInput, websiteConfigStore)
+      .then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUserInput("");
     setPromptHints([]);
@@ -559,7 +562,9 @@ export function Chat() {
     setIsLoading(true);
     const content = session.messages[userIndex].content;
     deleteMessage(userIndex);
-    chatStore.onUserInput(content).then(() => setIsLoading(false));
+    chatStore
+      .onUserInput(content, websiteConfigStore)
+      .then(() => setIsLoading(false));
     inputRef.current?.focus();
   };
 

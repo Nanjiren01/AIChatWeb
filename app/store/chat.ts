@@ -14,6 +14,7 @@ import { showToast } from "../components/ui-lib";
 import { ModelType } from "./config";
 import { createEmptyMask, Mask } from "./mask";
 import { StoreKey } from "../constant";
+import { WebsiteConfigStore } from "./website";
 
 export type Message = ChatCompletionResponseMessage & {
   date: string;
@@ -89,7 +90,10 @@ interface ChatStore {
   deleteSession: (index: number) => void;
   currentSession: () => ChatSession;
   onNewMessage: (message: Message) => void;
-  onUserInput: (content: string) => Promise<void>;
+  onUserInput: (
+    content: string,
+    websiteConfigStore: WebsiteConfigStore,
+  ) => Promise<void>;
   summarizeSession: () => void;
   updateStat: (message: Message) => void;
   updateCurrentSession: (updater: (session: ChatSession) => void) => void;
@@ -236,9 +240,10 @@ export const useChatStore = create<ChatStore>()(
         get().summarizeSession();
       },
 
-      async onUserInput(content) {
+      async onUserInput(content, websiteConfigStore) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
+        const sensitiveWordsTip = websiteConfigStore.sensitiveWordsTip;
 
         const userMessage: Message = createMessage({
           role: "user",
@@ -286,7 +291,12 @@ export const useChatStore = create<ChatStore>()(
                 console.log("jsonContent", jsonContent);
                 if (jsonContent && jsonContent.code === 10302) {
                   // 敏感词判断
-                  content = Locale.Chat.SensitiveWordsTip(jsonContent.message);
+                  content = sensitiveWordsTip
+                    ? sensitiveWordsTip.replace(
+                        "${question}",
+                        jsonContent.message,
+                      )
+                    : Locale.Chat.SensitiveWordsTip(jsonContent.message);
                 } else if (jsonContent && jsonContent.code === 10401) {
                   content = Locale.Chat.BalanceNotEnough;
                 } else if (
