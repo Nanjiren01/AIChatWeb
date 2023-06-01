@@ -282,8 +282,14 @@ export const useChatStore = create<ChatStore>()(
             // stream response
             if (done) {
               try {
-                const jsonContent = JSON.parse(content);
-                if (
+                let jsonContent = JSON.parse(content);
+                console.log("jsonContent", jsonContent);
+                if (jsonContent && jsonContent.code === 10302) {
+                  // 敏感词判断
+                  content = Locale.Chat.SensitiveWordsTip(jsonContent.message);
+                } else if (jsonContent && jsonContent.code === 10401) {
+                  content = Locale.Chat.BalanceNotEnough;
+                } else if (
                   jsonContent &&
                   jsonContent.code > 10000 &&
                   jsonContent.code < 10100
