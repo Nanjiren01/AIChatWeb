@@ -11,6 +11,7 @@ export interface WebsiteConfigStore {
   pricingPageSubTitle: string;
   chatPageSubTitle: string;
   sensitiveWordsTip: string;
+  balanceNotEnough: string;
   registerTypes: string[];
   fetchWebsiteConfig: () => Promise<any>;
 }
@@ -25,6 +26,7 @@ export interface WebsiteConfig {
   pricingPageSubTitle: string;
   chatPageSubTitle: string;
   sensitiveWordsTip: string;
+  balanceNotEnough: string;
 }
 export interface WebsiteConfigData {
   websiteContent: WebsiteConfig;
@@ -45,6 +47,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       pricingPageSubTitle: "",
       chatPageSubTitle: "",
       sensitiveWordsTip: "",
+      balanceNotEnough: "",
 
       async fetchWebsiteConfig() {
         return fetch("/api/globalConfig/website", {
@@ -67,6 +70,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               pricingPageSubTitle: website.pricingPageSubTitle,
               chatPageSubTitle: website.chatPageSubTitle,
               sensitiveWordsTip: website.sensitiveWordsTip,
+              balanceNotEnough: website.balanceNotEnough,
             }));
             return res;
           })

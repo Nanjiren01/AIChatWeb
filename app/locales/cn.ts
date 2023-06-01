@@ -23,7 +23,7 @@ const cn = {
     Typing: "正在输入…",
     SensitiveWordsTip: (question: string) =>
       `您的提问中包含敏感词：${question}`,
-    BalanceNotEnough: "您的使用额度不足，请联系管理员",
+    BalanceNotEnough: "您的额度不足，请联系管理员",
     Input: (submitKey: string) => {
       var inputHints = `${submitKey} 发送`;
       if (submitKey === String(SubmitKey.Enter)) {

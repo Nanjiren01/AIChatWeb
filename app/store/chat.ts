@@ -244,6 +244,7 @@ export const useChatStore = create<ChatStore>()(
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
         const sensitiveWordsTip = websiteConfigStore.sensitiveWordsTip;
+        const balanceNotEnough = websiteConfigStore.balanceNotEnough;
 
         const userMessage: Message = createMessage({
           role: "user",
@@ -298,7 +299,9 @@ export const useChatStore = create<ChatStore>()(
                       )
                     : Locale.Chat.SensitiveWordsTip(jsonContent.message);
                 } else if (jsonContent && jsonContent.code === 10401) {
-                  content = Locale.Chat.BalanceNotEnough;
+                  content = balanceNotEnough
+                    ? balanceNotEnough
+                    : Locale.Chat.BalanceNotEnough;
                 } else if (
                   jsonContent &&
                   jsonContent.code > 10000 &&
