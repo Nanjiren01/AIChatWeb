@@ -1,8 +1,14 @@
-<div align="center">
+<div align="center" style="margin-bottom: 10px;">
 <img src="./docs/images/icon.svg" alt="预览"/>
 
 <h1 align="center">AI Chat Web</h1>
 <a href="#一键部署">一键部署</a>
+·
+<a href="https://www.nanjiren.online" target="_blank">官 网</a>
+·
+<a href="#演示地址">演示地址</a>
+·
+<a href="#知识星球优秀案例">优秀案例</a>
 </div>
 
 Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), this repository added some magic functions, like login, register...
@@ -17,11 +23,12 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 前台 http://chat.nanjiren.online
 
-后台 http://chat.nanjiren.online:8080
+后台 http://admin.nanjiren.online
 账号：aichat
 密码：aichatadmin
 
 **温馨提示，由于后台开放，请勿在演示站中输入敏感信息**
+
 
 本项目区分社区版，及Pro版
 
@@ -143,17 +150,33 @@ Super Admin Password is valid.
 
 <img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
 
-<img src="./docs/images/wechat.jpg" width="400px" alt="wechat" style="display: inline-block" />
+<img src="./docs/images/wechat2.jpg" width="400px" alt="wechat" style="display: inline-block" />
 
-## Pro版本
+## 知识星球
 
-### pro版本获取，请关注知识星球
+加入知识星球福利
+- 免费获取AIChat pro版
+- 有可能获得免费定制服务
+- 优秀案例展示
+- 高级教程（包括HTTPS搭建、域名注册、服务器购买、高级套餐页制作）
+- ChatGPT高级使用手册
+- 新功能优先体验
 
-### 加入知识星球，有可能获得免费定制服务
+
+当前星球价格为98元，随着功能的不断完善，知识星球价格逐步提升
 
 <img src="./docs/images/xingqiu.jpeg" width="500px" alt="AIChatAdmin知识星球"/>
 
-当前星球价格为98元，随着功能的不断完善，知识星球价格逐步提升
+
+## 知识星球优秀案例
+
+### YOURS-AI
+网址：[https://junmao.shop/](https://junmao.shop/)
+用户：300+
+
+### NEU-GPT
+网址：[https://neu.zxyt.top/](https://neu.zxyt.top/)
+用户：150+
 
 ### pro版本规划路线（从上往下逐步完成）
 
