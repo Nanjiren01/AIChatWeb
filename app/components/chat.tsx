@@ -61,6 +61,7 @@ import { Avatar } from "./emoji";
 import { MaskAvatar, MaskConfig } from "./mask";
 import { useMaskStore } from "../store/mask";
 import { useCommand } from "../command";
+import { useWebsiteConfigStore } from "../store";
 
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
@@ -412,6 +413,7 @@ export function Chat() {
   const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
+  const { chatPageSubTitle } = useWebsiteConfigStore();
   const navigate = useNavigate();
 
   const authStore = useAuthStore();
@@ -637,7 +639,12 @@ export function Chat() {
             {!session.topic ? DEFAULT_TOPIC : session.topic}
           </div>
           <div className="window-header-sub-title">
-            {Locale.Chat.SubTitle(session.messages.length)}
+            {chatPageSubTitle
+              ? chatPageSubTitle.replace(
+                  "${count}",
+                  "" + session.messages.length,
+                )
+              : Locale.Chat.SubTitle(session.messages.length)}
           </div>
         </div>
         <div className="window-actions">

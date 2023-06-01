@@ -9,6 +9,7 @@ export interface WebsiteConfigStore {
   registerPageSubTitle: string;
   pricingPageTitle: string;
   pricingPageSubTitle: string;
+  chatPageSubTitle: string;
   registerTypes: string[];
   fetchWebsiteConfig: () => Promise<any>;
 }
@@ -21,6 +22,7 @@ export interface WebsiteConfig {
   registerTypes: string[];
   pricingPageTitle: string;
   pricingPageSubTitle: string;
+  chatPageSubTitle: string;
 }
 export interface WebsiteConfigData {
   websiteContent: WebsiteConfig;
@@ -39,6 +41,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       registerTypes: [],
       pricingPageTitle: "",
       pricingPageSubTitle: "",
+      chatPageSubTitle: "",
 
       async fetchWebsiteConfig() {
         return fetch("/api/globalConfig/website", {
@@ -59,6 +62,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
                   : ["OnlyUsername"],
               pricingPageTitle: website.pricingPageTitle,
               pricingPageSubTitle: website.pricingPageSubTitle,
+              chatPageSubTitle: website.chatPageSubTitle,
             }));
             return res;
           })
