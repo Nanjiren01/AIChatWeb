@@ -58,8 +58,8 @@
 | 管理前端 | http://admin.nanjiren.online |
 
 **演示账号**
-账号：aichat
-密码：aichatadmin
+账号：`aichat`
+密码：`aichatadmin`
 
 ## 🎯 开发计划
 **社区版**
