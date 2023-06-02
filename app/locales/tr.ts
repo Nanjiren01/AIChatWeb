@@ -23,6 +23,9 @@ const tr: LocaleType = {
     },
     Rename: "Sohbeti Yeniden Adlandır",
     Typing: "Yazıyor…",
+    SensitiveWordsTip: (question: string) =>
+      `您的提问中包含敏感词：${question}`,
+    BalanceNotEnough: "您的额度不足，请联系管理员",
     Input: (submitKey: string) => {
       var inputHints = `Göndermek için ${submitKey}`;
       if (submitKey === String(SubmitKey.Enter)) {
@@ -167,7 +170,18 @@ const tr: LocaleType = {
     },
     Actions: {
       Close: "关闭",
+      Pricing: "购买套餐",
     },
+  },
+  PricingPage: {
+    Title: "充值",
+    SubTitle: "畅享与AI聊天的乐趣",
+    Actions: {
+      Close: "关闭",
+      Buy: " 购 买 ",
+    },
+    NoPackage: "暂无可用套餐",
+    ConsultAdministrator: "请咨询站长",
   },
   Settings: {
     Title: "Ayarlar",

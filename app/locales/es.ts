@@ -23,6 +23,9 @@ const es: LocaleType = {
     },
     Rename: "Renombrar chat",
     Typing: "Escribiendo...",
+    SensitiveWordsTip: (question: string) =>
+      `您的提问中包含敏感词：${question}`,
+    BalanceNotEnough: "您的额度不足，请联系管理员",
     Input: (submitKey: string) => {
       var inputHints = `Escribe algo y presiona ${submitKey} para enviar`;
       if (submitKey === String(SubmitKey.Enter)) {
@@ -167,7 +170,18 @@ const es: LocaleType = {
     },
     Actions: {
       Close: "关闭",
+      Pricing: "购买套餐",
     },
+  },
+  PricingPage: {
+    Title: "充值",
+    SubTitle: "畅享与AI聊天的乐趣",
+    Actions: {
+      Close: "关闭",
+      Buy: " 购 买 ",
+    },
+    NoPackage: "暂无可用套餐",
+    ConsultAdministrator: "请咨询站长",
   },
   Settings: {
     Title: "Configuración",
