@@ -1,3 +1,5 @@
+> **注意：本项目不再支持在vercel上进行部署**
+
 <div align="center" style="margin-bottom: 10px;">
 <img src="./docs/images/logo.svg" alt="preview"/>
 
@@ -34,8 +36,6 @@
   </table>
 
 </div>
-
-> **本项目不再支持在vercel上进行部署**
 
 ![function](./docs/images/cover.png)
 
