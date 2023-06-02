@@ -8,7 +8,7 @@
 
 **简体中文** | [**English**](./README_EN.md)
 
-**介绍：**本项目基于[ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git)开源项目进行二次开发，致力于构建完整的全链路商业团队AI平台，提供可自行部署的解决方案。
+**介绍：** 本项目基于[ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git)开源项目进行二次开发，致力于构建完整的全链路商业团队AI平台，提供可自行部署的解决方案。
 
 <table>
     <tbody>
