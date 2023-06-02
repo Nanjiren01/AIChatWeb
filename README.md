@@ -23,9 +23,6 @@
           <a href="https://www.nanjiren.online/start/deploy/">🚀 一键部署</a>
         </td>
         <td>
-          <a href="https://www.nanjiren.online/setup/update/">📚 配置文档</a>
-        </td>
-        <td>
           <a href="https://www.nanjiren.online/excellentcase/">👑 优秀案例</a>
         </td>
         <td>
