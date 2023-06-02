@@ -17,7 +17,7 @@
           <a href="https://nanjiren.online/">🌐 官方网站</a>
         </td>
         <td>
-          <a href="#演示站点">🎦 演示站点</a>
+          <a href="#🎦 演示站点">🎦 演示站点</a>
         </td>
         <td>
           <a href="https://www.nanjiren.online/start/deploy/">🚀 一键部署</a>
