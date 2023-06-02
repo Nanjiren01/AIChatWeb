@@ -17,7 +17,7 @@
           <a href="https://nanjiren.online/">🌐 官方网站</a>
         </td>
         <td>
-          <a href="https://www.nanjiren.online/start/demo/">🎦 演示站点</a>
+          <a href="#演示站点">🎦 演示站点</a>
         </td>
         <td>
           <a href="https://www.nanjiren.online/start/deploy/">🚀 一键部署</a>
@@ -50,6 +50,16 @@
 **用户管理端**
 
 ![back](./docs/images/back.png)
+
+## 🎦 演示站点
+| 类型 | 网址 |
+| ---- | ---- |
+| 用户前端 | http://chat.nanjiren.online |
+| 管理前端 | http://admin.nanjiren.online |
+
+**演示账号**
+账号：aichat
+密码：aichatadmin
 
 ## 🎯 开发计划
 **社区版**
