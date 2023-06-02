@@ -57,7 +57,8 @@
 | 用户前端 | http://chat.nanjiren.online |
 | 管理前端 | http://admin.nanjiren.online |
 
-**演示账号**
+**演示账号** 
+
 账号：`aichat`
 密码：`aichatadmin`
 
