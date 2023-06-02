@@ -29,7 +29,7 @@
           <a href="https://www.nanjiren.online/excellentcase/">👑 优秀案例</a>
         </td>
         <td>
-          <a href="https://www.nanjiren.online/excellentcase/">📝 更新日志</a>
+          <a href="https://www.nanjiren.online/updatelog/">📝 更新日志</a>
         </td>        
         <td>
           <a href="https://www.nanjiren.online/cooperation-communication/">💬 交流讨论</a>
@@ -86,20 +86,6 @@
 ## 🎮 技术栈
 
 ![web](./docs/images/tech.png)
-
-## 📒 更新日志
-**2023.6.2 - 社区版 V0.2 预览版：**
-- 管理后端仪表盘正式启用，接入“成员总数”、“聊天总数”真实数据；
-- 管理后端会员列表支持用户信息查询（支持模糊搜索）；
-- 增加卡包套餐功能，站长可自定义售卖的卡包套餐并进行用户卡包套餐管理；
-- 增加自定义模型请求路径；
-- 管理后端增加模型平台代理设置；
-- 管理后端增加平台活动管理，例如：注册增额活动配置等；
-- 邮箱配置已可在管理后端进行可视化配置；
-- 管理后端增加系统敏感词校验；
-- 管理后端支持自定义聊天及套餐窗口；
-- 系统优化及bug修复。
-[请访问官方获取更多社区版V0.2详情](https://www.nanjiren.online/updatelog/)
 
 ## 🐵 开发组
 - [@Nanjiren01](https://github.com/Nanjiren01)
