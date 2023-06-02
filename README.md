@@ -29,6 +29,9 @@
           <a href="https://www.nanjiren.online/excellentcase/">👑 优秀案例</a>
         </td>
         <td>
+          <a href="https://www.nanjiren.online/excellentcase/">📝 更新日志</a>
+        </td>        
+        <td>
           <a href="https://www.nanjiren.online/cooperation-communication/">💬 交流讨论</a>
         </td>
       </tr>
@@ -36,8 +39,6 @@
   </table>
 
 </div>
-
-![function](./docs/images/cover.png)
 
 ## 🤩 版本功能
 
