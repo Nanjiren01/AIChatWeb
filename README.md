@@ -51,6 +51,10 @@
 
 ![back](./docs/images/bag.png)
 
+**其他功能展示**
+
+![others](./docs/images/others.png)
+
 ## 🎦 演示站点
 | 类型 | 网址 |
 | ---- | ---- |
