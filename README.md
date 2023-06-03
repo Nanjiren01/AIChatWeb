@@ -34,6 +34,7 @@
       </tr>
     </tbody>
   </table>
+![function](./docs/images/preview.png)
 
 </div>
 
@@ -45,11 +46,11 @@
 
 **用户注册及管理**
 
-![web](./docs/images/reg.png)
+![reg](./docs/images/reg.png)
 
 **套餐购买及管理**
 
-![back](./docs/images/bag.png)
+![bag](./docs/images/bag.png)
 
 **其他功能展示**
 
