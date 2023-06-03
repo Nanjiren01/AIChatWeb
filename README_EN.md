@@ -43,7 +43,7 @@ This project is based on the [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatG
 
 ## 😍 Platform preview
 
-**User Registration and Management**
+**User Registration & Management**
 
 ![reg](./docs/images/reg.png)
 
