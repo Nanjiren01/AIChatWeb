@@ -34,9 +34,9 @@ This project is based on the [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatG
       </tr>
     </tbody>
   </table>
-![function](./docs/images/preview.png)
-
 </div>
+
+![preview](./docs/images/preview.png)
 
 ## 🤩 Version features
 
