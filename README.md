@@ -34,9 +34,9 @@
       </tr>
     </tbody>
   </table>
-![function](./docs/images/preview.png)
-
 </div>
+
+![preview](./docs/images/preview.png)
 
 ## 🤩 版本功能
 
