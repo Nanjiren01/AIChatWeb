@@ -39,7 +39,7 @@ This project is based on the [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatG
 
 ## 🤩 Version features
 
-![function](./docs/images/function_en.png)
+![function_en](./docs/images/function_en.png)
 
 ## 😍 Platform preview
 
@@ -61,7 +61,7 @@ This project is based on the [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatG
 | User front-end | https://chat.nanjiren.online |
 | Manage frontends | https://admin.nanjiren.online |
 
-**Demo Account** - Account: 'aichat' Password: 'aichatadmin'
+**Demo Account** - Account: `aichat` Password: `aichatadmin`
 
 ## 🎯 Development plan
 **Community Edition**
@@ -94,7 +94,7 @@ Enhanced Community Edition Full Feature Support |  ✔ Completed |
 
 ## 🎮 Technology stack
 
-![web](./docs/images/tech.png)
+![tech_en](./docs/images/tech_en.png)
 
 ## 🐵 Development team
 - [@Nanjiren01](https://github.com/Nanjiren01)

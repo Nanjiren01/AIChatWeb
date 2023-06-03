@@ -94,7 +94,7 @@
 
 ## 🎮 技术栈
 
-![web](./docs/images/tech.png)
+![tech](./docs/images/tech.png)
 
 ## 🐵 开发组
 - [@Nanjiren01](https://github.com/Nanjiren01)
