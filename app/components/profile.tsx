@@ -109,6 +109,26 @@ export function Profile() {
         </List>
 
         <List>
+          {profileStore.balances && profileStore.balances.length > 0 ? (
+            <ListItem
+              title={Locale.Profile.BalanceItem.Title}
+              subTitle={Locale.Profile.BalanceItem.SubTitle}
+            >
+              <span>
+                {profileStore.balances[0].calcType == "Total"
+                  ? Locale.Profile.BalanceItem.CalcTypes.Total
+                  : profileStore.balances[0].calcType == "Daily"
+                  ? Locale.Profile.BalanceItem.CalcTypes.Daily
+                  : profileStore.balances[0].calcType == "Hourly"
+                  ? Locale.Profile.BalanceItem.CalcTypes.Hourly
+                  : profileStore.balances[0].calcType == "ThreeHourly"
+                  ? Locale.Profile.BalanceItem.CalcTypes.ThreeHourly
+                  : ""}
+              </span>
+            </ListItem>
+          ) : (
+            <></>
+          )}
           <ListItem
             title={Locale.Profile.Tokens.Title}
             subTitle={Locale.Profile.Tokens.SubTitle}
@@ -146,6 +166,29 @@ export function Profile() {
               {profileStore.drawCount == -1 ? "无限制" : profileStore.drawCount}
             </span>
           </ListItem>
+
+          {profileStore.balances && profileStore.balances.length > 0 ? (
+            <ListItem
+              title={Locale.Profile.ExpireList.Title}
+              subTitle={Locale.Profile.ExpireList.SubTitle}
+            >
+              <span>{profileStore.balances[0].expireTime}</span>
+            </ListItem>
+          ) : (
+            <></>
+          )}
+          {profileStore.balances && profileStore.balances.length > 1 ? (
+            <ListItem>
+              <IconButton
+                text={Locale.Profile.Actions.GoToBalanceList}
+                onClick={() => {
+                  showToast(Locale.Profile.Actions.ConsultAdministrator);
+                }}
+              />
+            </ListItem>
+          ) : (
+            <></>
+          )}
         </List>
 
         <List>

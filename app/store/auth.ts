@@ -19,6 +19,7 @@ export interface AuthStore {
     email: string,
     code: string,
   ) => Promise<any>;
+  removeToken: () => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -53,6 +54,9 @@ export const useAuthStore = create<AuthStore>()(
           username: "",
           token: "",
         }));
+      },
+      removeToken() {
+        set(() => ({ token: "" }));
       },
       async sendEmailCode(email) {
         let result = await requestSendEmailCode(email, {

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { ProfileResponse } from "../api/users/[...path]/route";
+import { Balance, ProfileResponse } from "../api/users/[...path]/route";
 import { StoreKey } from "../constant";
 
 export interface ProfileStore {
@@ -10,6 +10,7 @@ export interface ProfileStore {
 
   advanceChatCount: number;
   drawCount: number;
+  balances: Balance[];
 
   fetchProfile: (token: string) => Promise<any>;
 }
@@ -24,6 +25,7 @@ export const useProfileStore = create<ProfileStore>()(
       chatCount: 0,
       advanceChatCount: 0,
       drawCount: 0,
+      balances: [],
 
       async fetchProfile(token: string) {
         // console.log('token ', token)
@@ -44,6 +46,7 @@ export const useProfileStore = create<ProfileStore>()(
               chatCount: data.chatCount,
               advanceChatCount: data.advancedChatCount,
               drawCount: data.drawCount,
+              balances: data.balances || [],
             }));
             return res;
           })

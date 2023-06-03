@@ -86,7 +86,7 @@ export function Login() {
             title={Locale.LoginPage.Username.Title}
             subTitle={Locale.LoginPage.Username.SubTitle}
           >
-            {authStore.username ? (
+            {authStore.token ? (
               <span>{authStore.username}</span>
             ) : (
               <Input
@@ -101,7 +101,7 @@ export function Login() {
             )}
           </ListItem>
 
-          {authStore.username ? (
+          {authStore.token ? (
             <></>
           ) : (
             <ListItem
@@ -125,23 +125,23 @@ export function Login() {
             <IconButton
               type="primary"
               text={
-                authStore.username
+                authStore.token
                   ? Locale.LoginPage.Actions.Logout
                   : Locale.LoginPage.Actions.Login
               }
               block={true}
               onClick={() => {
-                if (authStore.username) {
+                if (authStore.token) {
                   logout();
                 } else {
-                  console.log(username, password);
+                  // console.log(username, password);
                   login();
                 }
               }}
             />
           </ListItem>
 
-          {authStore.username ? (
+          {authStore.token ? (
             <></>
           ) : (
             <ListItem>
