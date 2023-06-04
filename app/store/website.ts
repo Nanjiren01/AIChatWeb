@@ -13,6 +13,7 @@ export interface WebsiteConfigStore {
   sensitiveWordsTip: string;
   balanceNotEnough: string;
   registerTypes: string[];
+  hideGithubIcon: boolean;
   fetchWebsiteConfig: () => Promise<any>;
 }
 
@@ -27,6 +28,7 @@ export interface WebsiteConfig {
   chatPageSubTitle: string;
   sensitiveWordsTip: string;
   balanceNotEnough: string;
+  hideGithubIcon: boolean;
 }
 export interface WebsiteConfigData {
   websiteContent: WebsiteConfig;
@@ -48,6 +50,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       chatPageSubTitle: "",
       sensitiveWordsTip: "",
       balanceNotEnough: "",
+      hideGithubIcon: false,
 
       async fetchWebsiteConfig() {
         return fetch("/api/globalConfig/website", {
@@ -71,6 +74,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               chatPageSubTitle: website.chatPageSubTitle,
               sensitiveWordsTip: website.sensitiveWordsTip,
               balanceNotEnough: website.balanceNotEnough,
+              hideGithubIcon: website.hideGithubIcon,
             }));
             return res;
           })
