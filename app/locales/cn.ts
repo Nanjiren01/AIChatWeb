@@ -76,6 +76,7 @@ const cn = {
     DeleteChat: "确认删除选中的对话？",
     DeleteToast: "已删除会话",
     Revert: "撤销",
+    NoNotice: "暂无公告",
   },
   LoginPage: {
     Title: "登录",

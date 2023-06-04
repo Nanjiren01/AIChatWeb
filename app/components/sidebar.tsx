@@ -5,6 +5,7 @@ import styles from "./home.module.scss";
 import { IconButton } from "./button";
 import SettingsIcon from "../icons/settings.svg";
 import GithubIcon from "../icons/github.svg";
+import BookOpenIcon from "../icons/book-open.svg";
 import LoginIcon from "../icons/login.svg";
 import ChatGptIcon from "../icons/chatgpt.svg";
 import AddIcon from "../icons/add.svg";
@@ -180,9 +181,18 @@ export function SideBar(props: { className?: string }) {
             </Link>
           </div>
           <div className={styles["sidebar-action"]}>
-            <Link to={Path.Login}>
-              <IconButton icon={<LoginIcon />} shadow />
-            </Link>
+            <IconButton
+              icon={<BookOpenIcon />}
+              onClick={() => {
+                showToast(Locale.Home.NoNotice);
+              }}
+              shadow
+            />
+          </div>
+          <div className={styles["sidebar-action"]}>
+            <a href={REPO_URL} target="_blank">
+              <IconButton icon={<GithubIcon />} shadow />
+            </a>
           </div>
         </div>
         <div>
