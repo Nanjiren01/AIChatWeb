@@ -10,9 +10,9 @@ import {
 import { prettyObject } from "@/app/utils/format";
 
 export class ChatGPTApi implements LLMApi {
-  public ChatPath = "v1/chat/completions";
-  public UsagePath = "dashboard/billing/usage";
-  public SubsPath = "dashboard/billing/subscription";
+  public ChatPath = "chatgpt/v1/chat/completions";
+  public UsagePath = "chatgpt/dashboard/billing/usage";
+  public SubsPath = "chatgpt/dashboard/billing/subscription";
 
   path(path: string): string {
     let openaiUrl = useAccessStore.getState().openaiUrl;
@@ -106,10 +106,13 @@ export class ChatGPTApi implements LLMApi {
             ) {
               const responseTexts = [responseText];
               let extraInfo = await res.clone().text();
-              try {
-                const resJson = await res.clone().json();
-                extraInfo = prettyObject(resJson);
-              } catch {}
+              // console.log('extraInfo', extraInfo)
+              // try {
+              //   const resJson = await res.clone().json();
+              //   console.log('resJson', resJson)
+              //   extraInfo = prettyObject(resJson);
+              //   console.log('extraInfo', extraInfo)
+              // } catch {}
 
               if (res.status === 401) {
                 responseTexts.push(Locale.Error.Unauthorized);

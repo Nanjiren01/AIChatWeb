@@ -311,6 +311,8 @@ export const useChatStore = create<ChatStore>()(
                   message = balanceNotEnough
                     ? balanceNotEnough
                     : Locale.Chat.BalanceNotEnough;
+                } else {
+                  message = prettyObject(jsonContent);
                 }
               } catch (e) {
                 // ignore
