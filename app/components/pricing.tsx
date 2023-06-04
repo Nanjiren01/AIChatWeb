@@ -41,7 +41,9 @@ export function Pricing() {
   const { pricingPageTitle, pricingPageSubTitle } = useWebsiteConfigStore();
 
   const [packages, setPackages] = useState([] as Package[]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
+    setLoading(true);
     fetch("/api/package/onSales", {
       method: "get",
       headers: {
@@ -66,16 +68,27 @@ export function Pricing() {
               }[pkg.calcTypeId];
               pkg.subTitle =
                 `<ul style="margin-top: 5px;padding-inline-start: 10px;">` +
-                `<li>${prefix} <span style="font-size: 18px;">${pkg.tokens}</span> tokens</li>` +
-                `<li>${prefix} <span style="font-size: 18px;">${pkg.chatCount}</span> 次基础聊天（GPT3.5）</li>` +
-                `<li>${prefix} <span style="font-size: 18px;">${pkg.advancedChatCount}</span> 次高级聊天（GPT4）</li>` +
-                `<li>${prefix} <span style="font-size: 18px;">${pkg.drawCount}</span> 次AI绘画</li>` +
+                (pkg.tokens
+                  ? `<li>${prefix} <span style="font-size: 18px;">${pkg.tokens}</span> tokens</li>`
+                  : "") +
+                (pkg.chatCount
+                  ? `<li>${prefix} <span style="font-size: 18px;">${pkg.chatCount}</span> 次基础聊天（GPT3.5）</li>`
+                  : "") +
+                (pkg.advancedChatCount
+                  ? `<li>${prefix} <span style="font-size: 18px;">${pkg.advancedChatCount}</span> 次高级聊天（GPT4）</li>`
+                  : "") +
+                (pkg.drawCount
+                  ? `<li>${prefix} <span style="font-size: 18px;">${pkg.drawCount}</span> 次AI绘画</li>`
+                  : "") +
                 `<li>有效期： <span style="font-size: 18px;">${pkg.days}</span> 天</li>` +
                 `</ul>`;
             }
             return pkg;
           }),
         );
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [authStore.token]);
 
@@ -107,7 +120,14 @@ export function Pricing() {
         </div>
       </div>
       <div className={styles["pricing"]}>
-        {!packages || packages.length === 0 ? (
+        {loading ? (
+          <div style={{ height: "100px", textAlign: "center" }}>
+            {Locale.PricingPage.Loading}
+          </div>
+        ) : (
+          <></>
+        )}
+        {!loading && (!packages || packages.length === 0) ? (
           <div style={{ height: "100px", textAlign: "center" }}>
             {Locale.PricingPage.NoPackage}
           </div>

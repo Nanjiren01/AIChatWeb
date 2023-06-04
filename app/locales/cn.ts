@@ -213,6 +213,7 @@ const cn = {
       Buy: " 购 买 ",
     },
     NoPackage: "暂无可用套餐",
+    Loading: "套餐加载中……",
     ConsultAdministrator: "请咨询站长",
   },
   Settings: {
