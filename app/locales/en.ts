@@ -7,6 +7,10 @@ const en: RequiredLocaleType = {
     Unauthorized:
       "Unauthorized access, please enter access code in settings page.",
   },
+  Sidebar: {
+    Title: "公告",
+    Close: "关闭",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} messages`,
   },
@@ -79,6 +83,7 @@ const en: RequiredLocaleType = {
     DeleteChat: "Confirm to delete the selected conversation?",
     DeleteToast: "Chat Deleted",
     Revert: "Revert",
+    NoNotice: "暂无公告",
   },
   LoginPage: {
     Title: "登录",
@@ -190,6 +195,22 @@ const en: RequiredLocaleType = {
     Actions: {
       Close: "关闭",
       Pricing: "购买套餐",
+      GoToBalanceList: "更多",
+      ConsultAdministrator: "请咨询站长",
+    },
+    BalanceItem: {
+      Title: "套餐类型",
+      SubTitle: "",
+      CalcTypes: {
+        Total: "总额",
+        Daily: "每天",
+        Hourly: "每小时",
+        ThreeHourly: "每3小时",
+      },
+    },
+    ExpireList: {
+      Title: "过期时间",
+      SubTitle: "",
     },
   },
   PricingPage: {
@@ -200,6 +221,7 @@ const en: RequiredLocaleType = {
       Buy: " 购 买 ",
     },
     NoPackage: "暂无可用套餐",
+    Loading: "套餐加载中……",
     ConsultAdministrator: "请咨询站长",
   },
   Settings: {
@@ -299,6 +321,10 @@ const en: RequiredLocaleType = {
       Title: "Presence Penalty",
       SubTitle:
         "A larger value increases the likelihood to talk about new topics",
+    },
+    Version: {
+      Title: "版本",
+      SubTitle: "",
     },
   },
   Store: {

@@ -7,6 +7,10 @@ const fr: LocaleType = {
     Unauthorized:
       "Accès non autorisé, veuillez saisir le code d'accès dans la page des paramètres.",
   },
+  Sidebar: {
+    Title: "公告",
+    Close: "关闭",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} messages en total`,
   },
@@ -57,6 +61,7 @@ const fr: LocaleType = {
     DeleteChat: "Confirmer la suppression de la conversation sélectionnée ?",
     DeleteToast: "Conversation supprimée",
     Revert: "Revenir en arrière",
+    NoNotice: "暂无公告",
   },
   Settings: {
     Title: "Paramètres",

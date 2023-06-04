@@ -7,6 +7,10 @@ const cs: LocaleType = {
     Unauthorized:
       "Neoprávněný přístup, zadejte přístupový kód na stránce nastavení.",
   },
+  Sidebar: {
+    Title: "公告",
+    Close: "关闭",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} zpráv`,
   },
@@ -57,6 +61,7 @@ const cs: LocaleType = {
     DeleteChat: "Potvrzujete smazání vybrané konverzace?",
     DeleteToast: "Chat smazán",
     Revert: "Zvrátit",
+    NoNotice: "暂无公告",
   },
   Settings: {
     Title: "Nastavení",

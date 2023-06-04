@@ -7,6 +7,10 @@ const vi: LocaleType = {
     Unauthorized:
       "Truy cập chưa xác thực, vui lòng nhập mã truy cập trong trang cài đặt.",
   },
+  Sidebar: {
+    Title: "公告",
+    Close: "关闭",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} tin nhắn`,
   },
@@ -60,6 +64,7 @@ const vi: LocaleType = {
     DeleteChat: "Xác nhận xóa các cuộc trò chuyện đã chọn?",
     DeleteToast: "Đã xóa cuộc trò chuyện",
     Revert: "Khôi phục",
+    NoNotice: "暂无公告",
   },
   LoginPage: {
     Title: "登录",
@@ -171,6 +176,22 @@ const vi: LocaleType = {
     Actions: {
       Close: "关闭",
       Pricing: "购买套餐",
+      GoToBalanceList: "更多",
+      ConsultAdministrator: "请咨询站长",
+    },
+    BalanceItem: {
+      Title: "套餐类型",
+      SubTitle: "",
+      CalcTypes: {
+        Total: "总额",
+        Daily: "每天",
+        Hourly: "每小时",
+        ThreeHourly: "每3小时",
+      },
+    },
+    ExpireList: {
+      Title: "过期时间",
+      SubTitle: "",
     },
   },
   PricingPage: {

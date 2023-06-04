@@ -7,6 +7,10 @@ const ru: LocaleType = {
     Unauthorized:
       "Несанкционированный доступ. Пожалуйста, введите код доступа на странице настроек.",
   },
+  Sidebar: {
+    Title: "公告",
+    Close: "关闭",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} сообщений`,
   },
@@ -57,6 +61,7 @@ const ru: LocaleType = {
     DeleteChat: "Вы действительно хотите удалить выбранный разговор?",
     DeleteToast: "Чат удален",
     Revert: "Отмена",
+    NoNotice: "暂无公告",
   },
   Settings: {
     Title: "Настройки",

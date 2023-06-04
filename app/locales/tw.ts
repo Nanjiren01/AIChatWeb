@@ -6,6 +6,10 @@ const tw: LocaleType = {
   Error: {
     Unauthorized: "目前您的狀態是未授權，請前往設定頁面輸入授權碼。",
   },
+  Sidebar: {
+    Title: "公告",
+    Close: "关闭",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} 條對話`,
   },
@@ -58,6 +62,7 @@ const tw: LocaleType = {
     DeleteChat: "確定要刪除選取的對話嗎？",
     DeleteToast: "已刪除對話",
     Revert: "撤銷",
+    NoNotice: "暂无公告",
   },
   LoginPage: {
     Title: "登录",
@@ -169,6 +174,22 @@ const tw: LocaleType = {
     Actions: {
       Close: "关闭",
       Pricing: "购买套餐",
+      GoToBalanceList: "更多",
+      ConsultAdministrator: "请咨询站长",
+    },
+    BalanceItem: {
+      Title: "套餐类型",
+      SubTitle: "",
+      CalcTypes: {
+        Total: "总额",
+        Daily: "每天",
+        Hourly: "每小时",
+        ThreeHourly: "每3小时",
+      },
+    },
+    ExpireList: {
+      Title: "过期时间",
+      SubTitle: "",
     },
   },
   PricingPage: {

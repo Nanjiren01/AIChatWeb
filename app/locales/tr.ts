@@ -7,6 +7,10 @@ const tr: LocaleType = {
     Unauthorized:
       "Yetkisiz erişim, lütfen erişim kodunu ayarlar sayfasından giriniz.",
   },
+  Sidebar: {
+    Title: "公告",
+    Close: "关闭",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} mesaj`,
   },
@@ -60,6 +64,7 @@ const tr: LocaleType = {
     DeleteChat: "Seçili sohbeti silmeyi onaylıyor musunuz?",
     DeleteToast: "Sohbet Silindi",
     Revert: "Geri Al",
+    NoNotice: "暂无公告",
   },
   LoginPage: {
     Title: "登录",
@@ -171,6 +176,22 @@ const tr: LocaleType = {
     Actions: {
       Close: "关闭",
       Pricing: "购买套餐",
+      GoToBalanceList: "更多",
+      ConsultAdministrator: "请咨询站长",
+    },
+    BalanceItem: {
+      Title: "套餐类型",
+      SubTitle: "",
+      CalcTypes: {
+        Total: "总额",
+        Daily: "每天",
+        Hourly: "每小时",
+        ThreeHourly: "每3小时",
+      },
+    },
+    ExpireList: {
+      Title: "过期时间",
+      SubTitle: "",
     },
   },
   PricingPage: {

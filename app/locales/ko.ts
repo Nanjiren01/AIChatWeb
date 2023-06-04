@@ -7,6 +7,10 @@ const ko: LocaleType = {
   Error: {
     Unauthorized: "권한이 없습니다. 설정 페이지에서 액세스 코드를 입력하세요.",
   },
+  Sidebar: {
+    Title: "公告",
+    Close: "关闭",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count}개의 메시지`,
   },
@@ -57,6 +61,7 @@ const ko: LocaleType = {
     DeleteChat: "선택한 대화를 삭제하시겠습니까?",
     DeleteToast: "채팅이 삭제되었습니다.",
     Revert: "되돌리기",
+    NoNotice: "暂无公告",
   },
   Settings: {
     Title: "설정",

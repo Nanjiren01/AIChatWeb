@@ -7,6 +7,10 @@ const jp: LocaleType = {
     Unauthorized:
       "現在は未承認状態です。左下の設定ボタンをクリックし、アクセスパスワードを入力してください。",
   },
+  Sidebar: {
+    Title: "公告",
+    Close: "关闭",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} 通のチャット`,
   },
@@ -60,6 +64,7 @@ const jp: LocaleType = {
     DeleteChat: "選択したチャットを削除してもよろしいですか？",
     DeleteToast: "チャットが削除されました",
     Revert: "元に戻す",
+    NoNotice: "暂无公告",
   },
   LoginPage: {
     Title: "登录",
@@ -171,6 +176,22 @@ const jp: LocaleType = {
     Actions: {
       Close: "关闭",
       Pricing: "购买套餐",
+      GoToBalanceList: "更多",
+      ConsultAdministrator: "请咨询站长",
+    },
+    BalanceItem: {
+      Title: "套餐类型",
+      SubTitle: "",
+      CalcTypes: {
+        Total: "总额",
+        Daily: "每天",
+        Hourly: "每小时",
+        ThreeHourly: "每3小时",
+      },
+    },
+    ExpireList: {
+      Title: "过期时间",
+      SubTitle: "",
     },
   },
   PricingPage: {

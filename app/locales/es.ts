@@ -7,6 +7,10 @@ const es: LocaleType = {
     Unauthorized:
       "Acceso no autorizado, por favor ingrese el código de acceso en la página de configuración.",
   },
+  Sidebar: {
+    Title: "公告",
+    Close: "关闭",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} mensajes`,
   },
@@ -60,6 +64,7 @@ const es: LocaleType = {
     DeleteChat: "¿Confirmar eliminación de la conversación seleccionada?",
     DeleteToast: "Chat Deleted",
     Revert: "Revert",
+    NoNotice: "暂无公告",
   },
   LoginPage: {
     Title: "登录",
@@ -171,6 +176,22 @@ const es: LocaleType = {
     Actions: {
       Close: "关闭",
       Pricing: "购买套餐",
+      GoToBalanceList: "更多",
+      ConsultAdministrator: "请咨询站长",
+    },
+    BalanceItem: {
+      Title: "套餐类型",
+      SubTitle: "",
+      CalcTypes: {
+        Total: "总额",
+        Daily: "每天",
+        Hourly: "每小时",
+        ThreeHourly: "每3小时",
+      },
+    },
+    ExpireList: {
+      Title: "过期时间",
+      SubTitle: "",
     },
   },
   PricingPage: {
