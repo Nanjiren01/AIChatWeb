@@ -314,6 +314,10 @@ const cn = {
       Title: "话题新鲜度 (presence_penalty)",
       SubTitle: "值越大，越有可能扩展到新话题",
     },
+    Version: {
+      Title: "版本",
+      SubTitle: "",
+    },
   },
   Store: {
     DefaultTopic: "新的聊天",
