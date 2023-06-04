@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import styles from "./login.module.scss";
 
 import CloseIcon from "../icons/close.svg";
-import { Input, List, ListItem, Modal, PasswordInput } from "./ui-lib";
+import { SingleInput, List, ListItem, PasswordInput } from "./ui-lib";
 
 import { IconButton } from "./button";
 import { useAuthStore, useAccessStore, useWebsiteConfigStore } from "../store";
@@ -89,9 +89,8 @@ export function Login() {
             {authStore.token ? (
               <span>{authStore.username}</span>
             ) : (
-              <Input
+              <SingleInput
                 value={username}
-                rows={1}
                 onChange={(e) => {
                   setUsername(e.currentTarget.value);
                   //console.log(e)

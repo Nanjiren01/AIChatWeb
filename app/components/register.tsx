@@ -4,7 +4,7 @@ import Image from "next/image";
 import styles from "./register.module.scss";
 
 import CloseIcon from "../icons/close.svg";
-import { Input, List, ListItem, PasswordInput } from "./ui-lib";
+import { SingleInput, Input, List, ListItem, PasswordInput } from "./ui-lib";
 
 import { IconButton } from "./button";
 import { useAuthStore, useAccessStore, useWebsiteConfigStore } from "../store";
@@ -202,9 +202,8 @@ export function Register() {
             title={Locale.RegisterPage.Name.Title}
             subTitle={Locale.RegisterPage.Name.SubTitle}
           >
-            <Input
+            <SingleInput
               value={name}
-              rows={1}
               placeholder={Locale.RegisterPage.Name.Placeholder}
               onChange={(e) => {
                 setName(e.currentTarget.value);
@@ -219,9 +218,8 @@ export function Register() {
                 title={Locale.RegisterPage.Email.Title}
                 subTitle={Locale.RegisterPage.Email.SubTitle}
               >
-                <Input
+                <SingleInput
                   value={email}
-                  rows={1}
                   placeholder={Locale.RegisterPage.Email.Placeholder}
                   onChange={(e) => {
                     setEmail(e.currentTarget.value);
@@ -247,9 +245,8 @@ export function Register() {
                 title={Locale.RegisterPage.EmailCode.Title}
                 subTitle={Locale.RegisterPage.EmailCode.SubTitle}
               >
-                <Input
+                <SingleInput
                   value={emailCode}
-                  rows={1}
                   placeholder={Locale.RegisterPage.EmailCode.Placeholder}
                   onChange={(e) => {
                     setEmailCode(e.currentTarget.value);
@@ -265,9 +262,8 @@ export function Register() {
             title={Locale.RegisterPage.Username.Title}
             subTitle={Locale.RegisterPage.Username.SubTitle}
           >
-            <Input
+            <SingleInput
               value={username}
-              rows={1}
               placeholder={Locale.RegisterPage.Username.Placeholder}
               onChange={(e) => {
                 setUsername(e.currentTarget.value);
@@ -335,9 +331,8 @@ export function Register() {
                 title={Locale.RegisterPage.CaptchaInput.Title}
                 subTitle={Locale.RegisterPage.CaptchaInput.SubTitle}
               >
-                <Input
+                <SingleInput
                   value={captchaInput}
-                  rows={1}
                   placeholder={Locale.RegisterPage.CaptchaInput.Placeholder}
                   onChange={(e) => {
                     setCaptchaInput(e.currentTarget.value);

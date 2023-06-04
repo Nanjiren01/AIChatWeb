@@ -235,6 +235,16 @@ export function showToast(
   root.render(<Toast content={content} action={action} onClose={close} />);
 }
 
+export function SingleInput(props: React.HTMLProps<HTMLInputElement>) {
+  return (
+    <input
+      {...props}
+      type="text"
+      className={`${styles["input"]} ${styles["input-left"]} ${props.className}`}
+    />
+  );
+}
+
 export type InputProps = React.HTMLProps<HTMLTextAreaElement> & {
   autoHeight?: boolean;
   rows?: number;
