@@ -12,6 +12,7 @@ import { api, RequestMessage } from "../client/api";
 import { ChatControllerPool } from "../client/controller";
 import { prettyObject } from "../utils/format";
 import { WebsiteConfigStore } from "./website";
+import { AuthStore } from "./auth";
 
 export type ChatMessage = RequestMessage & {
   date: string;
@@ -89,6 +90,7 @@ interface ChatStore {
   onUserInput: (
     content: string,
     websiteConfigStore: WebsiteConfigStore,
+    authStore: AuthStore,
   ) => Promise<void>;
   summarizeSession: () => void;
   updateStat: (message: ChatMessage) => void;
@@ -236,7 +238,7 @@ export const useChatStore = create<ChatStore>()(
         get().summarizeSession();
       },
 
-      async onUserInput(content, websiteConfigStore) {
+      async onUserInput(content, websiteConfigStore, authStore) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
         const sensitiveWordsTip = websiteConfigStore.sensitiveWordsTip;
@@ -311,6 +313,9 @@ export const useChatStore = create<ChatStore>()(
                   message = balanceNotEnough
                     ? balanceNotEnough
                     : Locale.Chat.BalanceNotEnough;
+                } else if (jsonContent && jsonContent.code === 10002) {
+                  authStore.removeToken();
+                  message = Locale.Error.Unauthorized;
                 } else {
                   message = prettyObject(jsonContent);
                 }
