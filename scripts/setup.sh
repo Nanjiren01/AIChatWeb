@@ -28,7 +28,6 @@ if ! command -v docker >/dev/null; then
 
       # auto start on boot
       systemctl enable docker
-      systemctl start docker
       ;;
     Darwin)
       # /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -36,6 +35,8 @@ if ! command -v docker >/dev/null; then
       ;;
   esac
 fi
+
+systemctl start docker
 
 # Clone the repository and install dependencies
 echo "curl -o docker-compose.yml..."
