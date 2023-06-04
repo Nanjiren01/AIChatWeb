@@ -6,7 +6,7 @@
 
 <h1 align="center">AIChat</h1>
 
-[**Chinese Simplified**](./README.md) | **English**
+[**简体中文**](./README.md) | **English**
 
 This project is based on the [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git) open source project for secondary development, adding user registration and login, user management, package management and other functions, and providing self-deployable solutions. 
 
