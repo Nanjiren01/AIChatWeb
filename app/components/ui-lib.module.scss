@@ -204,3 +204,28 @@
   min-width: 180px;
   box-sizing: border-box;
 }
+
+.select-with-icon {
+  position: relative;
+  max-width: fit-content;
+  
+  .select-with-icon-select {
+    height: 100%;
+    border: var(--border-in-light);
+    padding: 10px 25px 10px 10px;
+    border-radius: 10px;
+    appearance: none;
+    cursor: pointer;
+    background-color: var(--white);
+    color: var(--black);
+    text-align: center;
+  }
+
+  .select-with-icon-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+}
