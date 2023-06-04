@@ -5,6 +5,10 @@ const cn = {
   Error: {
     Unauthorized: "登录信息已过期，请前往[登录页](/#/login)",
   },
+  Sidebar: {
+    Title: "公告",
+    Close: "关闭",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} 条对话`,
   },

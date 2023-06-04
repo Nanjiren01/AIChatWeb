@@ -23,7 +23,11 @@ import {
 } from "react-router-dom";
 import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
-import { useWebsiteConfigStore } from "../store/website";
+import {
+  useWebsiteConfigStore,
+  useNoticeConfigStore,
+  useAuthStore,
+} from "../store";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -134,6 +138,14 @@ function Screen() {
   useEffect(() => {
     fetchWebsiteConfig();
   }, [fetchWebsiteConfig]);
+
+  const authStore = useAuthStore();
+  const { fetchNoticeConfig } = useNoticeConfigStore();
+  useEffect(() => {
+    if (authStore.token) {
+      fetchNoticeConfig(authStore.token);
+    }
+  }, [authStore.token, fetchNoticeConfig]);
 
   return (
     <div

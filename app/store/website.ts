@@ -87,8 +87,8 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       },
     }),
     {
-      name: StoreKey.Chat,
-      version: 2,
+      name: StoreKey.WebsiteConfig,
+      version: 1,
     },
   ),
 );

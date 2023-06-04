@@ -38,6 +38,8 @@ export enum StoreKey {
   Prompt = "prompt-store",
   Update = "chat-update",
   Balance = "balance",
+  WebsiteConfig = "websiteCofnig",
+  NoticeConfig = "noticeConfig",
 }
 
 export const MAX_SIDEBAR_WIDTH = 500;

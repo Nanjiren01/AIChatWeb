@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import styles from "./home.module.scss";
 
@@ -15,8 +15,10 @@ import PluginIcon from "../icons/plugin.svg";
 
 import Locale from "../locales";
 
+import { Modal } from "./ui-lib";
+
 import { useAppConfig, useChatStore } from "../store";
-import { useWebsiteConfigStore } from "../store/website";
+import { useWebsiteConfigStore, useNoticeConfigStore } from "../store";
 
 import {
   MAX_SIDEBAR_WIDTH,
@@ -105,6 +107,46 @@ function useDragSideBar() {
   };
 }
 
+export function NoticeModel(props: { onClose: () => void }) {
+  const noticeConfigStore = useNoticeConfigStore();
+
+  return (
+    <div className="modal-mask">
+      <Modal
+        title={Locale.Sidebar.Title}
+        onClose={() => props.onClose()}
+        actions={[
+          <IconButton
+            key="reset"
+            bordered
+            text={Locale.Sidebar.Close}
+            onClick={() => {
+              props.onClose();
+            }}
+          />,
+        ]}
+      >
+        <div>
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: "20px",
+              lineHeight: "40px",
+              marginBottom: "10px",
+            }}
+            dangerouslySetInnerHTML={{ __html: noticeConfigStore.title || "" }}
+          ></div>
+          <div
+            dangerouslySetInnerHTML={{
+              __html: noticeConfigStore.content || "",
+            }}
+          ></div>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
 export function SideBar(props: { className?: string }) {
   const chatStore = useChatStore();
 
@@ -116,6 +158,17 @@ export function SideBar(props: { className?: string }) {
   useHotKey();
 
   const websiteConfigStore = useWebsiteConfigStore();
+  const noticeConfigStore = useNoticeConfigStore();
+  const [noticeShow, setNoticeShow] = useState(false);
+  function showNotice() {
+    console.log("showNotice");
+    setNoticeShow(true);
+  }
+  useEffect(() => {
+    if (noticeConfigStore.splash) {
+      showNotice();
+    }
+  }, [noticeConfigStore]);
 
   return (
     <div
@@ -184,7 +237,11 @@ export function SideBar(props: { className?: string }) {
             <IconButton
               icon={<BookOpenIcon />}
               onClick={() => {
-                showToast(Locale.Home.NoNotice);
+                if (noticeConfigStore.show) {
+                  showNotice();
+                } else {
+                  showToast(Locale.Home.NoNotice);
+                }
               }}
               shadow
             />
@@ -220,6 +277,8 @@ export function SideBar(props: { className?: string }) {
         className={styles["sidebar-drag"]}
         onMouseDown={(e) => onDragMouseDown(e as any)}
       ></div>
+
+      {noticeShow && <NoticeModel onClose={() => setNoticeShow(false)} />}
     </div>
   );
 }
