@@ -27,6 +27,7 @@ import {
   useWebsiteConfigStore,
   useNoticeConfigStore,
   useAuthStore,
+  BOT_HELLO,
 } from "../store";
 
 export function Loading(props: { noLogo?: boolean }) {
@@ -146,6 +147,14 @@ function Screen() {
       fetchNoticeConfig(authStore.token);
     }
   }, [authStore.token, fetchNoticeConfig]);
+
+  const { botHello } = useWebsiteConfigStore();
+  useEffect(() => {
+    if (botHello) {
+      // todo i18n
+      BOT_HELLO.content = botHello;
+    }
+  }, [botHello]);
 
   return (
     <div
