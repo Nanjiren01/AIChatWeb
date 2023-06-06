@@ -29,6 +29,35 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 **温馨提示，由于后台开放，请勿在演示站中输入敏感信息**
 
+## 项目优势
+
+### 1、零基础，不会敲代码也可以搭建
+
+快速：项目提供一键部署脚本，采购服务器后只需执行一键部署脚本即可搭建，整个过程最快不超过3分钟。
+
+简单：部署后，进入提供的管理后台，即可定义自己站点的内容，无需修改任何代码，无需构建部署环节，即改即生效。
+
+### 2、高度自定义
+
+项目提供方便易用，成熟稳定的管理后台（基于[vue-element-admin](https://panjiachen.github.io/vue-element-admin)），绝大部分内容可以在后台直接设定。
+
+#### 网站标题、欢迎词、公告自定义
+
+可以自定义网站标题，副标题；
+可以自定义欢迎词，支持富文本格式，您可以在此处添加图片（例如二维码）进行引流；
+可以编辑公告，同样支持富文本格式，您可以在此处展示使用声明、通知，可以选择是否开屏展示；
+
+![网站标题、欢迎词、公告自定义](./docs/images/intro1.png)
+
+#### 2.2、套餐玩法自定义
+
+次卡？周卡？月卡？统统可以在后台定义。
+
+![套餐](./docs/images/package.png)
+
+![套餐后台配置](./docs/images/package2.png)
+
+
 
 本项目区分社区版，及Pro版
 
@@ -36,16 +65,19 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 | 功能                                                      | 进度 |
 | --------------------------------------------------------- | -------- |
-| 用户管理（User Management）                               |    ✔已完成     |
-| 额度管理（Quota Management）                              |    ✔已完成     |
-| 注册额度赠送（Registration limit gift）                   |    ✔已完成     |
-| 邮箱验证码注册（Email verification code registration）    |    ✔已完成     |
-| 图形验证码注册（Graphic verification code registration）  |    ✔已完成     |
-| 网站标题及Logo定制（Website Title and Logo Customization）|   进行中      |
-| 自定义敏感词拦截（Custom sensitive word interception）    |   进行中       |
-| 基于用户的调用频率限制（User based call frequency limit） |   ✔已完成       |
+| 用户管理（User Management）                               |    ✔已完成(v0.0.1)     |
+| 额度管理（Quota Management）                              |    ✔已完成(v0.1)     |
+| 注册额度赠送（Registration limit gift）                   |    ✔已完成(v0.1)     |
+| 邮箱验证码注册（Email verification code registration）    |    ✔已完成(v0.1)     |
+| 调用频率限制（User based call frequency limit） |   ✔已完成(v0.1)       |
+| 图形验证码注册（Graphic verification code registration）  |    ✔已完成(v0.2)     |
+| 网站标题（Website Title Customization）                   |   ✔已完成(v0.2)      |
+| 套餐管理（Package Management）                            |   ✔已完成(v0.2)      |
+| 自定义敏感词拦截（Custom sensitive word interception）    |   ✔已完成(v0.2)   |
 | 修改密码（Change password）                               |   进行中       |
 | 绘图功能（Drawing function）                              |   进行中       |
+
+
 
 
 
@@ -150,7 +182,7 @@ Super Admin Password is valid.
 
 <img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
 
-<img src="./docs/images/wechat2.jpg" width="400px" alt="wechat" style="display: inline-block" />
+<img src="./docs/images/wechat3.jpg" width="400px" alt="wechat" style="display: inline-block" />
 
 ## 知识星球
 
@@ -162,8 +194,10 @@ Super Admin Password is valid.
 - ChatGPT高级使用手册
 - 新功能优先体验
 
+> 当前星球为试运行阶段，部分内容仍在筹备中
 
-当前星球价格为98元，随着功能的不断完善，知识星球价格逐步提升
+
+当前星球价格为128元，随着功能的不断完善，知识星球价格逐步提升
 
 <img src="./docs/images/xingqiu.jpeg" width="500px" alt="AIChatAdmin知识星球"/>
 
@@ -178,7 +212,7 @@ Super Admin Password is valid.
 网址：[https://neu.zxyt.top/](https://neu.zxyt.top/)
 用户：150+
 
-### pro版本规划路线（从上往下逐步完成）
+### pro版本规划路线
 
 1. 对接支付系统 Pay
 2. 邀请机制（邀请赠送额度）
