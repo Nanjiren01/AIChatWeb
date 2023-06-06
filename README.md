@@ -41,7 +41,7 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 项目提供方便易用，成熟稳定的管理后台（基于[vue-element-admin](https://panjiachen.github.io/vue-element-admin)），绝大部分内容可以在后台直接设定。
 
-#### 网站标题、欢迎词、公告自定义
+#### 2.1、网站标题、欢迎词、公告自定义
 
 可以自定义网站标题，副标题；
 可以自定义欢迎词，支持富文本格式，您可以在此处添加图片（例如二维码）进行引流；
@@ -57,7 +57,9 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 ![套餐后台配置](./docs/images/package2.png)
 
+#### 2.3、更多自定义内容
 
+在后台管理中，您还可以设定注册方式（支持用户名+密码方式、图形验证码方式、邮箱注册方式），各页面主副标题，出现敏感词时的提示语，额度不足提示语……
 
 本项目区分社区版，及Pro版
 
