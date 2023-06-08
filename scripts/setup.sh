@@ -15,9 +15,9 @@ case "$(uname -s)" in
     ;;
 esac
 
-# check whether installed docker & compose
+# 检查是否安装了docker&compose
 
-# Check if needed dependencies are installed and install if necessary
+# 检查是否安装了所需的依赖项，并在必要时进行安装
 if ! command -v docker >/dev/null; then
   case "$(uname -s)" in
     Linux)
@@ -38,7 +38,7 @@ fi
 
 systemctl start docker
 
-# Clone the repository and install dependencies
+# 克隆存储库并安装依赖项
 echo "curl -o docker-compose.yml..."
 curl -o docker-compose.yml https://raw.githubusercontent.com/Nanjiren01/AIChatWeb/main/docker-compose.yml
 
