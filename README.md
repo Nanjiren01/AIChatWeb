@@ -8,6 +8,8 @@
 ·
 <a href="#演示地址">演示地址</a>
 ·
+<a href="#项目优势">项目优势</a>
+·
 <a href="#知识星球优秀案例">优秀案例</a>
 </div>
 
@@ -213,6 +215,10 @@ Super Admin Password is valid.
 ### NEU-GPT
 网址：[https://neu.zxyt.top/](https://neu.zxyt.top/)
 用户：150+
+
+### AI Chat Ultra
+网址：[https://chat.wzunjh.top/](https://chat.wzunjh.top/)
+用户：300+
 
 ### pro版本规划路线
 
