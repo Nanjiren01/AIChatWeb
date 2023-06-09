@@ -218,7 +218,7 @@ Super Admin Password is valid.
 
 ### AI Ultra
 网址：[https://chat.wzunjh.top/](https://chat.wzunjh.top/)
-用户：300+
+用户：400+
 
 ### pro版本规划路线
 
