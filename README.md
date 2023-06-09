@@ -216,7 +216,7 @@ Super Admin Password is valid.
 网址：[https://neu.zxyt.top/](https://neu.zxyt.top/)
 用户：150+
 
-### AI Chat Ultra
+### AI Ultra
 网址：[https://chat.wzunjh.top/](https://chat.wzunjh.top/)
 用户：300+
 
