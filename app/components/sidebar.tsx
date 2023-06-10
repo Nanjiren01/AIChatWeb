@@ -17,7 +17,7 @@ import Locale from "../locales";
 
 import { Modal } from "./ui-lib";
 
-import { useAppConfig, useChatStore } from "../store";
+import { useAppConfig, useAuthStore, useChatStore } from "../store";
 import { useWebsiteConfigStore, useNoticeConfigStore } from "../store";
 
 import {
@@ -147,6 +147,34 @@ export function NoticeModel(props: { onClose: () => void }) {
   );
 }
 
+interface LogoInfo {
+  uuid: string;
+  url?: string;
+  mimeType: string;
+}
+export interface LogoInfoResponse {
+  code: number;
+  message: string;
+  data: LogoInfo;
+}
+
+function setFavicon(url: string, mimeType: string) {
+  const link = document.createElement("link");
+  link.rel = "shortcut icon";
+  link.type = "image/svg+xml";
+  link.href = url;
+  const head = document.querySelector("head");
+  if (head == null) {
+    console.error("head is null");
+    return;
+  }
+  const existingLink = document.querySelector('head link[rel="shortcut icon"]');
+  if (existingLink) {
+    head.removeChild(existingLink);
+  }
+  head.appendChild(link);
+}
+
 export function SideBar(props: { className?: string }) {
   const chatStore = useChatStore();
 
@@ -157,6 +185,7 @@ export function SideBar(props: { className?: string }) {
 
   useHotKey();
 
+  const authStore = useAuthStore();
   const websiteConfigStore = useWebsiteConfigStore();
   const noticeConfigStore = useNoticeConfigStore();
   const [noticeShow, setNoticeShow] = useState(false);
@@ -169,6 +198,35 @@ export function SideBar(props: { className?: string }) {
       showNotice();
     }
   }, [noticeConfigStore]);
+
+  const [logoLoading, setLogoLoading] = useState(false);
+  const [logoInfo, setLogoInfo] = useState({
+    uuid: false,
+    url: "",
+    mimeType: "",
+  } as any as LogoInfo);
+  useEffect(() => {
+    setLogoLoading(true);
+    fetch("/api/file/logoInfo", {
+      method: "get",
+      headers: {
+        Authorization: "Bearer " + authStore.token,
+      },
+    })
+      .then(async (resp) => {
+        const json = (await resp.json()) as LogoInfoResponse;
+        console.log("json", json);
+        const info = json.data;
+        if (info.uuid !== null) {
+          info.url = "/api/file/" + info.uuid;
+          setLogoInfo(info);
+          setFavicon(info.url, info.mimeType);
+        }
+      })
+      .finally(() => {
+        setLogoLoading(false);
+      });
+  }, [authStore.token]);
 
   return (
     <div
@@ -184,7 +242,13 @@ export function SideBar(props: { className?: string }) {
           {websiteConfigStore.subTitle || "Build your own AI assistant."}
         </div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
-          <ChatGptIcon />
+          {logoLoading ? (
+            <></>
+          ) : !logoInfo.uuid ? (
+            <ChatGptIcon />
+          ) : (
+            <img src={logoInfo.url} width="44" height="44" />
+          )}
         </div>
       </div>
 
