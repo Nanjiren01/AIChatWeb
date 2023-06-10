@@ -4,7 +4,7 @@ import EmojiPicker, {
   Theme as EmojiTheme,
 } from "emoji-picker-react";
 
-import { ModelType } from "../store";
+import { ModelType, useWebsiteConfigStore } from "../store";
 
 import BotIcon from "../icons/bot.svg";
 import BlackBotIcon from "../icons/black-bot.svg";
@@ -28,12 +28,20 @@ export function AvatarPicker(props: {
   );
 }
 
-export function Avatar(props: { model?: ModelType; avatar?: string }) {
+export function Avatar(props: {
+  model?: ModelType;
+  avatar?: string;
+  logoUrl?: string;
+}) {
+  // console.log('refresh Avatar', props.logoUrl)
   if (props.model) {
+    const logoUrl = props.logoUrl;
     return (
       <div className="no-dark">
         {props.model?.startsWith("gpt-4") ? (
           <BlackBotIcon className="user-avatar" />
+        ) : logoUrl !== undefined && logoUrl !== null && logoUrl !== "" ? (
+          <img src={logoUrl} width={30} height={30} />
         ) : (
           <BotIcon className="user-avatar" />
         )}
