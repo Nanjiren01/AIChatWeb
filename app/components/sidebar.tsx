@@ -147,7 +147,11 @@ export function NoticeModel(props: { onClose: () => void }) {
   );
 }
 
-export function SideBar(props: { className?: string }) {
+export function SideBar(props: {
+  className?: string;
+  noticeShow: boolean;
+  setNoticeShow: (show: boolean) => void;
+}) {
   const chatStore = useChatStore();
 
   // drag side bar
@@ -159,16 +163,6 @@ export function SideBar(props: { className?: string }) {
 
   const websiteConfigStore = useWebsiteConfigStore();
   const noticeConfigStore = useNoticeConfigStore();
-  const [noticeShow, setNoticeShow] = useState(false);
-  function showNotice() {
-    console.log("showNotice");
-    setNoticeShow(true);
-  }
-  useEffect(() => {
-    if (noticeConfigStore.splash) {
-      showNotice();
-    }
-  }, [noticeConfigStore]);
 
   return (
     <div
@@ -238,7 +232,7 @@ export function SideBar(props: { className?: string }) {
               icon={<BookOpenIcon />}
               onClick={() => {
                 if (noticeConfigStore.show) {
-                  showNotice();
+                  props.setNoticeShow(true);
                 } else {
                   showToast(Locale.Home.NoNotice);
                 }
@@ -278,7 +272,9 @@ export function SideBar(props: { className?: string }) {
         onMouseDown={(e) => onDragMouseDown(e as any)}
       ></div>
 
-      {noticeShow && <NoticeModel onClose={() => setNoticeShow(false)} />}
+      {props.noticeShow && (
+        <NoticeModel onClose={() => props.setNoticeShow(false)} />
+      )}
     </div>
   );
 }

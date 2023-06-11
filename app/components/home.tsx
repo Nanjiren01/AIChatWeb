@@ -141,12 +141,12 @@ function Screen() {
   }, [fetchWebsiteConfig]);
 
   const authStore = useAuthStore();
-  const { fetchNoticeConfig } = useNoticeConfigStore();
+  const noticeConfigStore = useNoticeConfigStore();
   useEffect(() => {
     if (authStore.token) {
-      fetchNoticeConfig(authStore.token);
+      noticeConfigStore.fetchNoticeConfig(authStore.token);
     }
-  }, [authStore.token, fetchNoticeConfig]);
+  }, [authStore.token, noticeConfigStore]);
 
   const { botHello } = useWebsiteConfigStore();
   useEffect(() => {
@@ -155,6 +155,13 @@ function Screen() {
       BOT_HELLO.content = botHello;
     }
   }, [botHello]);
+
+  const [noticeShow, setNoticeShow] = useState(false);
+  useEffect(() => {
+    if (noticeConfigStore.splash) {
+      setNoticeShow(true);
+    }
+  }, [noticeConfigStore]);
 
   return (
     <div
@@ -167,7 +174,11 @@ function Screen() {
         }`
       }
     >
-      <SideBar className={isHome ? styles["sidebar-show"] : ""} />
+      <SideBar
+        className={isHome ? styles["sidebar-show"] : ""}
+        noticeShow={noticeShow}
+        setNoticeShow={setNoticeShow}
+      />
 
       <div className={styles["window-content"]} id={SlotID.AppBody}>
         <Routes>
