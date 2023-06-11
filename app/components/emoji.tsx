@@ -6,8 +6,9 @@ import EmojiPicker, {
 
 import { ModelType } from "../store";
 
-import BotIcon from "../icons/bot.svg";
-import BlackBotIcon from "../icons/black-bot.svg";
+import BotIcon from "../icons/ai-chat-bot.png";
+import BlackBotIcon from "../icons/ai-chat-bot.png"; // 暂时都一样
+import NextImage from "next/image";
 
 export function getEmojiUrl(unified: string, style: EmojiStyle) {
   return `https://cdn.staticfile.org/emoji-datasource-apple/14.0.0/img/${style}/64/${unified}.png`;
@@ -33,9 +34,21 @@ export function Avatar(props: { model?: ModelType; avatar?: string }) {
     return (
       <div className="no-dark">
         {props.model?.startsWith("gpt-4") ? (
-          <BlackBotIcon className="user-avatar" />
+          <NextImage
+            src={BlackBotIcon.src}
+            width={30}
+            height={30}
+            alt="bot"
+            className="user-avatar"
+          />
         ) : (
-          <BotIcon className="user-avatar" />
+          <NextImage
+            src={BotIcon.src}
+            width={30}
+            height={30}
+            alt="bot"
+            className="user-avatar"
+          />
         )}
       </div>
     );

@@ -6,8 +6,9 @@ import { useState, useEffect } from "react";
 
 import styles from "./home.module.scss";
 
-import BotIcon from "../icons/bot.svg";
+import ChatBotIcon from "../icons/ai-chat-bot.png";
 import LoadingIcon from "../icons/three-dots.svg";
+import NextImage from "next/image";
 
 import { getCSSVar, useMobileScreen } from "../utils";
 
@@ -33,7 +34,15 @@ import {
 export function Loading(props: { noLogo?: boolean }) {
   return (
     <div className={styles["loading-content"] + " no-dark"}>
-      {!props.noLogo && <BotIcon />}
+      {!props.noLogo && (
+        <NextImage
+          src={ChatBotIcon.src}
+          width={30}
+          height={30}
+          alt="bot"
+          className="user-avatar"
+        />
+      )}
       <LoadingIcon />
     </div>
   );

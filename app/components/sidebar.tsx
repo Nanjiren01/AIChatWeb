@@ -6,12 +6,14 @@ import { IconButton } from "./button";
 import SettingsIcon from "../icons/settings.svg";
 import GithubIcon from "../icons/github.svg";
 import BookOpenIcon from "../icons/book-open.svg";
-import LoginIcon from "../icons/login.svg";
-import ChatGptIcon from "../icons/chatgpt.svg";
+// import LoginIcon from "../icons/login.svg";
+// import ChatGptIcon from "../icons/chatgpt.svg";
+import ChatBotIcon from "../icons/ai-chat-bot.png";
 import AddIcon from "../icons/add.svg";
 import CloseIcon from "../icons/close.svg";
 import MaskIcon from "../icons/mask.svg";
 import PluginIcon from "../icons/plugin.svg";
+import NextImage from "next/image";
 
 import Locale from "../locales";
 
@@ -178,7 +180,7 @@ export function SideBar(props: {
           {websiteConfigStore.subTitle || "Build your own AI assistant."}
         </div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
-          <ChatGptIcon />
+          <NextImage src={ChatBotIcon.src} width={44} height={44} alt="bot" />
         </div>
       </div>
 
