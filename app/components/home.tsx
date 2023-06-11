@@ -172,12 +172,12 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   }, []);
 
   const authStore = useAuthStore();
-  const { fetchNoticeConfig } = useNoticeConfigStore();
+  const noticeConfigStore = useNoticeConfigStore();
   useEffect(() => {
     if (authStore.token) {
-      fetchNoticeConfig(authStore.token);
+      noticeConfigStore.fetchNoticeConfig(authStore.token);
     }
-  }, [authStore.token, fetchNoticeConfig]);
+  }, [authStore.token, noticeConfigStore]);
 
   const { botHello } = useWebsiteConfigStore();
   useEffect(() => {
@@ -186,6 +186,13 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
       BOT_HELLO.content = botHello;
     }
   }, [botHello]);
+
+  const [noticeShow, setNoticeShow] = useState(false);
+  useEffect(() => {
+    if (noticeConfigStore.splash) {
+      setNoticeShow(true);
+    }
+  }, [noticeConfigStore]);
 
   const logoLoading = props.logoLoading;
   const logoUrl = props.logoUrl || "";
@@ -206,6 +213,8 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
     >
       <SideBar
         className={isHome ? styles["sidebar-show"] : ""}
+        noticeShow={noticeShow}
+        setNoticeShow={setNoticeShow}
         logoLoading={logoLoading}
         logoUrl={logoUrl}
       />
