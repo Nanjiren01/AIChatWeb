@@ -220,6 +220,10 @@ Super Admin Password is valid.
 网址：[https://chat.wzunjh.top/](https://chat.wzunjh.top/)
 用户：400+
 
+### AI佩奇
+网址：[https://candy666.top/](https://candy666.top/)
+用户：~1000
+
 ### pro版本规划路线
 
 1. 对接支付系统 Pay
