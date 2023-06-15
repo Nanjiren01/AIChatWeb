@@ -218,7 +218,7 @@ Super Admin Password is valid.
 
 ### AI Ultra
 网址：[https://chat.wzunjh.top/](https://chat.wzunjh.top/)
-用户：400+
+用户：1100+
 
 ### AI佩奇
 网址：[https://candy666.top/](https://candy666.top/)
