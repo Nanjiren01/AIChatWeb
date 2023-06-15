@@ -40,14 +40,25 @@ export const useProfileStore = create<ProfileStore>()(
           .then((res: ProfileResponse) => {
             console.log("[Balance] got balance from server", res);
             const data = res.data;
-            set(() => ({
-              id: data.id,
-              tokens: data.tokens,
-              chatCount: data.chatCount,
-              advanceChatCount: data.advancedChatCount,
-              drawCount: data.drawCount,
-              balances: data.balances || [],
-            }));
+            if (res.data) {
+              set(() => ({
+                id: data.id,
+                tokens: data.tokens,
+                chatCount: data.chatCount,
+                advanceChatCount: data.advancedChatCount,
+                drawCount: data.drawCount,
+                balances: data.balances || [],
+              }));
+            } else {
+              set(() => ({
+                id: 0,
+                tokens: 0,
+                chatCount: 0,
+                advanceChatCount: 0,
+                drawCount: 0,
+                balances: [],
+              }));
+            }
             return res;
           })
           .catch(() => {

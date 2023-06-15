@@ -59,6 +59,12 @@ export function Profile() {
     }, 500);
   }
 
+  useEffect(() => {
+    if (profileStore.id === 0) {
+      navigate(Path.Login);
+    }
+  }, [profileStore, navigate]);
+
   return (
     <ErrorBoundary>
       <div className="window-header">
