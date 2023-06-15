@@ -219,6 +219,7 @@ const cn = {
     },
     NoPackage: "暂无可用套餐",
     Loading: "套餐加载中……",
+    PleaseLogin: "请先登录",
     ConsultAdministrator: "请咨询站长",
   },
   Settings: {
