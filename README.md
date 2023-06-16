@@ -232,3 +232,6 @@ Super Admin Password is valid.
 4. 对接发卡平台
 5. 服务端消息保存（Chat Saved by Server）
 6. 多模型支持（Claude、Bard……）
+
+特别提醒：此项目应仅限于学习和交流使用，如若用于商业用途，请确保符合当地法律法规
+
