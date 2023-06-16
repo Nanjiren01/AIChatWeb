@@ -184,6 +184,7 @@ Super Admin Password is valid.
 
 ### 加入QQ交流群、微信群获取更多内容
 
+QQ群：437863036
 <img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
 
 <img src="./docs/images/wechat4.jpg" width="400px" alt="wechat" style="display: inline-block" />
