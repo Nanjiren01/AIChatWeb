@@ -2,7 +2,7 @@
 
 require("../polyfill");
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import styles from "./home.module.scss";
 
@@ -24,12 +24,7 @@ import {
 } from "react-router-dom";
 import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
-import {
-  useWebsiteConfigStore,
-  useNoticeConfigStore,
-  useAuthStore,
-  BOT_HELLO,
-} from "../store";
+import { useWebsiteConfigStore, BOT_HELLO } from "../store";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -79,6 +74,19 @@ const NewChat = dynamic(async () => (await import("./new-chat")).NewChat, {
 const MaskPage = dynamic(async () => (await import("./mask")).MaskPage, {
   loading: () => <Loading noLogo />,
 });
+
+export interface NoticeConfig {
+  show: boolean;
+  splash: boolean;
+  title: string;
+  content: string;
+}
+export interface NoticeConfigData {
+  noticeContent: NoticeConfig;
+}
+
+import { Response } from "../api/common";
+export type NoticeConfigResponse = Response<NoticeConfigData>;
 
 export function useSwitchTheme() {
   const config = useAppConfig();
@@ -149,14 +157,6 @@ function Screen() {
     fetchWebsiteConfig();
   }, [fetchWebsiteConfig]);
 
-  const authStore = useAuthStore();
-  const noticeConfigStore = useNoticeConfigStore();
-  useEffect(() => {
-    if (authStore.token) {
-      noticeConfigStore.fetchNoticeConfig(authStore.token);
-    }
-  }, [authStore.token, noticeConfigStore]);
-
   const { botHello } = useWebsiteConfigStore();
   useEffect(() => {
     if (botHello) {
@@ -167,10 +167,24 @@ function Screen() {
 
   const [noticeShow, setNoticeShow] = useState(false);
   useEffect(() => {
-    if (noticeConfigStore.splash) {
-      setNoticeShow(true);
-    }
-  }, [noticeConfigStore]);
+    fetch("/api/globalConfig/notice", {
+      method: "get",
+    })
+      .then((res) => res.json())
+      .then((res: NoticeConfigResponse) => {
+        console.log("[GlobalConfig] got notice config from server", res);
+        const notice = res.data.noticeContent;
+        if (notice.splash) {
+          setNoticeShow(true);
+        }
+      })
+      .catch(() => {
+        console.error("[GlobalConfig] failed to fetch config");
+      })
+      .finally(() => {
+        // fetchState = 2;
+      });
+  }, []);
 
   return (
     <div
