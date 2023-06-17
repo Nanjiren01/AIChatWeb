@@ -224,6 +224,8 @@ const cn = {
     PleaseLogin: "请先登录",
     ConsultAdministrator: "请咨询站长",
     BuyFailedCause: "套餐购买失败！原因：",
+    TOO_FREQUENCILY: "操作过于频繁，请稍后再试",
+    CREATE_ORDER_FAILED: "创建订单失败",
   },
   OrderPage: {
     Title: "订单中心",
@@ -234,6 +236,8 @@ const cn = {
     CancelSuccess: "订单取消成功",
     CancelFailure: "订单取消失败",
     TryAgainLaster: "操作失败，请稍候重试",
+    PleaseWaitForDataSync:
+      "数据可能延迟，支付成功请在10分钟后查看订单状态，请勿重复支付",
     Actions: {
       Pay: "支付",
       Cancel: "取消",

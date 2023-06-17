@@ -130,6 +130,15 @@ export function Pricing() {
       .then((res) => {
         console.log("resp.data", res.data);
         const order = res.data;
+        if (res.code !== 0) {
+          if (res.code === 11303) {
+            showToast(Locale.PricingPage.TOO_FREQUENCILY);
+          } else {
+            const message = Locale.PricingPage.BuyFailedCause + res.message;
+            showToast(Locale.PricingPage.CREATE_ORDER_FAILED);
+          }
+          return;
+        }
 
         const logs = JSON.parse(order.logs);
         // console.log('order.logs', logs)

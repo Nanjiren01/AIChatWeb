@@ -291,7 +291,7 @@ export function Order() {
                   title={order.title}
                   subTitle={getSubTitle(order)}
                 >
-                  <div style={{ minWidth: "100px" }}>
+                  <div style={{ minWidth: "100px", maxWidth: "200px" }}>
                     <div
                       style={{
                         margin: "10px",
@@ -346,6 +346,13 @@ export function Order() {
                             handleClickCancel(order);
                           }}
                         />
+                      </div>
+                    ) : (
+                      <></>
+                    )}
+                    {order.state === 5 ? (
+                      <div style={{ fontSize: "12px" }}>
+                        <i>{Locale.OrderPage.PleaseWaitForDataSync}</i>
                       </div>
                     ) : (
                       <></>
