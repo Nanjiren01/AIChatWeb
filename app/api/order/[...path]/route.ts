@@ -9,5 +9,6 @@ async function handle(req: NextRequest) {
 
 export const GET = handle;
 export const POST = handle;
+export const PUT = handle;
 
 export const runtime = "edge";

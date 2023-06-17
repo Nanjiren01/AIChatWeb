@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import styles from "./order.module.scss";
 
@@ -64,14 +64,17 @@ interface Order {
   submitTime?: Date;
   payTime?: Date;
   payUrl: string;
-
-  logs?: string;
   orderPackages: OrderPackage[];
 }
 interface OrderListResponse {
   code: number;
   message?: string;
   data: Order[];
+}
+
+interface UniversalResponse {
+  code: number;
+  message?: string;
 }
 
 export function Order() {
@@ -98,15 +101,51 @@ export function Order() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function handleClickPay(order: any) {
+  function handleClickPay(order: Order) {
     console.log("handleClickPay", order);
     if (order.state !== 5) {
       showToast(Locale.OrderPage.StateError + " order uuid: " + order.uuid);
+      return;
     }
     window.open(order.payUrl);
   }
 
-  // todo 恢复
+  function handleClickCancel(order: Order) {
+    console.log("handleClickCancel", order);
+    if (order.state !== 5) {
+      showToast(
+        Locale.OrderPage.CancelFailedForStateError +
+          " order uuid: " +
+          order.uuid,
+      );
+      return;
+    }
+    setLoading(true);
+    fetch(`/api/order/cancel?uuid=${order.uuid}`, {
+      method: "put",
+      headers: {
+        Authorization: "Bearer " + authStore.token,
+      },
+    })
+      .then((res) => res.json())
+      .then((resp) => {
+        const cancelResp = resp as any as UniversalResponse;
+        if (cancelResp.code !== 0) {
+          if (cancelResp.code === 11302) {
+            showToast(Locale.OrderPage.TryAgainLaster);
+          } else {
+            showToast(cancelResp.message || Locale.OrderPage.CancelFailure);
+          }
+          return;
+        }
+        showToast(Locale.OrderPage.CancelSuccess);
+        reloadOrderList(authStore.token);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+
   useEffect(() => {
     if (profileStore.id === 0) {
       console.log("profileStore.id", profileStore.id);
@@ -141,7 +180,10 @@ export function Order() {
     );
   }
 
-  function getStateText(order: any) {
+  function getStateText(order: Order) {
+    if (order.state === 5 && !order.payUrl) {
+      return "支付超时";
+    }
     return (
       {
         0: "待提交",
@@ -158,22 +200,12 @@ export function Order() {
   const [orderList, setOrderList] = useState<Order[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    // for debugging
-    // setOrderList([
-    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 0, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 06:04:27', payTime: null, orderPackages: [{typeId: 1, tokens: 0, chatCount: 100, advancedChatCount: 1, drawCount: 1, days: 1, calcTypeId: 1}]},
-    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 5, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 07:04:27', payTime: null, orderPackages: [{typeId: 1, tokens: 0, chatCount: 0, advancedChatCount: 0, drawCount: 1, days: 1, calcTypeId: 1}]},
-    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 6, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 08:04:27', payTime: null, orderPackages: [{typeId: 1, tokens: 10, chatCount: 100, advancedChatCount: 0, drawCount: 1, days: 1, calcTypeId: 1}]},
-    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 10, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 09:04:27', payTime: '2023-06-16 06:04:27', orderPackages: [{typeId: 1, tokens: 0, chatCount: 100, advancedChatCount: 0, drawCount: 0, days: 1, calcTypeId: 1}]},
-    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 12, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 10:04:27', payTime: null, orderPackages: [{typeId: 1, tokens: 0, chatCount: 100, advancedChatCount: 0, drawCount: 0, days: 1, calcTypeId: 1}]},
-    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 20, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 11:04:27', cancelTime: '2023-06-16 06:04:27', orderPackages: [{typeId: 1, tokens: 0, chatCount: 100, advancedChatCount: 0, drawCount: 0, days: 1, calcTypeId: 1}]},
-    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 30, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 12:04:27', payTime: '2023-06-16 06:04:27', orderPackages: [{typeId: 1, tokens: 0, chatCount: 100, advancedChatCount: 0, drawCount: 0, days: 1, calcTypeId: 1}]},
-    // ])
+  const reloadOrderList = useCallback((token: string) => {
     setLoading(true);
     fetch("/api/order/my", {
       method: "get",
       headers: {
-        Authorization: "Bearer " + authStore.token,
+        Authorization: "Bearer " + token,
       },
     })
       .then((res) => res.json())
@@ -189,7 +221,21 @@ export function Order() {
       .finally(() => {
         setLoading(false);
       });
-  }, [authStore.token]);
+  }, []);
+
+  useEffect(() => {
+    // for debugging
+    // setOrderList([
+    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 0, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 06:04:27', payTime: null, orderPackages: [{typeId: 1, tokens: 0, chatCount: 100, advancedChatCount: 1, drawCount: 1, days: 1, calcTypeId: 1}]},
+    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 5, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 07:04:27', payTime: null, orderPackages: [{typeId: 1, tokens: 0, chatCount: 0, advancedChatCount: 0, drawCount: 1, days: 1, calcTypeId: 1}]},
+    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 6, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 08:04:27', payTime: null, orderPackages: [{typeId: 1, tokens: 10, chatCount: 100, advancedChatCount: 0, drawCount: 1, days: 1, calcTypeId: 1}]},
+    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 10, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 09:04:27', payTime: '2023-06-16 06:04:27', orderPackages: [{typeId: 1, tokens: 0, chatCount: 100, advancedChatCount: 0, drawCount: 0, days: 1, calcTypeId: 1}]},
+    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 12, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 10:04:27', payTime: null, orderPackages: [{typeId: 1, tokens: 0, chatCount: 100, advancedChatCount: 0, drawCount: 0, days: 1, calcTypeId: 1}]},
+    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 20, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 11:04:27', cancelTime: '2023-06-16 06:04:27', orderPackages: [{typeId: 1, tokens: 0, chatCount: 100, advancedChatCount: 0, drawCount: 0, days: 1, calcTypeId: 1}]},
+    //   { uuid: 'aaaa-aaaa-aaaa-aaaa-aaa', state: 30, title: '套餐购买：小时卡', price: '0.1', createTime: '2023-06-11 12:04:27', payTime: '2023-06-16 06:04:27', orderPackages: [{typeId: 1, tokens: 0, chatCount: 100, advancedChatCount: 0, drawCount: 0, days: 1, calcTypeId: 1}]},
+    // ])
+    reloadOrderList(authStore.token);
+  }, [authStore.token, reloadOrderList]);
 
   return (
     <ErrorBoundary>
@@ -255,18 +301,20 @@ export function Order() {
                     >
                       ￥{order.price}
                     </div>
-                    <div style={{ fontSize: "14px" }}>
-                      状态：{getStateText(order)}
+                    <div style={{ margin: "10px 0" }}>
+                      <div style={{ fontSize: "14px" }}>
+                        状态：{getStateText(order)}
+                      </div>
+                      <div
+                        style={{ fontSize: "14px" }}
+                      >{`创建时间：${order.createTime}`}</div>
+                      {order.payTime && (
+                        <div style={{ fontSize: "14px" }}>{`支付时间：${
+                          order.payTime || ""
+                        }`}</div>
+                      )}
                     </div>
-                    <div
-                      style={{ fontSize: "14px" }}
-                    >{`创建时间：${order.createTime}`}</div>
-                    {order.payTime && (
-                      <div style={{ fontSize: "14px" }}>{`支付时间：${
-                        order.payTime || ""
-                      }`}</div>
-                    )}
-                    {order.state === 5 && (
+                    {order.state === 5 && order.payUrl ? (
                       <div style={{ marginBottom: "15px", marginTop: "15px" }}>
                         <IconButton
                           text={Locale.OrderPage.Actions.Pay}
@@ -278,6 +326,29 @@ export function Order() {
                           }}
                         />
                       </div>
+                    ) : (
+                      <></>
+                    )}
+                    {order.state === 5 ? (
+                      <div
+                        style={{
+                          marginBottom: "15px",
+                          marginTop: "15px",
+                          display: "flex",
+                          justifyContent: "end",
+                        }}
+                      >
+                        <IconButton
+                          text={Locale.OrderPage.Actions.Cancel}
+                          type="second"
+                          disabled={loading}
+                          onClick={() => {
+                            handleClickCancel(order);
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <></>
                     )}
                   </div>
                 </DangerousListItem>

@@ -230,8 +230,13 @@ const cn = {
     NoOrder: "暂无订单",
     Loading: "请稍候……",
     StateError: "状态错误！",
+    CancelFailedForStateError: "当前状态下无法取消",
+    CancelSuccess: "订单取消成功",
+    CancelFailure: "订单取消失败",
+    TryAgainLaster: "操作失败，请稍候重试",
     Actions: {
       Pay: "支付",
+      Cancel: "取消",
       Pricing: "购买套餐",
       Profile: "个人中心",
     },
