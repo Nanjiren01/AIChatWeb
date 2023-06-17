@@ -38,7 +38,7 @@ export const useProfileStore = create<ProfileStore>()(
         })
           .then((res) => res.json())
           .then((res: ProfileResponse) => {
-            console.log("[Balance] got balance from server", res);
+            console.log("[Profile] got profile from server", res);
             const data = res.data;
             if (res.data) {
               set(() => ({
@@ -50,6 +50,7 @@ export const useProfileStore = create<ProfileStore>()(
                 balances: data.balances || [],
               }));
             } else {
+              console.log("[Profile] set id = 0");
               set(() => ({
                 id: 0,
                 tokens: 0,
@@ -62,7 +63,7 @@ export const useProfileStore = create<ProfileStore>()(
             return res;
           })
           .catch(() => {
-            console.error("[Balance] failed to fetch config");
+            console.error("[Profile] failed to fetch profile");
           })
           .finally(() => {
             // fetchState = 2;
@@ -70,7 +71,7 @@ export const useProfileStore = create<ProfileStore>()(
       },
     }),
     {
-      name: StoreKey.Balance,
+      name: StoreKey.Profile,
       version: 1,
     },
   ),
