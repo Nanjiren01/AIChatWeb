@@ -27,6 +27,15 @@
       fill: white !important;
     }
   }
+
+  &.second {
+    background-color: var(--second);
+    //color: white;
+
+    // path {
+    //   fill: white !important;
+    // }
+  }
 }
 
 .shadow {
