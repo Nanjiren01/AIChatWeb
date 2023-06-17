@@ -20,6 +20,8 @@ import {
   useProfileStore,
 } from "../store";
 
+import { copyToClipboard } from "../utils";
+
 import Locale from "../locales";
 import { Path } from "../constant";
 import { ErrorBoundary } from "./error";
@@ -303,7 +305,23 @@ export function Order() {
                     </div>
                     <div style={{ margin: "10px 0" }}>
                       <div style={{ fontSize: "14px" }}>
-                        状态：{getStateText(order)}
+                        &#12288;&#12288;状态：{getStateText(order)}
+                      </div>
+                      <div style={{ fontSize: "14px" }}>
+                        <span>
+                          &#12288;
+                          {`订单号：……${order.uuid.substring(
+                            order.uuid.length - 4,
+                          )}`}
+                        </span>
+                        <span
+                          className={styles["copy-action"]}
+                          onClick={() => {
+                            copyToClipboard(order.uuid);
+                          }}
+                        >
+                          {Locale.OrderPage.Actions.Copy}
+                        </span>
                       </div>
                       <div
                         style={{ fontSize: "14px" }}

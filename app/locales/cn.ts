@@ -243,6 +243,7 @@ const cn = {
       Cancel: "取消",
       Pricing: "购买套餐",
       Profile: "个人中心",
+      Copy: "复制",
     },
   },
   Settings: {
