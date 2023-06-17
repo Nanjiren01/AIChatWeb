@@ -211,6 +211,17 @@ export function Profile() {
 
           <ListItem>
             <IconButton
+              text={Locale.Profile.Actions.Order}
+              block={true}
+              type="second"
+              onClick={() => {
+                navigate(Path.Order);
+              }}
+            />
+          </ListItem>
+
+          <ListItem>
+            <IconButton
               text={Locale.LoginPage.Actions.Logout}
               block={true}
               onClick={() => {

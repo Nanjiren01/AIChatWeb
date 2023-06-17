@@ -68,6 +68,10 @@ const Pricing = dynamic(async () => (await import("./pricing")).Pricing, {
   loading: () => <Loading noLogo />,
 });
 
+const Order = dynamic(async () => (await import("./order")).Order, {
+  loading: () => <Loading noLogo />,
+});
+
 const Chat = dynamic(async () => (await import("./chat")).Chat, {
   loading: () => <Loading noLogo />,
 });
@@ -200,6 +204,7 @@ function Screen() {
           <Route path={Path.Register} element={<Register />} />
           <Route path={Path.Profile} element={<Profile />} />
           <Route path={Path.Pricing} element={<Pricing />} />
+          <Route path={Path.Order} element={<Order />} />
         </Routes>
       </div>
     </div>

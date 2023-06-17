@@ -192,6 +192,7 @@ const cn = {
     Actions: {
       Close: "关闭",
       Pricing: "购买套餐",
+      Order: "订单中心",
       GoToBalanceList: "更多",
       ConsultAdministrator: "请咨询站长",
     },
@@ -216,11 +217,24 @@ const cn = {
     Actions: {
       Close: "关闭",
       Buy: " 购 买 ",
+      Order: "订单中心",
     },
     NoPackage: "暂无可用套餐",
-    Loading: "套餐加载中……",
+    Loading: "请稍候……",
     PleaseLogin: "请先登录",
     ConsultAdministrator: "请咨询站长",
+    BuyFailedCause: "套餐购买失败！原因：",
+  },
+  OrderPage: {
+    Title: "订单中心",
+    NoOrder: "暂无订单",
+    Loading: "请稍候……",
+    StateError: "状态错误！",
+    Actions: {
+      Pay: "支付",
+      Pricing: "购买套餐",
+      Profile: "个人中心",
+    },
   },
   Settings: {
     Title: "设置",
