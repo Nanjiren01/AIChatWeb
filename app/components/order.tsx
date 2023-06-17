@@ -262,6 +262,27 @@ export function Order() {
         </div>
       </div>
       <div className={styles["order"]}>
+        <div
+          style={{
+            marginBottom: "10px",
+            display: "flex",
+            justifyContent: "end",
+          }}
+        >
+          <IconButton
+            text={
+              loading
+                ? Locale.OrderPage.Actions.Refreshing
+                : Locale.OrderPage.Actions.Refresh
+            }
+            type="second"
+            disabled={loading}
+            onClick={() => {
+              reloadOrderList(authStore.token);
+            }}
+          />
+        </div>
+
         {orderList.length === 0 ? (
           <List>
             <div

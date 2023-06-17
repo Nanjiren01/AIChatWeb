@@ -244,6 +244,8 @@ const cn = {
       Pricing: "购买套餐",
       Profile: "个人中心",
       Copy: "复制",
+      Refresh: "刷新",
+      Refreshing: "刷新中……",
     },
   },
   Settings: {
