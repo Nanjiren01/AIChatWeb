@@ -109,7 +109,11 @@ function useDragSideBar() {
   };
 }
 
-export function NoticeModel(props: { onClose: () => void }) {
+export function NoticeModel(props: {
+  title: string;
+  content: string;
+  onClose: () => void;
+}) {
   const noticeConfigStore = useNoticeConfigStore();
 
   return (
@@ -136,11 +140,11 @@ export function NoticeModel(props: { onClose: () => void }) {
               lineHeight: "40px",
               marginBottom: "10px",
             }}
-            dangerouslySetInnerHTML={{ __html: noticeConfigStore.title || "" }}
+            dangerouslySetInnerHTML={{ __html: props.title || "" }}
           ></div>
           <div
             dangerouslySetInnerHTML={{
-              __html: noticeConfigStore.content || "",
+              __html: props.content || "",
             }}
           ></div>
         </div>
@@ -152,6 +156,8 @@ export function NoticeModel(props: { onClose: () => void }) {
 export function SideBar(props: {
   className?: string;
   noticeShow: boolean;
+  noticeTitle: string;
+  noticeContent: string;
   setNoticeShow: (show: boolean) => void;
   logoLoading: boolean;
   logoUrl?: string;
@@ -286,7 +292,11 @@ export function SideBar(props: {
       ></div>
 
       {props.noticeShow && (
-        <NoticeModel onClose={() => props.setNoticeShow(false)} />
+        <NoticeModel
+          title={props.noticeTitle}
+          content={props.noticeContent}
+          onClose={() => props.setNoticeShow(false)}
+        />
       )}
     </div>
   );
