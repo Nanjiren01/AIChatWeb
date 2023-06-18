@@ -31,7 +31,15 @@ import {
   BOT_HELLO,
 } from "../store";
 
-export function Loading(props: { noLogo?: boolean }) {
+export function Loading(props: {
+  noLogo?: boolean;
+  logoLoading: boolean;
+  logoUrl?: string;
+}) {
+  const logoLoading = props.logoLoading;
+  const logoUrl = props.logoUrl;
+  const noLogo = props.noLogo;
+  console.log("Loading logoUrl", noLogo, logoUrl);
   return (
     <div className={styles["loading-content"] + " no-dark"}>
       {!props.noLogo && (
@@ -49,35 +57,35 @@ export function Loading(props: { noLogo?: boolean }) {
 }
 
 const Login = dynamic(async () => (await import("./login")).Login, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const Register = dynamic(async () => (await import("./register")).Register, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const Settings = dynamic(async () => (await import("./settings")).Settings, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const Profile = dynamic(async () => (await import("./profile")).Profile, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const Pricing = dynamic(async () => (await import("./pricing")).Pricing, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const Chat = dynamic(async () => (await import("./chat")).Chat, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const NewChat = dynamic(async () => (await import("./new-chat")).NewChat, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const MaskPage = dynamic(async () => (await import("./mask")).MaskPage, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 export function useSwitchTheme() {
@@ -134,7 +142,35 @@ const loadAsyncGoogleFont = () => {
   document.head.appendChild(linkEl);
 };
 
-function Screen() {
+interface LogoInfo {
+  uuid: string;
+  url?: string;
+  mimeType: string;
+}
+export interface LogoInfoResponse {
+  code: number;
+  message: string;
+  data: LogoInfo;
+}
+
+function setFavicon(url: string, mimeType: string) {
+  const link = document.createElement("link");
+  link.rel = "shortcut icon";
+  link.type = "image/svg+xml";
+  link.href = url;
+  const head = document.querySelector("head");
+  if (head == null) {
+    console.error("head is null");
+    return;
+  }
+  const existingLink = document.querySelector('head link[rel="shortcut icon"]');
+  if (existingLink) {
+    head.removeChild(existingLink);
+  }
+  head.appendChild(link);
+}
+
+function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   const config = useAppConfig();
   const location = useLocation();
   const isHome = location.pathname === Path.Home;
@@ -143,11 +179,6 @@ function Screen() {
   useEffect(() => {
     loadAsyncGoogleFont();
   }, []);
-
-  const { fetchWebsiteConfig } = useWebsiteConfigStore();
-  useEffect(() => {
-    fetchWebsiteConfig();
-  }, [fetchWebsiteConfig]);
 
   const authStore = useAuthStore();
   const noticeConfigStore = useNoticeConfigStore();
@@ -172,6 +203,12 @@ function Screen() {
     }
   }, [noticeConfigStore]);
 
+  const logoLoading = props.logoLoading;
+  const logoUrl = props.logoUrl || "";
+  useEffect(() => {
+    setFavicon(logoUrl, "");
+  }, [logoUrl]);
+
   return (
     <div
       className={
@@ -187,6 +224,8 @@ function Screen() {
         className={isHome ? styles["sidebar-show"] : ""}
         noticeShow={noticeShow}
         setNoticeShow={setNoticeShow}
+        logoLoading={logoLoading}
+        logoUrl={logoUrl}
       />
 
       <div className={styles["window-content"]} id={SlotID.AppBody}>
@@ -209,14 +248,58 @@ function Screen() {
 export function Home() {
   useSwitchTheme();
 
+  const authStore = useAuthStore();
+  const [logoLoading, setLogoLoading] = useState(false);
+  const { fetchWebsiteConfig, logoUrl } = useWebsiteConfigStore();
+  useEffect(() => {
+    fetchWebsiteConfig();
+  }, [fetchWebsiteConfig]);
+
+  // const [logoInfo, setLogoInfo] = useState({
+  //   uuid: false,
+  //   url: "",
+  //   mimeType: "",
+  // } as any as LogoInfo);
+  // useEffect(() => {
+  //   setLogoLoading(true);
+  //   // console.log('fetching logo info')
+  //   fetch("/api/file/logoInfo", {
+  //     method: "get",
+  //     headers: {
+  //       Authorization: "Bearer " + authStore.token,
+  //     },
+  //   })
+  //     .then(async (resp) => {
+  //       const json = (await resp.json()) as LogoInfoResponse;
+  //       // console.log('fetched logo info')
+  //       // console.log("json", json);
+  //       const info = json.data;
+  //       if (info.uuid !== null) {
+  //         info.url = "/api/file/" + info.uuid;
+  //         setLogoInfo({
+  //           uuid: info.uuid,
+  //           url: info.url,
+  //           mimeType: info.mimeType
+  //         });
+  //         setFavicon(info.url, info.mimeType);
+  //         console.log('logo set new', info)
+  //       }
+  //     })
+  //     .finally(() => {
+  //       setLogoLoading(false);
+  //     });
+  // }, [authStore.token]);
+
   if (!useHasHydrated()) {
-    return <Loading />;
+    return (
+      <Loading noLogo={false} logoLoading={logoLoading} logoUrl={logoUrl} />
+    );
   }
 
   return (
     <ErrorBoundary>
       <Router>
-        <Screen />
+        <Screen logoLoading={logoLoading} logoUrl={logoUrl} />
       </Router>
     </ErrorBoundary>
   );

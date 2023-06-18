@@ -427,10 +427,14 @@ export function Chat() {
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const websiteConfigStore = useWebsiteConfigStore();
-  const { chatPageSubTitle } = websiteConfigStore;
+  const { chatPageSubTitle, logoUrl } = websiteConfigStore;
   const navigate = useNavigate();
 
   const authStore = useAuthStore();
+
+  // useEffect(() => {
+  //   console.log('logoUrl changed:', logoUrl)
+  // }, [logoUrl])
 
   useEffect(() => {
     const isLoggedIn = authStore.username != null && authStore.username != "";
@@ -794,9 +798,9 @@ export function Chat() {
                 <div className={styles["chat-message-container"]}>
                   <div className={styles["chat-message-avatar"]}>
                     {message.role === "user" ? (
-                      <Avatar avatar={config.avatar} />
+                      <Avatar avatar={config.avatar} logoUrl={logoUrl} />
                     ) : (
-                      <MaskAvatar mask={session.mask} />
+                      <MaskAvatar mask={session.mask} logoUrl={logoUrl} />
                     )}
                   </div>
                   {showTyping && (

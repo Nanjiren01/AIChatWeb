@@ -19,7 +19,7 @@ import Locale from "../locales";
 
 import { Modal } from "./ui-lib";
 
-import { useAppConfig, useChatStore } from "../store";
+import { useAppConfig, useAuthStore, useChatStore } from "../store";
 import { useWebsiteConfigStore, useNoticeConfigStore } from "../store";
 
 import {
@@ -153,6 +153,8 @@ export function SideBar(props: {
   className?: string;
   noticeShow: boolean;
   setNoticeShow: (show: boolean) => void;
+  logoLoading: boolean;
+  logoUrl?: string;
 }) {
   const chatStore = useChatStore();
 
@@ -165,6 +167,9 @@ export function SideBar(props: {
 
   const websiteConfigStore = useWebsiteConfigStore();
   const noticeConfigStore = useNoticeConfigStore();
+
+  const logoLoading = props.logoLoading;
+  const logoUrl = props.logoUrl;
 
   return (
     <div
@@ -180,7 +185,13 @@ export function SideBar(props: {
           {websiteConfigStore.subTitle || "Build your own AI assistant."}
         </div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
-          <NextImage src={ChatBotIcon.src} width={44} height={44} alt="bot" />
+          {logoLoading ? (
+            <></>
+          ) : !logoUrl ? (
+            <NextImage src={ChatBotIcon.src} width={44} height={44} alt="bot" />
+          ) : (
+            <img src={logoUrl} width={44} height={44} />
+          )}
         </div>
       </div>
 
