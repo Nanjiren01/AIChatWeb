@@ -166,6 +166,8 @@ function Screen() {
   }, [botHello]);
 
   const [noticeShow, setNoticeShow] = useState(false);
+  const [noticeTitle, setNoticeTitle] = useState("");
+  const [noticeContent, setNoticeContent] = useState("");
   useEffect(() => {
     fetch("/api/globalConfig/notice", {
       method: "get",
@@ -174,8 +176,12 @@ function Screen() {
       .then((res: NoticeConfigResponse) => {
         console.log("[GlobalConfig] got notice config from server", res);
         const notice = res.data.noticeContent;
-        if (notice.splash) {
-          setNoticeShow(true);
+        if (notice.show) {
+          setNoticeTitle(notice.title);
+          setNoticeContent(notice.content);
+          if (notice.splash) {
+            setNoticeShow(true);
+          }
         }
       })
       .catch(() => {
@@ -200,6 +206,8 @@ function Screen() {
       <SideBar
         className={isHome ? styles["sidebar-show"] : ""}
         noticeShow={noticeShow}
+        noticeTitle={noticeTitle}
+        noticeContent={noticeContent}
         setNoticeShow={setNoticeShow}
       />
 
