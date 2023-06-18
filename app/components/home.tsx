@@ -2,7 +2,7 @@
 
 require("../polyfill");
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import styles from "./home.module.scss";
 
@@ -24,12 +24,7 @@ import {
 } from "react-router-dom";
 import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
-import {
-  useWebsiteConfigStore,
-  useNoticeConfigStore,
-  useAuthStore,
-  BOT_HELLO,
-} from "../store";
+import { useWebsiteConfigStore, useAuthStore, BOT_HELLO } from "../store";
 
 export function Loading(props: {
   noLogo?: boolean;
@@ -76,6 +71,10 @@ const Pricing = dynamic(async () => (await import("./pricing")).Pricing, {
   loading: () => <Loading noLogo logoLoading />,
 });
 
+const Order = dynamic(async () => (await import("./order")).Order, {
+  loading: () => <Loading noLogo logoLoading />,
+});
+
 const Chat = dynamic(async () => (await import("./chat")).Chat, {
   loading: () => <Loading noLogo logoLoading />,
 });
@@ -87,6 +86,19 @@ const NewChat = dynamic(async () => (await import("./new-chat")).NewChat, {
 const MaskPage = dynamic(async () => (await import("./mask")).MaskPage, {
   loading: () => <Loading noLogo logoLoading />,
 });
+
+export interface NoticeConfig {
+  show: boolean;
+  splash: boolean;
+  title: string;
+  content: string;
+}
+export interface NoticeConfigData {
+  noticeContent: NoticeConfig;
+}
+
+import { Response } from "../api/common";
+export type NoticeConfigResponse = Response<NoticeConfigData>;
 
 export function useSwitchTheme() {
   const config = useAppConfig();
@@ -180,13 +192,10 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
     loadAsyncGoogleFont();
   }, []);
 
-  const authStore = useAuthStore();
-  const noticeConfigStore = useNoticeConfigStore();
+  const { fetchWebsiteConfig } = useWebsiteConfigStore();
   useEffect(() => {
-    if (authStore.token) {
-      noticeConfigStore.fetchNoticeConfig(authStore.token);
-    }
-  }, [authStore.token, noticeConfigStore]);
+    fetchWebsiteConfig();
+  }, [fetchWebsiteConfig]);
 
   const { botHello } = useWebsiteConfigStore();
   useEffect(() => {
@@ -198,10 +207,24 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
 
   const [noticeShow, setNoticeShow] = useState(false);
   useEffect(() => {
-    if (noticeConfigStore.splash) {
-      setNoticeShow(true);
-    }
-  }, [noticeConfigStore]);
+    fetch("/api/globalConfig/notice", {
+      method: "get",
+    })
+      .then((res) => res.json())
+      .then((res: NoticeConfigResponse) => {
+        console.log("[GlobalConfig] got notice config from server", res);
+        const notice = res.data.noticeContent;
+        if (notice.splash) {
+          setNoticeShow(true);
+        }
+      })
+      .catch(() => {
+        console.error("[GlobalConfig] failed to fetch config");
+      })
+      .finally(() => {
+        // fetchState = 2;
+      });
+  }, []);
 
   const logoLoading = props.logoLoading;
   const logoUrl = props.logoUrl || "";
@@ -239,6 +262,7 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
           <Route path={Path.Register} element={<Register />} />
           <Route path={Path.Profile} element={<Profile />} />
           <Route path={Path.Pricing} element={<Pricing />} />
+          <Route path={Path.Order} element={<Order />} />
         </Routes>
       </div>
     </div>

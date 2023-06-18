@@ -3,7 +3,14 @@ import { useState, useEffect } from "react";
 import styles from "./pricing.module.scss";
 
 import CloseIcon from "../icons/close.svg";
-import { Input, List, DangerousListItem, Modal, PasswordInput } from "./ui-lib";
+import {
+  Input,
+  List,
+  DangerousListItem,
+  ListItem,
+  Modal,
+  PasswordInput,
+} from "./ui-lib";
 
 import { IconButton } from "./button";
 import { useAuthStore, useAccessStore, useWebsiteConfigStore } from "../store";
@@ -14,7 +21,7 @@ import { ErrorBoundary } from "./error";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "./ui-lib";
 
-interface Package {
+export interface Package {
   id: number;
   state: number;
   calcType: string;
@@ -106,7 +113,51 @@ export function Pricing() {
 
   function handleClickBuy(pkg: Package) {
     console.log("buy pkg", pkg);
-    showToast(Locale.PricingPage.ConsultAdministrator);
+    setLoading(true);
+    fetch("/api/order", {
+      method: "post",
+      headers: {
+        Authorization: "Bearer " + authStore.token,
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        packageUuid: pkg.uuid,
+        count: 1,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("resp.data", res.data);
+        const order = res.data;
+        if (res.code !== 0) {
+          if (res.code === 11303) {
+            showToast(Locale.PricingPage.TOO_FREQUENCILY);
+          } else {
+            const message = Locale.PricingPage.BuyFailedCause + res.message;
+            showToast(Locale.PricingPage.CREATE_ORDER_FAILED);
+          }
+          return;
+        }
+
+        const logs = JSON.parse(order.logs);
+        // console.log('order.logs', logs)
+        const log = logs[0];
+        if (order.state === 5) {
+          // console.log(log.message?.url)
+          window.open(log.message?.url, "_blank");
+        } else {
+          const message =
+            Locale.PricingPage.BuyFailedCause +
+            (log.message?.message || log.message);
+          console.error(message);
+          showToast(message);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+    // showToast(Locale.PricingPage.ConsultAdministrator);
   }
 
   return (
@@ -179,6 +230,7 @@ export function Pricing() {
                       text={Locale.PricingPage.Actions.Buy}
                       type="primary"
                       block={true}
+                      disabled={loading}
                       onClick={() => {
                         handleClickBuy(item);
                       }}
@@ -189,6 +241,19 @@ export function Pricing() {
             </List>
           );
         })}
+
+        <List>
+          <ListItem>
+            <IconButton
+              text={Locale.PricingPage.Actions.Order}
+              block={true}
+              type="second"
+              onClick={() => {
+                navigate(Path.Order);
+              }}
+            />
+          </ListItem>
+        </List>
       </div>
     </ErrorBoundary>
   );

@@ -313,7 +313,10 @@ export const useChatStore = create<ChatStore>()(
                   message = balanceNotEnough
                     ? balanceNotEnough
                     : Locale.Chat.BalanceNotEnough;
-                } else if (jsonContent && jsonContent.code === 10002) {
+                } else if (
+                  jsonContent &&
+                  (jsonContent.code === 10001 || jsonContent.code === 10002)
+                ) {
                   authStore.removeToken();
                   message = Locale.Error.Unauthorized;
                 } else {

@@ -47,8 +47,13 @@ export function Profile() {
   const { fetchProfile } = profileStore;
   const { token } = authStore;
   useEffect(() => {
-    fetchProfile(token);
-  }, [fetchProfile, token]);
+    fetchProfile(token).then((res) => {
+      // console.log('profile res', res)
+      if (!res.data || !res.data.id) {
+        navigate(Path.Login);
+      }
+    });
+  }, [fetchProfile, token, navigate]);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -58,12 +63,6 @@ export function Profile() {
       navigate(Path.Login);
     }, 500);
   }
-
-  useEffect(() => {
-    if (profileStore.id === 0) {
-      navigate(Path.Login);
-    }
-  }, [profileStore, navigate]);
 
   return (
     <ErrorBoundary>
@@ -205,6 +204,17 @@ export function Profile() {
               type="primary"
               onClick={() => {
                 navigate(Path.Pricing);
+              }}
+            />
+          </ListItem>
+
+          <ListItem>
+            <IconButton
+              text={Locale.Profile.Actions.Order}
+              block={true}
+              type="second"
+              onClick={() => {
+                navigate(Path.Order);
               }}
             />
           </ListItem>
