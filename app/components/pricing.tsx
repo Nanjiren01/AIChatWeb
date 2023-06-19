@@ -20,6 +20,7 @@ import { Path } from "../constant";
 import { ErrorBoundary } from "./error";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "./ui-lib";
+import { useRouter } from "next/navigation";
 
 export interface Package {
   id: number;
@@ -44,6 +45,7 @@ interface PackageResponse {
 }
 
 export function Pricing() {
+  const router = useRouter();
   const navigate = useNavigate();
   const authStore = useAuthStore();
 
@@ -145,7 +147,9 @@ export function Pricing() {
         const log = logs[0];
         if (order.state === 5) {
           // console.log(log.message?.url)
-          window.open(log.message?.url, "_blank");
+          // window.open(log.message?.url, "_blank");
+          console.log("router.push", log.message?.url);
+          router.push(log.message?.url);
         } else {
           const message =
             Locale.PricingPage.BuyFailedCause +
