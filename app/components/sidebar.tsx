@@ -6,12 +6,14 @@ import { IconButton } from "./button";
 import SettingsIcon from "../icons/settings.svg";
 import GithubIcon from "../icons/github.svg";
 import BookOpenIcon from "../icons/book-open.svg";
-import LoginIcon from "../icons/login.svg";
-import ChatGptIcon from "../icons/chatgpt.svg";
+// import LoginIcon from "../icons/login.svg";
+// import ChatGptIcon from "../icons/chatgpt.svg";
+import ChatBotIcon from "../icons/ai-chat-bot.png";
 import AddIcon from "../icons/add.svg";
 import CloseIcon from "../icons/close.svg";
 import MaskIcon from "../icons/mask.svg";
 import PluginIcon from "../icons/plugin.svg";
+import NextImage from "next/image";
 
 import Locale from "../locales";
 
@@ -107,7 +109,11 @@ function useDragSideBar() {
   };
 }
 
-export function NoticeModel(props: { onClose: () => void }) {
+export function NoticeModel(props: {
+  title: string;
+  content: string;
+  onClose: () => void;
+}) {
   const noticeConfigStore = useNoticeConfigStore();
 
   return (
@@ -134,11 +140,11 @@ export function NoticeModel(props: { onClose: () => void }) {
               lineHeight: "40px",
               marginBottom: "10px",
             }}
-            dangerouslySetInnerHTML={{ __html: noticeConfigStore.title || "" }}
+            dangerouslySetInnerHTML={{ __html: props.title || "" }}
           ></div>
           <div
             dangerouslySetInnerHTML={{
-              __html: noticeConfigStore.content || "",
+              __html: props.content || "",
             }}
           ></div>
         </div>
@@ -147,7 +153,13 @@ export function NoticeModel(props: { onClose: () => void }) {
   );
 }
 
-export function SideBar(props: { className?: string }) {
+export function SideBar(props: {
+  className?: string;
+  noticeShow: boolean;
+  noticeTitle: string;
+  noticeContent: string;
+  setNoticeShow: (show: boolean) => void;
+}) {
   const chatStore = useChatStore();
 
   // drag side bar
@@ -159,16 +171,6 @@ export function SideBar(props: { className?: string }) {
 
   const websiteConfigStore = useWebsiteConfigStore();
   const noticeConfigStore = useNoticeConfigStore();
-  const [noticeShow, setNoticeShow] = useState(false);
-  function showNotice() {
-    console.log("showNotice");
-    setNoticeShow(true);
-  }
-  useEffect(() => {
-    if (noticeConfigStore.splash) {
-      showNotice();
-    }
-  }, [noticeConfigStore]);
 
   return (
     <div
@@ -184,7 +186,7 @@ export function SideBar(props: { className?: string }) {
           {websiteConfigStore.subTitle || "Build your own AI assistant."}
         </div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
-          <ChatGptIcon />
+          <NextImage src={ChatBotIcon.src} width={44} height={44} alt="bot" />
         </div>
       </div>
 
@@ -238,7 +240,7 @@ export function SideBar(props: { className?: string }) {
               icon={<BookOpenIcon />}
               onClick={() => {
                 if (noticeConfigStore.show) {
-                  showNotice();
+                  props.setNoticeShow(true);
                 } else {
                   showToast(Locale.Home.NoNotice);
                 }
@@ -278,7 +280,13 @@ export function SideBar(props: { className?: string }) {
         onMouseDown={(e) => onDragMouseDown(e as any)}
       ></div>
 
-      {noticeShow && <NoticeModel onClose={() => setNoticeShow(false)} />}
+      {props.noticeShow && (
+        <NoticeModel
+          title={props.noticeTitle}
+          content={props.noticeContent}
+          onClose={() => props.setNoticeShow(false)}
+        />
+      )}
     </div>
   );
 }

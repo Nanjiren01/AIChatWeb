@@ -45,10 +45,14 @@ export function Profile() {
   }, []);
 
   const { fetchProfile } = profileStore;
-  const { token } = authStore;
   useEffect(() => {
-    fetchProfile(token);
-  }, [fetchProfile, token]);
+    fetchProfile(authStore.token).then((res) => {
+      if (!res.data || !res.data.id) {
+        authStore.logout();
+        navigate(Path.Login);
+      }
+    });
+  }, [fetchProfile, authStore, navigate]);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 

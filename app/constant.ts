@@ -38,6 +38,7 @@ export enum StoreKey {
   Prompt = "prompt-store",
   Update = "chat-update",
   Balance = "balance",
+  Profile = "profile",
   WebsiteConfig = "websiteCofnig",
   NoticeConfig = "noticeConfig",
 }

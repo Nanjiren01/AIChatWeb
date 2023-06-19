@@ -31,6 +31,8 @@ interface Package {
   days: string;
 }
 interface PackageResponse {
+  code: number;
+  message?: string;
   data: Package[];
 }
 
@@ -42,6 +44,7 @@ export function Pricing() {
 
   const [packages, setPackages] = useState([] as Package[]);
   const [loading, setLoading] = useState(false);
+  const [isTokenValid, setTokenValid] = useState("unknown");
   useEffect(() => {
     setLoading(true);
     fetch("/api/package/onSales", {
@@ -53,6 +56,15 @@ export function Pricing() {
       .then((res) => res.json())
       .then((res) => {
         const packagesResp = res as unknown as PackageResponse;
+        if (Math.floor(packagesResp.code / 100) === 100) {
+          setTokenValid("invalid");
+        } else {
+          setTokenValid("valid");
+        }
+        if (!packagesResp.data) {
+          setPackages([]);
+          return;
+        }
         setPackages(
           packagesResp.data.map((pkg) => {
             pkg = { ...pkg };
@@ -127,7 +139,21 @@ export function Pricing() {
         ) : (
           <></>
         )}
-        {!loading && (!packages || packages.length === 0) ? (
+        {!loading && isTokenValid === "invalid" && (
+          <div style={{ height: "100px", textAlign: "center" }}>
+            <a
+              href="javascript:void(0)"
+              onClick={() => {
+                navigate(Path.Login);
+              }}
+            >
+              {Locale.PricingPage.PleaseLogin}
+            </a>
+          </div>
+        )}
+        {!loading &&
+        !(isTokenValid === "invalid") &&
+        (!packages || packages.length === 0) ? (
           <div style={{ height: "100px", textAlign: "center" }}>
             {Locale.PricingPage.NoPackage}
           </div>

@@ -5,7 +5,7 @@ import styles from "./button.module.scss";
 export function IconButton(props: {
   onClick?: () => void;
   icon?: JSX.Element;
-  type?: "primary" | "danger";
+  type?: "primary" | "second" | "danger";
   text?: string;
   block?: boolean;
   bordered?: boolean;
