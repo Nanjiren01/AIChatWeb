@@ -188,7 +188,7 @@ QQ群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=Z-vLdIURiLJW7
 
 <img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
 
-<img src="./docs/images/wechat4.jpg" width="400px" alt="wechat" style="display: inline-block" />
+<img src="https://chat.nanjiren.online/api/file/5f234015-cf2e-46f7-ad7b-a4de29853750" width="400px" alt="wechat" style="display: inline-block" />
 
 ## 知识星球
 
