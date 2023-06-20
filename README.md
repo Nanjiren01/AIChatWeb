@@ -226,6 +226,10 @@ QQ群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=Z-vLdIURiLJW7
 网址：[https://candy666.top/](https://candy666.top/)
 用户：~1000
 
+### AI小老鼠
+网址：[https://chat.mice.pub](https://chat.mice.pub)
+用户：~1000
+
 ### pro版本规划路线
 
 1. 对接支付系统 Pay
