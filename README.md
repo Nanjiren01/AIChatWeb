@@ -10,6 +10,8 @@
 ·
 <a href="#项目优势">项目优势</a>
 ·
+<a href="#交流">交流</a>
+·
 <a href="#知识星球优秀案例">优秀案例</a>
 </div>
 
@@ -182,9 +184,13 @@ Super Admin Password is valid.
 
 
 
-### 加入QQ交流群、微信群获取更多内容
+## 交流
+
+加入QQ交流群、微信群获取更多内容
 
 QQ群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=Z-vLdIURiLJW7IInTMfRPnjFF2w5biv9&jump_from=webapi&authKey=xwz1vwqsxZvdsYVqbs8jhUz85CnwKAnNq2MLmfAewdOvtgQrX99I1i3DpNx4AnM5" target="_blank">437863036</a>
+
+telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 
 <img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
 
