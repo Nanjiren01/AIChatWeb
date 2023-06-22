@@ -1,0 +1,25 @@
+.pay {
+  padding: 20px;
+  overflow: auto;
+  border-top: var(--border-in-light);
+}
+
+.container {
+  width: 360px;
+  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
+  padding-top: 25px;
+  border: var(--border-in-light);
+
+  .bottom {
+    height: 50px;
+    line-height: 50px;
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+    border-top: var(--border-in-light);
+  }
+}

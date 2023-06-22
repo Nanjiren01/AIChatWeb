@@ -9,6 +9,8 @@ export interface WebsiteConfigStore {
   registerPageSubTitle: string;
   pricingPageTitle: string;
   pricingPageSubTitle: string;
+  payPageTitle: string;
+  payPageSubTitle: string;
   chatPageSubTitle: string;
   sensitiveWordsTip: string;
   balanceNotEnough: string;
@@ -27,6 +29,8 @@ export interface WebsiteConfig {
   registerTypes: string[];
   pricingPageTitle: string;
   pricingPageSubTitle: string;
+  payPageTitle: string;
+  payPageSubTitle: string;
   chatPageSubTitle: string;
   sensitiveWordsTip: string;
   balanceNotEnough: string;
@@ -51,6 +55,8 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       registerTypes: [],
       pricingPageTitle: "",
       pricingPageSubTitle: "",
+      payPageTitle: "",
+      payPageSubTitle: "",
       chatPageSubTitle: "",
       sensitiveWordsTip: "",
       balanceNotEnough: "",
@@ -78,6 +84,8 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
                   : ["OnlyUsername"],
               pricingPageTitle: website.pricingPageTitle,
               pricingPageSubTitle: website.pricingPageSubTitle,
+              payPageTitle: website.payPageTitle,
+              payPageSubTitle: website.payPageSubTitle,
               chatPageSubTitle: website.chatPageSubTitle,
               sensitiveWordsTip: website.sensitiveWordsTip,
               balanceNotEnough: website.balanceNotEnough,

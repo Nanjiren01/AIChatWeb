@@ -29,6 +29,7 @@ import { useNavigate } from "react-router-dom";
 import { showToast, Popover } from "./ui-lib";
 // import { Avatar, AvatarPicker } from "./emoji";
 import { Package } from "./pricing";
+import { useRouter } from "next/navigation";
 
 interface OrderLog {
   time: Date;
@@ -66,6 +67,7 @@ interface Order {
   submitTime?: Date;
   payTime?: Date;
   payUrl: string;
+  payChannel?: string;
   orderPackages: OrderPackage[];
 }
 interface OrderListResponse {
@@ -80,6 +82,7 @@ interface UniversalResponse {
 }
 
 export function Order() {
+  const router = useRouter();
   const navigate = useNavigate();
   const authStore = useAuthStore();
   // const accessStore = useAccessStore();
@@ -109,7 +112,12 @@ export function Order() {
       showToast(Locale.OrderPage.StateError + " order uuid: " + order.uuid);
       return;
     }
-    window.open(order.payUrl);
+    if (order.payChannel === "xunhu") {
+      router.push(order.payUrl);
+    } else {
+      navigate(Path.Pay + "?uuid=" + order.uuid);
+    }
+    // window.open(order.payUrl);
   }
 
   function handleClickCancel(order: Order) {
