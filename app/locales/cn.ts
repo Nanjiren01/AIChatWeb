@@ -4,6 +4,7 @@ const cn = {
   WIP: "该功能仍在开发中……",
   Error: {
     Unauthorized: "登录信息已过期，请前往[登录页](/#/login)",
+    Login: "您已登录，请点击上方「重试」按钮",
   },
   Sidebar: {
     Title: "公告",
