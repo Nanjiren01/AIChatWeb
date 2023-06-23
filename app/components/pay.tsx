@@ -78,7 +78,7 @@ export function Pay() {
             setPaying(false);
           }
         });
-    }, 2000);
+    }, 1200);
 
     return () => {
       console.log("clearInterval");
@@ -114,7 +114,12 @@ export function Pay() {
             height={27}
             alt="wechat-pay"
           />
-          <div style={{ lineHeight: "60px" }}>套餐购买</div>
+          <div style={{ marginTop: "10px" }}>
+            {order ? order.title : "套餐购买"}
+          </div>
+          <div style={{ lineHeight: "50px" }}>
+            ￥<span style={{ fontSize: "32px" }}>{order && order.price}</span>
+          </div>
           {qrCode && <img src={qrCode} width={230} height={230} alt="qrcode" />}
           {loading && (
             <div
@@ -134,22 +139,23 @@ export function Pay() {
 
         {order && (
           <div style={{ textAlign: "center", margin: "20px" }}>
+            当前订单：
             {order.state === 0
-              ? "当前订单还未提交"
+              ? "未提交"
               : order.state === 5
               ? order.payUrl
-                ? "当前订单待支付"
-                : "当前订单已超时"
+                ? "待支付"
+                : "已超时"
               : order.state === 6
-              ? "当前订单提交失败"
+              ? "提交失败"
               : order.state === 10
-              ? "当前订单已支付"
+              ? "已支付"
               : order.state === 12
-              ? "当前订单支付失败"
+              ? "支付失败"
               : order.state === 20
-              ? "当前订单已取消"
+              ? "已取消"
               : order.state === 30
-              ? "当前订单已删除"
+              ? "已删除"
               : ""}
           </div>
         )}
