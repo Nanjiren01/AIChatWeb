@@ -436,7 +436,10 @@ export function Chat() {
     const isLoggedIn = authStore.username != null && authStore.username != "";
     console.log("isLoggedIn", isLoggedIn);
     if (!isLoggedIn) {
-      navigate("/login");
+      if (authStore.token) {
+        authStore.removeToken();
+      }
+      navigate(Path.Login);
     }
   }, [authStore, navigate]);
 
@@ -635,6 +638,22 @@ export function Chat() {
     }
     context.push(copiedHello);
   }
+
+  useEffect(() => {
+    const message =
+      session.messages.length > 0
+        ? session.messages.at(session.messages.length - 1)
+        : null;
+    if (!message) {
+      return;
+    }
+    if (message.content === Locale.Error.Unauthorized) {
+      if (authStore.token) {
+        console.log("change the last message");
+        message.content = Locale.Error.Login;
+      }
+    }
+  }, []);
 
   // clear context index = context length + index in messages
   const clearContextIndex =
