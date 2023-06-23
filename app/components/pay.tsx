@@ -13,6 +13,7 @@ import { IconButton } from "./button";
 import { Path } from "../constant";
 
 import Locale from "../locales";
+import { showToast } from "./ui-lib";
 
 export function Pay() {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ export function Pay() {
   // const [error, setError] = useState(false)
 
   const [qrCode, setQrCode] = useState("");
+  const [lastOrderState, setLastOrderState] = useState<number | null>(null);
   useEffect(() => {
     setLoading(true);
     fetch("/api/order/" + orderUuid, {
@@ -42,6 +44,7 @@ export function Pay() {
         const order = res.data;
         console.log("order", order);
         setOrder(order);
+        setLastOrderState(order.state);
         if (order.state === 5) {
           setQrCode(order.payUrl);
           setPaying(true);
@@ -71,12 +74,17 @@ export function Pay() {
           const order = res.data;
           console.log("order.state", order.state);
           setOrder(order);
+          if (lastOrderState === 5 && order.state === 10) {
+            showToast(Locale.PayPage.PaidSuccess);
+            navigate(Path.Balance);
+          }
           if (order.state != 5) {
             setPaying(false);
             clearInterval(timer);
           } else {
             setPaying(false);
           }
+          setLastOrderState(order.state);
         });
     }, 1200);
 

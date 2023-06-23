@@ -233,6 +233,7 @@ const en: RequiredLocaleType = {
     CREATE_ORDER_FAILED: "创建订单失败",
   },
   PayPage: {
+    PaidSuccess: "支付成功",
     Actions: {
       Close: "关闭",
     },
