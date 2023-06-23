@@ -14,6 +14,7 @@ export const runtime = "edge";
 
 export interface Balance {
   id: number;
+  title?: string;
   calcType: string;
   calcTypeId: number;
   source: string;
@@ -27,6 +28,7 @@ export interface Balance {
   drawCount: number;
   state: number;
   userId: number;
+  expired?: boolean;
 }
 
 export interface ProfileData {

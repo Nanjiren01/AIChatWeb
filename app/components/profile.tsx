@@ -29,7 +29,7 @@ export function Profile() {
   const config = useAppConfig();
   const updateConfig = config.update;
 
-  const [loadingUsage, setLoadingUsage] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const keydownEvent = (e: KeyboardEvent) => {
@@ -46,12 +46,17 @@ export function Profile() {
 
   const { fetchProfile } = profileStore;
   useEffect(() => {
-    fetchProfile(authStore.token).then((res) => {
-      if (!res.data || !res.data.id) {
-        authStore.logout();
-        navigate(Path.Login);
-      }
-    });
+    setLoading(true);
+    fetchProfile(authStore.token)
+      .then((res) => {
+        if (!res.data || !res.data.id) {
+          authStore.logout();
+          navigate(Path.Login);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [fetchProfile, authStore, navigate]);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -113,80 +118,104 @@ export function Profile() {
         </List>
 
         <List>
-          {profileStore.balances && profileStore.balances.length > 0 ? (
-            <ListItem
-              title={Locale.Profile.BalanceItem.Title}
-              subTitle={Locale.Profile.BalanceItem.SubTitle}
-            >
-              <span>
-                {profileStore.balances[0].calcType == "Total"
-                  ? Locale.Profile.BalanceItem.CalcTypes.Total
-                  : profileStore.balances[0].calcType == "Daily"
-                  ? Locale.Profile.BalanceItem.CalcTypes.Daily
-                  : profileStore.balances[0].calcType == "Hourly"
-                  ? Locale.Profile.BalanceItem.CalcTypes.Hourly
-                  : profileStore.balances[0].calcType == "ThreeHourly"
-                  ? Locale.Profile.BalanceItem.CalcTypes.ThreeHourly
-                  : ""}
-              </span>
-            </ListItem>
+          <div
+            style={{
+              borderBottom: "var(--border-in-light)",
+              minHeight: "40px",
+              lineHeight: "40px",
+              padding: "10px 20px",
+              textAlign: "center",
+            }}
+          >
+            {loading
+              ? "加载中"
+              : profileStore.balances && profileStore.balances.length === 0
+              ? "您尚未购买任何套餐"
+              : profileStore.balances[0].expired
+              ? "您所购套餐已经全部过期"
+              : "以下仅展示最早到期的套餐，点击下方所有套餐可查看所有已购套餐"}
+          </div>
+
+          {profileStore.balances &&
+          profileStore.balances.length > 0 &&
+          !profileStore.balances[0].expired ? (
+            <>
+              <ListItem
+                title={Locale.Profile.BalanceItem.Title}
+                subTitle={Locale.Profile.BalanceItem.SubTitle}
+              >
+                <span>
+                  {profileStore.balances[0].calcType == "Total"
+                    ? Locale.Profile.BalanceItem.CalcTypes.Total
+                    : profileStore.balances[0].calcType == "Daily"
+                    ? Locale.Profile.BalanceItem.CalcTypes.Daily
+                    : profileStore.balances[0].calcType == "Hourly"
+                    ? Locale.Profile.BalanceItem.CalcTypes.Hourly
+                    : profileStore.balances[0].calcType == "ThreeHourly"
+                    ? Locale.Profile.BalanceItem.CalcTypes.ThreeHourly
+                    : ""}
+                </span>
+              </ListItem>
+              <ListItem
+                title={Locale.Profile.Tokens.Title}
+                subTitle={Locale.Profile.Tokens.SubTitle}
+              >
+                <span>
+                  {profileStore.balances[0].tokens == -1
+                    ? "无限制"
+                    : profileStore.balances[0].tokens}
+                </span>
+              </ListItem>
+
+              <ListItem
+                title={Locale.Profile.ChatCount.Title}
+                subTitle={Locale.Profile.ChatCount.SubTitle}
+              >
+                <span>
+                  {profileStore.balances[0].chatCount == -1
+                    ? "无限制"
+                    : profileStore.balances[0].chatCount}
+                </span>
+              </ListItem>
+
+              <ListItem
+                title={Locale.Profile.AdvanceChatCount.Title}
+                subTitle={Locale.Profile.AdvanceChatCount.SubTitle}
+              >
+                <span>
+                  {profileStore.balances[0].advancedChatCount == -1
+                    ? "无限制"
+                    : profileStore.balances[0].advancedChatCount}
+                </span>
+              </ListItem>
+              <ListItem
+                title={Locale.Profile.DrawCount.Title}
+                subTitle={Locale.Profile.DrawCount.SubTitle}
+              >
+                <span>
+                  {profileStore.balances[0].drawCount == -1
+                    ? "无限制"
+                    : profileStore.balances[0].drawCount}
+                </span>
+              </ListItem>
+              <ListItem
+                title={Locale.Profile.ExpireList.Title}
+                subTitle={Locale.Profile.ExpireList.SubTitle}
+              >
+                <span>{profileStore.balances[0].expireTime}</span>
+              </ListItem>
+            </>
           ) : (
             <></>
           )}
-          <ListItem
-            title={Locale.Profile.Tokens.Title}
-            subTitle={Locale.Profile.Tokens.SubTitle}
-          >
-            <span>
-              {profileStore.tokens == -1 ? "无限制" : profileStore.tokens}
-            </span>
-          </ListItem>
-
-          <ListItem
-            title={Locale.Profile.ChatCount.Title}
-            subTitle={Locale.Profile.ChatCount.SubTitle}
-          >
-            <span>
-              {profileStore.chatCount == -1 ? "无限制" : profileStore.chatCount}
-            </span>
-          </ListItem>
-
-          <ListItem
-            title={Locale.Profile.AdvanceChatCount.Title}
-            subTitle={Locale.Profile.AdvanceChatCount.SubTitle}
-          >
-            <span>
-              {profileStore.advanceChatCount == -1
-                ? "无限制"
-                : profileStore.advanceChatCount}
-            </span>
-          </ListItem>
-
-          <ListItem
-            title={Locale.Profile.DrawCount.Title}
-            subTitle={Locale.Profile.DrawCount.SubTitle}
-          >
-            <span>
-              {profileStore.drawCount == -1 ? "无限制" : profileStore.drawCount}
-            </span>
-          </ListItem>
-
           {profileStore.balances && profileStore.balances.length > 0 ? (
-            <ListItem
-              title={Locale.Profile.ExpireList.Title}
-              subTitle={Locale.Profile.ExpireList.SubTitle}
-            >
-              <span>{profileStore.balances[0].expireTime}</span>
-            </ListItem>
-          ) : (
-            <></>
-          )}
-          {profileStore.balances && profileStore.balances.length > 1 ? (
             <ListItem>
               <IconButton
-                text={Locale.Profile.Actions.GoToBalanceList}
+                text={Locale.Profile.Actions.All}
+                type="second"
                 onClick={() => {
-                  showToast(Locale.Profile.Actions.ConsultAdministrator);
+                  // showToast(Locale.Profile.Actions.ConsultAdministrator);
+                  navigate(Path.Balance);
                 }}
               />
             </ListItem>
