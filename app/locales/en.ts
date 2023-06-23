@@ -178,19 +178,19 @@ const en: RequiredLocaleType = {
     Username: "账号",
     Tokens: {
       Title: "tokens",
-      SubTitle: "剩余tokens数量",
+      SubTitle: "tokens数量",
     },
     ChatCount: {
       Title: "询问次数",
-      SubTitle: "剩余询问次数（GPT3.5等）",
+      SubTitle: "询问次数（GPT3.5等）",
     },
     AdvanceChatCount: {
       Title: "询问次数（GPT4）",
-      SubTitle: "剩余询问次数（GPT4）",
+      SubTitle: "询问次数（GPT4）",
     },
     DrawCount: {
       Title: "绘图次数",
-      SubTitle: "剩余绘图次数",
+      SubTitle: "绘图次数",
     },
     Actions: {
       Close: "关闭",

@@ -6,6 +6,7 @@ export function IconButton(props: {
   onClick?: () => void;
   icon?: JSX.Element;
   type?: "primary" | "second" | "danger";
+  style?: object;
   text?: string;
   block?: boolean;
   bordered?: boolean;
@@ -26,6 +27,7 @@ export function IconButton(props: {
       title={props.title}
       disabled={props.disabled}
       role="button"
+      style={props.style}
     >
       {props.icon && (
         <div

@@ -19,6 +19,7 @@ import { ErrorBoundary } from "./error";
 import { useNavigate } from "react-router-dom";
 import { showToast, Popover } from "./ui-lib";
 import { Avatar, AvatarPicker } from "./emoji";
+import { Balance } from "../api/users/[...path]/route";
 
 export function Profile() {
   const navigate = useNavigate();
@@ -66,6 +67,18 @@ export function Profile() {
       authStore.logout();
       navigate(Path.Login);
     }, 500);
+  }
+
+  function getPrefix(balance: Balance) {
+    return balance.calcType == "Total"
+      ? "剩余"
+      : balance.calcType == "Daily"
+      ? Locale.Profile.BalanceItem.CalcTypes.Daily
+      : balance.calcType == "Hourly"
+      ? Locale.Profile.BalanceItem.CalcTypes.Hourly
+      : balance.calcType == "ThreeHourly"
+      ? Locale.Profile.BalanceItem.CalcTypes.ThreeHourly
+      : "";
   }
 
   return (
@@ -118,83 +131,82 @@ export function Profile() {
         </List>
 
         <List>
-          <div
-            style={{
-              borderBottom: "var(--border-in-light)",
-              minHeight: "40px",
-              lineHeight: "40px",
-              padding: "10px 20px",
-              textAlign: "center",
-            }}
-          >
-            {loading
-              ? "加载中"
-              : profileStore.balances && profileStore.balances.length === 0
-              ? "您尚未购买任何套餐"
-              : profileStore.balances[0].expired
-              ? "您所购套餐已经全部过期"
-              : "以下仅展示最早到期的套餐，点击下方所有套餐可查看所有已购套餐"}
-          </div>
+          {loading ||
+          (profileStore.balances && profileStore.balances.length === 0) ? (
+            <div
+              style={{
+                borderBottom: "var(--border-in-light)",
+                minHeight: "40px",
+                lineHeight: "40px",
+                padding: "10px 20px",
+                textAlign: "center",
+              }}
+            >
+              {loading
+                ? "加载中"
+                : profileStore.balances && profileStore.balances.length === 0
+                ? "您尚未购买任何套餐"
+                : ""}
+            </div>
+          ) : (
+            <></>
+          )}
 
           {profileStore.balances &&
           profileStore.balances.length > 0 &&
           !profileStore.balances[0].expired ? (
             <>
               <ListItem
-                title={Locale.Profile.BalanceItem.Title}
-                subTitle={Locale.Profile.BalanceItem.SubTitle}
-              >
-                <span>
-                  {profileStore.balances[0].calcType == "Total"
-                    ? Locale.Profile.BalanceItem.CalcTypes.Total
-                    : profileStore.balances[0].calcType == "Daily"
-                    ? Locale.Profile.BalanceItem.CalcTypes.Daily
-                    : profileStore.balances[0].calcType == "Hourly"
-                    ? Locale.Profile.BalanceItem.CalcTypes.Hourly
-                    : profileStore.balances[0].calcType == "ThreeHourly"
-                    ? Locale.Profile.BalanceItem.CalcTypes.ThreeHourly
-                    : ""}
-                </span>
-              </ListItem>
-              <ListItem
                 title={Locale.Profile.Tokens.Title}
-                subTitle={Locale.Profile.Tokens.SubTitle}
+                subTitle={
+                  getPrefix(profileStore.balances[0]) +
+                  Locale.Profile.Tokens.SubTitle
+                }
               >
                 <span>
                   {profileStore.balances[0].tokens == -1
-                    ? "无限制"
+                    ? "无限"
                     : profileStore.balances[0].tokens}
                 </span>
               </ListItem>
 
               <ListItem
                 title={Locale.Profile.ChatCount.Title}
-                subTitle={Locale.Profile.ChatCount.SubTitle}
+                subTitle={
+                  getPrefix(profileStore.balances[0]) +
+                  Locale.Profile.ChatCount.SubTitle
+                }
               >
                 <span>
                   {profileStore.balances[0].chatCount == -1
-                    ? "无限制"
+                    ? "无限"
                     : profileStore.balances[0].chatCount}
                 </span>
               </ListItem>
 
               <ListItem
                 title={Locale.Profile.AdvanceChatCount.Title}
-                subTitle={Locale.Profile.AdvanceChatCount.SubTitle}
+                subTitle={
+                  getPrefix(profileStore.balances[0]) +
+                  Locale.Profile.AdvanceChatCount.SubTitle
+                }
               >
                 <span>
                   {profileStore.balances[0].advancedChatCount == -1
-                    ? "无限制"
+                    ? "无限"
                     : profileStore.balances[0].advancedChatCount}
                 </span>
               </ListItem>
               <ListItem
                 title={Locale.Profile.DrawCount.Title}
-                subTitle={Locale.Profile.DrawCount.SubTitle}
+                subTitle={
+                  getPrefix(profileStore.balances[0]) +
+                  Locale.Profile.DrawCount.SubTitle
+                }
               >
                 <span>
                   {profileStore.balances[0].drawCount == -1
-                    ? "无限制"
+                    ? "无限"
                     : profileStore.balances[0].drawCount}
                 </span>
               </ListItem>
@@ -209,10 +221,17 @@ export function Profile() {
             <></>
           )}
           {profileStore.balances && profileStore.balances.length > 0 ? (
-            <ListItem>
+            <ListItem
+              subTitle={
+                profileStore.balances[0].expired
+                  ? "您所购套餐已经全部过期"
+                  : "以上仅展示最早到期的套餐"
+              }
+            >
               <IconButton
                 text={Locale.Profile.Actions.All}
                 type="second"
+                style={{ flexShrink: 0 }}
                 onClick={() => {
                   // showToast(Locale.Profile.Actions.ConsultAdministrator);
                   navigate(Path.Balance);

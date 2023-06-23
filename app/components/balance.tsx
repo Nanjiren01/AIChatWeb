@@ -75,16 +75,24 @@ export function Balance() {
         pkg.expired ? "var(--disabled)" : ""
       }">` +
       (pkg.tokens
-        ? `<li>${prefix} <span style="font-size: 18px;">${pkg.tokens}</span> tokens</li>`
+        ? `<li>${prefix} <span style="font-size: 18px;">${
+            pkg.tokens === -1 ? "无限" : pkg.tokens
+          }</span> tokens</li>`
         : "") +
       (pkg.chatCount
-        ? `<li>${prefix} <span style="font-size: 18px;">${pkg.chatCount}</span> 次基础聊天（GPT3.5）</li>`
+        ? `<li>${prefix} <span style="font-size: 18px;">${
+            pkg.chatCount === -1 ? "无限" : pkg.chatCount
+          }</span> 次基础聊天（GPT3.5）</li>`
         : "") +
       (pkg.advancedChatCount
-        ? `<li>${prefix} <span style="font-size: 18px;">${pkg.advancedChatCount}</span> 次高级聊天（GPT4）</li>`
+        ? `<li>${prefix} <span style="font-size: 18px;">${
+            pkg.advancedChatCount === -1 ? "无限" : pkg.advancedChatCount
+          }</span> 次高级聊天（GPT4）</li>`
         : "") +
       (pkg.drawCount
-        ? `<li>${prefix} <span style="font-size: 18px;">${pkg.drawCount}</span> 次AI绘画</li>`
+        ? `<li>${prefix} <span style="font-size: 18px;">${
+            pkg.drawCount === -1 ? "无限" : pkg.drawCount
+          }</span> 次AI绘画</li>`
         : "") +
       `<li>到期时间：<span style="font-size: 18px;">${pkg.expireTime}</span></li>` +
       `</ul>`
