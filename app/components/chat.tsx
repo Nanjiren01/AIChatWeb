@@ -505,7 +505,9 @@ export function Chat() {
     if (userInput.trim() === "") return;
     setIsLoading(true);
     chatStore
-      .onUserInput(userInput, websiteConfigStore, authStore)
+      .onUserInput(userInput, websiteConfigStore, authStore, () =>
+        navigate(Path.Login),
+      )
       .then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUserInput("");
@@ -609,7 +611,9 @@ export function Chat() {
     const content = session.messages[userIndex].content;
     deleteMessage(userIndex);
     chatStore
-      .onUserInput(content, websiteConfigStore, authStore)
+      .onUserInput(content, websiteConfigStore, authStore, () =>
+        navigate(Path.Login),
+      )
       .then(() => setIsLoading(false));
     inputRef.current?.focus();
   };
