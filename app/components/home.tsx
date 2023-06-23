@@ -71,6 +71,10 @@ const Pricing = dynamic(async () => (await import("./pricing")).Pricing, {
   loading: () => <Loading noLogo logoLoading />,
 });
 
+const Pay = dynamic(async () => (await import("./pay")).Pay, {
+  loading: () => <Loading noLogo logoLoading />,
+});
+
 const Order = dynamic(async () => (await import("./order")).Order, {
   loading: () => <Loading noLogo logoLoading />,
 });
@@ -270,6 +274,7 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
           <Route path={Path.Register} element={<Register />} />
           <Route path={Path.Profile} element={<Profile />} />
           <Route path={Path.Pricing} element={<Pricing />} />
+          <Route path={Path.Pay} element={<Pay />} />
           <Route path={Path.Order} element={<Order />} />
         </Routes>
       </div>

@@ -137,20 +137,25 @@ export function Pricing() {
             showToast(Locale.PricingPage.TOO_FREQUENCILY);
           } else {
             const message = Locale.PricingPage.BuyFailedCause + res.message;
-            showToast(Locale.PricingPage.CREATE_ORDER_FAILED);
+            showToast(message);
           }
           return;
         }
 
-        const logs = JSON.parse(order.logs);
-        // console.log('order.logs', logs)
-        const log = logs[0];
         if (order.state === 5) {
           // console.log(log.message?.url)
           // window.open(log.message?.url, "_blank");
-          console.log("router.push", log.message?.url);
-          router.push(log.message?.url);
+          console.log("router.push", order.payUrl);
+          if (order.payChannel === "xunhu") {
+            router.push(order.payUrl);
+          } else {
+            navigate(Path.Pay + "?uuid=" + order.uuid);
+          }
+          //
         } else {
+          const logs = JSON.parse(order.logs);
+          // console.log('order.logs', logs)
+          const log = logs[0];
           const message =
             Locale.PricingPage.BuyFailedCause +
             (log.message?.message || log.message);

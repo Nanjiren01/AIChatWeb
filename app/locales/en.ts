@@ -230,6 +230,11 @@ const en: RequiredLocaleType = {
     TOO_FREQUENCILY: "操作过于频繁，请稍后再试",
     CREATE_ORDER_FAILED: "创建订单失败",
   },
+  PayPage: {
+    Actions: {
+      Close: "关闭",
+    },
+  },
   OrderPage: {
     Title: "Order Center",
     NoOrder: "No Order",
