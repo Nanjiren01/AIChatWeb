@@ -246,19 +246,19 @@ export function SideBar(props: {
               <IconButton icon={<SettingsIcon />} shadow />
             </Link>
           </div>
-          <div className={styles["sidebar-action"]}>
-            <IconButton
-              icon={<BookOpenIcon />}
-              onClick={() => {
-                if (noticeConfigStore.show) {
+          {props.noticeTitle || props.noticeContent ? (
+            <div className={styles["sidebar-action"]}>
+              <IconButton
+                icon={<BookOpenIcon />}
+                onClick={() => {
                   props.setNoticeShow(true);
-                } else {
-                  showToast(Locale.Home.NoNotice);
-                }
-              }}
-              shadow
-            />
-          </div>
+                }}
+                shadow
+              />
+            </div>
+          ) : (
+            <></>
+          )}
           {!websiteConfigStore.hideGithubIcon ? (
             <div className={styles["sidebar-action"]}>
               <a href={REPO_URL} target="_blank">

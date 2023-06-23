@@ -91,6 +91,7 @@ interface ChatStore {
     content: string,
     websiteConfigStore: WebsiteConfigStore,
     authStore: AuthStore,
+    navigateToLogin: () => void,
   ) => Promise<void>;
   summarizeSession: () => void;
   updateStat: (message: ChatMessage) => void;
@@ -238,7 +239,12 @@ export const useChatStore = create<ChatStore>()(
         get().summarizeSession();
       },
 
-      async onUserInput(content, websiteConfigStore, authStore) {
+      async onUserInput(
+        content,
+        websiteConfigStore,
+        authStore,
+        navigateToLogin,
+      ) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
         const sensitiveWordsTip = websiteConfigStore.sensitiveWordsTip;
@@ -298,6 +304,7 @@ export const useChatStore = create<ChatStore>()(
           },
           onFinish(message) {
             botMessage.streaming = false;
+            let logout = false;
             if (message) {
               try {
                 let jsonContent = JSON.parse(message);
@@ -317,6 +324,7 @@ export const useChatStore = create<ChatStore>()(
                   jsonContent &&
                   (jsonContent.code === 10001 || jsonContent.code === 10002)
                 ) {
+                  logout = true;
                   authStore.removeToken();
                   message = Locale.Error.Unauthorized;
                 } else {
@@ -333,6 +341,9 @@ export const useChatStore = create<ChatStore>()(
               botMessage.id ?? messageIndex,
             );
             set(() => ({}));
+            if (logout) {
+              navigateToLogin();
+            }
           },
           onError(error) {
             const isAborted = error.message.includes("aborted");

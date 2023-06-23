@@ -6,6 +6,7 @@ const en: RequiredLocaleType = {
   Error: {
     Unauthorized:
       "Unauthorized access, please enter access code in settings page.",
+    Login: "您已登录，请点击上方「重试」按钮",
   },
   Sidebar: {
     Title: "公告",
