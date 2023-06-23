@@ -15,7 +15,7 @@ export interface ProfileStore {
   fetchProfile: (token: string) => Promise<any>;
 }
 
-let fetchState = 0; // 0 not fetch, 1 fetching, 2 done
+// let fetchState = 0; // 0 not fetch, 1 fetching, 2 done
 
 export const useProfileStore = create<ProfileStore>()(
   persist(
@@ -43,20 +43,12 @@ export const useProfileStore = create<ProfileStore>()(
             if (res.data) {
               set(() => ({
                 id: data.id,
-                tokens: data.tokens,
-                chatCount: data.chatCount,
-                advanceChatCount: data.advancedChatCount,
-                drawCount: data.drawCount,
                 balances: data.balances || [],
               }));
             } else {
               console.log("[Profile] set id = 0");
               set(() => ({
                 id: 0,
-                tokens: 0,
-                chatCount: 0,
-                advanceChatCount: 0,
-                drawCount: 0,
                 balances: [],
               }));
             }

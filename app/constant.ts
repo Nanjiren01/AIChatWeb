@@ -18,7 +18,7 @@ export enum Path {
   Profile = "/profile",
   Pricing = "/pricing",
   Pay = "/pay",
-  Balances = "/balances",
+  Balance = "/balance",
   Order = "/order",
 }
 

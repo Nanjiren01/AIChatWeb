@@ -186,7 +186,7 @@ const en: RequiredLocaleType = {
     },
     AdvanceChatCount: {
       Title: "询问次数（GPT4）",
-      SubTitle: "聊天询问次数（GPT4）",
+      SubTitle: "剩余询问次数（GPT4）",
     },
     DrawCount: {
       Title: "绘图次数",
@@ -198,6 +198,7 @@ const en: RequiredLocaleType = {
       Order: "订单中心",
       GoToBalanceList: "更多",
       ConsultAdministrator: "请咨询站长",
+      All: "所有套餐",
     },
     BalanceItem: {
       Title: "套餐类型",
@@ -210,7 +211,7 @@ const en: RequiredLocaleType = {
       },
     },
     ExpireList: {
-      Title: "过期时间",
+      Title: "到期时间",
       SubTitle: "",
     },
   },
@@ -233,6 +234,19 @@ const en: RequiredLocaleType = {
   PayPage: {
     Actions: {
       Close: "关闭",
+    },
+  },
+  BalancePage: {
+    Title: "已购套餐",
+    NoBalance: "您尚未购买任何套餐",
+    Loading: "请稍候……",
+    Actions: {
+      Close: "关闭",
+      Pricing: "购买套餐",
+      Order: "订单中心",
+      Profile: "个人中心",
+      Refresh: "刷新",
+      Refreshing: "刷新中……",
     },
   },
   OrderPage: {
