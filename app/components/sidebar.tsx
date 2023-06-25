@@ -178,8 +178,8 @@ export function SideBar(props: {
         shouldNarrow && styles["narrow-sidebar"]
       }`}
     >
-      <div className={styles["sidebar-header"]}>
-        <div className={styles["sidebar-title"]}>
+      <div className={styles["sidebar-header"]} data-tauri-drag-region>
+        <div className={styles["sidebar-title"]} data-tauri-drag-region>
           {websiteConfigStore.title || "AI Chat"}
         </div>
         <div className={styles["sidebar-sub-title"]}>

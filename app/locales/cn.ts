@@ -6,6 +6,13 @@ const cn = {
     Unauthorized: "登录信息已过期，请前往[登录页](/#/login)",
     Login: "您已登录，请点击上方「重试」按钮",
   },
+  Auth: {
+    Title: "需要密码",
+    Tips: "管理员开启了密码验证，请在下方填入访问码",
+    Input: "在此处填写访问码",
+    Confirm: "确认",
+    Later: "稍后再说",
+  },
   Sidebar: {
     Title: "公告",
     Close: "关闭",
@@ -23,6 +30,19 @@ const cn = {
       Stop: "停止",
       Retry: "重试",
       Delete: "删除",
+    },
+    InputActions: {
+      Stop: "停止响应",
+      ToBottom: "滚到最新",
+      Theme: {
+        auto: "自动主题",
+        light: "亮色模式",
+        dark: "深色模式",
+      },
+      Prompt: "快捷指令",
+      Masks: "所有面具",
+      Clear: "清除聊天",
+      Settings: "对话设置",
     },
     Rename: "重命名对话",
     Typing: "正在输入…",
@@ -308,6 +328,10 @@ const cn = {
       SubTitle: "管理员已开启加密访问",
       Placeholder: "请输入访问密码",
     },
+    Endpoint: {
+      Title: "接口地址",
+      SubTitle: "除默认地址外，必须包含 http(s)://",
+    },
     Model: "模型 (model)",
     Temperature: {
       Title: "随机性 (temperature)",
@@ -320,6 +344,10 @@ const cn = {
     PresencePenalty: {
       Title: "话题新鲜度 (presence_penalty)",
       SubTitle: "值越大，越有可能扩展到新话题",
+    },
+    FrequencyPenalty: {
+      Title: "频率惩罚度 (frequency_penalty)",
+      SubTitle: "值越大，越有可能降低重复字词",
     },
     Version: {
       Title: "版本",
@@ -405,6 +433,12 @@ const cn = {
     Create: "新建",
     Edit: "编辑",
   },
+  Exporter: {
+    Model: "模型",
+    Messages: "消息",
+    Topic: "主题",
+    Time: "时间",
+  },
 };
 
 type DeepPartial<T> = T extends object
@@ -412,7 +446,8 @@ type DeepPartial<T> = T extends object
       [P in keyof T]?: DeepPartial<T[P]>;
     }
   : T;
-export type LocaleType = DeepPartial<typeof cn>;
-export type RequiredLocaleType = typeof cn;
+
+export type LocaleType = typeof cn;
+export type PartialLocaleType = DeepPartial<typeof cn>;
 
 export default cn;
