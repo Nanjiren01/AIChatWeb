@@ -4,7 +4,7 @@
 <h1 align="center">AI Chat Web</h1>
 <a href="#一键部署">一键部署</a>
 ·
-<a href="https://www.nanjiren.online" target="_blank">官 网</a>
+<a href="https://www.nanjiren.online" target="_blank">官网</a>
 ·
 <a href="#演示地址">演示地址</a>
 ·
@@ -12,7 +12,7 @@
 ·
 <a href="#交流">交流</a>
 ·
-<a href="#知识星球优秀案例">优秀案例</a>
+<a href="#优秀案例">优秀案例</a>
 </div>
 
 Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), this repository added some magic functions, like login, register...
@@ -94,8 +94,8 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 | 社区版的全功能（Full functionality of the community version） | ✔        |
 | 邀请机制（Invitation mechanism）                             | 进行中   |
 | 服务端消息保存（Chat Saved by Server）                       | 进行中   |
-| 仪表盘（new user count curve, chat count curve）             | 进行中   |
-| 对接支付系统（Connect to the payment system Pay）            | 进行中   |
+| 仪表盘（new user count curve, chat count curve）             | ✔已完成(v0.3)  |
+| 对接支付系统（Connect to the payment system Pay）            | 已接入虎皮椒、蓝兔，其他进行中   |
 | 对接发卡平台（Docking with card issuing platforms）          | 进行中   |
 | 多模型支持（Multiple model support）                         | 长期进行 |
 
@@ -211,12 +211,12 @@ telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 > AI好望角为本项目自建平台，目前仍在筹建中，只能以赞赏形式加入（不支持退款），赞赏后可立即进入AIChatAdmin Pro群获取Pro专属信息。
 > 新平台筹建完毕后，会将知识星球中的内容迁移至新平台，新用户无需进入星球。
 
-当前加入AI好望角价格为158元，随着功能的不断完善，价格逐步提升
+当前加入~知识星球~AI好望角价格为158元，随着功能的不断完善，价格逐步提升
 
 <img src="https://chat.nanjiren.online/api/file/7c3b8658-4ff6-4d3c-89bd-6b309023e26d" width="200px" alt="AI好望角"/>
 
 
-## 知识星球优秀案例
+## 优秀案例
 
 ### YOURS-AI
 网址：[https://junmao.shop/](https://junmao.shop/)
