@@ -6,6 +6,7 @@ import { IconButton } from "./button";
 import SettingsIcon from "../icons/settings.svg";
 import GithubIcon from "../icons/github.svg";
 import BookOpenIcon from "../icons/book-open.svg";
+import NoticeIcon from "../icons/notice.svg";
 // import LoginIcon from "../icons/login.svg";
 // import ChatGptIcon from "../icons/chatgpt.svg";
 import ChatBotIcon from "../icons/ai-chat-bot.png";
@@ -245,7 +246,7 @@ export function SideBar(props: {
           {props.noticeTitle || props.noticeContent ? (
             <div className={styles["sidebar-action"]}>
               <IconButton
-                icon={<BookOpenIcon />}
+                icon={<NoticeIcon />}
                 onClick={() => {
                   props.setNoticeShow(true);
                 }}
