@@ -196,22 +196,24 @@ telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 
 <img src="https://chat.nanjiren.online/api/file/5f234015-cf2e-46f7-ad7b-a4de29853750" width="400px" alt="wechat" style="display: inline-block" />
 
-## 知识星球
+## ~知识星球~AI好望角
 
-加入知识星球福利
+加入~知识星球~AI好望角福利
 - 免费获取AIChat pro版
 - 有可能获得免费定制服务
-- 优秀案例展示
+- 优秀案例展示（需达到标准）
 - 高级教程（包括HTTPS搭建、域名注册、服务器购买、高级套餐页制作）
 - ChatGPT高级使用手册
 - 新功能优先体验
 
-> 当前星球为试运行阶段，部分内容仍在筹备中
+> 当前项目为试运行阶段，部分内容仍在筹备中
 
+> AI好望角为本项目自建平台，目前仍在筹建中，只能以赞赏形式加入（不支持退款），赞赏后可立即进入AIChatAdmin Pro群获取Pro专属信息。
+> 新平台筹建完毕后，会将知识星球中的内容迁移至新平台，新用户无需进入星球。
 
-当前星球价格为128元，随着功能的不断完善，知识星球价格逐步提升
+当前加入AI好望角价格为158元，随着功能的不断完善，价格逐步提升
 
-<img src="./docs/images/xingqiu.jpeg" width="500px" alt="AIChatAdmin知识星球"/>
+<img src="https://chat.nanjiren.online/api/file/7c3b8658-4ff6-4d3c-89bd-6b309023e26d" width="200px" alt="AI好望角"/>
 
 
 ## 知识星球优秀案例
