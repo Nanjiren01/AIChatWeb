@@ -90,9 +90,9 @@ const en: RequiredLocaleType = {
     Title: "登录",
     SubTitle: "登录后可跟AI交流",
     Username: {
-      Title: "用户名",
+      Title: "用户名或邮箱",
       SubTitle: "",
-      Placeholder: "请输入用户名",
+      Placeholder: "请输入用户名或邮箱",
     },
     Password: {
       Title: "密码",
