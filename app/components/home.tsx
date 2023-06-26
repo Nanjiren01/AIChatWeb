@@ -16,6 +16,8 @@ import dynamic from "next/dynamic";
 import { Path, SlotID } from "../constant";
 import { ErrorBoundary } from "./error";
 
+import { getLang } from "../locales";
+
 import {
   HashRouter as Router,
   Routes,
@@ -208,7 +210,7 @@ function Screen() {
           config.tightBorder && !isMobileScreen
             ? styles["tight-container"]
             : styles.container
-        }`
+        } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
       }
     >
       {isAuth ? (
