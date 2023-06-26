@@ -349,6 +349,7 @@ export function Register() {
               type="primary"
               text={Locale.RegisterPage.Title}
               block={true}
+              disabled={loadingUsage}
               onClick={() => {
                 console.log(username, password);
                 register();
