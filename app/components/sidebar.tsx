@@ -179,12 +179,19 @@ export function SideBar(props: {
       }`}
     >
       <div className={styles["sidebar-header"]}>
-        <div className={styles["sidebar-title"]}>
-          {websiteConfigStore.title || "AI Chat"}
-        </div>
-        <div className={styles["sidebar-sub-title"]}>
-          {websiteConfigStore.subTitle || "Build your own AI assistant."}
-        </div>
+        <div
+          className={styles["sidebar-title"]}
+          dangerouslySetInnerHTML={{
+            __html: websiteConfigStore.mainTitle || "AI Chat",
+          }}
+        ></div>
+        <div
+          className={styles["sidebar-sub-title"]}
+          dangerouslySetInnerHTML={{
+            __html:
+              websiteConfigStore.subTitle || "Build your own AI assistant.",
+          }}
+        ></div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
           <NextImage src={ChatBotIcon.src} width={44} height={44} alt="bot" />
         </div>
