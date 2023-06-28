@@ -29,6 +29,11 @@
 # docker tag harbor.nanjiren.online:8099/aichat/aichat-web:0.3.1 harbor.nanjiren.online:8099/aichat/aichat-web:latest
 # docker push harbor.nanjiren.online:8099/aichat/aichat-web:latest
 
+# docker build -t harbor.nanjiren.online:8099/aichat/aichat-web:0.3.2 .
+# docker push harbor.nanjiren.online:8099/aichat/aichat-web:0.3.2
+# docker tag harbor.nanjiren.online:8099/aichat/aichat-web:0.3.2 harbor.nanjiren.online:8099/aichat/aichat-web:latest
+# docker push harbor.nanjiren.online:8099/aichat/aichat-web:latest
+
 FROM node:18-alpine AS base
 
 FROM base AS deps
