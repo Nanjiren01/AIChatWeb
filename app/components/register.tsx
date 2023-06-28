@@ -198,7 +198,7 @@ export function Register() {
       </div>
       <div className={styles["register"]}>
         <List>
-          <ListItem
+          {/* <ListItem
             title={Locale.RegisterPage.Name.Title}
             subTitle={Locale.RegisterPage.Name.SubTitle}
           >
@@ -209,7 +209,7 @@ export function Register() {
                 setName(e.currentTarget.value);
               }}
             />
-          </ListItem>
+          </ListItem> */}
 
           {registerType ===
           REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE ? (
@@ -349,6 +349,7 @@ export function Register() {
               type="primary"
               text={Locale.RegisterPage.Title}
               block={true}
+              disabled={loadingUsage}
               onClick={() => {
                 console.log(username, password);
                 register();
@@ -359,6 +360,7 @@ export function Register() {
           <ListItem>
             <IconButton
               text={Locale.RegisterPage.GoToLogin}
+              type="second"
               onClick={() => {
                 navigate(Path.Login);
               }}
