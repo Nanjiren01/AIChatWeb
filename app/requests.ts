@@ -299,21 +299,27 @@ export async function requestRegister(
 
 export async function requestSendEmailCode(
   email: string,
+  resetPassword: boolean,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
 ): Promise<RegisterResult> {
   //const openaiUrl = useAccessStore.getState().openaiUrl;
   try {
-    const res = await fetch("/api/sendRegisterEmailCode", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json", //,
-        //...getHeaders(),
+    const res = await fetch(
+      `/api/sendRegisterEmailCode?type=${
+        resetPassword ? "resetPassword" : "register"
+      }`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", //,
+          //...getHeaders(),
+        },
+        body: JSON.stringify({ email }), //,
+        //signal: controller.signal,
       },
-      body: JSON.stringify({ email }), //,
-      //signal: controller.signal,
-    });
+    );
     if (res.status == 200) {
       let json: RegisterResponse;
       try {

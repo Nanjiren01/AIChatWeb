@@ -144,14 +144,25 @@ export function Login() {
           {authStore.token ? (
             <></>
           ) : (
-            <ListItem>
-              <IconButton
-                text={Locale.LoginPage.GoToRegister}
-                onClick={() => {
-                  navigate(Path.Register);
-                }}
-              />
-            </ListItem>
+            <>
+              <ListItem>
+                <IconButton
+                  text={Locale.LoginPage.ForgetPassword}
+                  onClick={() => {
+                    navigate(Path.ForgetPassword);
+                  }}
+                />
+              </ListItem>
+              <ListItem>
+                <IconButton
+                  text={Locale.LoginPage.GoToRegister}
+                  type="second"
+                  onClick={() => {
+                    navigate(Path.Register);
+                  }}
+                />
+              </ListItem>
+            </>
           )}
         </List>
       </div>

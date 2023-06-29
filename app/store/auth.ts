@@ -10,6 +10,7 @@ export interface AuthStore {
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
   sendEmailCode: (email: string) => Promise<any>;
+  sendEmailCodeForResetPassowrd: (email: string) => Promise<any>;
   register: (
     name: string,
     username: string,
@@ -58,8 +59,16 @@ export const useAuthStore = create<AuthStore>()(
       removeToken() {
         set(() => ({ token: "" }));
       },
+      async sendEmailCodeForResetPassowrd(email) {
+        let result = await requestSendEmailCode(email, true, {
+          onError: (err) => {
+            console.error(err);
+          },
+        });
+        return result;
+      },
       async sendEmailCode(email) {
-        let result = await requestSendEmailCode(email, {
+        let result = await requestSendEmailCode(email, false, {
           onError: (err) => {
             console.error(err);
           },

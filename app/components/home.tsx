@@ -50,6 +50,12 @@ const Login = dynamic(async () => (await import("./login")).Login, {
 const Register = dynamic(async () => (await import("./register")).Register, {
   loading: () => <Loading noLogo />,
 });
+const ForgetPassword = dynamic(
+  async () => (await import("./forget-password")).ForgetPassword,
+  {
+    loading: () => <Loading noLogo />,
+  },
+);
 
 const Settings = dynamic(async () => (await import("./settings")).Settings, {
   loading: () => <Loading noLogo />,
@@ -220,6 +226,7 @@ function Screen() {
           <Route path={Path.Settings} element={<Settings />} />
           <Route path={Path.Login} element={<Login />} />
           <Route path={Path.Register} element={<Register />} />
+          <Route path={Path.ForgetPassword} element={<ForgetPassword />} />
           <Route path={Path.Profile} element={<Profile />} />
           <Route path={Path.Pricing} element={<Pricing />} />
         </Routes>

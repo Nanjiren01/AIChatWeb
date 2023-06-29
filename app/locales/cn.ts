@@ -106,6 +106,7 @@ const cn = {
       Logining: "登录中……",
     },
     GoToRegister: "前往注册",
+    ForgetPassword: "忘记密码",
   },
   RegisterPage: {
     Title: "注册",
