@@ -2,7 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { StoreKey } from "../constant";
 import { requestLogin } from "../requests";
-import { requestRegister, requestSendEmailCode } from "../requests";
+import {
+  requestRegister,
+  requestSendEmailCode,
+  requestResetPassword,
+} from "../requests";
 
 export interface AuthStore {
   token: string;
@@ -10,13 +14,18 @@ export interface AuthStore {
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
   sendEmailCode: (email: string) => Promise<any>;
-  sendEmailCodeForResetPassowrd: (email: string) => Promise<any>;
+  sendEmailCodeForResetPassword: (email: string) => Promise<any>;
   register: (
     name: string,
     username: string,
     password: string,
     captchaId: string,
     captchaInput: string,
+    email: string,
+    code: string,
+  ) => Promise<any>;
+  resetPassword: (
+    password: string,
     email: string,
     code: string,
   ) => Promise<any>;
@@ -59,7 +68,7 @@ export const useAuthStore = create<AuthStore>()(
       removeToken() {
         set(() => ({ token: "" }));
       },
-      async sendEmailCodeForResetPassowrd(email) {
+      async sendEmailCodeForResetPassword(email) {
         let result = await requestSendEmailCode(email, true, {
           onError: (err) => {
             console.error(err);
@@ -107,6 +116,24 @@ export const useAuthStore = create<AuthStore>()(
           }));
         }
 
+        return result;
+      },
+      async resetPassword(password, email, code) {
+        let result = await requestResetPassword(password, email, code, {
+          onError: (err) => {
+            console.error(err);
+          },
+        });
+        //console.log("result", result);
+        if (result && result.code == 0 && result.data) {
+          const data = result.data;
+          const user = data.userEntity;
+          set(() => ({
+            name: user.name || "",
+            username: user.username || "",
+            token: data.token || "",
+          }));
+        }
         return result;
       },
     }),

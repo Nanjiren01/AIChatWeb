@@ -71,7 +71,7 @@ export function ForgetPassword() {
     }
     setEmailCodeSending(true);
     authStore
-      .sendEmailCodeForResetPassowrd(email)
+      .sendEmailCodeForResetPassword(email)
       .then((resp) => {
         if (resp.code == 0) {
           showToast(Locale.RegisterPage.Toast.EmailCodeSent);
@@ -90,7 +90,7 @@ export function ForgetPassword() {
         setEmailCodeSending(false);
       });
   }
-  function register() {
+  function resetPassword() {
     if (password == null || password.length == 0) {
       showToast(Locale.RegisterPage.Toast.PasswordEmpty);
       return;
@@ -104,30 +104,23 @@ export function ForgetPassword() {
       return;
     }
     setLoadingUsage(true);
-    showToast(Locale.RegisterPage.Toast.Registering);
+    showToast(Locale.ForgetPasswordPage.Toast.PasswordResetting);
     authStore
-      .register(
-        name,
-        username,
-        password,
-        captchaId,
-        captchaInput,
-        email,
-        emailCode,
-      )
+      .resetPassword(password, email, emailCode)
       .then((result) => {
         console.log("result", result);
         if (!result) {
-          showToast(Locale.RegisterPage.Toast.Failed);
+          showToast(Locale.ForgetPasswordPage.Toast.PasswordResetFailed);
           return;
         }
         if (result.code == 0) {
-          showToast(Locale.RegisterPage.Toast.Success);
+          showToast(Locale.ForgetPasswordPage.Toast.PasswordResetSuccess);
           navigate(Path.Chat);
         } else {
           if (result.message) {
             showToast(
-              Locale.RegisterPage.Toast.FailedWithReason + result.message,
+              Locale.ForgetPasswordPage.Toast.PasswordResetFailedWithReason +
+                result.message,
             );
           } else {
             showToast(Locale.RegisterPage.Toast.Failed);
@@ -160,9 +153,11 @@ export function ForgetPassword() {
       <div className="window-header">
         <div className="window-header-title">
           <div className="window-header-main-title">
-            {Locale.RegisterPage.Title}
+            {Locale.ForgetPasswordPage.Title}
           </div>
-          <div className="window-header-sub-title">{registerPageSubTitle}</div>
+          <div className="window-header-sub-title">
+            {Locale.ForgetPasswordPage.SubTitle}
+          </div>
         </div>
         <div className="window-actions">
           <div className="window-action-button">
@@ -170,7 +165,7 @@ export function ForgetPassword() {
               icon={<CloseIcon />}
               onClick={() => navigate(Path.Home)}
               bordered
-              title={Locale.RegisterPage.Actions.Close}
+              title={Locale.ForgetPasswordPage.Actions.Close}
             />
           </div>
         </div>
@@ -234,12 +229,11 @@ export function ForgetPassword() {
           <ListItem>
             <IconButton
               type="primary"
-              text={Locale.RegisterPage.Title}
+              text={Locale.ForgetPasswordPage.Title}
               block={true}
               disabled={loadingUsage}
               onClick={() => {
-                console.log(username, password);
-                register();
+                resetPassword();
               }}
             />
           </ListItem>

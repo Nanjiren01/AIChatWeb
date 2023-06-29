@@ -38,7 +38,14 @@ export function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   function login() {
-    // if (username.length <)
+    if (username === "") {
+      showToast(Locale.LoginPage.Toast.EmptyUserName);
+      return;
+    }
+    if (password === "") {
+      showToast(Locale.LoginPage.Toast.EmptyPassword);
+      return;
+    }
     setLoadingUsage(true);
     showToast(Locale.LoginPage.Toast.Logining);
     authStore
@@ -148,6 +155,7 @@ export function Login() {
               <ListItem>
                 <IconButton
                   text={Locale.LoginPage.ForgetPassword}
+                  type="second"
                   onClick={() => {
                     navigate(Path.ForgetPassword);
                   }}

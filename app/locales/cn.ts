@@ -104,9 +104,11 @@ const cn = {
     Toast: {
       Success: "登录成功",
       Logining: "登录中……",
+      EmptyUserName: "用户名或邮箱不能为空",
+      EmptyPassword: "密码不能为空！",
     },
     GoToRegister: "前往注册",
-    ForgetPassword: "忘记密码",
+    ForgetPassword: "忘记/重置密码",
   },
   RegisterPage: {
     Title: "注册",
@@ -169,6 +171,19 @@ const cn = {
       Title: "图形验证码",
       SubTitle: "",
       Placeholder: "请输入图中的验证码",
+    },
+  },
+  ForgetPasswordPage: {
+    Title: "重置密码",
+    SubTitle: "",
+    Toast: {
+      PasswordResetting: "重置密码中",
+      PasswordResetFailed: "重置密码失败！",
+      PasswordResetSuccess: "重置成功，正在前往聊天……",
+      PasswordResetFailedWithReason: "重置失败！原因：",
+    },
+    Actions: {
+      Close: "关闭",
     },
   },
   Profile: {
