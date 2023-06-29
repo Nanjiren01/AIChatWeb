@@ -4,6 +4,7 @@ import { StoreKey } from "../constant";
 
 export interface WebsiteConfigStore {
   title: string;
+  mainTitle: string;
   subTitle: string;
   loginPageSubTitle: string;
   registerPageSubTitle: string;
@@ -20,6 +21,7 @@ export interface WebsiteConfigStore {
 
 export interface WebsiteConfig {
   title: string;
+  mainTitle: string;
   subTitle: string;
   loginPageSubTitle: string;
   registerPageSubTitle: string;
@@ -43,6 +45,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
   persist(
     (set, get) => ({
       title: "",
+      mainTitle: "",
       subTitle: "",
       loginPageSubTitle: "",
       registerPageSubTitle: "",
@@ -65,6 +68,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
             const website = res.data.websiteContent;
             set(() => ({
               title: website.title,
+              mainTitle: website.mainTitle,
               subTitle: website.subTitle,
               loginPageSubTitle: website.loginPageSubTitle,
               registerPageSubTitle: website.registerPageSubTitle,

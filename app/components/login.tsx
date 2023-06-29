@@ -91,6 +91,7 @@ export function Login() {
             ) : (
               <SingleInput
                 value={username}
+                placeholder={Locale.LoginPage.Username.Placeholder}
                 onChange={(e) => {
                   setUsername(e.currentTarget.value);
                   //console.log(e)
