@@ -333,9 +333,7 @@ export function Home() {
   // }, [authStore.token]);
 
   if (!useHasHydrated()) {
-    return (
-      <Loading noLogo={false} logoLoading={logoLoading} logoUrl={logoUrl} />
-    );
+    return <Loading noLogo logoLoading={logoLoading} logoUrl={logoUrl} />;
   }
 
   return (
