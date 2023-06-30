@@ -1,6 +1,7 @@
 // import type { ChatRequest, ChatResponse } from "./api/openai/typing";
 import type { LoginResponse } from "./api/login/route";
 import type { RegisterResponse } from "./api/register/route";
+import type { Response } from "./api/common";
 // import {
 //   //Message,
 //   // ModelConfig,
@@ -153,6 +154,84 @@ import type { RegisterResponse } from "./api/register/route";
 //   };
 // }
 
+export async function request(
+  url: string,
+  method: string,
+  body: any,
+  options?: {
+    onError: (error: Error, statusCode?: number) => void;
+  },
+): Promise<RegisterResult> {
+  try {
+    const res = await fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    if (res.status == 200) {
+      let json: Response<any>;
+      try {
+        json = (await res.json()) as Response<any>;
+      } catch (e) {
+        console.error("json formatting failure", e);
+        options?.onError({
+          name: "json formatting failure",
+          message: "json formatting failure",
+        });
+        return {
+          code: -1,
+          message: "json formatting failure",
+        };
+      }
+      if (json.code != 0) {
+        options?.onError({
+          name: json.message,
+          message: json.message,
+        });
+      }
+      return json;
+    }
+    console.error("register result error(2)", res);
+    options?.onError({
+      name: "unknown error",
+      message: "unknown error",
+    });
+    return {
+      code: -1,
+      message: "unknown error",
+    };
+  } catch (err) {
+    console.error("NetWork Error", err);
+    options?.onError(err as Error);
+    return {
+      code: -1,
+      message: "NetWork Error",
+    };
+  }
+}
+
+export function requestResetPassword(
+  password: string,
+  email: string,
+  code: string,
+  options?: {
+    onError: (error: Error, statusCode?: number) => void;
+  },
+): Promise<RegisterResult> {
+  return request(
+    "/api/resetPassword",
+    "POST",
+    {
+      password,
+      code,
+      email,
+    },
+    options,
+  );
+}
+
 export interface LoginResult {
   code: number;
   message: string;
@@ -299,19 +378,23 @@ export async function requestRegister(
 
 export async function requestSendEmailCode(
   email: string,
+  resetPassword: boolean,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
 ): Promise<RegisterResult> {
   //const openaiUrl = useAccessStore.getState().openaiUrl;
   try {
-    const res = await fetch("/api/sendRegisterEmailCode", {
+    const res = await fetch(`/api/sendRegisterEmailCode`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json", //,
         //...getHeaders(),
       },
-      body: JSON.stringify({ email }), //,
+      body: JSON.stringify({
+        email,
+        type: resetPassword ? "resetPassword" : "register",
+      }), //,
       //signal: controller.signal,
     });
     if (res.status == 200) {

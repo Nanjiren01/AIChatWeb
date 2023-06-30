@@ -1,12 +1,19 @@
 import { SubmitKey } from "../store/config";
-import { RequiredLocaleType } from "./index";
+import { LocaleType } from "./index";
 
-const en: RequiredLocaleType = {
+const en: LocaleType = {
   WIP: "Coming Soon...",
   Error: {
     Unauthorized:
       "Unauthorized access, please enter access code in settings page.",
     Login: "您已登录，请点击上方「重试」按钮",
+  },
+  Auth: {
+    Title: "Need Access Code",
+    Tips: "Please enter access code below",
+    Input: "access code",
+    Confirm: "Confirm",
+    Later: "Later",
   },
   Sidebar: {
     Title: "公告",
@@ -24,7 +31,31 @@ const en: RequiredLocaleType = {
       Copy: "Copy",
       Stop: "Stop",
       Retry: "Retry",
+      Pin: "Pin",
+      PinToastContent: "Pinned 2 messages to contextual prompts",
+      PinToastAction: "View",
       Delete: "Delete",
+    },
+    Commands: {
+      new: "Start a new chat",
+      newm: "Start a new chat with mask",
+      next: "Next Chat",
+      prev: "Previous Chat",
+      clear: "Clear Context",
+      del: "Delete Chat",
+    },
+    InputActions: {
+      Stop: "Stop",
+      ToBottom: "To Latest",
+      Theme: {
+        auto: "Auto",
+        light: "Light Theme",
+        dark: "Dark Theme",
+      },
+      Prompt: "Prompts",
+      Masks: "Masks",
+      Clear: "Clear Context",
+      Settings: "Settings",
     },
     Rename: "Rename Chat",
     Typing: "Typing…",
@@ -36,7 +67,7 @@ const en: RequiredLocaleType = {
       if (submitKey === String(SubmitKey.Enter)) {
         inputHints += ", Shift + Enter to wrap";
       }
-      return inputHints + ", / to search prompts";
+      return inputHints + ", / to search prompts, : to use commands";
     },
     Send: "Send",
     Config: {
@@ -107,8 +138,11 @@ const en: RequiredLocaleType = {
     Toast: {
       Success: "登录成功",
       Logining: "登录中……",
+      EmptyUserName: "用户名或邮箱不能为空",
+      EmptyPassword: "密码不能为空！",
     },
     GoToRegister: "前往注册",
+    ForgetPassword: "忘记/重置密码",
   },
   RegisterPage: {
     Title: "注册",
@@ -171,6 +205,19 @@ const en: RequiredLocaleType = {
       Title: "图形验证码",
       SubTitle: "",
       Placeholder: "请输入图中的验证码",
+    },
+  },
+  ForgetPasswordPage: {
+    Title: "重置密码",
+    SubTitle: "",
+    Toast: {
+      PasswordResetting: "重置密码中",
+      PasswordResetFailed: "重置密码失败！",
+      PasswordResetSuccess: "重置成功，正在前往聊天……",
+      PasswordResetFailedWithReason: "重置失败！原因：",
+    },
+    Actions: {
+      Close: "关闭",
     },
   },
   Profile: {
@@ -291,6 +338,12 @@ const en: RequiredLocaleType = {
       Title: "Font Size",
       SubTitle: "Adjust font size of chat content",
     },
+
+    InputTemplate: {
+      Title: "Input Template",
+      SubTitle: "Newest message will be filled to this template",
+    },
+
     Update: {
       Version: (x: string) => `Version: ${x}`,
       IsLatest: "Latest version",
@@ -356,6 +409,10 @@ const en: RequiredLocaleType = {
       SubTitle: "Access control enabled",
       Placeholder: "Need Access Code",
     },
+    Endpoint: {
+      Title: "Endpoint",
+      SubTitle: "Custom endpoint must start with http(s)://",
+    },
     Model: "Model",
     Temperature: {
       Title: "Temperature",
@@ -369,6 +426,11 @@ const en: RequiredLocaleType = {
       Title: "Presence Penalty",
       SubTitle:
         "A larger value increases the likelihood to talk about new topics",
+    },
+    FrequencyPenalty: {
+      Title: "Frequency Penalty",
+      SubTitle:
+        "A larger value decreasing the likelihood to repeat the same line",
     },
     Version: {
       Title: "版本",
@@ -454,6 +516,12 @@ const en: RequiredLocaleType = {
     Close: "Close",
     Create: "Create",
     Edit: "Edit",
+  },
+  Exporter: {
+    Model: "Model",
+    Messages: "Messages",
+    Topic: "Topic",
+    Time: "Time",
   },
 };
 

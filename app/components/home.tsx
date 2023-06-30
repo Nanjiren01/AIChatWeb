@@ -16,6 +16,8 @@ import dynamic from "next/dynamic";
 import { Path, SlotID } from "../constant";
 import { ErrorBoundary } from "./error";
 
+import { getLang } from "../locales";
+
 import {
   HashRouter as Router,
   Routes,
@@ -24,6 +26,8 @@ import {
 } from "react-router-dom";
 import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
+import { AuthPage } from "./auth";
+import { getClientConfig } from "../config/client";
 import { useWebsiteConfigStore, useAuthStore, BOT_HELLO } from "../store";
 
 export function Loading(props: {
@@ -58,6 +62,12 @@ const Login = dynamic(async () => (await import("./login")).Login, {
 const Register = dynamic(async () => (await import("./register")).Register, {
   loading: () => <Loading noLogo logoLoading />,
 });
+const ForgetPassword = dynamic(
+  async () => (await import("./forget-password")).ForgetPassword,
+  {
+    loading: () => <Loading noLogo logoLoading />,
+  },
+);
 
 const Settings = dynamic(async () => (await import("./settings")).Settings, {
   loading: () => <Loading noLogo logoLoading />,
@@ -156,9 +166,14 @@ const useHasHydrated = () => {
 
 const loadAsyncGoogleFont = () => {
   const linkEl = document.createElement("link");
+  const proxyFontUrl = "/google-fonts";
+  const remoteFontUrl = "https://fonts.googleapis.com";
+  const googleFontUrl =
+    getClientConfig()?.buildMode === "export" ? remoteFontUrl : proxyFontUrl;
   linkEl.rel = "stylesheet";
   linkEl.href =
-    "/google-fonts/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap";
+    googleFontUrl +
+    "/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap";
   document.head.appendChild(linkEl);
 };
 
@@ -194,6 +209,7 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   const config = useAppConfig();
   const location = useLocation();
   const isHome = location.pathname === Path.Home;
+  const isAuth = location.pathname === Path.Auth;
   const isMobileScreen = useMobileScreen();
 
   useEffect(() => {
@@ -254,35 +270,44 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
           config.tightBorder && !isMobileScreen
             ? styles["tight-container"]
             : styles.container
-        }`
+        } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
       }
     >
-      <SideBar
-        className={isHome ? styles["sidebar-show"] : ""}
-        noticeShow={noticeShow}
-        noticeTitle={noticeTitle}
-        noticeContent={noticeContent}
-        setNoticeShow={setNoticeShow}
-        logoLoading={logoLoading}
-        logoUrl={logoUrl}
-      />
+      {isAuth ? (
+        <>
+          <AuthPage />
+        </>
+      ) : (
+        <>
+          <SideBar
+            className={isHome ? styles["sidebar-show"] : ""}
+            noticeShow={noticeShow}
+            noticeTitle={noticeTitle}
+            noticeContent={noticeContent}
+            setNoticeShow={setNoticeShow}
+            logoLoading={logoLoading}
+            logoUrl={logoUrl}
+          />
 
-      <div className={styles["window-content"]} id={SlotID.AppBody}>
-        <Routes>
-          <Route path={Path.Home} element={<Chat />} />
-          <Route path={Path.NewChat} element={<NewChat />} />
-          <Route path={Path.Masks} element={<MaskPage />} />
-          <Route path={Path.Chat} element={<Chat />} />
-          <Route path={Path.Settings} element={<Settings />} />
-          <Route path={Path.Login} element={<Login />} />
-          <Route path={Path.Register} element={<Register />} />
-          <Route path={Path.Profile} element={<Profile />} />
-          <Route path={Path.Pricing} element={<Pricing />} />
-          <Route path={Path.Pay} element={<Pay />} />
-          <Route path={Path.Balance} element={<Balance />} />
-          <Route path={Path.Order} element={<Order />} />
-        </Routes>
-      </div>
+          <div className={styles["window-content"]} id={SlotID.AppBody}>
+            <Routes>
+              <Route path={Path.Home} element={<Chat />} />
+              <Route path={Path.NewChat} element={<NewChat />} />
+              <Route path={Path.Masks} element={<MaskPage />} />
+              <Route path={Path.Chat} element={<Chat />} />
+              <Route path={Path.Settings} element={<Settings />} />
+              <Route path={Path.Login} element={<Login />} />
+              <Route path={Path.Register} element={<Register />} />
+              <Route path={Path.ForgetPassword} element={<ForgetPassword />} />
+              <Route path={Path.Profile} element={<Profile />} />
+              <Route path={Path.Pricing} element={<Pricing />} />
+              <Route path={Path.Pay} element={<Pay />} />
+              <Route path={Path.Balance} element={<Balance />} />
+              <Route path={Path.Order} element={<Order />} />
+            </Routes>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -331,6 +356,10 @@ export function Home() {
   //       setLogoLoading(false);
   //     });
   // }, [authStore.token]);
+
+  useEffect(() => {
+    console.log("[Config] got config from build time", getClientConfig());
+  }, []);
 
   if (!useHasHydrated()) {
     return <Loading noLogo logoLoading={logoLoading} logoUrl={logoUrl} />;

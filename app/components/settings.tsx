@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, HTMLProps, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import styles from "./settings.module.scss";
 
@@ -44,6 +44,7 @@ import { Prompt, SearchService, usePromptStore } from "../store/prompt";
 import { ErrorBoundary } from "./error";
 import { InputRange } from "./input-range";
 import { useNavigate } from "react-router-dom";
+import { getClientConfig } from "../config/client";
 
 function EditPromptModal(props: { id: number; onClose: () => void }) {
   const promptStore = usePromptStore();
@@ -284,9 +285,12 @@ export function Settings() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const clientConfig = useMemo(() => getClientConfig(), []);
+  const showAccessCode = enabledAccessControl && !clientConfig?.isApp;
+
   return (
     <ErrorBoundary>
-      <div className="window-header">
+      <div className="window-header" data-tauri-drag-region>
         <div className="window-header-title">
           <div className="window-header-main-title">
             {Locale.Settings.Title}
@@ -353,7 +357,7 @@ export function Settings() {
               </div>
             </Popover>
           </ListItem> */}
-          {/* 
+          {/*
           <ListItem
             title={Locale.Settings.Update.Version(currentVersion ?? "unknown")}
             subTitle={
@@ -447,7 +451,7 @@ export function Settings() {
               }
             ></InputRange>
           </ListItem>
-          {/* 
+          {/*
           <ListItem
             title={Locale.Settings.SendPreviewBubble.Title}
             subTitle={Locale.Settings.SendPreviewBubble.SubTitle}
@@ -463,7 +467,7 @@ export function Settings() {
               }
             ></input>
           </ListItem> */}
-          {/* 
+          {/*
           <ListItem
             title={Locale.Settings.Mask.Title}
             subTitle={Locale.Settings.Mask.SubTitle}
@@ -483,7 +487,7 @@ export function Settings() {
         </List>
 
         {/* <List>
-          {enabledAccessControl ? (
+          {showAccessCode ? (
             <ListItem
               title={Locale.Settings.AccessCode.Title}
               subTitle={Locale.Settings.AccessCode.SubTitle}
@@ -516,30 +520,47 @@ export function Settings() {
               />
             </ListItem>
           ) : null} */}
-        {/* 
-          <ListItem
-            title={Locale.Settings.Usage.Title}
-            subTitle={
-              showUsage
-                ? loadingUsage
-                  ? Locale.Settings.Usage.IsChecking
-                  : Locale.Settings.Usage.SubTitle(
-                      usage?.used ?? "[?]",
-                      usage?.subscription ?? "[?]",
-                    )
-                : Locale.Settings.Usage.NoAccess
-            }
-          >
-            {!showUsage || loadingUsage ? (
-              <div />
-            ) : (
-              <IconButton
-                icon={<ResetIcon></ResetIcon>}
-                text={Locale.Settings.Usage.Check}
-                onClick={() => checkUsage(true)}
-              />
-            )}
-          </ListItem>
+        {/*
+          {!accessStore.hideBalanceQuery ? (
+            <ListItem
+              title={Locale.Settings.Usage.Title}
+              subTitle={
+                showUsage
+                  ? loadingUsage
+                    ? Locale.Settings.Usage.IsChecking
+                    : Locale.Settings.Usage.SubTitle(
+                        usage?.used ?? "[?]",
+                        usage?.subscription ?? "[?]",
+                      )
+                  : Locale.Settings.Usage.NoAccess
+              }
+            >
+              {!showUsage || loadingUsage ? (
+                <div />
+              ) : (
+                <IconButton
+                  icon={<ResetIcon></ResetIcon>}
+                  text={Locale.Settings.Usage.Check}
+                  onClick={() => checkUsage(true)}
+                />
+              )}
+            </ListItem>
+          ) : null}
+
+          {!accessStore.hideUserApiKey ? (
+            <ListItem
+              title={Locale.Settings.Endpoint.Title}
+              subTitle={Locale.Settings.Endpoint.SubTitle}
+            >
+              <input
+                type="text"
+                value={accessStore.openaiUrl}
+                onChange={(e) =>
+                  accessStore.updateOpenAiUrl(e.currentTarget.value)
+                }
+              ></input>
+            </ListItem>
+          ) : null}
         </List> */}
 
         <List>
@@ -590,7 +611,7 @@ export function Settings() {
             title={Locale.Settings.Version.Title}
             subTitle={Locale.Settings.Version.SubTitle}
           >
-            <span>v0.3.2</span>
+            <span>v0.5</span>
           </ListItem>
         </List>
 

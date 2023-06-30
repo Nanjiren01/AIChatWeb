@@ -38,7 +38,14 @@ export function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   function login() {
-    // if (username.length <)
+    if (username === "") {
+      showToast(Locale.LoginPage.Toast.EmptyUserName);
+      return;
+    }
+    if (password === "") {
+      showToast(Locale.LoginPage.Toast.EmptyPassword);
+      return;
+    }
     setLoadingUsage(true);
     showToast(Locale.LoginPage.Toast.Logining);
     authStore
@@ -144,14 +151,26 @@ export function Login() {
           {authStore.token ? (
             <></>
           ) : (
-            <ListItem>
-              <IconButton
-                text={Locale.LoginPage.GoToRegister}
-                onClick={() => {
-                  navigate(Path.Register);
-                }}
-              />
-            </ListItem>
+            <>
+              <ListItem>
+                <IconButton
+                  text={Locale.LoginPage.ForgetPassword}
+                  type="second"
+                  onClick={() => {
+                    navigate(Path.ForgetPassword);
+                  }}
+                />
+              </ListItem>
+              <ListItem>
+                <IconButton
+                  text={Locale.LoginPage.GoToRegister}
+                  type="second"
+                  onClick={() => {
+                    navigate(Path.Register);
+                  }}
+                />
+              </ListItem>
+            </>
           )}
         </List>
       </div>
