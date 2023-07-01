@@ -11,6 +11,7 @@ import {
   useAccessStore,
   useAppConfig,
   useProfileStore,
+  useWebsiteConfigStore,
 } from "../store";
 
 import Locale from "../locales";
@@ -25,6 +26,10 @@ export function Profile() {
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
   const profileStore = useProfileStore();
+  const { registerTypes } = useWebsiteConfigStore();
+  const registerType = registerTypes[0];
+  const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
+    "UsernameAndEmailWithCaptchaAndCode";
 
   const config = useAppConfig();
   const updateConfig = config.update;
@@ -110,6 +115,14 @@ export function Profile() {
           <ListItem title={Locale.Profile.Username}>
             <span>{authStore.username}</span>
           </ListItem>
+
+          {registerType == REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE ? (
+            <ListItem title={Locale.Profile.Email}>
+              <span>{authStore.email}</span>
+            </ListItem>
+          ) : (
+            <></>
+          )}
         </List>
 
         <List>
@@ -211,6 +224,7 @@ export function Profile() {
             <IconButton
               text={Locale.LoginPage.Actions.Logout}
               block={true}
+              type="second"
               onClick={() => {
                 logout();
               }}

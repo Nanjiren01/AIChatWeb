@@ -225,6 +225,7 @@ const en: LocaleType = {
     Title: "个人中心",
     SubTitle: "个人中心",
     Username: "账号",
+    Email: "邮箱",
     Tokens: {
       Title: "tokens",
       SubTitle: "剩余tokens数量",

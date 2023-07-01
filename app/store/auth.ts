@@ -11,6 +11,7 @@ import {
 export interface AuthStore {
   token: string;
   username: string;
+  email: string;
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
   sendEmailCode: (email: string) => Promise<any>;
@@ -37,6 +38,7 @@ export const useAuthStore = create<AuthStore>()(
     (set, get) => ({
       name: "",
       username: "",
+      email: "",
       token: "",
 
       async login(username, password) {
@@ -53,6 +55,7 @@ export const useAuthStore = create<AuthStore>()(
         if (result && result.code == 0) {
           set(() => ({
             username,
+            email: result.data?.userEntity?.email || "",
             token: result.data?.token || "",
           }));
         }
@@ -62,6 +65,7 @@ export const useAuthStore = create<AuthStore>()(
       logout() {
         set(() => ({
           username: "",
+          email: "",
           token: "",
         }));
       },
@@ -112,6 +116,7 @@ export const useAuthStore = create<AuthStore>()(
           set(() => ({
             name,
             username,
+            email: result.data?.userEntity?.email || "",
             token: result.data?.token || "",
           }));
         }
@@ -131,6 +136,7 @@ export const useAuthStore = create<AuthStore>()(
           set(() => ({
             name: user.name || "",
             username: user.username || "",
+            email: user.email || "",
             token: data.token || "",
           }));
         }
