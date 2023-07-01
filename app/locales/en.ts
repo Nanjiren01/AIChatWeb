@@ -6,7 +6,7 @@ const en: LocaleType = {
   Error: {
     Unauthorized:
       "Unauthorized access, please enter access code in settings page.",
-    Login: "您已登录，请点击上方「重试」按钮",
+    Login: "您已登录，请点击下方「重试」按钮",
   },
   Auth: {
     Title: "Need Access Code",
