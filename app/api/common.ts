@@ -112,6 +112,8 @@ export async function request(req: NextRequest) {
     cache: "no-store",
     method: req.method,
     body: req.body,
+    // @ts-ignore
+    duplex: "half",
   });
 }
 
