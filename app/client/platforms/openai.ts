@@ -15,14 +15,14 @@ import { prettyObject } from "@/app/utils/format";
 
 export class ChatGPTApi implements LLMApi {
   path(path: string): string {
-    let openaiUrl = useAccessStore.getState().openaiUrl;
-    if (openaiUrl.length === 0) {
-      openaiUrl = DEFAULT_API_HOST;
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let baseUrl = mode === "export" ? BASE_URL ?? DEFAULT_API_HOST : "";
+
+    if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, baseUrl.length - 1);
     }
-    if (openaiUrl.endsWith("/")) {
-      openaiUrl = openaiUrl.slice(0, openaiUrl.length - 1);
-    }
-    return [openaiUrl, path].join("/");
+    return [baseUrl, path].join("/");
   }
 
   extractMessage(res: any) {
@@ -55,11 +55,13 @@ export class ChatGPTApi implements LLMApi {
     console.log("[Request] openai payload: ", requestPayload);
 
     const shouldStream = !!options.config.stream;
+    console.log("shouldStream", shouldStream);
     const controller = new AbortController();
     options.onController?.(controller);
 
     try {
       const chatPath = this.path(OpenaiPath.ChatPath);
+      console.log("chatPath", chatPath);
       const chatPayload = {
         method: "POST",
         body: JSON.stringify(requestPayload),

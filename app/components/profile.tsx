@@ -70,7 +70,7 @@ export function Profile() {
 
   return (
     <ErrorBoundary>
-      <div className="window-header">
+      <div className="window-header" data-tauri-drag-region>
         <div className="window-header-title">
           <div className="window-header-main-title">{Locale.Profile.Title}</div>
           <div className="window-header-sub-title">

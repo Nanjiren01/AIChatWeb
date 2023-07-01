@@ -506,17 +506,6 @@ export function Chat() {
 
   const authStore = useAuthStore();
 
-  useEffect(() => {
-    const isLoggedIn = authStore.username != null && authStore.username != "";
-    console.log("isLoggedIn", isLoggedIn);
-    if (!isLoggedIn) {
-      if (authStore.token) {
-        authStore.removeToken();
-      }
-      navigate(Path.Login);
-    }
-  }, [authStore, navigate]);
-
   const onChatBodyScroll = (e: HTMLElement) => {
     const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 10;
     setHitBottom(isTouchBottom);
@@ -755,35 +744,18 @@ export function Chat() {
     ? []
     : session.mask.context.slice();
 
-  const accessStore = useAccessStore();
+  // const accessStore = useAccessStore();
 
   if (
     context.length === 0 &&
     session.messages.at(0)?.content !== BOT_HELLO.content
   ) {
     const copiedHello = Object.assign({}, BOT_HELLO);
-    if (!accessStore.isAuthorized()) {
-      authStore.removeToken();
+    if (!authStore.token) {
       copiedHello.content = Locale.Error.Unauthorized;
     }
     context.push(copiedHello);
   }
-
-  useEffect(() => {
-    const message =
-      session.messages.length > 0
-        ? session.messages.at(session.messages.length - 1)
-        : null;
-    if (!message) {
-      return;
-    }
-    if (message.content === Locale.Error.Unauthorized) {
-      if (authStore.token) {
-        console.log("change the last message");
-        message.content = Locale.Error.Login;
-      }
-    }
-  }, []);
 
   // clear context index = context length + index in messages
   const clearContextIndex =
@@ -847,6 +819,26 @@ export function Chat() {
       doSubmit(text);
     },
   });
+
+  useEffect(() => {
+    if (!authStore.token) {
+      //navigate(Path.Login)
+      return;
+    }
+  }, []);
+
+  //console.log('messages', messages)
+  const message = messages.length > 0 ? messages.at(messages.length - 1) : null;
+  if (message) {
+    //console.log('message', message.content)
+    if (message.content === Locale.Error.Unauthorized) {
+      if (authStore.token) {
+        console.log("change the last message");
+        message.content = Locale.Error.Login;
+      }
+    }
+    //console.log('messages', messages)
+  }
 
   return (
     <div className={styles.chat} key={session.id}>
