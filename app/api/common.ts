@@ -86,7 +86,7 @@ export async function request(req: NextRequest) {
   }, 10 * 60 * 1000);
 
   try {
-    // console.log(`url = ${baseUrl}/${uri}`)
+    console.log(`url = ${baseUrl}/${uri}`);
     const res = await fetch(`${baseUrl}/${uri}`, {
       headers: {
         "Content-Type": "application/json",
