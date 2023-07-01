@@ -45,7 +45,7 @@ import {
   Theme,
   useAppConfig,
   DEFAULT_TOPIC,
-  ALL_MODELS,
+  ModelType,
 } from "../store";
 
 import {
@@ -373,6 +373,7 @@ export function ChatActions(props: {
   const config = useAppConfig();
   const navigate = useNavigate();
   const chatStore = useChatStore();
+  const { availableModelNames } = useWebsiteConfigStore();
 
   // switch themes
   const theme = config.theme;
@@ -391,12 +392,12 @@ export function ChatActions(props: {
   // switch model
   const currentModel = chatStore.currentSession().mask.modelConfig.model;
   function nextModel() {
-    const models = ALL_MODELS.filter((m) => m.available).map((m) => m.name);
+    const models = availableModelNames;
     const modelIndex = models.indexOf(currentModel);
     const nextIndex = (modelIndex + 1) % models.length;
     const nextModel = models[nextIndex];
     chatStore.updateCurrentSession((session) => {
-      session.mask.modelConfig.model = nextModel;
+      session.mask.modelConfig.model = nextModel as ModelType;
       session.mask.syncGlobalConfig = false;
     });
   }

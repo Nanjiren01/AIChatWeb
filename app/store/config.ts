@@ -121,7 +121,7 @@ export const ALL_MODELS = [
   },
 ] as const;
 
-export type ModelType = (typeof ALL_MODELS)[number]["name"];
+export type ModelType = (typeof ALL_MODELS)[number]["name"] | string;
 
 export function limitNumber(
   x: number,
@@ -144,7 +144,7 @@ export function limitModel(name: string) {
 
 export const ModalConfigValidator = {
   model(x: string) {
-    return limitModel(x) as ModelType;
+    return x as ModelType;
   },
   max_tokens(x: number) {
     return limitNumber(x, 0, 32000, 2000);
