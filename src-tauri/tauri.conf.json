@@ -49,7 +49,7 @@
     "bundle": {
       "active": true,
       "category": "DeveloperTool",
-      "copyright": "2023, Zhang Yifei All Rights Reserved.",
+      "copyright": "2023, Nanjiren01 All Rights Reserved.",
       "deb": {
         "depends": []
       },
@@ -62,7 +62,7 @@
         "icons/icon.ico"
       ],
       "identifier": "com.nanjiren01.aichat.web",
-      "longDescription": "AIChatWeb is a cross-platform ChatGPT client, including Web/Win/Linux/OSX/PWA.",
+      "longDescription": "AIChatWeb is a cross-platform AI Chat client, including Web/Win/Linux/OSX/PWA.",
       "macOS": {
         "entitlements": null,
         "exceptionDomain": "",
