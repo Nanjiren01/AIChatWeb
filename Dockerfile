@@ -24,6 +24,11 @@
 # docker tag nanjiren01/aichat-web:0.2.3 nanjiren01/aichat-web:latest
 # docker push nanjiren01/aichat-web:latest
 
+# docker build -t nanjiren01/aichat-web:0.4 .
+# docker push nanjiren01/aichat-web:0.4
+# docker tag nanjiren01/aichat-web:0.4 nanjiren01/aichat-web:latest
+# docker push nanjiren01/aichat-web:latest
+
 FROM node:18-alpine AS base
 
 FROM base AS deps
