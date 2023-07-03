@@ -18,7 +18,10 @@ export function Login() {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
-  const { loginPageSubTitle } = useWebsiteConfigStore();
+  const { loginPageSubTitle, registerTypes } = useWebsiteConfigStore();
+  const registerType = registerTypes[0];
+  const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
+    "UsernameAndEmailWithCaptchaAndCode";
 
   const [loadingUsage, setLoadingUsage] = useState(false);
 
@@ -152,15 +155,18 @@ export function Login() {
             <></>
           ) : (
             <>
-              <ListItem>
-                <IconButton
-                  text={Locale.LoginPage.ForgetPassword}
-                  type="second"
-                  onClick={() => {
-                    navigate(Path.ForgetPassword);
-                  }}
-                />
-              </ListItem>
+              {registerType ==
+                REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE && (
+                <ListItem>
+                  <IconButton
+                    text={Locale.LoginPage.ForgetPassword}
+                    type="second"
+                    onClick={() => {
+                      navigate(Path.ForgetPassword);
+                    }}
+                  />
+                </ListItem>
+              )}
               <ListItem>
                 <IconButton
                   text={Locale.LoginPage.GoToRegister}
