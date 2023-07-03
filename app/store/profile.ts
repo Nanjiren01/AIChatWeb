@@ -28,8 +28,11 @@ export const useProfileStore = create<ProfileStore>()(
       balances: [],
 
       async fetchProfile(token: string) {
-        // console.log('token ', token)
-        return fetch("/api/users/profile", {
+        const url = "/users/profile";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
+        return fetch(requestUrl, {
           method: "get",
           headers: {
             Authorization: "Bearer " + token,

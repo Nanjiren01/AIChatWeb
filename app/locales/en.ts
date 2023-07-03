@@ -6,7 +6,7 @@ const en: LocaleType = {
   Error: {
     Unauthorized:
       "Unauthorized access, please enter access code in settings page.",
-    Login: "您已登录，请点击上方「重试」按钮",
+    Login: "您已登录，请点击下方「重试」按钮",
   },
   Auth: {
     Title: "Need Access Code",
@@ -23,7 +23,7 @@ const en: LocaleType = {
     ChatItemCount: (count: number) => `${count} messages`,
   },
   Chat: {
-    SubTitle: (count: number) => `${count} messages with ChatGPT`,
+    SubTitle: (count: number) => `${count} messages`,
     Actions: {
       ChatList: "Go To Chat List",
       CompressedHistory: "Compressed History Memory Prompt",
@@ -35,6 +35,7 @@ const en: LocaleType = {
       PinToastContent: "Pinned 2 messages to contextual prompts",
       PinToastAction: "View",
       Delete: "Delete",
+      Edit: "Edit",
     },
     Commands: {
       new: "Start a new chat",
@@ -224,6 +225,7 @@ const en: LocaleType = {
     Title: "个人中心",
     SubTitle: "个人中心",
     Username: "账号",
+    Email: "邮箱",
     Tokens: {
       Title: "tokens",
       SubTitle: "tokens数量",
@@ -322,12 +324,19 @@ const en: LocaleType = {
   Settings: {
     Title: "Settings",
     SubTitle: "All Settings",
-    Actions: {
-      ClearAll: "Clear All Data",
-      ResetAll: "Reset All Settings",
-      Close: "Close",
-      ConfirmResetAll: "Are you sure you want to reset all configurations?",
-      ConfirmClearAll: "Are you sure you want to reset all data?",
+    Danger: {
+      Reset: {
+        Title: "Reset All Settings",
+        SubTitle: "Reset all setting items to default",
+        Action: "Reset",
+        Confirm: "Confirm to reset all settings to default?",
+      },
+      Clear: {
+        Title: "Clear All Data",
+        SubTitle: "Clear all messages and settings",
+        Action: "Clear",
+        Confirm: "Confirm to clear all messages and settings?",
+      },
     },
     Lang: {
       Name: "Language", // ATTENTION: if you wanna add a new translation, please do not translate this value, leave it as `Language`

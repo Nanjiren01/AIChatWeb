@@ -233,7 +233,11 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   const [noticeTitle, setNoticeTitle] = useState("");
   const [noticeContent, setNoticeContent] = useState("");
   useEffect(() => {
-    fetch("/api/globalConfig/notice", {
+    const url = "/globalConfig/notice";
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
+    fetch(requestUrl, {
       method: "get",
     })
       .then((res) => res.json())

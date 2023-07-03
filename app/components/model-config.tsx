@@ -1,4 +1,8 @@
-import { ALL_MODELS, ModalConfigValidator, ModelConfig } from "../store";
+import {
+  ModalConfigValidator,
+  ModelConfig,
+  useWebsiteConfigStore,
+} from "../store";
 
 import Locale from "../locales";
 import { InputRange } from "./input-range";
@@ -8,6 +12,7 @@ export function ModelConfigList(props: {
   modelConfig: ModelConfig;
   updateConfig: (updater: (config: ModelConfig) => void) => void;
 }) {
+  const { availableModelNames } = useWebsiteConfigStore();
   return (
     <>
       <ListItem title={Locale.Settings.Model}>
@@ -22,9 +27,9 @@ export function ModelConfigList(props: {
             );
           }}
         >
-          {ALL_MODELS.map((v) => (
-            <option value={v.name} key={v.name} disabled={!v.available}>
-              {v.name}
+          {availableModelNames.map((v) => (
+            <option value={v} key={v}>
+              {v}
             </option>
           ))}
         </Select>

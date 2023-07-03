@@ -121,7 +121,7 @@ export const ALL_MODELS = [
   },
 ] as const;
 
-export type ModelType = (typeof ALL_MODELS)[number]["name"];
+export type ModelType = (typeof ALL_MODELS)[number]["name"] | string;
 
 export function limitNumber(
   x: number,
@@ -144,7 +144,7 @@ export function limitModel(name: string) {
 
 export const ModalConfigValidator = {
   model(x: string) {
-    return limitModel(x) as ModelType;
+    return x as ModelType;
   },
   max_tokens(x: number) {
     return limitNumber(x, 0, 32000, 2000);
@@ -177,9 +177,9 @@ export const useAppConfig = create<ChatConfigStore>()(
     }),
     {
       name: StoreKey.Config,
-      version: 3.1,
+      version: 3.2,
       migrate(persistedState, version) {
-        if (version === 3.1) return persistedState as any;
+        if (version === 3.2) return persistedState as any;
 
         const state = persistedState as ChatConfig;
         state.modelConfig.sendMemory = true;
