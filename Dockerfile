@@ -44,6 +44,12 @@
 # docker tag nanjiren01/aichat-web:0.4 nanjiren01/aichat-web:latest
 # docker push nanjiren01/aichat-web:latest
 
+
+# docker build -t harbor.nanjiren.online:8099/aichat/aichat-web:0.5 .
+# docker push harbor.nanjiren.online:8099/aichat/aichat-web:0.5
+# docker tag harbor.nanjiren.online:8099/aichat/aichat-web:0.5 harbor.nanjiren.online:8099/aichat/aichat-web:latest
+# docker push harbor.nanjiren.online:8099/aichat/aichat-web:latest
+
 # 需要先在本地执行yarn install && yarn build
 FROM node:18-alpine
 
