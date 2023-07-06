@@ -12,6 +12,7 @@ export interface AuthStore {
   token: string;
   username: string;
   email: string;
+  inviteCode: string;
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
   sendEmailCode: (email: string) => Promise<any>;
@@ -24,6 +25,7 @@ export interface AuthStore {
     captchaInput: string,
     email: string,
     code: string,
+    inviteCode: string,
   ) => Promise<any>;
   resetPassword: (
     password: string,
@@ -31,6 +33,7 @@ export interface AuthStore {
     code: string,
   ) => Promise<any>;
   removeToken: () => void;
+  updateInviteCode: (code: string) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -40,6 +43,7 @@ export const useAuthStore = create<AuthStore>()(
       username: "",
       email: "",
       token: "",
+      inviteCode: "",
 
       async login(username, password) {
         // set(() => ({
@@ -57,6 +61,7 @@ export const useAuthStore = create<AuthStore>()(
             username,
             email: result.data?.userEntity?.email || "",
             token: result.data?.token || "",
+            inviteCode: result.data?.inviteCode || "",
           }));
         }
 
@@ -67,10 +72,16 @@ export const useAuthStore = create<AuthStore>()(
           username: "",
           email: "",
           token: "",
+          inviteCode: "",
         }));
       },
       removeToken() {
         set(() => ({ token: "" }));
+      },
+      updateInviteCode(code: string) {
+        set(() => ({
+          inviteCode: code,
+        }));
       },
       async sendEmailCodeForResetPassword(email) {
         let result = await requestSendEmailCode(email, true, {
@@ -96,6 +107,7 @@ export const useAuthStore = create<AuthStore>()(
         captchaInput,
         email,
         code,
+        inviteCode,
       ) {
         let result = await requestRegister(
           name,
@@ -105,6 +117,7 @@ export const useAuthStore = create<AuthStore>()(
           captchaInput,
           email,
           code,
+          inviteCode,
           {
             onError: (err) => {
               console.error(err);
@@ -118,6 +131,7 @@ export const useAuthStore = create<AuthStore>()(
             username,
             email: result.data?.userEntity?.email || "",
             token: result.data?.token || "",
+            inviteCode: result.data?.inviteCode || "",
           }));
         }
 
@@ -138,6 +152,7 @@ export const useAuthStore = create<AuthStore>()(
             username: user.username || "",
             email: user.email || "",
             token: data.token || "",
+            inviteCode: data.inviteCode || "",
           }));
         }
         return result;

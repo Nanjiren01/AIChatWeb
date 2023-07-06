@@ -14,6 +14,8 @@ import {
   useWebsiteConfigStore,
 } from "../store";
 
+import { copyToClipboard } from "../utils";
+
 import Locale from "../locales";
 import { Path } from "../constant";
 import { ErrorBoundary } from "./error";
@@ -72,6 +74,18 @@ export function Profile() {
       authStore.logout();
       navigate(Path.Login);
     }, 500);
+  }
+
+  function createInviteCode() {
+    setLoading(true);
+    profileStore
+      .createInviteCode(authStore)
+      .then((resp) => {
+        console.log("resp", resp);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }
 
   function getPrefix(balance: Balance) {
@@ -141,6 +155,35 @@ export function Profile() {
           ) : (
             <></>
           )}
+        </List>
+
+        <List>
+          <ListItem title={Locale.Profile.InviteCode}>
+            {authStore.inviteCode ? (
+              <>
+                <span>
+                  <span>{authStore.inviteCode}</span>
+                  <span
+                    className={styles["copy-action"]}
+                    onClick={() => {
+                      copyToClipboard(authStore.inviteCode);
+                    }}
+                  >
+                    {Locale.Profile.Actions.Copy}
+                  </span>
+                </span>
+              </>
+            ) : (
+              <IconButton
+                text={Locale.Profile.Actions.CreateInviteCode}
+                type="second"
+                disabled={loading}
+                onClick={() => {
+                  createInviteCode();
+                }}
+              />
+            )}
+          </ListItem>
         </List>
 
         <List>

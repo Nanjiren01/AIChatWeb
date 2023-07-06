@@ -115,6 +115,7 @@ export async function requestRegister(
   captchaInput: string,
   email: string,
   code: string,
+  inviteCode: string,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
@@ -122,7 +123,16 @@ export async function requestRegister(
   return request(
     "/register",
     "POST",
-    { name, username, password, captchaId, captcha: captchaInput, email, code },
+    {
+      name,
+      username,
+      password,
+      captchaId,
+      captcha: captchaInput,
+      email,
+      code,
+      inviteCode,
+    },
     options,
   );
 }

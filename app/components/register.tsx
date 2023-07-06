@@ -64,6 +64,7 @@ export function Register() {
   const [password, setPassword] = useState("");
   const [comfirmedPassword, setComfirmedPassword] = useState("");
   const [captchaInput, setCaptchaInput] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   function handleClickSendEmailCode() {
     if (email === null || email == "") {
       showToast(Locale.RegisterPage.Toast.EmailIsEmpty);
@@ -135,6 +136,7 @@ export function Register() {
         captchaInput,
         email,
         emailCode,
+        inviteCode,
       )
       .then((result) => {
         console.log("result", result);
@@ -343,6 +345,15 @@ export function Register() {
           ) : (
             <></>
           )}
+
+          <ListItem title={Locale.Profile.InviteCode}>
+            <SingleInput
+              value={inviteCode}
+              onChange={(e) => {
+                setInviteCode(e.currentTarget.value);
+              }}
+            />
+          </ListItem>
 
           <ListItem>
             <IconButton

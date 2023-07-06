@@ -223,6 +223,7 @@ const cn = {
     SubTitle: "个人中心",
     Username: "账号",
     Email: "邮箱",
+    InviteCode: "邀请码",
     Tokens: {
       Title: "tokens",
       SubTitle: "tokens数量",
@@ -246,6 +247,8 @@ const cn = {
       GoToBalanceList: "更多",
       ConsultAdministrator: "请咨询站长",
       All: "所有套餐",
+      CreateInviteCode: "生成邀请码",
+      Copy: "复制",
     },
     BalanceItem: {
       Title: "套餐类型",
