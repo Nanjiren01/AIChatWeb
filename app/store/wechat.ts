@@ -13,7 +13,9 @@ export interface WechatConfig {
   state: string;
 }
 export interface WechatConfigData {
-  wechatContent: WechatConfig;
+  // wechatContent: WechatConfig;
+  appId: string;
+  state: string;
 }
 
 import { Response } from "../api/common";
@@ -39,7 +41,7 @@ export const useWechatConfigStore = create<WechatConfigStore>()(
           .then((res) => res.json())
           .then((res: WechatConfigResponse) => {
             console.log("[WechatConfig] got wechat config from server", res);
-            const wechat = res.data.wechatContent;
+            const wechat = res.data;
             set(() => ({
               appId: wechat.appId,
               state: wechat.state,

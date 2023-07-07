@@ -45,9 +45,12 @@ export function Login() {
   const [showWechatLogin, setShowWechatLogin] = useState(false);
 
   useEffect(() => {
-    if (wechatStore.appId !== "") {
-      setShowWechatLogin(true);
-    }
+    wechatStore.fetchWechatConfig().then((res) => {
+      const wechat = res.data;
+      if (wechat?.appId) {
+        setShowWechatLogin(true);
+      }
+    });
     const keydownEvent = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         navigate(Path.Home);
@@ -61,6 +64,10 @@ export function Login() {
   }, []);
 
   useEffect(() => {
+    setShowWechatLogin(!!wechatStore.appId);
+  }, [wechatStore.appId, setShowWechatLogin]);
+
+  useEffect(() => {
     if (showWechatCode) {
       const url = "/wechat/loginCallback";
       const BASE_URL = process.env.BASE_URL;
@@ -69,6 +76,7 @@ export function Login() {
         mode === "export"
           ? BASE_URL + url
           : `${window.location.origin}/api${url}`;
+      // @ts-ignore
       const obj = new WxLogin({
         self_redirect: true,
         id: "wx_login_container",
@@ -96,7 +104,6 @@ export function Login() {
     authStore
       .login(username, password)
       .then((result) => {
-        console.log("result", result);
         if (result && result.code == 0) {
           showToast(Locale.LoginPage.Toast.Success);
           navigate(Path.Chat);
@@ -197,6 +204,30 @@ export function Login() {
             </ListItem>
           ) : undefined}
 
+          {showWechatLogin && !showWechatCode ? (
+            <div
+              style={{
+                borderBottom: "var(--border-in-light)",
+                minHeight: "40px",
+                lineHeight: "40px",
+                padding: "10px 20px",
+                textAlign: "center",
+              }}
+            >
+              <div style={{ margin: "0 auto", display: "inline-block" }}>
+                <IconButton
+                  icon={<WechatIcon />}
+                  type="second"
+                  onClick={() => {
+                    setShowWechatCode(true);
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <></>
+          )}
+
           {showWechatCode ? (
             <div
               style={{ display: "flex", justifyContent: "center" }}
@@ -204,7 +235,31 @@ export function Login() {
             ></div>
           ) : undefined}
 
-          {authStore.token ? (
+          {showWechatLogin && showWechatCode ? (
+            <div
+              style={{
+                borderBottom: "var(--border-in-light)",
+                minHeight: "40px",
+                lineHeight: "40px",
+                padding: "10px 20px",
+                textAlign: "center",
+              }}
+            >
+              <div style={{ margin: "0 auto", display: "inline-block" }}>
+                <IconButton
+                  icon={<ReturnIcon />}
+                  type="second"
+                  onClick={() => {
+                    setShowWechatCode(false);
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <></>
+          )}
+
+          {authStore.token || showWechatCode ? (
             <></>
           ) : (
             <>
@@ -221,35 +276,13 @@ export function Login() {
                 </ListItem>
               )}
               <ListItem>
-                {showWechatLogin ? (
-                  <div style={{ marginLeft: "80px" }}>
-                    <IconButton
-                      icon={<WechatIcon />}
-                      onClick={() => {
-                        setShowWechatCode(true);
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <></>
-                )}
-
-                {!showWechatCode ? (
-                  <IconButton
-                    text={Locale.LoginPage.GoToRegister}
-                    type="second"
-                    onClick={() => {
-                      navigate(Path.Register);
-                    }}
-                  />
-                ) : (
-                  <IconButton
-                    icon={<ReturnIcon />}
-                    onClick={() => {
-                      setShowWechatCode(false);
-                    }}
-                  />
-                )}
+                <IconButton
+                  text={Locale.LoginPage.GoToRegister}
+                  type="second"
+                  onClick={() => {
+                    navigate(Path.Register);
+                  }}
+                />
               </ListItem>
             </>
           )}
