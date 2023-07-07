@@ -13,6 +13,7 @@ export enum Path {
   Home = "/",
   Chat = "/chat",
   Login = "/login",
+  WechatCallback = "/wechatCallback",
   Register = "/register",
   ForgetPassword = "/forget-password",
   Settings = "/settings",

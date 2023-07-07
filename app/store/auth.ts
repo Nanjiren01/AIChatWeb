@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { StoreKey } from "../constant";
-import { requestLogin } from "../requests";
+import { requestLogin, requestWechatLogin } from "../requests";
 import {
   requestRegister,
   requestSendEmailCode,
@@ -32,6 +32,7 @@ export interface AuthStore {
     email: string,
     code: string,
   ) => Promise<any>;
+  wechatLogin: (code: string, state: string) => Promise<any>;
   removeToken: () => void;
   updateInviteCode: (code: string) => void;
 }
@@ -156,6 +157,24 @@ export const useAuthStore = create<AuthStore>()(
           }));
         }
         return result;
+      },
+      async wechatLogin(code, state) {
+        let result = await requestWechatLogin(code, state, {
+          onError: (err) => {
+            console.error(err);
+          },
+        });
+        if (result && result.code == 0 && result.data) {
+          const data = result.data;
+          const user = data.userEntity;
+          set(() => ({
+            name: user.name || "",
+            username: user.username || "",
+            email: user.email || "",
+            token: data.token || "",
+            inviteCode: data.inviteCode || "",
+          }));
+        }
       },
     }),
     {

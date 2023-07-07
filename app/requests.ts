@@ -40,7 +40,7 @@ export async function request(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: body === null ? null : JSON.stringify(body),
       // // @ts-ignore
       // duplex: "half",
     });
@@ -151,6 +151,21 @@ export async function requestSendEmailCode(
       email,
       type: resetPassword ? "resetPassword" : "register",
     },
+    options,
+  );
+}
+
+export function requestWechatLogin(
+  code: string,
+  state: string,
+  options?: {
+    onError: (error: Error, statusCode?: number) => void;
+  },
+): Promise<RegisterResult> {
+  return request(
+    `/wechat/loginCallback?code=${code}&state=${state}`,
+    "GET",
+    null,
     options,
   );
 }

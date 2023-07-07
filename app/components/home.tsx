@@ -64,6 +64,13 @@ const Login = dynamic(async () => (await import("./login")).Login, {
   loading: () => <Loading noLogo logoLoading />,
 });
 
+const WechatCallback = dynamic(
+  async () => (await import("./wechatCallback")).WechatCallback,
+  {
+    loading: () => <Loading noLogo logoLoading />,
+  },
+);
+
 const Register = dynamic(async () => (await import("./register")).Register, {
   loading: () => <Loading noLogo logoLoading />,
 });
@@ -311,6 +318,8 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
               <Route path={Path.Chat} element={<Chat />} />
               <Route path={Path.Settings} element={<Settings />} />
               <Route path={Path.Login} element={<Login />} />
+              <Route path={Path.WechatCallback} element={<WechatCallback />} />
+
               <Route path={Path.Register} element={<Register />} />
               <Route path={Path.ForgetPassword} element={<ForgetPassword />} />
               <Route path={Path.Profile} element={<Profile />} />

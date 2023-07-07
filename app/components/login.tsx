@@ -69,13 +69,13 @@ export function Login() {
 
   useEffect(() => {
     if (showWechatCode) {
-      const url = "/wechat/loginCallback";
+      const url = "/wechatLoginCallback";
       const BASE_URL = process.env.BASE_URL;
       const mode = process.env.BUILD_MODE;
       const redirect_uri =
         mode === "export"
           ? BASE_URL + url
-          : `${window.location.origin}/api${url}`;
+          : `${window.location.origin}#/${url}`;
       // @ts-ignore
       const obj = new WxLogin({
         self_redirect: true,
