@@ -28,7 +28,12 @@ import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
 import { AuthPage } from "./auth";
 import { getClientConfig } from "../config/client";
-import { useWebsiteConfigStore, useAuthStore, BOT_HELLO } from "../store";
+import {
+  useWebsiteConfigStore,
+  useAuthStore,
+  BOT_HELLO,
+  useWechatConfigStore,
+} from "../store";
 
 export function Loading(props: {
   noLogo?: boolean;
@@ -220,6 +225,11 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   useEffect(() => {
     fetchWebsiteConfig();
   }, [fetchWebsiteConfig]);
+
+  const { fetchWechatConfig } = useWechatConfigStore();
+  useEffect(() => {
+    fetchWechatConfig();
+  }, [fetchWechatConfig]);
 
   const { botHello } = useWebsiteConfigStore();
   useEffect(() => {
