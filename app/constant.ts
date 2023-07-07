@@ -48,6 +48,7 @@ export enum StoreKey {
   Profile = "profile",
   WebsiteConfig = "websiteCofnig",
   NoticeConfig = "noticeConfig",
+  WechatConfig = "wechatConfig",
 }
 
 export const MAX_SIDEBAR_WIDTH = 500;

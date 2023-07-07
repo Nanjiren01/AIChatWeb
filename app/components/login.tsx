@@ -3,29 +3,51 @@ import { useState, useEffect } from "react";
 import styles from "./login.module.scss";
 
 import CloseIcon from "../icons/close.svg";
+import WechatIcon from "../icons/wechat.svg";
+import ReturnIcon from "../icons/return.svg";
+
 import { SingleInput, List, ListItem, PasswordInput } from "./ui-lib";
 
 import { IconButton } from "./button";
-import { useAuthStore, useAccessStore, useWebsiteConfigStore } from "../store";
+import {
+  useAuthStore,
+  useAccessStore,
+  useWebsiteConfigStore,
+  useWechatConfigStore,
+} from "../store";
 
 import Locale from "../locales";
 import { Path } from "../constant";
 import { ErrorBoundary } from "./error";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "../components/ui-lib";
+import { Response } from "../api/common";
+import "../../scripts/wxLogin.js";
+
+export interface WechatConfigData {
+  appId: string;
+  state: string;
+}
+export type WechatConfigResponse = Response<WechatConfigData>;
 
 export function Login() {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
+  const wechatStore = useWechatConfigStore();
   const { loginPageSubTitle, registerTypes } = useWebsiteConfigStore();
   const registerType = registerTypes[0];
   const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
     "UsernameAndEmailWithCaptchaAndCode";
 
   const [loadingUsage, setLoadingUsage] = useState(false);
+  const [showWechatCode, setShowWechatCode] = useState(false);
+  const [showWechatLogin, setShowWechatLogin] = useState(false);
 
   useEffect(() => {
+    if (wechatStore.appId !== "") {
+      setShowWechatLogin(true);
+    }
     const keydownEvent = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         navigate(Path.Home);
@@ -37,6 +59,26 @@ export function Login() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (showWechatCode) {
+      const url = "/wechat/loginCallback";
+      const BASE_URL = process.env.BASE_URL;
+      const mode = process.env.BUILD_MODE;
+      const redirect_uri =
+        mode === "export"
+          ? BASE_URL + url
+          : `${window.location.origin}/api${url}`;
+      const obj = new WxLogin({
+        self_redirect: true,
+        id: "wx_login_container",
+        appid: wechatStore.appId,
+        scope: "snsapi_login",
+        redirect_uri,
+        state: wechatStore.state,
+      });
+    }
+  }, [showWechatCode, wechatStore]);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -92,26 +134,28 @@ export function Login() {
       </div>
       <div className={styles["login"]}>
         <List>
-          <ListItem
-            title={Locale.LoginPage.Username.Title}
-            subTitle={Locale.LoginPage.Username.SubTitle}
-          >
-            {authStore.token ? (
-              <span>{authStore.username}</span>
-            ) : (
-              <SingleInput
-                value={username}
-                placeholder={Locale.LoginPage.Username.Placeholder}
-                onChange={(e) => {
-                  setUsername(e.currentTarget.value);
-                  //console.log(e)
-                  //accessStore.updateCode(e.currentTarget.value);
-                }}
-              />
-            )}
-          </ListItem>
+          {!showWechatCode ? (
+            <ListItem
+              title={Locale.LoginPage.Username.Title}
+              subTitle={Locale.LoginPage.Username.SubTitle}
+            >
+              {authStore.token ? (
+                <span>{authStore.username}</span>
+              ) : (
+                <SingleInput
+                  value={username}
+                  placeholder={Locale.LoginPage.Username.Placeholder}
+                  onChange={(e) => {
+                    setUsername(e.currentTarget.value);
+                    //console.log(e)
+                    //accessStore.updateCode(e.currentTarget.value);
+                  }}
+                />
+              )}
+            </ListItem>
+          ) : undefined}
 
-          {authStore.token ? (
+          {authStore.token || showWechatCode ? (
             <></>
           ) : (
             <ListItem
@@ -131,25 +175,34 @@ export function Login() {
             </ListItem>
           )}
 
-          <ListItem>
-            <IconButton
-              type="primary"
-              text={
-                authStore.token
-                  ? Locale.LoginPage.Actions.Logout
-                  : Locale.LoginPage.Actions.Login
-              }
-              block={true}
-              onClick={() => {
-                if (authStore.token) {
-                  logout();
-                } else {
-                  // console.log(username, password);
-                  login();
+          {!showWechatCode ? (
+            <ListItem>
+              <IconButton
+                type="primary"
+                text={
+                  authStore.token
+                    ? Locale.LoginPage.Actions.Logout
+                    : Locale.LoginPage.Actions.Login
                 }
-              }}
-            />
-          </ListItem>
+                block={true}
+                onClick={() => {
+                  if (authStore.token) {
+                    logout();
+                  } else {
+                    // console.log(username, password);
+                    login();
+                  }
+                }}
+              />
+            </ListItem>
+          ) : undefined}
+
+          {showWechatCode ? (
+            <div
+              style={{ display: "flex", justifyContent: "center" }}
+              id="wx_login_container"
+            ></div>
+          ) : undefined}
 
           {authStore.token ? (
             <></>
@@ -168,13 +221,35 @@ export function Login() {
                 </ListItem>
               )}
               <ListItem>
-                <IconButton
-                  text={Locale.LoginPage.GoToRegister}
-                  type="second"
-                  onClick={() => {
-                    navigate(Path.Register);
-                  }}
-                />
+                {showWechatLogin ? (
+                  <div style={{ marginLeft: "80px" }}>
+                    <IconButton
+                      icon={<WechatIcon />}
+                      onClick={() => {
+                        setShowWechatCode(true);
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <></>
+                )}
+
+                {!showWechatCode ? (
+                  <IconButton
+                    text={Locale.LoginPage.GoToRegister}
+                    type="second"
+                    onClick={() => {
+                      navigate(Path.Register);
+                    }}
+                  />
+                ) : (
+                  <IconButton
+                    icon={<ReturnIcon />}
+                    onClick={() => {
+                      setShowWechatCode(false);
+                    }}
+                  />
+                )}
               </ListItem>
             </>
           )}
