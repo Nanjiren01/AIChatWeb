@@ -752,6 +752,7 @@ export function Chat() {
   ) {
     const copiedHello = Object.assign({}, BOT_HELLO);
     if (!authStore.token) {
+      navigate(Path.Login);
       copiedHello.content = Locale.Error.Unauthorized;
     }
     context.push(copiedHello);
