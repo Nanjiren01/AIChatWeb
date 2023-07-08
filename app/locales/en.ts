@@ -58,6 +58,7 @@ const en: LocaleType = {
       Clear: "Clear Context",
       Settings: "Settings",
     },
+    TooFrequently: "您发送太快啦，请稍后重试",
     Rename: "Rename Chat",
     Typing: "Typing…",
     SensitiveWordsTip: (question: string) =>
