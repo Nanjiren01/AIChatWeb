@@ -73,16 +73,14 @@ export function Login() {
       const BASE_URL = process.env.BASE_URL;
       const mode = process.env.BUILD_MODE;
       const redirect_uri =
-        mode === "export"
-          ? BASE_URL + url
-          : `${window.location.origin}#/${url}`;
+        mode === "export" ? BASE_URL + url : `${window.location.origin}#${url}`;
       // @ts-ignore
       const obj = new WxLogin({
         self_redirect: true,
         id: "wx_login_container",
         appid: wechatStore.appId,
         scope: "snsapi_login",
-        redirect_uri,
+        redirect_uri: encodeURIComponent(redirect_uri),
         state: wechatStore.state,
       });
     }
