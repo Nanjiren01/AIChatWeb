@@ -157,11 +157,11 @@ export function Order() {
   }
 
   useEffect(() => {
-    if (profileStore.id === 0) {
-      console.log("profileStore.id", profileStore.id);
+    if (!authStore.token) {
+      console.log("autoStore.token is empty, navigate to login page");
       navigate(Path.Login);
     }
-  }, [profileStore, navigate]);
+  }, [authStore, navigate]);
 
   function getSubTitle(order: any) {
     const pkg = order.orderPackages[0] as Package;
