@@ -201,7 +201,7 @@ export function Login() {
             </ListItem>
           ) : undefined}
 
-          {authStore.token && showWechatLogin && !showWechatCode ? (
+          {!authStore.token && showWechatLogin && !showWechatCode ? (
             <div
               style={{
                 borderBottom: "var(--border-in-light)",
