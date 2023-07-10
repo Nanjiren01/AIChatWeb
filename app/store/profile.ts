@@ -32,7 +32,7 @@ export const useProfileStore = create<ProfileStore>()(
         const url = "/users/profile";
         const BASE_URL = process.env.BASE_URL;
         const mode = process.env.BUILD_MODE;
-        let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
         return fetch(requestUrl, {
           method: "get",
           headers: {
@@ -53,7 +53,7 @@ export const useProfileStore = create<ProfileStore>()(
               console.log("[Profile] set id = 0");
               set(() => ({
                 id: 0,
-                balances: [],
+                balances: [] as Balance[],
               }));
             }
             return res;
@@ -70,7 +70,7 @@ export const useProfileStore = create<ProfileStore>()(
         const url = "/users/inviteCode";
         const BASE_URL = process.env.BASE_URL;
         const mode = process.env.BUILD_MODE;
-        let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
         return fetch(requestUrl, {
           method: "post",
           headers: {

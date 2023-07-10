@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import NextImage from "next/image";
 
 import styles from "./register.module.scss";
 
@@ -315,14 +315,14 @@ export function Register() {
               <ListItem title={Locale.RegisterPage.Captcha}>
                 <div>
                   {captcha ? (
-                    <img
+                    <NextImage
                       alt={Locale.RegisterPage.Captcha}
                       src={captcha}
                       width="100"
                       height="40"
                       title={Locale.RegisterPage.CaptchaTitle}
                       style={{ cursor: "pointer" }}
-                      onClick={(e) => getRegisterCaptcha(captchaId)}
+                      onClick={() => getRegisterCaptcha(captchaId)}
                     />
                   ) : (
                     <></>

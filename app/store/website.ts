@@ -75,7 +75,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
         const BASE_URL = process.env.BASE_URL;
         const mode = process.env.BUILD_MODE;
         console.log("mode", mode);
-        let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
         return fetch(requestUrl, {
           method: "get",
         })

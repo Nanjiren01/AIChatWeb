@@ -202,7 +202,7 @@ export function SideBar(props: {
           ) : !logoUrl ? (
             <NextImage src={ChatBotIcon.src} width={44} height={44} alt="bot" />
           ) : (
-            <img src={logoUrl} width={44} height={44} />
+            <NextImage src={logoUrl} width={44} height={44} alt="bot" />
           )}
         </div>
       </div>
