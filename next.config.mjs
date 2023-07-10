@@ -73,6 +73,10 @@ if (mode !== "export") {
         source: "/sharegpt",
         destination: "https://sharegpt.com/api/conversations",
       },
+      {
+        source: "/:path([A-Za-z]+)",
+        destination: "/",
+      },
     ];
 
     const apiUrl = process.env.API_URL;
