@@ -224,7 +224,10 @@ const cn = {
     SubTitle: "个人中心",
     Username: "账号",
     Email: "邮箱",
-    InviteCode: "邀请码",
+    InviteCode: {
+      Title: "邀请码",
+      Placeholder: "选填",
+    },
     Tokens: {
       Title: "tokens",
       SubTitle: "tokens数量",

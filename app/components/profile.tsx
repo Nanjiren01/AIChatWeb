@@ -158,7 +158,7 @@ export function Profile() {
         </List>
 
         <List>
-          <ListItem title={Locale.Profile.InviteCode}>
+          <ListItem title={Locale.Profile.InviteCode.Title}>
             {authStore.inviteCode ? (
               <>
                 <span>

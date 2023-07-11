@@ -346,9 +346,10 @@ export function Register() {
             <></>
           )}
 
-          <ListItem title={Locale.Profile.InviteCode}>
+          <ListItem title={Locale.Profile.InviteCode.Title}>
             <SingleInput
               value={inviteCode}
+              placeholder={Locale.Profile.InviteCode.Placeholder}
               onChange={(e) => {
                 setInviteCode(e.currentTarget.value);
               }}
