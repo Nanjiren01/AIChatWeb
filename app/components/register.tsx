@@ -315,14 +315,14 @@ export function Register() {
               <ListItem title={Locale.RegisterPage.Captcha}>
                 <div>
                   {captcha ? (
-                    <NextImage
+                    <img
                       alt={Locale.RegisterPage.Captcha}
                       src={captcha}
                       width="100"
                       height="40"
                       title={Locale.RegisterPage.CaptchaTitle}
                       style={{ cursor: "pointer" }}
-                      onClick={() => getRegisterCaptcha(captchaId)}
+                      onClick={(e) => getRegisterCaptcha(captchaId)}
                     />
                   ) : (
                     <></>
