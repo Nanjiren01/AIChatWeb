@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthStore>()(
         //   username,
         // }));
 
-        let result = await requestLogin(username, password, {
+        let result: any = await requestLogin(username, password, {
           onError: (err) => {
             console.error(err);
           },
@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthStore>()(
             username,
             email: result.data?.userEntity?.email || "",
             token: result.data?.token || "",
-            inviteCode: result.data?.inviteCode || "",
+            inviteCode: result.data?.userEntity?.inviteCode || "",
           }));
         }
 
@@ -132,7 +132,7 @@ export const useAuthStore = create<AuthStore>()(
             username,
             email: result.data?.userEntity?.email || "",
             token: result.data?.token || "",
-            inviteCode: result.data?.inviteCode || "",
+            inviteCode: result.data?.userEntity?.inviteCode || "",
           }));
         }
 
@@ -153,7 +153,7 @@ export const useAuthStore = create<AuthStore>()(
             username: user.username || "",
             email: user.email || "",
             token: data.token || "",
-            inviteCode: data.inviteCode || "",
+            inviteCode: user.inviteCode || "",
           }));
         }
         return result;
@@ -172,7 +172,7 @@ export const useAuthStore = create<AuthStore>()(
             username: user.username || "",
             email: user.email || "",
             token: data.token || "",
-            inviteCode: data.inviteCode || "",
+            inviteCode: user.inviteCode || "",
           }));
         }
       },
