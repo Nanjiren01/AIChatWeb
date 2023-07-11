@@ -17,7 +17,8 @@ export class ChatGPTApi implements LLMApi {
   path(path: string): string {
     const BASE_URL = process.env.BASE_URL;
     const mode = process.env.BUILD_MODE;
-    let baseUrl = mode === "export" ? BASE_URL ?? DEFAULT_API_HOST : "/api";
+    let baseUrl =
+      mode === "export" ? (BASE_URL ?? DEFAULT_API_HOST) + "/api" : "/api";
 
     if (baseUrl.endsWith("/")) {
       baseUrl = baseUrl.slice(0, baseUrl.length - 1);
