@@ -4,7 +4,14 @@ const cn = {
   WIP: "该功能仍在开发中……",
   Error: {
     Unauthorized: "登录信息已过期，请前往[登录页](/#/login)",
-    Login: "您已登录，请点击上方「重试」按钮",
+    Login: "您已登录，请点击下方「重试」按钮",
+  },
+  Auth: {
+    Title: "需要密码",
+    Tips: "管理员开启了密码验证，请在下方填入访问码",
+    Input: "在此处填写访问码",
+    Confirm: "确认",
+    Later: "稍后再说",
   },
   Sidebar: {
     Title: "公告",
@@ -14,7 +21,7 @@ const cn = {
     ChatItemCount: (count: number) => `${count} 条对话`,
   },
   Chat: {
-    SubTitle: (count: number) => `与 ChatGPT 的 ${count} 条对话`,
+    SubTitle: (count: number) => `共 ${count} 条对话`,
     Actions: {
       ChatList: "查看消息列表",
       CompressedHistory: "查看压缩后的历史 Prompt",
@@ -22,8 +29,34 @@ const cn = {
       Copy: "复制",
       Stop: "停止",
       Retry: "重试",
+      Pin: "固定",
+      PinToastContent: "已将 2 条对话固定至预设提示词",
+      PinToastAction: "查看",
       Delete: "删除",
+      Edit: "编辑",
     },
+    Commands: {
+      new: "新建聊天",
+      newm: "从面具新建聊天",
+      next: "下一个聊天",
+      prev: "上一个聊天",
+      clear: "清除上下文",
+      del: "删除聊天",
+    },
+    InputActions: {
+      Stop: "停止响应",
+      ToBottom: "滚到最新",
+      Theme: {
+        auto: "自动主题",
+        light: "亮色模式",
+        dark: "深色模式",
+      },
+      Prompt: "快捷指令",
+      Masks: "所有面具",
+      Clear: "清除聊天",
+      Settings: "对话设置",
+    },
+    TooFrequently: "您发送太快啦，请稍后重试",
     Rename: "重命名对话",
     Typing: "正在输入…",
     SensitiveWordsTip: (question: string) =>
@@ -34,7 +67,7 @@ const cn = {
       if (submitKey === String(SubmitKey.Enter)) {
         inputHints += "，Shift + Enter 换行";
       }
-      return inputHints + "，/ 触发补全";
+      return inputHints + "，/ 触发补全，: 触发命令";
     },
     Send: "发送",
     Config: {
@@ -104,8 +137,11 @@ const cn = {
     Toast: {
       Success: "登录成功",
       Logining: "登录中……",
+      EmptyUserName: "用户名或邮箱不能为空",
+      EmptyPassword: "密码不能为空！",
     },
     GoToRegister: "前往注册",
+    ForgetPassword: "忘记/重置密码",
   },
   RegisterPage: {
     Title: "注册",
@@ -170,10 +206,28 @@ const cn = {
       Placeholder: "请输入图中的验证码",
     },
   },
+  ForgetPasswordPage: {
+    Title: "重置密码",
+    SubTitle: "",
+    Toast: {
+      PasswordResetting: "重置密码中",
+      PasswordResetFailed: "重置密码失败！",
+      PasswordResetSuccess: "重置成功，正在前往聊天……",
+      PasswordResetFailedWithReason: "重置失败！原因：",
+    },
+    Actions: {
+      Close: "关闭",
+    },
+  },
   Profile: {
     Title: "个人中心",
     SubTitle: "个人中心",
     Username: "账号",
+    Email: "邮箱",
+    InviteCode: {
+      Title: "邀请码",
+      Placeholder: "选填",
+    },
     Tokens: {
       Title: "tokens",
       SubTitle: "tokens数量",
@@ -197,6 +251,8 @@ const cn = {
       GoToBalanceList: "更多",
       ConsultAdministrator: "请咨询站长",
       All: "所有套餐",
+      CreateInviteCode: "生成邀请码",
+      Copy: "复制",
     },
     BalanceItem: {
       Title: "套餐类型",
@@ -271,13 +327,21 @@ const cn = {
   },
   Settings: {
     Title: "设置",
-    SubTitle: "设置选项",
-    Actions: {
-      ClearAll: "清除所有数据",
-      ResetAll: "重置所有选项",
-      Close: "关闭",
-      ConfirmResetAll: "确认重置所有配置？",
-      ConfirmClearAll: "确认清除所有数据？",
+    SubTitle: "所有设置选项",
+
+    Danger: {
+      Reset: {
+        Title: "重置所有设置",
+        SubTitle: "重置所有设置项回默认值",
+        Action: "立即重置",
+        Confirm: "确认重置所有设置？",
+      },
+      Clear: {
+        Title: "清除所有数据",
+        SubTitle: "清除所有聊天、设置数据",
+        Action: "立即清除",
+        Confirm: "确认清除所有聊天、设置数据？",
+      },
     },
     Lang: {
       Name: "Language", // ATTENTION: if you wanna add a new translation, please do not translate this value, leave it as `Language`
@@ -287,6 +351,11 @@ const cn = {
     FontSize: {
       Title: "字体大小",
       SubTitle: "聊天内容的字体大小",
+    },
+
+    InputTemplate: {
+      Title: "用户输入预处理",
+      SubTitle: "用户最新的一条消息会填充到此模板",
     },
 
     Update: {
@@ -354,6 +423,10 @@ const cn = {
       SubTitle: "管理员已开启加密访问",
       Placeholder: "请输入访问密码",
     },
+    Endpoint: {
+      Title: "接口地址",
+      SubTitle: "除默认地址外，必须包含 http(s)://",
+    },
     Model: "模型 (model)",
     Temperature: {
       Title: "随机性 (temperature)",
@@ -366,6 +439,10 @@ const cn = {
     PresencePenalty: {
       Title: "话题新鲜度 (presence_penalty)",
       SubTitle: "值越大，越有可能扩展到新话题",
+    },
+    FrequencyPenalty: {
+      Title: "频率惩罚度 (frequency_penalty)",
+      SubTitle: "值越大，越有可能降低重复字词",
     },
     Version: {
       Title: "版本",
@@ -451,6 +528,12 @@ const cn = {
     Create: "新建",
     Edit: "编辑",
   },
+  Exporter: {
+    Model: "模型",
+    Messages: "消息",
+    Topic: "主题",
+    Time: "时间",
+  },
 };
 
 type DeepPartial<T> = T extends object
@@ -458,7 +541,8 @@ type DeepPartial<T> = T extends object
       [P in keyof T]?: DeepPartial<T[P]>;
     }
   : T;
-export type LocaleType = DeepPartial<typeof cn>;
-export type RequiredLocaleType = typeof cn;
+
+export type LocaleType = typeof cn;
+export type PartialLocaleType = DeepPartial<typeof cn>;
 
 export default cn;

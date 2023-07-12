@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import NextImage from "next/image";
 
 import styles from "./register.module.scss";
 
@@ -64,6 +64,7 @@ export function Register() {
   const [password, setPassword] = useState("");
   const [comfirmedPassword, setComfirmedPassword] = useState("");
   const [captchaInput, setCaptchaInput] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   function handleClickSendEmailCode() {
     if (email === null || email == "") {
       showToast(Locale.RegisterPage.Toast.EmailIsEmpty);
@@ -135,6 +136,7 @@ export function Register() {
         captchaInput,
         email,
         emailCode,
+        inviteCode,
       )
       .then((result) => {
         console.log("result", result);
@@ -178,7 +180,7 @@ export function Register() {
 
   return (
     <ErrorBoundary>
-      <div className="window-header">
+      <div className="window-header" data-tauri-drag-region>
         <div className="window-header-title">
           <div className="window-header-main-title">
             {Locale.RegisterPage.Title}
@@ -343,6 +345,16 @@ export function Register() {
           ) : (
             <></>
           )}
+
+          <ListItem title={Locale.Profile.InviteCode.Title}>
+            <SingleInput
+              value={inviteCode}
+              placeholder={Locale.Profile.InviteCode.Placeholder}
+              onChange={(e) => {
+                setInviteCode(e.currentTarget.value);
+              }}
+            />
+          </ListItem>
 
           <ListItem>
             <IconButton

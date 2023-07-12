@@ -11,7 +11,10 @@ import {
   useAccessStore,
   useAppConfig,
   useProfileStore,
+  useWebsiteConfigStore,
 } from "../store";
+
+import { copyToClipboard } from "../utils";
 
 import Locale from "../locales";
 import { Path } from "../constant";
@@ -26,6 +29,10 @@ export function Profile() {
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
   const profileStore = useProfileStore();
+  const { registerTypes } = useWebsiteConfigStore();
+  const registerType = registerTypes[0];
+  const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
+    "UsernameAndEmailWithCaptchaAndCode";
 
   const config = useAppConfig();
   const updateConfig = config.update;
@@ -69,6 +76,18 @@ export function Profile() {
     }, 500);
   }
 
+  function createInviteCode() {
+    setLoading(true);
+    profileStore
+      .createInviteCode(authStore)
+      .then((resp) => {
+        console.log("resp", resp);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+
   function getPrefix(balance: Balance) {
     return balance.calcType == "Total"
       ? "剩余"
@@ -83,7 +102,7 @@ export function Profile() {
 
   return (
     <ErrorBoundary>
-      <div className="window-header">
+      <div className="window-header" data-tauri-drag-region>
         <div className="window-header-title">
           <div className="window-header-main-title">{Locale.Profile.Title}</div>
           <div className="window-header-sub-title">
@@ -127,6 +146,43 @@ export function Profile() {
 
           <ListItem title={Locale.Profile.Username}>
             <span>{authStore.username}</span>
+          </ListItem>
+
+          {registerType == REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE ? (
+            <ListItem title={Locale.Profile.Email}>
+              <span>{authStore.email}</span>
+            </ListItem>
+          ) : (
+            <></>
+          )}
+        </List>
+
+        <List>
+          <ListItem title={Locale.Profile.InviteCode.Title}>
+            {authStore.inviteCode ? (
+              <>
+                <span>
+                  <span>{authStore.inviteCode}</span>
+                  <span
+                    className={styles["copy-action"]}
+                    onClick={() => {
+                      copyToClipboard(authStore.inviteCode);
+                    }}
+                  >
+                    {Locale.Profile.Actions.Copy}
+                  </span>
+                </span>
+              </>
+            ) : (
+              <IconButton
+                text={Locale.Profile.Actions.CreateInviteCode}
+                type="second"
+                disabled={loading}
+                onClick={() => {
+                  createInviteCode();
+                }}
+              />
+            )}
           </ListItem>
         </List>
 
@@ -270,6 +326,7 @@ export function Profile() {
             <IconButton
               text={Locale.LoginPage.Actions.Logout}
               block={true}
+              type="second"
               onClick={() => {
                 logout();
               }}

@@ -12,7 +12,8 @@ import { copyToClipboard, downloadAs, useMobileScreen } from "../utils";
 
 import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
-import ChatGptIcon from "../icons/chatgpt.png";
+//import ChatGptIcon from "../icons/chatgpt.png";
+import ChatBotIcon from "../icons/ai-chat-bot.png";
 import ShareIcon from "../icons/share.svg";
 import BotIcon from "../icons/bot.png";
 
@@ -350,7 +351,7 @@ function ExportAvatar(props: { avatar: string }) {
   if (props.avatar === DEFAULT_MASK_AVATAR) {
     return (
       <NextImage
-        src={BotIcon.src}
+        src={ChatBotIcon.src}
         width={30}
         height={30}
         alt="bot"
@@ -423,6 +424,8 @@ export function ImagePreviewer(props: {
       .catch((e) => console.log("[Export Image] ", e));
   };
 
+  const { logoUrl } = useWebsiteConfigStore();
+
   return (
     <div className={styles["image-previewer"]}>
       <PreviewActions
@@ -438,20 +441,25 @@ export function ImagePreviewer(props: {
         <div className={styles["chat-info"]}>
           <div className={styles["logo"] + " no-dark"}>
             <NextImage
-              src={ChatGptIcon.src}
+              src={logoUrl || ChatBotIcon.src}
               alt="logo"
-              width={50}
-              height={50}
+              width={44}
+              height={44}
             />
           </div>
 
-          <div>
+          <div style={{ zIndex: 1 }}>
             <div className={styles["main-title"]}>
               {websiteConfigStore.title || "AI Chat"}
             </div>
-            <div className={styles["sub-title"]}>
-              {websiteConfigStore.subTitle || "github.com/Nanjiren01/AIChatWeb"}
-            </div>
+            <div
+              className={styles["sub-title"]}
+              dangerouslySetInnerHTML={{
+                __html:
+                  websiteConfigStore.subTitle ||
+                  "github.com/Nanjiren01/AIChatWeb",
+              }}
+            ></div>
             <div className={styles["icons"]}>
               <ExportAvatar avatar={config.avatar} />
               <span className={styles["icon-space"]}>&</span>
@@ -460,16 +468,16 @@ export function ImagePreviewer(props: {
           </div>
           <div>
             <div className={styles["chat-info-item"]}>
-              Model: {mask.modelConfig.model}
+              {Locale.Exporter.Model}: {mask.modelConfig.model}
             </div>
             <div className={styles["chat-info-item"]}>
-              Messages: {props.messages.length}
+              {Locale.Exporter.Messages}: {props.messages.length}
             </div>
             <div className={styles["chat-info-item"]}>
-              Topic: {session.topic}
+              {Locale.Exporter.Topic}: {session.topic}
             </div>
             <div className={styles["chat-info-item"]}>
-              Time:{" "}
+              {Locale.Exporter.Time}:{" "}
               {new Date(
                 props.messages.at(-1)?.date ?? Date.now(),
               ).toLocaleString()}

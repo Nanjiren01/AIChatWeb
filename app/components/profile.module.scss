@@ -3,6 +3,22 @@
   overflow: auto;
 }
 
+.copy-action {
+  opacity: 0.5;
+  color: var(--black);
+  white-space: nowrap;
+  cursor: pointer;
+  margin-left: 5px;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  // &:not(:first-child) {
+  //   margin-right: 10px;
+  // }
+}
+
 .avatar {
   cursor: pointer;
 }

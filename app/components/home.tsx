@@ -16,15 +16,24 @@ import dynamic from "next/dynamic";
 import { Path, SlotID } from "../constant";
 import { ErrorBoundary } from "./error";
 
+import { getLang } from "../locales";
+
 import {
-  HashRouter as Router,
+  BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
 } from "react-router-dom";
 import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
-import { useWebsiteConfigStore, useAuthStore, BOT_HELLO } from "../store";
+import { AuthPage } from "./auth";
+import { getClientConfig } from "../config/client";
+import {
+  useWebsiteConfigStore,
+  useAuthStore,
+  BOT_HELLO,
+  useWechatConfigStore,
+} from "../store";
 
 export function Loading(props: {
   noLogo?: boolean;
@@ -55,9 +64,22 @@ const Login = dynamic(async () => (await import("./login")).Login, {
   loading: () => <Loading noLogo logoLoading />,
 });
 
+const WechatCallback = dynamic(
+  async () => (await import("./wechatCallback")).WechatCallback,
+  {
+    loading: () => <Loading noLogo logoLoading />,
+  },
+);
+
 const Register = dynamic(async () => (await import("./register")).Register, {
   loading: () => <Loading noLogo logoLoading />,
 });
+const ForgetPassword = dynamic(
+  async () => (await import("./forget-password")).ForgetPassword,
+  {
+    loading: () => <Loading noLogo logoLoading />,
+  },
+);
 
 const Settings = dynamic(async () => (await import("./settings")).Settings, {
   loading: () => <Loading noLogo logoLoading />,
@@ -156,9 +178,14 @@ const useHasHydrated = () => {
 
 const loadAsyncGoogleFont = () => {
   const linkEl = document.createElement("link");
+  const proxyFontUrl = "/google-fonts";
+  const remoteFontUrl = "https://fonts.googleapis.com";
+  const googleFontUrl =
+    getClientConfig()?.buildMode === "export" ? remoteFontUrl : proxyFontUrl;
   linkEl.rel = "stylesheet";
   linkEl.href =
-    "/google-fonts/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap";
+    googleFontUrl +
+    "/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap";
   document.head.appendChild(linkEl);
 };
 
@@ -194,6 +221,7 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   const config = useAppConfig();
   const location = useLocation();
   const isHome = location.pathname === Path.Home;
+  const isAuth = location.pathname === Path.Auth;
   const isMobileScreen = useMobileScreen();
 
   useEffect(() => {
@@ -204,6 +232,11 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   useEffect(() => {
     fetchWebsiteConfig();
   }, [fetchWebsiteConfig]);
+
+  const { fetchWechatConfig } = useWechatConfigStore();
+  useEffect(() => {
+    fetchWechatConfig();
+  }, [fetchWechatConfig]);
 
   const { botHello } = useWebsiteConfigStore();
   useEffect(() => {
@@ -217,7 +250,11 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   const [noticeTitle, setNoticeTitle] = useState("");
   const [noticeContent, setNoticeContent] = useState("");
   useEffect(() => {
-    fetch("/api/globalConfig/notice", {
+    const url = "/globalConfig/notice";
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    fetch(requestUrl, {
       method: "get",
     })
       .then((res) => res.json())
@@ -254,35 +291,46 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
           config.tightBorder && !isMobileScreen
             ? styles["tight-container"]
             : styles.container
-        }`
+        } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
       }
     >
-      <SideBar
-        className={isHome ? styles["sidebar-show"] : ""}
-        noticeShow={noticeShow}
-        noticeTitle={noticeTitle}
-        noticeContent={noticeContent}
-        setNoticeShow={setNoticeShow}
-        logoLoading={logoLoading}
-        logoUrl={logoUrl}
-      />
+      {isAuth ? (
+        <>
+          <AuthPage />
+        </>
+      ) : (
+        <>
+          <SideBar
+            className={isHome ? styles["sidebar-show"] : ""}
+            noticeShow={noticeShow}
+            noticeTitle={noticeTitle}
+            noticeContent={noticeContent}
+            setNoticeShow={setNoticeShow}
+            logoLoading={logoLoading}
+            logoUrl={logoUrl}
+          />
 
-      <div className={styles["window-content"]} id={SlotID.AppBody}>
-        <Routes>
-          <Route path={Path.Home} element={<Chat />} />
-          <Route path={Path.NewChat} element={<NewChat />} />
-          <Route path={Path.Masks} element={<MaskPage />} />
-          <Route path={Path.Chat} element={<Chat />} />
-          <Route path={Path.Settings} element={<Settings />} />
-          <Route path={Path.Login} element={<Login />} />
-          <Route path={Path.Register} element={<Register />} />
-          <Route path={Path.Profile} element={<Profile />} />
-          <Route path={Path.Pricing} element={<Pricing />} />
-          <Route path={Path.Pay} element={<Pay />} />
-          <Route path={Path.Balance} element={<Balance />} />
-          <Route path={Path.Order} element={<Order />} />
-        </Routes>
-      </div>
+          <div className={styles["window-content"]} id={SlotID.AppBody}>
+            <Routes>
+              <Route path={Path.Home} element={<Chat />} />
+              <Route path={Path.NewChat} element={<NewChat />} />
+              <Route path={Path.Masks} element={<MaskPage />} />
+              <Route path={Path.Chat} element={<Chat />} />
+              <Route path={Path.Settings} element={<Settings />} />
+              <Route path={Path.Login} element={<Login />} />
+              <Route path={Path.WechatCallback} element={<WechatCallback />} />
+
+              <Route path={Path.Register} element={<Register />} />
+              <Route path={Path.ForgetPassword} element={<ForgetPassword />} />
+              <Route path={Path.Profile} element={<Profile />} />
+              <Route path={Path.Pricing} element={<Pricing />} />
+              <Route path={Path.Pay} element={<Pay />} />
+              <Route path={Path.Balance} element={<Balance />} />
+              <Route path={Path.Order} element={<Order />} />
+            </Routes>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -332,10 +380,12 @@ export function Home() {
   //     });
   // }, [authStore.token]);
 
+  useEffect(() => {
+    console.log("[Config] got config from build time", getClientConfig());
+  }, []);
+
   if (!useHasHydrated()) {
-    return (
-      <Loading noLogo={false} logoLoading={logoLoading} logoUrl={logoUrl} />
-    );
+    return <Loading noLogo logoLoading={logoLoading} logoUrl={logoUrl} />;
   }
 
   return (
