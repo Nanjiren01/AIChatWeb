@@ -75,7 +75,7 @@ export function Login() {
       const redirect_uri = `${window.location.origin}${url}`;
       // @ts-ignore
       const obj = new WxLogin({
-        self_redirect: true,
+        self_redirect: false,
         id: "wx_login_container",
         appid: wechatStore.appId,
         scope: "snsapi_login",

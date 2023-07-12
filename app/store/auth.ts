@@ -175,6 +175,7 @@ export const useAuthStore = create<AuthStore>()(
             inviteCode: user.inviteCode || "",
           }));
         }
+        return result;
       },
     }),
     {
