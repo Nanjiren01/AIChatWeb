@@ -16,6 +16,7 @@ export interface WebsiteConfigStore {
   registerTypes: string[];
   hideGithubIcon: boolean;
   botHello: string;
+  availableModelNames: string[];
   fetchWebsiteConfig: () => Promise<any>;
 }
 
@@ -33,6 +34,7 @@ export interface WebsiteConfig {
   balanceNotEnough: string;
   hideGithubIcon: boolean;
   botHello: string;
+  availableModelNames: string[];
 }
 export interface WebsiteConfigData {
   websiteContent: WebsiteConfig;
@@ -57,9 +59,15 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       balanceNotEnough: "",
       hideGithubIcon: false,
       botHello: "",
+      availableModelNames: [],
 
       async fetchWebsiteConfig() {
-        return fetch("/api/globalConfig/website", {
+        const url = "/globalConfig/website";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        console.log("mode", mode);
+        let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
+        return fetch(requestUrl, {
           method: "get",
         })
           .then((res) => res.json())
@@ -83,6 +91,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               balanceNotEnough: website.balanceNotEnough,
               hideGithubIcon: website.hideGithubIcon,
               botHello: website.botHello,
+              availableModelNames: website.availableModelNames,
             }));
             return res;
           })

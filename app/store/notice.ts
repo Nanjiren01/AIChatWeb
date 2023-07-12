@@ -32,7 +32,11 @@ export const useNoticeConfigStore = create<NoticeStore>()(
       content: "",
 
       async fetchNoticeConfig(token: string) {
-        return fetch("/api/globalConfig/notice", {
+        const url = "/globalConfig/notice";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
+        return fetch(requestUrl, {
           method: "get",
           headers: {
             Authorization: "Bearer " + token,

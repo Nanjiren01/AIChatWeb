@@ -2,10 +2,12 @@ import * as React from "react";
 
 import styles from "./button.module.scss";
 
+export type ButtonType = "primary" | "second" | "danger" | null;
+
 export function IconButton(props: {
   onClick?: () => void;
   icon?: JSX.Element;
-  type?: "primary" | "second" | "danger";
+  type?: ButtonType;
   text?: string;
   block?: boolean;
   bordered?: boolean;
@@ -13,6 +15,8 @@ export function IconButton(props: {
   className?: string;
   title?: string;
   disabled?: boolean;
+  tabIndex?: number;
+  autoFocus?: boolean;
 }) {
   return (
     <button
@@ -26,6 +30,8 @@ export function IconButton(props: {
       title={props.title}
       disabled={props.disabled}
       role="button"
+      tabIndex={props.tabIndex}
+      autoFocus={props.autoFocus}
     >
       {props.icon && (
         <div

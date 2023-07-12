@@ -1,158 +1,15 @@
 // import type { ChatRequest, ChatResponse } from "./api/openai/typing";
-import type { LoginResponse } from "./api/login/route";
-import type { RegisterResponse } from "./api/register/route";
-// import {
-//   //Message,
-//   // ModelConfig,
-//   // ModelType,
-//   // useAccessStore,
-//   // useAuthStore,
-//   // useAppConfig,
-//   // useChatStore,
-// } from "./store";
-// import { showToast } from "./components/ui-lib";
-// import { ACCESS_CODE_PREFIX } from "./constant";
+// import type { LoginResponse } from "./api/login/route";
+// import type { RegisterResponse } from "./api/register/route";
+import type { Response } from "./api/common";
+// const BASE_URL = process.env.BASE_URL
+// console.log('BASE_URL', BASE_URL)
 
-// const TIME_OUT_MS = 60000;
-
-// const makeRequestParam = (
-//   messages: Message[],
-//   options?: {
-//     stream?: boolean;
-//     overrideModel?: ModelType;
-//   },
-// ): ChatRequest => {
-//   let sendMessages = messages.map((v) => ({
-//     role: v.role,
-//     content: v.content,
-//   }));
-
-//   const modelConfig = {
-//     ...useAppConfig.getState().modelConfig,
-//     ...useChatStore.getState().currentSession().mask.modelConfig,
-//   };
-
-//   // override model config
-//   if (options?.overrideModel) {
-//     modelConfig.model = options.overrideModel;
-//   }
-
-//   return {
-//     messages: sendMessages,
-//     stream: options?.stream,
-//     model: modelConfig.model,
-//     temperature: modelConfig.temperature,
-//     presence_penalty: modelConfig.presence_penalty,
-//   };
-// };
-
-// function getHeaders() {
-//   const authStore = useAuthStore.getState();
-//   const accessStore = useAccessStore.getState();
-//   let headers: Record<string, string> = {};
-
-//   const makeBearer = (token: string) => `Bearer ${token.trim()}`;
-//   const validString = (x: string) => x && x.length > 0;
-
-//   if (validString(authStore.token)) {
-//     headers.Authorization = makeBearer(authStore.token);
-//   }
-//   // use user's api key first
-//   else if (validString(accessStore.token)) {
-//     headers.Authorization = makeBearer(accessStore.token);
-//   } else if (
-//     accessStore.enabledAccessControl() &&
-//     validString(accessStore.accessCode)
-//   ) {
-//     headers.Authorization = makeBearer(
-//       ACCESS_CODE_PREFIX + accessStore.accessCode,
-//     );
-//   }
-
-//   return headers;
-// }
-
-// export function requestOpenaiClient(path: string) {
-//   const openaiUrl = useAccessStore.getState().openaiUrl;
-//   // console.log('openaiUrl = ', openaiUrl, 'path = ', path)
-//   return (body: any, method = "POST") =>
-//     fetch(openaiUrl + path, {
-//       method,
-//       body: body && JSON.stringify(body),
-//       headers: getHeaders(),
-//     });
-// }
-
-// export async function requestChat(
-//   messages: Message[],
-//   options?: {
-//     model?: ModelType;
-//   },
-// ) {
-//   const req: ChatRequest = makeRequestParam(messages, {
-//     overrideModel: options?.model,
-//   });
-
-//   const res = await requestOpenaiClient("chatgpt/v1/chat/completions")(req);
-//   // console.log('res', res)
-//   try {
-//     const response = (await res.json()) as ChatResponse;
-//     return response;
-//   } catch (error) {
-//     console.error("[Request Chat] ", error, res.body);
-//   }
-// }
-
-// export async function requestUsage() {
-//   const formatDate = (d: Date) =>
-//     `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}-${d
-//       .getDate()
-//       .toString()
-//       .padStart(2, "0")}`;
-//   const ONE_DAY = 1 * 24 * 60 * 60 * 1000;
-//   const now = new Date();
-//   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-//   const startDate = formatDate(startOfMonth);
-//   const endDate = formatDate(new Date(Date.now() + ONE_DAY));
-
-//   const [used, subs] = await Promise.all([
-//     requestOpenaiClient(
-//       `dashboard/billing/usage?start_date=${startDate}&end_date=${endDate}`,
-//     )(null, "GET"),
-//     requestOpenaiClient("dashboard/billing/subscription")(null, "GET"),
-//   ]);
-
-//   const response = (await used.json()) as {
-//     total_usage?: number;
-//     error?: {
-//       type: string;
-//       message: string;
-//     };
-//   };
-
-//   const total = (await subs.json()) as {
-//     hard_limit_usd?: number;
-//   };
-
-//   if (response.error && response.error.type) {
-//     showToast(response.error.message);
-//     return;
-//   }
-
-//   if (response.total_usage) {
-//     response.total_usage = Math.round(response.total_usage) / 100;
-//   }
-
-//   if (total.hard_limit_usd) {
-//     total.hard_limit_usd = Math.round(total.hard_limit_usd * 100) / 100;
-//   }
-
-//   return {
-//     used: response.total_usage,
-//     subscription: total.hard_limit_usd,
-//   };
-// }
-
+export interface CallResult {
+  code: number;
+  message: string;
+  data?: any;
+}
 export interface LoginResult {
   code: number;
   message: string;
@@ -164,28 +21,33 @@ export interface RegisterResult {
   data?: any;
 }
 
-export async function requestLogin(
-  username: string,
-  password: string,
+export async function request(
+  url: string,
+  method: string,
+  body: any,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
-): Promise<LoginResult> {
-  //const openaiUrl = useAccessStore.getState().openaiUrl;
+): Promise<CallResult> {
   try {
-    const res = await fetch("/api/login", {
-      method: "POST",
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    // console.log('BASE_URL', BASE_URL)
+    // console.log('mode', mode)
+    let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
+    const res = await fetch(requestUrl, {
+      method: method,
       headers: {
-        "Content-Type": "application/json", //,
-        //...getHeaders(),
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password }), //,
-      //signal: controller.signal,
+      body: JSON.stringify(body),
+      // // @ts-ignore
+      // duplex: "half",
     });
     if (res.status == 200) {
-      let json: LoginResponse;
+      let json: Response<any>;
       try {
-        json = (await res.json()) as LoginResponse;
+        json = (await res.json()) as Response<any>;
       } catch (e) {
         console.error("json formatting failure", e);
         options?.onError({
@@ -205,23 +67,44 @@ export async function requestLogin(
       }
       return json;
     }
-    console.error("login result error(2)", res);
+    console.error("register result error(1)", res);
     options?.onError({
-      name: "unknown error",
-      message: "unknown error",
+      name: "unknown error(1)",
+      message: "unknown error(1)",
     });
     return {
       code: -1,
-      message: "unknown error",
+      message: "unknown error(2)",
     };
   } catch (err) {
-    console.error("NetWork Error", err);
+    console.error("NetWork Error(3)", err);
     options?.onError(err as Error);
     return {
       code: -1,
-      message: "NetWork Error",
+      message: "NetWork Error(3)",
     };
   }
+}
+
+export function requestResetPassword(
+  password: string,
+  email: string,
+  code: string,
+  options?: {
+    onError: (error: Error, statusCode?: number) => void;
+  },
+): Promise<RegisterResult> {
+  return request("/resetPassword", "POST", { password, code, email }, options);
+}
+
+export async function requestLogin(
+  username: string,
+  password: string,
+  options?: {
+    onError: (error: Error, statusCode?: number) => void;
+  },
+): Promise<LoginResult> {
+  return request("/login", "POST", { username, password }, options);
 }
 
 export async function requestRegister(
@@ -236,265 +119,28 @@ export async function requestRegister(
     onError: (error: Error, statusCode?: number) => void;
   },
 ): Promise<RegisterResult> {
-  //const openaiUrl = useAccessStore.getState().openaiUrl;
-  try {
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json", //,
-        //...getHeaders(),
-      },
-      body: JSON.stringify({
-        name,
-        username,
-        password,
-        captchaId,
-        captcha: captchaInput,
-        email,
-        code,
-      }), //,
-      //signal: controller.signal,
-    });
-    if (res.status == 200) {
-      let json: RegisterResponse;
-      try {
-        json = (await res.json()) as RegisterResponse;
-      } catch (e) {
-        console.error("json formatting failure", e);
-        options?.onError({
-          name: "json formatting failure",
-          message: "json formatting failure",
-        });
-        return {
-          code: -1,
-          message: "json formatting failure",
-        };
-      }
-      if (json.code != 0) {
-        options?.onError({
-          name: json.message,
-          message: json.message,
-        });
-      }
-      return json;
-    }
-    console.error("register result error(2)", res);
-    options?.onError({
-      name: "unknown error",
-      message: "unknown error",
-    });
-    return {
-      code: -1,
-      message: "unknown error",
-    };
-  } catch (err) {
-    console.error("NetWork Error", err);
-    options?.onError(err as Error);
-    return {
-      code: -1,
-      message: "NetWork Error",
-    };
-  }
+  return request(
+    "/register",
+    "POST",
+    { name, username, password, captchaId, captcha: captchaInput, email, code },
+    options,
+  );
 }
 
 export async function requestSendEmailCode(
   email: string,
+  resetPassword: boolean,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
 ): Promise<RegisterResult> {
-  //const openaiUrl = useAccessStore.getState().openaiUrl;
-  try {
-    const res = await fetch("/api/sendRegisterEmailCode", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json", //,
-        //...getHeaders(),
-      },
-      body: JSON.stringify({ email }), //,
-      //signal: controller.signal,
-    });
-    if (res.status == 200) {
-      let json: RegisterResponse;
-      try {
-        json = (await res.json()) as RegisterResponse;
-      } catch (e) {
-        console.error("json formatting failure", e);
-        options?.onError({
-          name: "json formatting failure",
-          message: "json formatting failure",
-        });
-        return {
-          code: -1,
-          message: "json formatting failure",
-        };
-      }
-      if (json.code != 0) {
-        options?.onError({
-          name: json.message,
-          message: json.message,
-        });
-      }
-      return json;
-    }
-    console.error("register result error(2)", res);
-    options?.onError({
-      name: "unknown error",
-      message: "unknown error",
-    });
-    return {
-      code: -1,
-      message: "unknown error",
-    };
-  } catch (err) {
-    console.error("NetWork Error", err);
-    options?.onError(err as Error);
-    return {
-      code: -1,
-      message: "NetWork Error",
-    };
-  }
+  return request(
+    "/sendRegisterEmailCode",
+    "POST",
+    {
+      email,
+      type: resetPassword ? "resetPassword" : "register",
+    },
+    options,
+  );
 }
-
-// export async function requestChatStream(
-//   messages: Message[],
-//   options?: {
-//     modelConfig?: ModelConfig;
-//     overrideModel?: ModelType;
-//     onMessage: (message: string, done: boolean) => void;
-//     onError: (error: Error, statusCode?: number) => void;
-//     onController?: (controller: AbortController) => void;
-//   },
-// ) {
-//   const req = makeRequestParam(messages, {
-//     stream: true,
-//     overrideModel: options?.overrideModel,
-//   });
-
-//   console.log("[Request] ", req);
-
-//   const controller = new AbortController();
-//   const reqTimeoutId = setTimeout(() => controller.abort(), TIME_OUT_MS);
-
-//   try {
-//     const openaiUrl = useAccessStore.getState().openaiUrl;
-//     // console.log('openai url = ' + openaiUrl)
-//     const res = await fetch(openaiUrl + "chatgpt/v1/chat/completions", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//         ...getHeaders(),
-//       },
-//       body: JSON.stringify(req),
-//       signal: controller.signal,
-//     });
-//     // console.log('res', res)
-
-//     clearTimeout(reqTimeoutId);
-
-//     let responseText = "";
-
-//     const finish = () => {
-//       options?.onMessage(responseText, true);
-//       controller.abort();
-//     };
-
-//     if (res.ok) {
-//       const reader = res.body?.getReader();
-//       const decoder = new TextDecoder();
-
-//       options?.onController?.(controller);
-
-//       while (true) {
-//         const resTimeoutId = setTimeout(() => finish(), TIME_OUT_MS);
-//         const content = await reader?.read();
-//         // console.log('content', content)
-//         clearTimeout(resTimeoutId);
-
-//         if (!content || !content.value) {
-//           break;
-//         }
-
-//         const text = decoder.decode(content.value, { stream: true });
-//         // console.log('text', text)
-//         responseText += text;
-
-//         const done = content.done;
-//         options?.onMessage(responseText, false);
-
-//         if (done) {
-//           break;
-//         }
-//       }
-
-//       finish();
-//     } else if (res.status === 401) {
-//       console.error("Unauthorized");
-//       options?.onError(new Error("Unauthorized"), res.status);
-//     } else {
-//       console.error("Stream Error", res.body);
-//       options?.onError(new Error("Stream Error"), res.status);
-//     }
-//   } catch (err) {
-//     console.error("NetWork Error", err);
-//     options?.onError(err as Error);
-//   }
-// }
-
-// export async function requestWithPrompt(
-//   messages: Message[],
-//   prompt: string,
-//   options?: {
-//     model?: ModelType;
-//   },
-// ) {
-//   messages = messages.concat([
-//     {
-//       role: "user",
-//       content: prompt,
-//       date: new Date().toLocaleString(),
-//     },
-//   ]);
-
-//   const res = await requestChat(messages, options);
-
-//   return res?.choices?.at(0)?.message?.content ?? "";
-// }
-
-// To store message streaming controller
-// export const ControllerPool = {
-//   controllers: {} as Record<string, AbortController>,
-
-//   addController(
-//     sessionIndex: number,
-//     messageId: number,
-//     controller: AbortController,
-//   ) {
-//     const key = this.key(sessionIndex, messageId);
-//     this.controllers[key] = controller;
-//     return key;
-//   },
-
-//   stop(sessionIndex: number, messageId: number) {
-//     const key = this.key(sessionIndex, messageId);
-//     const controller = this.controllers[key];
-//     controller?.abort();
-//   },
-
-//   stopAll() {
-//     Object.values(this.controllers).forEach((v) => v.abort());
-//   },
-
-//   hasPending() {
-//     return Object.values(this.controllers).length > 0;
-//   },
-
-//   remove(sessionIndex: number, messageId: number) {
-//     const key = this.key(sessionIndex, messageId);
-//     delete this.controllers[key];
-//   },
-
-//   key(sessionIndex: number, messageIndex: number) {
-//     return `${sessionIndex},${messageIndex}`;
-//   },
-// };

@@ -47,7 +47,11 @@ export function Pricing() {
   const [isTokenValid, setTokenValid] = useState("unknown");
   useEffect(() => {
     setLoading(true);
-    fetch("/api/package/onSales", {
+    const url = "/package/onSales";
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
+    fetch(requestUrl, {
       method: "get",
       headers: {
         Authorization: "Bearer " + authStore.token,
@@ -111,7 +115,7 @@ export function Pricing() {
 
   return (
     <ErrorBoundary>
-      <div className="window-header">
+      <div className="window-header" data-tauri-drag-region>
         <div className="window-header-title">
           <div className="window-header-main-title">
             {pricingPageTitle || "购买套餐"}
