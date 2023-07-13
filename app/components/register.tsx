@@ -12,7 +12,7 @@ import { useAuthStore, useAccessStore, useWebsiteConfigStore } from "../store";
 import Locale from "../locales";
 import { Path } from "../constant";
 import { ErrorBoundary } from "./error";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { showToast } from "../components/ui-lib";
 
 export function Register() {
@@ -25,6 +25,17 @@ export function Register() {
   const REG_TYPE_USERNAME_WITH_CAPTCHA = "OnlyUsernameWithCaptcha";
   const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
     "UsernameAndEmailWithCaptchaAndCode";
+
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  let code = params.get("code") || "";
+  (() => {
+    if (code) {
+      localStorage.setItem("registerInviteCode", code);
+    } else {
+      code = localStorage.getItem("registerInviteCode") || "";
+    }
+  })();
 
   const [loadingUsage, setLoadingUsage] = useState(false);
   const [captcha, setCaptcha] = useState("");
@@ -64,7 +75,7 @@ export function Register() {
   const [password, setPassword] = useState("");
   const [comfirmedPassword, setComfirmedPassword] = useState("");
   const [captchaInput, setCaptchaInput] = useState("");
-  const [inviteCode, setInviteCode] = useState("");
+  const [inviteCode, setInviteCode] = useState(code || "");
   function handleClickSendEmailCode() {
     if (email === null || email == "") {
       showToast(Locale.RegisterPage.Toast.EmailIsEmpty);

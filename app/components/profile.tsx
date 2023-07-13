@@ -162,11 +162,23 @@ export function Profile() {
             {authStore.inviteCode ? (
               <>
                 <span>
-                  <span>{authStore.inviteCode}</span>
                   <span
                     className={styles["copy-action"]}
                     onClick={() => {
                       copyToClipboard(authStore.inviteCode);
+                    }}
+                  >
+                    {authStore.inviteCode}
+                  </span>
+                  <span
+                    className={styles["copy-action"]}
+                    onClick={() => {
+                      copyToClipboard(
+                        location.origin +
+                          Path.Register +
+                          "?code=" +
+                          authStore.inviteCode,
+                      );
                     }}
                   >
                     {Locale.Profile.Actions.Copy}

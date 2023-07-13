@@ -252,7 +252,7 @@ const cn = {
       ConsultAdministrator: "请咨询站长",
       All: "所有套餐",
       CreateInviteCode: "生成邀请码",
-      Copy: "复制",
+      Copy: "复制链接",
     },
     BalanceItem: {
       Title: "套餐类型",
