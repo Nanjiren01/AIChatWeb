@@ -6,6 +6,7 @@ export interface WebsiteConfigStore {
   title: string;
   mainTitle: string;
   subTitle: string;
+  icp: string;
   loginPageSubTitle: string;
   registerPageSubTitle: string;
   pricingPageTitle: string;
@@ -27,6 +28,7 @@ export interface WebsiteConfig {
   title: string;
   mainTitle: string;
   subTitle: string;
+  icp: string;
   loginPageSubTitle: string;
   registerPageSubTitle: string;
   registerTypes: string[];
@@ -55,6 +57,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       title: "",
       mainTitle: "",
       subTitle: "",
+      icp: "",
       loginPageSubTitle: "",
       registerPageSubTitle: "",
       registerTypes: [],
@@ -88,6 +91,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               title: website.title,
               mainTitle: website.mainTitle,
               subTitle: website.subTitle,
+              icp: website.icp || "",
               loginPageSubTitle: website.loginPageSubTitle,
               registerPageSubTitle: website.registerPageSubTitle,
               registerTypes:

@@ -228,7 +228,7 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
     loadAsyncGoogleFont();
   }, []);
 
-  const { fetchWebsiteConfig } = useWebsiteConfigStore();
+  const { fetchWebsiteConfig, icp } = useWebsiteConfigStore();
   useEffect(() => {
     fetchWebsiteConfig();
   }, [fetchWebsiteConfig]);
@@ -284,52 +284,67 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   }, [logoUrl]);
 
   return (
-    <div
-      className={
-        styles.container +
-        ` ${
-          config.tightBorder && !isMobileScreen
-            ? styles["tight-container"]
-            : styles.container
-        } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
-      }
-    >
-      {isAuth ? (
-        <>
-          <AuthPage />
-        </>
-      ) : (
-        <>
-          <SideBar
-            className={isHome ? styles["sidebar-show"] : ""}
-            noticeShow={noticeShow}
-            noticeTitle={noticeTitle}
-            noticeContent={noticeContent}
-            setNoticeShow={setNoticeShow}
-            logoLoading={logoLoading}
-            logoUrl={logoUrl}
-          />
+    <div style={{ height: config.tightBorder ? "100%" : "" }}>
+      <div
+        className={
+          styles.container +
+          ` ${
+            config.tightBorder && !isMobileScreen
+              ? styles["tight-container"]
+              : styles.container
+          } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
+        }
+      >
+        {isAuth ? (
+          <>
+            <AuthPage />
+          </>
+        ) : (
+          <>
+            <SideBar
+              className={isHome ? styles["sidebar-show"] : ""}
+              noticeShow={noticeShow}
+              noticeTitle={noticeTitle}
+              noticeContent={noticeContent}
+              setNoticeShow={setNoticeShow}
+              logoLoading={logoLoading}
+              logoUrl={logoUrl}
+            />
 
-          <div className={styles["window-content"]} id={SlotID.AppBody}>
-            <Routes>
-              <Route path={Path.Home} element={<Chat />} />
-              <Route path={Path.NewChat} element={<NewChat />} />
-              <Route path={Path.Masks} element={<MaskPage />} />
-              <Route path={Path.Chat} element={<Chat />} />
-              <Route path={Path.Settings} element={<Settings />} />
-              <Route path={Path.Login} element={<Login />} />
-              <Route path={Path.WechatCallback} element={<WechatCallback />} />
+            <div className={styles["window-content"]} id={SlotID.AppBody}>
+              <Routes>
+                <Route path={Path.Home} element={<Chat />} />
+                <Route path={Path.NewChat} element={<NewChat />} />
+                <Route path={Path.Masks} element={<MaskPage />} />
+                <Route path={Path.Chat} element={<Chat />} />
+                <Route path={Path.Settings} element={<Settings />} />
+                <Route path={Path.Login} element={<Login />} />
+                <Route
+                  path={Path.WechatCallback}
+                  element={<WechatCallback />}
+                />
 
-              <Route path={Path.Register} element={<Register />} />
-              <Route path={Path.ForgetPassword} element={<ForgetPassword />} />
-              <Route path={Path.Profile} element={<Profile />} />
-              <Route path={Path.Pricing} element={<Pricing />} />
-              <Route path={Path.Pay} element={<Pay />} />
-              <Route path={Path.Balance} element={<Balance />} />
-              <Route path={Path.Order} element={<Order />} />
-            </Routes>
-          </div>
-        </>
+                <Route path={Path.Register} element={<Register />} />
+                <Route
+                  path={Path.ForgetPassword}
+                  element={<ForgetPassword />}
+                />
+                <Route path={Path.Profile} element={<Profile />} />
+                <Route path={Path.Pricing} element={<Pricing />} />
+                <Route path={Path.Pay} element={<Pay />} />
+                <Route path={Path.Balance} element={<Balance />} />
+                <Route path={Path.Order} element={<Order />} />
+              </Routes>
+            </div>
+          </>
+        )}
+      </div>
+      {!config.tightBorder && (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: icp,
+          }}
+        />
       )}
     </div>
   );
