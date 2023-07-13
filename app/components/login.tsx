@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import styles from "./login.module.scss";
 
 import CloseIcon from "../icons/close.svg";
 import WechatIcon from "../icons/wechat.svg";
 import ReturnIcon from "../icons/return.svg";
+import MaxIcon from "../icons/max.svg";
+import MinIcon from "../icons/min.svg";
 
 import { SingleInput, List, ListItem, PasswordInput } from "./ui-lib";
 
@@ -14,6 +16,7 @@ import {
   useAccessStore,
   useWebsiteConfigStore,
   useWechatConfigStore,
+  useAppConfig,
 } from "../store";
 
 import Locale from "../locales";
@@ -23,6 +26,8 @@ import { useNavigate } from "react-router-dom";
 import { showToast } from "../components/ui-lib";
 import { Response } from "../api/common";
 import "../../scripts/wxLogin.js";
+import { useMobileScreen } from "../utils";
+import { getClientConfig } from "../config/client";
 
 export interface WechatConfigData {
   appId: string;
@@ -116,6 +121,11 @@ export function Login() {
     setTimeout(() => authStore.logout(), 500);
   }
 
+  const config = useAppConfig();
+  const isMobileScreen = useMobileScreen();
+  const clientConfig = useMemo(() => getClientConfig(), []);
+  const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
+
   return (
     <ErrorBoundary>
       <div className="window-header" data-tauri-drag-region>
@@ -126,6 +136,19 @@ export function Login() {
           <div className="window-header-sub-title">{loginPageSubTitle}</div>
         </div>
         <div className="window-actions">
+          {showMaxIcon && (
+            <div className="window-action-button">
+              <IconButton
+                icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
+                bordered
+                onClick={() => {
+                  config.update(
+                    (config) => (config.tightBorder = !config.tightBorder),
+                  );
+                }}
+              />
+            </div>
+          )}
           <div className="window-action-button">
             <IconButton
               icon={<CloseIcon />}
@@ -215,6 +238,7 @@ export function Login() {
                 <IconButton
                   icon={<WechatIcon />}
                   type="second"
+                  text="微信登录"
                   onClick={() => {
                     setShowWechatCode(true);
                   }}
@@ -246,6 +270,7 @@ export function Login() {
                 <IconButton
                   icon={<ReturnIcon />}
                   type="second"
+                  text="返回"
                   onClick={() => {
                     setShowWechatCode(false);
                   }}
