@@ -211,7 +211,7 @@ telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 > AI好望角为本项目自建平台，目前仍在筹建中，只能以赞赏形式加入（不支持退款），赞赏后可立即进入AIChatAdmin Pro群获取Pro专属信息。
 > 新平台筹建完毕后，会将知识星球中的内容迁移至新平台，新用户无需进入星球。
 
-当前加入~知识星球~AI好望角价格为158元，随着功能的不断完善，价格逐步提升
+当前加入~知识星球~AI好望角价格为188元，随着功能的不断完善，价格逐步提升
 
 <img src="https://chat.nanjiren.online/api/file/7c3b8658-4ff6-4d3c-89bd-6b309023e26d" width="200px" alt="AI好望角"/>
 
