@@ -228,11 +228,6 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
     loadAsyncGoogleFont();
   }, []);
 
-  const { fetchWebsiteConfig } = useWebsiteConfigStore();
-  useEffect(() => {
-    fetchWebsiteConfig();
-  }, [fetchWebsiteConfig]);
-
   const { fetchWechatConfig } = useWechatConfigStore();
   useEffect(() => {
     fetchWechatConfig();
@@ -270,7 +265,9 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
         }
       })
       .catch(() => {
-        console.error("[GlobalConfig] failed to fetch config");
+        console.error(
+          "[GlobalConfig] failed to fetch notice config in home.tsx",
+        );
       })
       .finally(() => {
         // fetchState = 2;
