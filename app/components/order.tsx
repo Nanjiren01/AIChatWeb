@@ -220,7 +220,11 @@ export function Order() {
 
   const reloadOrderList = useCallback((token: string) => {
     setLoading(true);
-    fetch("/api/order/my", {
+    const url = "/order/my";
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    fetch(requestUrl, {
       method: "get",
       headers: {
         Authorization: "Bearer " + token,
