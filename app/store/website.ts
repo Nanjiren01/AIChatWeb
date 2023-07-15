@@ -21,6 +21,7 @@ export interface WebsiteConfigStore {
   logoUrl?: string;
   availableModelNames: string[];
   fetchWebsiteConfig: () => Promise<any>;
+  getBaseUrl: () => string;
 }
 
 export interface WebsiteConfig {
@@ -68,7 +69,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       hideGithubIcon: false,
       botHello: "",
       logoUrl: "",
-      availableModelNames: [],
+      availableModelNames: [] as string[],
 
       async fetchWebsiteConfig() {
         const url = "/globalConfig/website";
@@ -93,7 +94,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               registerTypes:
                 website.registerTypes && website.registerTypes.length
                   ? website.registerTypes
-                  : ["OnlyUsername"],
+                  : (["OnlyUsername"] as string[]),
               pricingPageTitle: website.pricingPageTitle,
               pricingPageSubTitle: website.pricingPageSubTitle,
               payPageTitle: website.payPageTitle,
@@ -107,7 +108,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
                 website.logoUuid !== undefined &&
                 website.logoUuid !== null &&
                 website.logoUuid !== ""
-                  ? "/api/file/" + website.logoUuid
+                  ? this.getBaseUrl() + "/api/file/" + website.logoUuid
                   : "",
               availableModelNames: website.availableModelNames,
             }));
@@ -119,6 +120,14 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
           .finally(() => {
             // fetchState = 2;
           });
+      },
+      getBaseUrl() {
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        if (mode === "export") {
+          return BASE_URL || "";
+        }
+        return "";
       },
     }),
     {
