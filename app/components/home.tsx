@@ -342,41 +342,6 @@ export function Home() {
     fetchWebsiteConfig();
   }, [fetchWebsiteConfig]);
 
-  // const [logoInfo, setLogoInfo] = useState({
-  //   uuid: false,
-  //   url: "",
-  //   mimeType: "",
-  // } as any as LogoInfo);
-  // useEffect(() => {
-  //   setLogoLoading(true);
-  //   // console.log('fetching logo info')
-  //   fetch("/api/file/logoInfo", {
-  //     method: "get",
-  //     headers: {
-  //       Authorization: "Bearer " + authStore.token,
-  //     },
-  //   })
-  //     .then(async (resp) => {
-  //       const json = (await resp.json()) as LogoInfoResponse;
-  //       // console.log('fetched logo info')
-  //       // console.log("json", json);
-  //       const info = json.data;
-  //       if (info.uuid !== null) {
-  //         info.url = "/api/file/" + info.uuid;
-  //         setLogoInfo({
-  //           uuid: info.uuid,
-  //           url: info.url,
-  //           mimeType: info.mimeType
-  //         });
-  //         setFavicon(info.url, info.mimeType);
-  //         console.log('logo set new', info)
-  //       }
-  //     })
-  //     .finally(() => {
-  //       setLogoLoading(false);
-  //     });
-  // }, [authStore.token]);
-
   useEffect(() => {
     console.log("[Config] got config from build time", getClientConfig());
   }, []);

@@ -131,22 +131,6 @@ export function ForgetPassword() {
         setLoadingUsage(false);
       });
   }
-  // function getRegisterCaptcha(captchaId: string) {
-  //   // console.log('getRegisterCaptcha', captchaId)
-  //   fetch("/api/getRegisterCaptcha?captchaId=" + captchaId, {
-  //     method: "get",
-  //   }).then(async (resp) => {
-  //     const result = await resp.json();
-  //     if (result.code != 0) {
-  //       showToast(result.message);
-  //     } else {
-  //       setCaptcha("data:image/jpg;base64," + result.data);
-  //     }
-  //   });
-  // }
-  // useEffect(() => {
-  //   getRegisterCaptcha(captchaId);
-  // }, [captchaId]);
 
   return (
     <ErrorBoundary>
