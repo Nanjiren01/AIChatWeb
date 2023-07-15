@@ -55,7 +55,9 @@ export const useNoticeConfigStore = create<NoticeStore>()(
             return res;
           })
           .catch(() => {
-            console.error("[GlobalConfig] failed to fetch config");
+            console.error(
+              "[GlobalConfig] failed to fetch notice config in store/notice.ts",
+            );
           })
           .finally(() => {
             // fetchState = 2;

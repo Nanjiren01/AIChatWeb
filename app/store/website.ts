@@ -58,7 +58,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       subTitle: "",
       loginPageSubTitle: "",
       registerPageSubTitle: "",
-      registerTypes: [],
+      registerTypes: [] as string[],
       pricingPageTitle: "",
       pricingPageSubTitle: "",
       payPageTitle: "",
@@ -66,7 +66,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       chatPageSubTitle: "",
       sensitiveWordsTip: "",
       balanceNotEnough: "",
-      hideGithubIcon: false,
+      hideGithubIcon: false as boolean,
       botHello: "",
       logoUrl: "",
       availableModelNames: [] as string[],
@@ -85,6 +85,12 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
             console.log("[GlobalConfig] got website config from server", res);
             const website = res.data.websiteContent;
             // console.log('store: website.logoUuid', website.logoUuid)
+            const getBaseUrl = () => {
+              const BASE_URL = process?.env?.BASE_URL;
+              const mode = process?.env?.BUILD_MODE;
+              return mode === "export" ? BASE_URL || "" : "";
+            };
+
             set(() => ({
               title: website.title,
               mainTitle: website.mainTitle,
@@ -108,14 +114,17 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
                 website.logoUuid !== undefined &&
                 website.logoUuid !== null &&
                 website.logoUuid !== ""
-                  ? this.getBaseUrl() + "/api/file/" + website.logoUuid
+                  ? getBaseUrl() + "/api/file/" + website.logoUuid
                   : "",
               availableModelNames: website.availableModelNames,
             }));
             return res;
           })
-          .catch(() => {
-            console.error("[GlobalConfig] failed to fetch config");
+          .catch((e) => {
+            console.error(
+              "[GlobalConfig] failed to fetch website config in store/website.ts",
+              e,
+            );
           })
           .finally(() => {
             // fetchState = 2;
