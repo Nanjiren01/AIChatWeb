@@ -21,7 +21,6 @@ export interface WebsiteConfigStore {
   logoUrl?: string;
   availableModelNames: string[];
   fetchWebsiteConfig: () => Promise<any>;
-  getBaseUrl: () => string;
 }
 
 export interface WebsiteConfig {
@@ -129,14 +128,6 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
           .finally(() => {
             // fetchState = 2;
           });
-      },
-      getBaseUrl() {
-        const BASE_URL = process.env.BASE_URL;
-        const mode = process.env.BUILD_MODE;
-        if (mode === "export") {
-          return BASE_URL || "";
-        }
-        return "";
       },
     }),
     {
