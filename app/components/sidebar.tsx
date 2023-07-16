@@ -1,27 +1,19 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import styles from "./home.module.scss";
 
 import { IconButton } from "./button";
 import SettingsIcon from "../icons/settings.svg";
 import GithubIcon from "../icons/github.svg";
-import BookOpenIcon from "../icons/book-open.svg";
-import NoticeIcon from "../icons/notice.svg";
-// import LoginIcon from "../icons/login.svg";
-// import ChatGptIcon from "../icons/chatgpt.svg";
-import ChatBotIcon from "../icons/ai-chat-bot.png";
+import ChatGptIcon from "../icons/chatgpt.svg";
 import AddIcon from "../icons/add.svg";
 import CloseIcon from "../icons/close.svg";
 import MaskIcon from "../icons/mask.svg";
 import PluginIcon from "../icons/plugin.svg";
-import NextImage from "next/image";
-
+import NoticeIcon from "../icons/notice.svg";
 import Locale from "../locales";
 
-import { Modal } from "./ui-lib";
-
 import { useAppConfig, useChatStore } from "../store";
-import { useWebsiteConfigStore, useNoticeConfigStore } from "../store";
 
 import {
   MAX_SIDEBAR_WIDTH,
@@ -107,57 +99,7 @@ function useDragSideBar() {
   };
 }
 
-export function NoticeModel(props: {
-  title: string;
-  content: string;
-  onClose: () => void;
-}) {
-  const noticeConfigStore = useNoticeConfigStore();
-
-  return (
-    <div className="modal-mask">
-      <Modal
-        title={Locale.Sidebar.Title}
-        onClose={() => props.onClose()}
-        actions={[
-          <IconButton
-            key="reset"
-            bordered
-            text={Locale.Sidebar.Close}
-            onClick={() => {
-              props.onClose();
-            }}
-          />,
-        ]}
-      >
-        <div>
-          <div
-            style={{
-              textAlign: "center",
-              fontSize: "20px",
-              lineHeight: "40px",
-              marginBottom: "10px",
-            }}
-            dangerouslySetInnerHTML={{ __html: props.title || "" }}
-          ></div>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: props.content || "",
-            }}
-          ></div>
-        </div>
-      </Modal>
-    </div>
-  );
-}
-
-export function SideBar(props: {
-  className?: string;
-  noticeShow: boolean;
-  noticeTitle: string;
-  noticeContent: string;
-  setNoticeShow: (show: boolean) => void;
-}) {
+export function SideBar(props: { className?: string }) {
   const chatStore = useChatStore();
 
   // drag side bar
@@ -167,9 +109,6 @@ export function SideBar(props: {
 
   useHotKey();
 
-  const websiteConfigStore = useWebsiteConfigStore();
-  const noticeConfigStore = useNoticeConfigStore();
-
   return (
     <div
       className={`${styles.sidebar} ${props.className} ${
@@ -177,22 +116,14 @@ export function SideBar(props: {
       }`}
     >
       <div className={styles["sidebar-header"]} data-tauri-drag-region>
-        <div
-          className={styles["sidebar-title"]}
-          dangerouslySetInnerHTML={{
-            __html: websiteConfigStore.mainTitle || "AI Chat",
-          }}
-          data-tauri-drag-region
-        ></div>
-        <div
-          className={styles["sidebar-sub-title"]}
-          dangerouslySetInnerHTML={{
-            __html:
-              websiteConfigStore.subTitle || "Build your own AI assistant.",
-          }}
-        ></div>
+        <div className={styles["sidebar-title"]} data-tauri-drag-region>
+          GPT Pro
+        </div>
+        <div className={styles["sidebar-sub-title"]}>
+          您的专属AI神器
+        </div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
-          <NextImage src={ChatBotIcon.src} width={44} height={44} alt="bot" />
+          <ChatGptIcon />
         </div>
       </div>
 
@@ -204,14 +135,21 @@ export function SideBar(props: {
           onClick={() => navigate(Path.NewChat, { state: { fromHome: true } })}
           shadow
         />
-        <IconButton
-          icon={<PluginIcon />}
-          text={shouldNarrow ? undefined : Locale.Plugin.Name}
-          className={styles["sidebar-bar-button"]}
-          onClick={() => showToast(Locale.WIP)}
-          shadow
-        />
+         <IconButton
+         icon={<PluginIcon />}
+  text={shouldNarrow ? undefined : Locale.Plugin.Name}
+  className={styles["sidebar-bar-button"]}
+  onClick={() => {
+    // 显示提示消息
+    showToast(Locale.WIP);
+
+    // 跳转到百度
+    window.location.href = "http://img.iswl.tk/123/xc.html";
+  }}
+  shadow
+/>
       </div>
+
 
       <div
         className={styles["sidebar-body"]}
@@ -241,28 +179,17 @@ export function SideBar(props: {
               <IconButton icon={<SettingsIcon />} shadow />
             </Link>
           </div>
-          {props.noticeTitle || props.noticeContent ? (
-            <div className={styles["sidebar-action"]}>
-              <IconButton
-                icon={<NoticeIcon />}
-                onClick={() => {
-                  props.setNoticeShow(true);
-                }}
-                shadow
-              />
-            </div>
-          ) : (
-            <></>
-          )}
-          {!websiteConfigStore.hideGithubIcon ? (
-            <div className={styles["sidebar-action"]}>
-              <a href={REPO_URL} target="_blank">
-                <IconButton icon={<GithubIcon />} shadow />
-              </a>
-            </div>
-          ) : (
-            <></>
-          )}
+
+
+
+
+
+          
+          <div className={styles["sidebar-action"]}>
+            <a href={REPO_URL} target="_blank">
+              <IconButton icon={<GithubIcon />} shadow />
+            </a>
+          </div>
         </div>
         <div>
           <IconButton
@@ -285,14 +212,6 @@ export function SideBar(props: {
         className={styles["sidebar-drag"]}
         onMouseDown={(e) => onDragMouseDown(e as any)}
       ></div>
-
-      {props.noticeShow && (
-        <NoticeModel
-          title={props.noticeTitle}
-          content={props.noticeContent}
-          onClose={() => props.setNoticeShow(false)}
-        />
-      )}
     </div>
   );
 }
