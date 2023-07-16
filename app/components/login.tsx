@@ -121,6 +121,19 @@ export function Login() {
     setTimeout(() => authStore.logout(), 500);
   }
 
+  function clickWechatLoginButton() {
+    if (wechatStore.appType === "webApp") {
+      // 微信公众号应用，不支持扫码登录，只能通过
+      const url = "/wechatCallback";
+      const BASE_URL = process.env.BASE_URL;
+      const mode = process.env.BUILD_MODE;
+      const redirect_uri = `${window.location.origin}${url}`;
+      location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wechatStore.appId}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_base&state=${wechatStore.state}#wechat_redirect`;
+      return;
+    }
+    setShowWechatCode(true);
+  }
+
   const config = useAppConfig();
   const isMobileScreen = useMobileScreen();
   const clientConfig = useMemo(() => getClientConfig(), []);
@@ -240,7 +253,7 @@ export function Login() {
                   type="second"
                   text="微信登录"
                   onClick={() => {
-                    setShowWechatCode(true);
+                    clickWechatLoginButton();
                   }}
                 />
               </div>

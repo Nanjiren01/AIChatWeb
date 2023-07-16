@@ -3,17 +3,20 @@ import { persist } from "zustand/middleware";
 import { StoreKey } from "../constant";
 
 export interface WechatConfigStore {
+  appType: string;
   appId: string;
   state: string;
   fetchWechatConfig: () => Promise<any>;
 }
 
 export interface WechatConfig {
+  appType: string;
   appId: string;
   state: string;
 }
 export interface WechatConfigData {
   // wechatContent: WechatConfig;
+  appType: string;
   appId: string;
   state: string;
 }
@@ -24,6 +27,7 @@ export type WechatConfigResponse = Response<WechatConfigData>;
 export const useWechatConfigStore = create<WechatConfigStore>()(
   persist(
     (set, get) => ({
+      appType: "",
       appId: "",
       state: "",
 
@@ -43,6 +47,7 @@ export const useWechatConfigStore = create<WechatConfigStore>()(
             console.log("[WechatConfig] got wechat config from server", res);
             const wechat = res.data;
             set(() => ({
+              appType: wechat.appType,
               appId: wechat.appId,
               state: wechat.state,
             }));
