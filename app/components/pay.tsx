@@ -33,7 +33,11 @@ export function Pay() {
   const [lastOrderState, setLastOrderState] = useState<number | null>(null);
   useEffect(() => {
     setLoading(true);
-    fetch("/api/order/" + orderUuid, {
+    const url = "/order/" + orderUuid;
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    fetch(requestUrl, {
       method: "get",
       headers: {
         Authorization: "Bearer " + authStore.token,
@@ -63,7 +67,11 @@ export function Pay() {
       if (!qrCode) {
         return;
       }
-      fetch("/api/order/" + orderUuid, {
+      const url = "/order/" + orderUuid;
+      const BASE_URL = process.env.BASE_URL;
+      const mode = process.env.BUILD_MODE;
+      let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+      fetch(requestUrl, {
         method: "get",
         headers: {
           Authorization: "Bearer " + authStore.token,

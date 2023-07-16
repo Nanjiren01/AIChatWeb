@@ -104,7 +104,11 @@ export function Balance() {
 
   const reloadBalanceList = useCallback((token: string) => {
     setLoading(true);
-    fetch("/api/my/balance", {
+    const url = "/my/balance";
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    fetch(requestUrl, {
       method: "get",
       headers: {
         Authorization: "Bearer " + token,

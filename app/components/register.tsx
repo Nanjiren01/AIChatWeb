@@ -174,7 +174,11 @@ export function Register() {
   }
   function getRegisterCaptcha(captchaId: string) {
     // console.log('getRegisterCaptcha', captchaId)
-    fetch("/api/getRegisterCaptcha?captchaId=" + captchaId, {
+    const url = "/getRegisterCaptcha?captchaId=" + captchaId;
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    fetch(requestUrl, {
       method: "get",
     }).then(async (resp) => {
       const result = await resp.json();

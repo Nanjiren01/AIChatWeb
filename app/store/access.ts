@@ -64,7 +64,11 @@ export const useAccessStore = create<AccessControlStore>()(
       fetch() {
         if (fetchState > 0 || getClientConfig()?.buildMode === "export") return;
         fetchState = 1;
-        fetch("/api/config", {
+        const url = "/config";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+        fetch(requestUrl, {
           method: "post",
           body: null,
           headers: {

@@ -130,7 +130,11 @@ export function Pricing() {
   function handleClickBuy(pkg: Package) {
     console.log("buy pkg", pkg);
     setLoading(true);
-    fetch("/api/order", {
+    const url = "/order";
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    fetch(requestUrl, {
       method: "post",
       headers: {
         Authorization: "Bearer " + authStore.token,
