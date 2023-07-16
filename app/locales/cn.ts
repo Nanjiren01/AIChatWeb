@@ -253,6 +253,7 @@ const cn = {
       All: "所有套餐",
       CreateInviteCode: "生成邀请码",
       Copy: "复制链接",
+      Redeem: "兑换码",
     },
     BalanceItem: {
       Title: "套餐类型",
@@ -267,6 +268,17 @@ const cn = {
     ExpireList: {
       Title: "到期时间",
       SubTitle: "",
+    },
+  },
+  RedeemCodePage: {
+    Title: "兑换码",
+    RedeemCodeInput: {
+      Title: "兑换码",
+      Placeholder: "请输入兑换码",
+    },
+    Actions: {
+      Close: "关闭",
+      Redeem: "开始兑换",
     },
   },
   PricingPage: {
@@ -302,6 +314,7 @@ const cn = {
       Profile: "个人中心",
       Refresh: "刷新",
       Refreshing: "刷新中……",
+      RedeemCode: "兑换码",
     },
   },
   OrderPage: {

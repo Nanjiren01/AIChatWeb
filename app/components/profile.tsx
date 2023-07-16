@@ -309,6 +309,16 @@ export function Profile() {
           ) : (
             <></>
           )}
+
+          <ListItem>
+            <IconButton
+              text={Locale.Profile.Actions.Redeem}
+              type="second"
+              onClick={() => {
+                navigate(Path.RedeemCode);
+              }}
+            />
+          </ListItem>
         </List>
 
         <List>
