@@ -94,8 +94,6 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 | 功能                                                         | 进度     |
 | ------------------------------------------------------------ | -------- |
 | 社区版的全功能（Full functionality of the community version） | ✔        |
-| 邀请机制（Invitation mechanism）                             | 进行中   |
-| 服务端消息保存（Chat Saved by Server）                       | 进行中   |
 | 仪表盘（advanced dashboard）                                | ✔已完成(v0.3)  |
 | 对接支付系统（Connect to the payment system Pay）            | ✔已接入虎皮椒、蓝兔(v0.3)，其他进行中   |
 | 邮件模板（Email Template）                                | ✔已完成(v0.5)  |
