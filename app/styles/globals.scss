@@ -103,6 +103,13 @@ body {
   margin: 0;
   padding: 0;
   height: var(--full-height);
+  position: relative;
+}
+
+.body {
+  margin: 0;
+  padding: 0;
+  height: var(--full-height);
   width: 100vw;
   display: flex;
   justify-content: center;
