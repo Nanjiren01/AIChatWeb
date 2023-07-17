@@ -74,7 +74,7 @@ if (mode !== "export") {
         destination: "https://sharegpt.com/api/conversations",
       },
       {
-        source: "/:path([A-Za-z]+)",
+        source: "/:path([A-Za-z\\-]+)",
         destination: "/",
       },
     ];
