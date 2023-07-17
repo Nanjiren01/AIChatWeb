@@ -44,6 +44,7 @@ export function Login() {
   const registerType = registerTypes[0];
   const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
     "UsernameAndEmailWithCaptchaAndCode";
+  const REG_TYPE_CLOSE = "Close";
 
   const [loadingUsage, setLoadingUsage] = useState(false);
   const [showWechatCode, setShowWechatCode] = useState(false);
@@ -310,15 +311,17 @@ export function Login() {
                   />
                 </ListItem>
               )}
-              <ListItem>
-                <IconButton
-                  text={Locale.LoginPage.GoToRegister}
-                  type="second"
-                  onClick={() => {
-                    navigate(Path.Register);
-                  }}
-                />
-              </ListItem>
+              {registerType !== REG_TYPE_CLOSE && (
+                <ListItem>
+                  <IconButton
+                    text={Locale.LoginPage.GoToRegister}
+                    type="second"
+                    onClick={() => {
+                      navigate(Path.Register);
+                    }}
+                  />
+                </ListItem>
+              )}
             </>
           )}
         </List>
