@@ -80,6 +80,8 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 | 网站标题（Website Title Customization）                   |   ✔已完成(v0.2)      |
 | 套餐管理（Package Management）                            |   ✔已完成(v0.2)      |
 | 自定义敏感词拦截（Custom sensitive word interception）    |   ✔已完成(v0.2)   |
+| 忘记/重置密码（Reset Password）                           |   ✔已完成(v0.4)   |
+| API KEY余额自动查询（Auto Query Balance/Quota）            |   ✔已完成(v0.4)   |
 | 修改密码（Change password）                               |   进行中       |
 | 绘图功能（Drawing function）                              |   进行中       |
 
@@ -87,15 +89,21 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 
 
-## Pro版功能 AIChat Pro Function
+## 专业版功能 AIChat Pro Function
 
 | 功能                                                         | 进度     |
 | ------------------------------------------------------------ | -------- |
 | 社区版的全功能（Full functionality of the community version） | ✔        |
 | 邀请机制（Invitation mechanism）                             | 进行中   |
 | 服务端消息保存（Chat Saved by Server）                       | 进行中   |
-| 仪表盘（new user count curve, chat count curve）             | ✔已完成(v0.3)  |
-| 对接支付系统（Connect to the payment system Pay）            | 已接入虎皮椒、蓝兔，其他进行中   |
+| 仪表盘（advanced dashboard）                                | ✔已完成(v0.3)  |
+| 对接支付系统（Connect to the payment system Pay）            | ✔已接入虎皮椒、蓝兔(v0.3)，其他进行中   |
+| 邮件模板（Email Template）                                | ✔已完成(v0.5)  |
+| 邀请机制（Inviting Code）                                | ✔已完成(v0.5)  |
+| 微信登录（Wechat Login）                                | ✔已完成(v0.5)  |
+| 后台查看聊天记录（Chat Log）                                | ✔已完成(v0.5)  |
+| 模型名称重映射（Model Name Map）                                | ✔已完成(v0.5)  |
+| 兑换码（Redeem Code）                                | ✔已完成(v0.7预览版Preview)  |
 | 对接发卡平台（Docking with card issuing platforms）          | 进行中   |
 | 多模型支持（Multiple model support）                         | 长期进行 |
 
@@ -141,6 +149,8 @@ https://github.com/Nanjiren01/AIChatConsole
 https://github.com/Nanjiren01/AIChatAdmin
 
 ## 一键部署
+
+> 如果使用宝塔，请登录好望角参照内测专属频道获取教程
 
 1. 在云厂商购买一台合适配置的服务器，操作系统选择CentOS 7.9（其他版本未测试）
 2. 在安全组中放行80端口和8080端口
@@ -196,9 +206,9 @@ telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 
 <img src="https://chat.nanjiren.online/api/file/5f234015-cf2e-46f7-ad7b-a4de29853750" width="400px" alt="wechat" style="display: inline-block" />
 
-## ~知识星球~AI好望角
+## AI好望角
 
-加入~知识星球~AI好望角福利
+加入AI好望角福利
 - 免费获取AIChat pro版
 - 有可能获得免费定制服务
 - 优秀案例展示（需达到标准）
@@ -208,10 +218,10 @@ telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 
 > 当前项目为试运行阶段，部分内容仍在筹备中
 
-> AI好望角为本项目自建平台，目前仍在筹建中，只能以赞赏形式加入（不支持退款），赞赏后可立即进入AIChatAdmin Pro群获取Pro专属信息。
+> AI好望角为本项目自建平台，目前仍在筹建中，只能以赞赏形式加入（不支持退款），赞赏后可立即进入AIChatAdmin专业版内测群获取专业版专属信息。
 > 新平台筹建完毕后，会将知识星球中的内容迁移至新平台，新用户无需进入星球。
 
-当前加入~知识星球~AI好望角价格为188元，随着功能的不断完善，价格逐步提升
+当前加入AI好望角价格为188元，随着功能的不断完善，价格逐步提升
 
 <img src="https://chat.nanjiren.online/api/file/7c3b8658-4ff6-4d3c-89bd-6b309023e26d" width="200px" alt="AI好望角"/>
 
