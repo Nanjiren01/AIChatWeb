@@ -12,7 +12,12 @@ import DeleteIcon from "../icons/delete.svg";
 import EyeIcon from "../icons/eye.svg";
 import CopyIcon from "../icons/copy.svg";
 
-import { DEFAULT_MASK_AVATAR, Mask, useMaskStore } from "../store/mask";
+import {
+  DEFAULT_MASK_AVATAR,
+  Mask,
+  RemoteMask,
+  useMaskStore,
+} from "../store/mask";
 import { ChatMessage, ModelConfig, useAppConfig, useChatStore } from "../store";
 import { ROLES } from "../client/api";
 import {
@@ -36,11 +41,11 @@ import { ModelConfigList } from "./model-config";
 import { FileName, Path } from "../constant";
 import { BUILTIN_MASK_STORE } from "../masks";
 
-export function MaskAvatar(props: { mask: Mask; logoUrl?: string }) {
+export function MaskAvatar(props: { mask: Mask | RemoteMask; logoUrl?: string }) {
   return props.mask.avatar !== DEFAULT_MASK_AVATAR ? (
     <Avatar avatar={props.mask.avatar} logoUrl={props.logoUrl} />
   ) : (
-    <Avatar model={props.mask.modelConfig.model} logoUrl={props.logoUrl} />
+    <Avatar model={props.mask.modelConfig?.model} logoUrl={props.logoUrl} />
   );
 }
 
