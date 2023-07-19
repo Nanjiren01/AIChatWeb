@@ -136,20 +136,24 @@
     border-radius: 10px;
     display: inline-block;
     padding: 0 20px;
-    border: #e8e8e8 1px solid;
+    border: var(--border-in-light);
     line-height: 50px;
     height: 50px;
     margin: 0 2px;
     cursor: pointer;
+    color: var(--black);
 
     &:hover {
-      border-color: var(--primary);
+      border-color: var(--second);
+      background-color: var(--second);
+    }
+    &.clickable:hover {
+      filter: brightness(0.94);
     }
 
     &.active {
-      background-color: var(--primary);
-      border-color: var(--primary);
-      color: white;
+      background-color: var(--second);
+      border-color: var(--second);
     }
   }
 

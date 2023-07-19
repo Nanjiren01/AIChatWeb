@@ -16,6 +16,12 @@ export type Mask = {
   modelConfig: ModelConfig;
   lang: Lang;
   builtin: boolean;
+  state?: number;
+  type?: string;
+  modelConfigJson?: string;
+  contextJson?: string;
+  createTime?: Date;
+  updateTime?: Date;
 };
 
 export const DEFAULT_MASK_STATE = {
@@ -31,6 +37,7 @@ type MaskStore = MaskState & {
   search: (text: string) => Mask[];
   get: (id?: number) => Mask | null;
   getAll: () => Mask[];
+  getUserMasks: () => Mask[];
   fetch: () => Promise<RemoteMask[]>;
 };
 
@@ -53,15 +60,17 @@ export interface RemoteMask {
   name: string;
   avatar: string;
   lang: Lang;
-  state: number;
-  type: string;
-  modelConfigJson: string;
-  contextJson: string;
+  state?: number;
+  type?: string;
+  syncGlobalConfig?: boolean;
+  modelConfigJson?: string;
+  contextJson?: string;
   context?: ChatMessage[];
-  modelConfig?: ModelConfig;
+  modelConfig: ModelConfig;
   builtin?: any;
-  createTime: Date;
-  updateTime: Date;
+  createTime?: Date;
+  updateTime?: Date;
+  hideContext?: boolean;
 }
 
 import { Response } from "../api/common";
@@ -115,7 +124,7 @@ export const useMaskStore = create<MaskStore>()(
             const remoteMasks = masks.map((mask) => {
               let context, modelConfig;
               try {
-                context = JSON.parse(mask.contextJson);
+                context = JSON.parse(mask.contextJson || "{}");
               } catch (e) {
                 console.error(
                   "mask.contextJson is not json",
@@ -125,7 +134,7 @@ export const useMaskStore = create<MaskStore>()(
                 context = [];
               }
               try {
-                modelConfig = JSON.parse(mask.modelConfigJson);
+                modelConfig = JSON.parse(mask.modelConfigJson || "{}");
               } catch (e) {
                 console.error(
                   "mask.modelConfigJson is not json",
@@ -134,6 +143,7 @@ export const useMaskStore = create<MaskStore>()(
                 );
                 modelConfig = {};
               }
+              modelConfig.template = "{{input}}";
               const remoteMask: RemoteMask = {
                 id: mask.id,
                 name: mask.name,
@@ -148,12 +158,16 @@ export const useMaskStore = create<MaskStore>()(
                 modelConfig: modelConfig,
                 createTime: mask.createTime,
                 updateTime: mask.updateTime,
+                hideContext: false,
               };
               return remoteMask;
             });
             console.log("remoteMasks", remoteMasks);
             return remoteMasks;
           });
+      },
+      getUserMasks() {
+        return Object.values(get().masks).sort((a, b) => b.id - a.id);
       },
       getAll() {
         const userMasks = Object.values(get().masks).sort(
