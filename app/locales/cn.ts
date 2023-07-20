@@ -227,6 +227,7 @@ const cn = {
     InviteCode: {
       Title: "邀请码",
       Placeholder: "选填",
+      PlaceholderRequired: "必填",
     },
     Tokens: {
       Title: "tokens",

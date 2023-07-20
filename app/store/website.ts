@@ -17,6 +17,7 @@ export interface WebsiteConfigStore {
   sensitiveWordsTip: string;
   balanceNotEnough: string;
   registerTypes: string[];
+  registerForInviteCodeOnly: boolean;
   hideGithubIcon: boolean;
   botHello: string;
   logoUrl?: string;
@@ -32,6 +33,7 @@ export interface WebsiteConfig {
   loginPageSubTitle: string;
   registerPageSubTitle: string;
   registerTypes: string[];
+  registerForInviteCodeOnly: boolean;
   pricingPageTitle: string;
   pricingPageSubTitle: string;
   payPageTitle: string;
@@ -61,6 +63,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       loginPageSubTitle: "",
       registerPageSubTitle: "",
       registerTypes: [] as string[],
+      registerForInviteCodeOnly: false as boolean,
       pricingPageTitle: "",
       pricingPageSubTitle: "",
       payPageTitle: "",
@@ -104,6 +107,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
                 website.registerTypes && website.registerTypes.length
                   ? website.registerTypes
                   : (["OnlyUsername"] as string[]),
+              registerForInviteCodeOnly: website.registerForInviteCodeOnly,
               pricingPageTitle: website.pricingPageTitle,
               pricingPageSubTitle: website.pricingPageSubTitle,
               payPageTitle: website.payPageTitle,

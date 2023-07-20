@@ -19,7 +19,8 @@ export function Register() {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
-  const { registerPageSubTitle, registerTypes } = useWebsiteConfigStore();
+  const { registerPageSubTitle, registerTypes, registerForInviteCodeOnly } =
+    useWebsiteConfigStore();
   const registerType = registerTypes[0];
   const REG_TYPE_ONLY_USERNAME = "OnlyUsername";
   const REG_TYPE_USERNAME_WITH_CAPTCHA = "OnlyUsernameWithCaptcha";
@@ -135,6 +136,10 @@ export function Register() {
         showToast(Locale.RegisterPage.Toast.EmailCodeEmpty);
         return;
       }
+    }
+    if (registerForInviteCodeOnly && !inviteCode) {
+      showToast("请输入邀请码！");
+      return;
     }
     setLoadingUsage(true);
     showToast(Locale.RegisterPage.Toast.Registering);
@@ -364,7 +369,11 @@ export function Register() {
           <ListItem title={Locale.Profile.InviteCode.Title}>
             <SingleInput
               value={inviteCode}
-              placeholder={Locale.Profile.InviteCode.Placeholder}
+              placeholder={
+                registerForInviteCodeOnly
+                  ? Locale.Profile.InviteCode.PlaceholderRequired
+                  : Locale.Profile.InviteCode.Placeholder
+              }
               onChange={(e) => {
                 setInviteCode(e.currentTarget.value);
               }}
