@@ -48,6 +48,7 @@ export interface RedeemCodeEntity {
 export function RedeemCode() {
   const navigate = useNavigate();
   const authStore = useAuthStore();
+  const websiteConfigStore = useWebsiteConfigStore();
 
   const [loading, setLoading] = useState(false);
 
@@ -173,10 +174,11 @@ export function RedeemCode() {
       <div className="window-header" data-tauri-drag-region>
         <div className="window-header-title">
           <div className="window-header-main-title">
-            {Locale.RedeemCodePage.Title}
+            {websiteConfigStore.redeemCodePageTitle ||
+              Locale.RedeemCodePage.Title}
           </div>
           <div className="window-header-sub-title">
-            {/* {Locale.Profile.SubTitle} */}
+            {websiteConfigStore.redeemCodePageSubTitle || ""}
           </div>
         </div>
         <div className="window-actions">
@@ -191,6 +193,11 @@ export function RedeemCode() {
         </div>
       </div>
       <div className={styles["redeem-code"]}>
+        <div
+          dangerouslySetInnerHTML={{
+            __html: websiteConfigStore.redeemCodePageBanner,
+          }}
+        ></div>
         <List>
           <ListItem hideTitle={true} className={styles["redeem-list-item"]}>
             <SingleInput
@@ -211,6 +218,12 @@ export function RedeemCode() {
             />
           </ListItem>
         </List>
+
+        <div
+          dangerouslySetInnerHTML={{
+            __html: websiteConfigStore.redeemCodePageTop,
+          }}
+        ></div>
 
         <List>
           {myRedeemCodes.length === 0 || loading ? (
@@ -241,6 +254,12 @@ export function RedeemCode() {
           </>
         </List>
 
+        <div
+          dangerouslySetInnerHTML={{
+            __html: websiteConfigStore.redeemCodePageIndex,
+          }}
+        ></div>
+
         <List>
           <ListItem>
             <IconButton
@@ -264,6 +283,12 @@ export function RedeemCode() {
             />
           </ListItem>
         </List>
+
+        <div
+          dangerouslySetInnerHTML={{
+            __html: websiteConfigStore.redeemCodePageBottom,
+          }}
+        ></div>
       </div>
     </ErrorBoundary>
   );

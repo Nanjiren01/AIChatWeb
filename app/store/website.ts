@@ -18,6 +18,12 @@ export interface WebsiteConfigStore {
   balanceNotEnough: string;
   registerTypes: string[];
   registerForInviteCodeOnly: boolean;
+  redeemCodePageTitle: string;
+  redeemCodePageSubTitle: string;
+  redeemCodePageBanner: string;
+  redeemCodePageTop: string;
+  redeemCodePageIndex: string;
+  redeemCodePageBottom: string;
   hideGithubIcon: boolean;
   botHello: string;
   logoUrl?: string;
@@ -34,6 +40,12 @@ export interface WebsiteConfig {
   registerPageSubTitle: string;
   registerTypes: string[];
   registerForInviteCodeOnly: boolean;
+  redeemCodePageTitle: string;
+  redeemCodePageSubTitle: string;
+  redeemCodePageBanner: string;
+  redeemCodePageTop: string;
+  redeemCodePageIndex: string;
+  redeemCodePageBottom: string;
   pricingPageTitle: string;
   pricingPageSubTitle: string;
   payPageTitle: string;
@@ -75,6 +87,12 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       botHello: "",
       logoUrl: "",
       availableModelNames: [] as string[],
+      redeemCodePageTitle: "",
+      redeemCodePageSubTitle: "",
+      redeemCodePageBanner: "",
+      redeemCodePageTop: "",
+      redeemCodePageIndex: "",
+      redeemCodePageBottom: "",
 
       async fetchWebsiteConfig() {
         const url = "/globalConfig/website";
@@ -117,6 +135,12 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               balanceNotEnough: website.balanceNotEnough,
               hideGithubIcon: website.hideGithubIcon,
               botHello: website.botHello,
+              redeemCodePageTitle: website.redeemCodePageTitle || "",
+              redeemCodePageSubTitle: website.redeemCodePageSubTitle || "",
+              redeemCodePageBanner: website.redeemCodePageBanner || "",
+              redeemCodePageTop: website.redeemCodePageTop || "",
+              redeemCodePageIndex: website.redeemCodePageIndex || "",
+              redeemCodePageBottom: website.redeemCodePageBottom || "",
               logoUrl:
                 website.logoUuid !== undefined &&
                 website.logoUuid !== null &&
