@@ -362,7 +362,8 @@ export function Home() {
 
   const authStore = useAuthStore();
   const [logoLoading, setLogoLoading] = useState(false);
-  const { fetchWebsiteConfig, logoUrl } = useWebsiteConfigStore();
+  const { fetchWebsiteConfig, logoUrl, availableModelNames } =
+    useWebsiteConfigStore();
   useEffect(() => {
     fetchWebsiteConfig();
   }, [fetchWebsiteConfig]);
@@ -370,6 +371,10 @@ export function Home() {
   useEffect(() => {
     console.log("[Config] got config from build time", getClientConfig());
   }, []);
+  useEffect(() => {
+    console.log("set default model", availableModelNames[0]);
+    useAppConfig.getState().modelConfig.model = availableModelNames[0];
+  }, [availableModelNames]);
 
   if (!useHasHydrated()) {
     return <Loading noLogo logoLoading={logoLoading} logoUrl={logoUrl} />;
