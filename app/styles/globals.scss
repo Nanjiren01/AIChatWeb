@@ -90,6 +90,12 @@
     @include dark;
   }
 }
+
+.separator-page {
+  --sidebar-width: 0;
+  --window-content-width: calc(100% - var(--sidebar-width));
+}
+
 html {
   height: var(--full-height);
 

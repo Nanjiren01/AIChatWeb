@@ -4,6 +4,7 @@ import NextImage from "next/image";
 import styles from "./register.module.scss";
 
 import CloseIcon from "../icons/close.svg";
+import ChatBotIcon from "../icons/ai-chat-bot.png";
 import { SingleInput, Input, List, ListItem, PasswordInput } from "./ui-lib";
 
 import { IconButton } from "./button";
@@ -15,12 +16,17 @@ import { ErrorBoundary } from "./error";
 import { useLocation, useNavigate } from "react-router-dom";
 import { showToast } from "../components/ui-lib";
 
-export function Register() {
+export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
-  const { registerPageSubTitle, registerTypes, registerForInviteCodeOnly } =
-    useWebsiteConfigStore();
+  const {
+    registerPageSubTitle,
+    registerTypes,
+    registerForInviteCodeOnly,
+    mainTitle,
+    hideChatLogWhenNotLogin,
+  } = useWebsiteConfigStore();
   const registerType = registerTypes[0];
   const REG_TYPE_ONLY_USERNAME = "OnlyUsername";
   const REG_TYPE_USERNAME_WITH_CAPTCHA = "OnlyUsernameWithCaptcha";
@@ -219,6 +225,31 @@ export function Register() {
         </div>
       </div>
       <div className={styles["register"]}>
+        {hideChatLogWhenNotLogin && (
+          <div style={{ textAlign: "center" }}>
+            <div className={styles["sidebar-logo"] + " no-dark"}>
+              {props.logoLoading ? (
+                <></>
+              ) : !props.logoUrl ? (
+                <NextImage
+                  src={ChatBotIcon.src}
+                  width={64}
+                  height={64}
+                  alt="bot"
+                />
+              ) : (
+                <img src={props.logoUrl} width={64} height={64} />
+              )}
+            </div>
+            <div
+              style={{ lineHeight: "100px" }}
+              dangerouslySetInnerHTML={{
+                __html: mainTitle || "AI Chat",
+              }}
+              data-tauri-drag-region
+            ></div>
+          </div>
+        )}
         <List>
           {/* <ListItem
             title={Locale.RegisterPage.Name.Title}

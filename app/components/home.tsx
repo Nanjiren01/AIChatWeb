@@ -240,7 +240,7 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
     fetchWechatConfig();
   }, [fetchWechatConfig]);
 
-  const { botHello, icp } = useWebsiteConfigStore();
+  const { botHello, icp, hideChatLogWhenNotLogin } = useWebsiteConfigStore();
   useEffect(() => {
     if (botHello) {
       // todo i18n
@@ -287,9 +287,15 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
     setFavicon(logoUrl, "");
   }, [logoUrl]);
 
+  const separator =
+    hideChatLogWhenNotLogin &&
+    ([Path.Login, Path.Register, Path.WechatCallback] as string[]).includes(
+      location.pathname,
+    );
+
   return (
     <>
-      <div className={"body"}>
+      <div className={(separator ? "separator-page " : "") + "body"}>
         <div
           className={
             styles.container +
@@ -306,15 +312,17 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
             </>
           ) : (
             <>
-              <SideBar
-                className={isHome ? styles["sidebar-show"] : ""}
-                noticeShow={noticeShow}
-                noticeTitle={noticeTitle}
-                noticeContent={noticeContent}
-                setNoticeShow={setNoticeShow}
-                logoLoading={logoLoading}
-                logoUrl={logoUrl}
-              />
+              {!separator && (
+                <SideBar
+                  className={isHome ? styles["sidebar-show"] : ""}
+                  noticeShow={noticeShow}
+                  noticeTitle={noticeTitle}
+                  noticeContent={noticeContent}
+                  setNoticeShow={setNoticeShow}
+                  logoLoading={logoLoading}
+                  logoUrl={logoUrl}
+                />
+              )}
 
               <div className={styles["window-content"]} id={SlotID.AppBody}>
                 <Routes>
@@ -323,13 +331,23 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
                   <Route path={Path.Masks} element={<MaskPage />} />
                   <Route path={Path.Chat} element={<Chat />} />
                   <Route path={Path.Settings} element={<Settings />} />
-                  <Route path={Path.Login} element={<Login />} />
+                  <Route
+                    path={Path.Login}
+                    element={
+                      <Login logoLoading={logoLoading} logoUrl={logoUrl} />
+                    }
+                  />
                   <Route
                     path={Path.WechatCallback}
                     element={<WechatCallback />}
                   />
 
-                  <Route path={Path.Register} element={<Register />} />
+                  <Route
+                    path={Path.Register}
+                    element={
+                      <Register logoLoading={logoLoading} logoUrl={logoUrl} />
+                    }
+                  />
                   <Route
                     path={Path.ForgetPassword}
                     element={<ForgetPassword />}

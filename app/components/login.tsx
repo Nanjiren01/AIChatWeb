@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 
+import NextImage from "next/image";
+
 import styles from "./login.module.scss";
 
 import CloseIcon from "../icons/close.svg";
@@ -7,6 +9,7 @@ import WechatIcon from "../icons/wechat.svg";
 import ReturnIcon from "../icons/return.svg";
 import MaxIcon from "../icons/max.svg";
 import MinIcon from "../icons/min.svg";
+import ChatBotIcon from "../icons/ai-chat-bot.png";
 
 import { SingleInput, List, ListItem, PasswordInput } from "./ui-lib";
 
@@ -35,12 +38,17 @@ export interface WechatConfigData {
 }
 export type WechatConfigResponse = Response<WechatConfigData>;
 
-export function Login() {
+export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
   const wechatStore = useWechatConfigStore();
-  const { loginPageSubTitle, registerTypes } = useWebsiteConfigStore();
+  const {
+    loginPageSubTitle,
+    registerTypes,
+    mainTitle,
+    hideChatLogWhenNotLogin,
+  } = useWebsiteConfigStore();
   const registerType = registerTypes[0];
   const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
     "UsernameAndEmailWithCaptchaAndCode";
@@ -174,6 +182,31 @@ export function Login() {
         </div>
       </div>
       <div className={styles["login"]}>
+        {hideChatLogWhenNotLogin && (
+          <div style={{ textAlign: "center" }}>
+            <div className={styles["sidebar-logo"] + " no-dark"}>
+              {props.logoLoading ? (
+                <></>
+              ) : !props.logoUrl ? (
+                <NextImage
+                  src={ChatBotIcon.src}
+                  width={64}
+                  height={64}
+                  alt="bot"
+                />
+              ) : (
+                <img src={props.logoUrl} width={64} height={64} />
+              )}
+            </div>
+            <div
+              style={{ lineHeight: "100px" }}
+              dangerouslySetInnerHTML={{
+                __html: mainTitle || "AI Chat",
+              }}
+              data-tauri-drag-region
+            ></div>
+          </div>
+        )}
         <List>
           {!showWechatCode ? (
             <ListItem

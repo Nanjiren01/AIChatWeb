@@ -26,6 +26,7 @@ export interface WebsiteConfigStore {
   redeemCodePageBottom: string;
   hideGithubIcon: boolean;
   botHello: string;
+  hideChatLogWhenNotLogin: boolean;
   logoUrl?: string;
   availableModelNames: string[];
   fetchWebsiteConfig: () => Promise<any>;
@@ -55,6 +56,7 @@ export interface WebsiteConfig {
   balanceNotEnough: string;
   hideGithubIcon: boolean;
   botHello: string;
+  hideChatLogWhenNotLogin: boolean;
   logoUuid?: string;
   availableModelNames: string[];
 }
@@ -85,6 +87,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       balanceNotEnough: "",
       hideGithubIcon: false as boolean,
       botHello: "",
+      hideChatLogWhenNotLogin: false as boolean,
       logoUrl: "",
       availableModelNames: [] as string[],
       redeemCodePageTitle: "",
@@ -135,6 +138,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               balanceNotEnough: website.balanceNotEnough,
               hideGithubIcon: website.hideGithubIcon,
               botHello: website.botHello,
+              hideChatLogWhenNotLogin: website.hideChatLogWhenNotLogin,
               redeemCodePageTitle: website.redeemCodePageTitle || "",
               redeemCodePageSubTitle: website.redeemCodePageSubTitle || "",
               redeemCodePageBanner: website.redeemCodePageBanner || "",
