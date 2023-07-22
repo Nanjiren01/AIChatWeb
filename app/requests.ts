@@ -154,6 +154,23 @@ export async function requestSendEmailCode(
     options,
   );
 }
+export async function requestSendPhoneCode(
+  phone: string,
+  resetPassword: boolean,
+  options?: {
+    onError: (error: Error, statusCode?: number) => void;
+  },
+): Promise<RegisterResult> {
+  return request(
+    "/sendRegisterPhoneCode",
+    "POST",
+    {
+      phone,
+      type: resetPassword ? "resetPassword" : "register",
+    },
+    options,
+  );
+}
 
 export function requestWechatLogin(
   code: string,

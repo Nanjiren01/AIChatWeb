@@ -41,6 +41,7 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
   const REG_TYPE_USERNAME_WITH_CAPTCHA = "OnlyUsernameWithCaptcha";
   const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
     "UsernameAndEmailWithCaptchaAndCode";
+  const REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE = "PhoneWithCaptchaAndCode";
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -87,6 +88,9 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
   const [email, setEmail] = useState("");
   const [emailCode, setEmailCode] = useState("");
   const [emailCodeSending, setEmailCodeSending] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [phoneCode, setPhoneCode] = useState("");
+  const [phoneCodeSending, setPhoneCodeSending] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [comfirmedPassword, setComfirmedPassword] = useState("");
@@ -116,6 +120,32 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
       })
       .finally(() => {
         setEmailCodeSending(false);
+      });
+  }
+  function handleClickSendPhoneCode() {
+    if (phone === null || phone == "") {
+      showToast(Locale.RegisterPage.Toast.PhoneIsEmpty);
+      return;
+    }
+    setPhoneCodeSending(true);
+    authStore
+      .sendPhoneCode(phone)
+      .then((resp) => {
+        if (resp.code == 0) {
+          showToast(Locale.RegisterPage.Toast.PhoneCodeSent);
+          return;
+        }
+        if (resp.code == 10121) {
+          showToast(Locale.RegisterPage.Toast.PhoneFormatError);
+          return;
+        } else if (resp.code == 10122) {
+          showToast(Locale.RegisterPage.Toast.PhoneCodeSentFrequently);
+          return;
+        }
+        showToast(resp.message);
+      })
+      .finally(() => {
+        setPhoneCodeSending(false);
       });
   }
   function register() {
@@ -330,6 +360,52 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
                   placeholder={Locale.RegisterPage.EmailCode.Placeholder}
                   onChange={(e) => {
                     setEmailCode(e.currentTarget.value);
+                  }}
+                />
+              </ListItem>
+            </>
+          ) : (
+            <></>
+          )}
+
+          {registerType === REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE ? (
+            <>
+              <ListItem
+                title={Locale.RegisterPage.Phone.Title}
+                subTitle={Locale.RegisterPage.Phone.SubTitle}
+              >
+                <SingleInput
+                  value={phone}
+                  placeholder={Locale.RegisterPage.Phone.Placeholder}
+                  onChange={(e) => {
+                    setPhone(e.currentTarget.value);
+                  }}
+                />
+              </ListItem>
+
+              <ListItem>
+                <IconButton
+                  text={
+                    phoneCodeSending
+                      ? Locale.RegisterPage.Toast.PhoneCodeSending
+                      : Locale.RegisterPage.Toast.SendPhoneCode
+                  }
+                  disabled={phoneCodeSending}
+                  onClick={() => {
+                    handleClickSendPhoneCode();
+                  }}
+                />
+              </ListItem>
+
+              <ListItem
+                title={Locale.RegisterPage.PhoneCode.Title}
+                subTitle={Locale.RegisterPage.PhoneCode.SubTitle}
+              >
+                <SingleInput
+                  value={phoneCode}
+                  placeholder={Locale.RegisterPage.PhoneCode.Placeholder}
+                  onChange={(e) => {
+                    setPhoneCode(e.currentTarget.value);
                   }}
                 />
               </ListItem>

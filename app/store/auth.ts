@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { StoreKey } from "../constant";
-import { requestLogin, requestWechatLogin } from "../requests";
+import {
+  requestLogin,
+  requestSendPhoneCode,
+  requestWechatLogin,
+} from "../requests";
 import {
   requestRegister,
   requestSendEmailCode,
@@ -16,6 +20,7 @@ export interface AuthStore {
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
   sendEmailCode: (email: string) => Promise<any>;
+  sendPhoneCode: (phone: string) => Promise<any>;
   sendEmailCodeForResetPassword: (email: string) => Promise<any>;
   register: (
     name: string,
@@ -94,6 +99,14 @@ export const useAuthStore = create<AuthStore>()(
       },
       async sendEmailCode(email) {
         let result = await requestSendEmailCode(email, false, {
+          onError: (err) => {
+            console.error(err);
+          },
+        });
+        return result;
+      },
+      async sendPhoneCode(phone: string) {
+        let result = await requestSendPhoneCode(phone, false, {
           onError: (err) => {
             console.error(err);
           },
