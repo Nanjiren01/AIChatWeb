@@ -196,7 +196,8 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
         captchaId,
         captchaInput,
         email,
-        emailCode,
+        phone,
+        emailCode || phoneCode,
         inviteCode,
       )
       .then((result) => {

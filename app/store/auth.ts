@@ -29,6 +29,7 @@ export interface AuthStore {
     captchaId: string,
     captchaInput: string,
     email: string,
+    phone: string,
     code: string,
     inviteCode: string,
   ) => Promise<any>;
@@ -120,6 +121,7 @@ export const useAuthStore = create<AuthStore>()(
         captchaId,
         captchaInput,
         email,
+        phone,
         code,
         inviteCode,
       ) {
@@ -130,6 +132,7 @@ export const useAuthStore = create<AuthStore>()(
           captchaId,
           captchaInput,
           email,
+          phone,
           code,
           inviteCode,
           {

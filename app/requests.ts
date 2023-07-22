@@ -114,6 +114,7 @@ export async function requestRegister(
   captchaId: string,
   captchaInput: string,
   email: string,
+  phone: string,
   code: string,
   inviteCode: string,
   options?: {
@@ -130,6 +131,7 @@ export async function requestRegister(
       captchaId,
       captcha: captchaInput,
       email,
+      phone,
       code,
       inviteCode,
     },
