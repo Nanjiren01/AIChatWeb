@@ -171,14 +171,14 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
               />
             </div>
           )}
-          <div className="window-action-button">
+          {/* <div className="window-action-button">
             <IconButton
               icon={<CloseIcon />}
               onClick={() => navigate(Path.Home)}
               bordered
               title={Locale.LoginPage.Actions.Close}
             />
-          </div>
+          </div> */}
         </div>
       </div>
       <div className={styles["login"]}>

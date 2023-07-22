@@ -1,20 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import NextImage from "next/image";
 
 import styles from "./register.module.scss";
 
-import CloseIcon from "../icons/close.svg";
+import MaxIcon from "../icons/max.svg";
+import MinIcon from "../icons/min.svg";
+// import CloseIcon from "../icons/close.svg";
 import ChatBotIcon from "../icons/ai-chat-bot.png";
 import { SingleInput, Input, List, ListItem, PasswordInput } from "./ui-lib";
 
 import { IconButton } from "./button";
-import { useAuthStore, useAccessStore, useWebsiteConfigStore } from "../store";
+import {
+  useAuthStore,
+  useAccessStore,
+  useWebsiteConfigStore,
+  useAppConfig,
+} from "../store";
 
 import Locale from "../locales";
 import { Path } from "../constant";
 import { ErrorBoundary } from "./error";
 import { useLocation, useNavigate } from "react-router-dom";
 import { showToast } from "../components/ui-lib";
+import { useMobileScreen } from "../utils";
+import { getClientConfig } from "../config/client";
 
 export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
   const navigate = useNavigate();
@@ -204,6 +213,11 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
     getRegisterCaptcha(captchaId);
   }, [captchaId]);
 
+  const config = useAppConfig();
+  const isMobileScreen = useMobileScreen();
+  const clientConfig = useMemo(() => getClientConfig(), []);
+  const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
+
   return (
     <ErrorBoundary>
       <div className="window-header" data-tauri-drag-region>
@@ -214,14 +228,27 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
           <div className="window-header-sub-title">{registerPageSubTitle}</div>
         </div>
         <div className="window-actions">
-          <div className="window-action-button">
+          {showMaxIcon && (
+            <div className="window-action-button">
+              <IconButton
+                icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
+                bordered
+                onClick={() => {
+                  config.update(
+                    (config) => (config.tightBorder = !config.tightBorder),
+                  );
+                }}
+              />
+            </div>
+          )}
+          {/* <div className="window-action-button">
             <IconButton
               icon={<CloseIcon />}
               onClick={() => navigate(Path.Home)}
               bordered
               title={Locale.RegisterPage.Actions.Close}
             />
-          </div>
+          </div> */}
         </div>
       </div>
       <div className={styles["register"]}>

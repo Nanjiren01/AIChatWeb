@@ -289,9 +289,14 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
 
   const separator =
     hideChatLogWhenNotLogin &&
-    ([Path.Login, Path.Register, Path.WechatCallback] as string[]).includes(
-      location.pathname,
-    );
+    (
+      [
+        Path.Login,
+        Path.Register,
+        Path.WechatCallback,
+        Path.ForgetPassword,
+      ] as string[]
+    ).includes(location.pathname);
 
   return (
     <>
@@ -350,7 +355,12 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
                   />
                   <Route
                     path={Path.ForgetPassword}
-                    element={<ForgetPassword />}
+                    element={
+                      <ForgetPassword
+                        logoLoading={logoLoading}
+                        logoUrl={logoUrl}
+                      />
+                    }
                   />
                   <Route path={Path.Profile} element={<Profile />} />
                   <Route path={Path.Pricing} element={<Pricing />} />
