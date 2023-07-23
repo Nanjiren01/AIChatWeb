@@ -242,6 +242,7 @@ const cn = {
     SubTitle: "个人中心",
     Username: "账号",
     Email: "邮箱",
+    Phone: "手机号",
     InviteCode: {
       Title: "邀请码",
       Placeholder: "选填",

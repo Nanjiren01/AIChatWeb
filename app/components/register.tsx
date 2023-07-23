@@ -212,7 +212,8 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
         } else {
           if (result.message) {
             showToast(
-              Locale.RegisterPage.Toast.FailedWithReason + result.message,
+              Locale.RegisterPage.Toast.FailedWithReason +
+                (result.cnMessage || result.message),
             );
           } else {
             showToast(Locale.RegisterPage.Toast.Failed);
@@ -415,18 +416,22 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
             <></>
           )}
 
-          <ListItem
-            title={Locale.RegisterPage.Username.Title}
-            subTitle={Locale.RegisterPage.Username.SubTitle}
-          >
-            <SingleInput
-              value={username}
-              placeholder={Locale.RegisterPage.Username.Placeholder}
-              onChange={(e) => {
-                setUsername(e.currentTarget.value);
-              }}
-            />
-          </ListItem>
+          {registerType !== REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE ? (
+            <ListItem
+              title={Locale.RegisterPage.Username.Title}
+              subTitle={Locale.RegisterPage.Username.SubTitle}
+            >
+              <SingleInput
+                value={username}
+                placeholder={Locale.RegisterPage.Username.Placeholder}
+                onChange={(e) => {
+                  setUsername(e.currentTarget.value);
+                }}
+              />
+            </ListItem>
+          ) : (
+            <></>
+          )}
 
           <ListItem
             title={Locale.RegisterPage.Password.Title}

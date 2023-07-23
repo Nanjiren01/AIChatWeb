@@ -16,6 +16,7 @@ export interface AuthStore {
   token: string;
   username: string;
   email: string;
+  phone: string;
   inviteCode: string;
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
@@ -49,6 +50,7 @@ export const useAuthStore = create<AuthStore>()(
       name: "",
       username: "",
       email: "",
+      phone: "",
       token: "",
       inviteCode: "",
 
@@ -65,8 +67,9 @@ export const useAuthStore = create<AuthStore>()(
         console.log("result", result);
         if (result && result.code == 0) {
           set(() => ({
-            username,
+            username: result.data?.userEntity?.username || username,
             email: result.data?.userEntity?.email || "",
+            phone: result.data?.userEntity?.phone || "",
             token: result.data?.token || "",
             inviteCode: result.data?.userEntity?.inviteCode || "",
           }));
@@ -78,6 +81,7 @@ export const useAuthStore = create<AuthStore>()(
         set(() => ({
           username: "",
           email: "",
+          phone: "",
           token: "",
           inviteCode: "",
         }));
