@@ -114,6 +114,7 @@ export async function requestRegister(
   captchaId: string,
   captchaInput: string,
   email: string,
+  phone: string,
   code: string,
   inviteCode: string,
   options?: {
@@ -130,6 +131,7 @@ export async function requestRegister(
       captchaId,
       captcha: captchaInput,
       email,
+      phone,
       code,
       inviteCode,
     },
@@ -149,6 +151,23 @@ export async function requestSendEmailCode(
     "POST",
     {
       email,
+      type: resetPassword ? "resetPassword" : "register",
+    },
+    options,
+  );
+}
+export async function requestSendPhoneCode(
+  phone: string,
+  resetPassword: boolean,
+  options?: {
+    onError: (error: Error, statusCode?: number) => void;
+  },
+): Promise<RegisterResult> {
+  return request(
+    "/sendRegisterPhoneCode",
+    "POST",
+    {
+      phone,
       type: resetPassword ? "resetPassword" : "register",
     },
     options,
