@@ -31,12 +31,7 @@ import { Response } from "../api/common";
 import "../../scripts/wxLogin.js";
 import { useMobileScreen } from "../utils";
 import { getClientConfig } from "../config/client";
-
-export interface WechatConfigData {
-  appId: string;
-  state: string;
-}
-export type WechatConfigResponse = Response<WechatConfigData>;
+import { isInWechat } from "../utils/wechat";
 
 export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
   const navigate = useNavigate();
@@ -78,8 +73,14 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
   }, []);
 
   useEffect(() => {
-    setShowWechatLogin(!!wechatStore.appId);
-  }, [wechatStore.appId, setShowWechatLogin]);
+    setShowWechatLogin(
+      !!wechatStore.webstiteAppAppId || !!wechatStore.webAppAppId,
+    );
+  }, [
+    wechatStore.webstiteAppAppId,
+    wechatStore.webAppAppId,
+    setShowWechatLogin,
+  ]);
 
   useEffect(() => {
     if (showWechatCode) {
@@ -91,10 +92,10 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
       const obj = new WxLogin({
         self_redirect: false,
         id: "wx_login_container",
-        appid: wechatStore.appId,
+        appid: wechatStore.webstiteAppAppId,
         scope: "snsapi_login",
         redirect_uri: encodeURIComponent(redirect_uri),
-        state: wechatStore.state,
+        state: wechatStore.webstiteAppState,
       });
     }
   }, [showWechatCode, wechatStore]);
@@ -131,13 +132,19 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
   }
 
   function clickWechatLoginButton() {
-    if (wechatStore.appType === "webApp") {
+    if (
+      (isInWechat() && !!wechatStore.webAppAppId) ||
+      !wechatStore.webstiteAppAppId
+    ) {
       // 微信公众号应用，不支持扫码登录，只能通过
-      const url = "/wechatCallback";
+      const url = "/wechatCallback?appType=webApp";
       const BASE_URL = process.env.BASE_URL;
       const mode = process.env.BUILD_MODE;
-      const redirect_uri = `${window.location.origin}${url}`;
-      location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wechatStore.appId}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_base&state=${wechatStore.state}#wechat_redirect`;
+      const redirect_uri = encodeURIComponent(
+        `${window.location.origin}${url}`,
+      );
+
+      location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wechatStore.webAppAppId}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_base&state=${wechatStore.webAppState}#wechat_redirect`;
       return;
     }
     setShowWechatCode(true);
