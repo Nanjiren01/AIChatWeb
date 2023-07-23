@@ -149,8 +149,9 @@ export const useAuthStore = create<AuthStore>()(
         if (result && result.code == 0) {
           set(() => ({
             name,
-            username,
+            username: result.data?.userEntity?.username || username,
             email: result.data?.userEntity?.email || "",
+            phone: result.data?.userEntity?.phone || "",
             token: result.data?.token || "",
             inviteCode: result.data?.userEntity?.inviteCode || "",
           }));
@@ -172,6 +173,7 @@ export const useAuthStore = create<AuthStore>()(
             name: user.name || "",
             username: user.username || "",
             email: user.email || "",
+            phone: user.phone || "",
             token: data.token || "",
             inviteCode: user.inviteCode || "",
           }));
@@ -191,6 +193,7 @@ export const useAuthStore = create<AuthStore>()(
             name: user.name || "",
             username: user.username || "",
             email: user.email || "",
+            phone: user.phone || "",
             token: data.token || "",
             inviteCode: user.inviteCode || "",
           }));
