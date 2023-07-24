@@ -250,7 +250,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 网址：[https://chat.mice.pub](https://chat.mice.pub)
 用户：~1000
 
-### 专业版规划路线
+## 专业版规划路线
 
 1. 对接支付系统
 2. 邀请机制（邀请赠送额度）
@@ -511,7 +511,7 @@ Users: ~1000
 Website: [https://chat.mice.pub](https://chat.mice.pub)
 Users: ~1000
 
-### Professional Version Roadmap
+## Professional Version Roadmap
 
 1. Integration with Pay payment system
 2. Invitation mechanism (invitations with bonus credits)
