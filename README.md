@@ -7,7 +7,7 @@
 
 **简体中文** | [English](#English)
 ![](https://img.shields.io/badge/-Browser-purple?logo=firefox)
-![](https://img.shields.io/badge/-MacOS & iOS-black?logo=apple)
+![](https://img.shields.io/badge/-MacOS%20&%20iOS-black?logo=apple)
 ![](https://img.shields.io/badge/-Windows-blue?logo=windows)
 ![](https://img.shields.io/badge/-Android-green?logo=android)
 
