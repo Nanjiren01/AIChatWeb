@@ -2,7 +2,6 @@
 
 <div align="center" style="margin-bottom: 10px;">
 <img src="./docs/images/icon.svg" alt="logo"/>
-
 <h1 align="center">AIChat Web</h1>
 
 **简体中文** | [English](#english)
