@@ -1,7 +1,8 @@
 > 特别提醒：此项目应仅限于学习和交流使用，如若用于商业用途，请确保符合当地法律法规
 
-<div align="center" style="margin-bottom: 10px;">
+<div align="center" style="margin-bottom: 5px;">
 <img src="./docs/images/icon.svg" alt="logo"/>
+  
 <h1 align="center">AIChat Web</h1>
 
 **简体中文** | [English](#english)
