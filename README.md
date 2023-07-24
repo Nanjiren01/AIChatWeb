@@ -6,6 +6,7 @@
 <h1 align="center">AIChat Web</h1>
 
 **简体中文** | [English](#English)
+
 ![](https://img.shields.io/badge/-Browser-purple?logo=firefox)
 ![](https://img.shields.io/badge/-MacOS%20&%20iOS-black?logo=apple)
 ![](https://img.shields.io/badge/-Windows-blue?logo=windows)
