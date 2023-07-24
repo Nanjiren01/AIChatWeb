@@ -1,37 +1,61 @@
+> 特别提醒：此项目应仅限于学习和交流使用，如若用于商业用途，请确保符合当地法律法规
+
 <div align="center" style="margin-bottom: 10px;">
-<img src="./docs/images/icon.svg" alt="预览"/>
+<img src="./docs/images/icon.svg" alt="logo"/>
 
-<h1 align="center">AI Chat Web</h1>
-<a href="#一键部署">一键部署</a>
-·
-<a href="https://www.nanjiren.online" target="_blank">官网</a>
-·
-<a href="#演示地址">演示地址</a>
-·
-<a href="#项目优势">项目优势</a>
-·
-<a href="#交流">交流</a>
-·
-<a href="#优秀案例">优秀案例</a>
+<h1 align="center">AIChat Web</h1>
+
+**简体中文** | [English](#English)
+![](https://img.shields.io/badge/-Browser-purple?logo=firefox)
+![](https://img.shields.io/badge/-MacOS & iOS-black?logo=apple)
+![](https://img.shields.io/badge/-Windows-blue?logo=windows)
+![](https://img.shields.io/badge/-Android-green?logo=android)
+
+  <table>
+    <tbody>
+      <tr>
+        <td>
+         <a href="#一键部署">📝一键部署</a> 
+        </td>
+        <td>
+         <a href="https://www.nanjiren.online" target="_blank">🌏官网</a>
+        </td>
+        <td>
+         <a href="#演示站">🎭演示站</a>
+        </td>
+        <td> 
+         <a href="#项目优势">😍项目优势</a> 
+        </td>
+        <td>
+         <a href="#交流">👨‍👩‍👧‍👦交流</a>
+        </td>
+        <td> 
+         <a href="#优秀案例">📕优秀案例</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+![img](https://nanjiren.online/images/preview.png)
+
 </div>
-
-Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), this repository added some magic functions, like login, register...
 
 本项目是在[ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git)的基础上增加登录，注册等功能（注意，由于登录注册需要后台支持，因此本项目需要单独部署后端服务才可以运行）
 
-**本项目不再支持在vercel上正常运行**
+> **本项目不再支持在vercel上正常运行**
 
-**This project can NOT run on the vercel.**
+---
 
-## 演示地址
+# 演示站
 
-前台 http://chat.nanjiren.online
+- 用户前台：[https://chat.nanjiren.online](https://chat.nanjiren.online)
+- 管理后台：[https://admin.nanjiren.online](https://admin.nanjiren.online)
 
-后台 http://admin.nanjiren.online
-账号：aichat
-密码：aichatadmin
+**登录信息：**
+- 账号：aichat
+- 密码：aichatadmin
 
-**温馨提示，由于后台开放，请勿在演示站中输入敏感信息**
+> **温馨提示：由于后台开放，请勿在演示站中输入敏感信息。**
 
 ## 项目优势
 
@@ -65,9 +89,7 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 在后台管理中，您还可以设定注册方式（支持用户名+密码方式、图形验证码方式、邮箱注册方式），各页面主副标题，出现敏感词时的提示语，额度不足提示语……
 
-本项目区分社区版，及Pro版
-
-## 社区版功能 AIChat Community Function
+## 社区版功能
 
 | 功能                                                      | 进度 |
 | --------------------------------------------------------- | -------- |
@@ -85,11 +107,7 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 | 修改密码（Change password）                               |   进行中       |
 | 绘图功能（Drawing function）                              |   进行中       |
 
-
-
-
-
-## 专业版功能 AIChat Pro Function
+## 专业版功能
 
 | 功能                                                         | 进度     |
 | ------------------------------------------------------------ | -------- |
@@ -105,46 +123,36 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 | 对接发卡平台（Docking with card issuing platforms）          | 进行中   |
 | 多模型支持（Multiple model support）                         | 长期进行 |
 
+## 预览
 
-
-## 预览Preview
-
-### 聊天 Chat
+> 用户前台
+### 1、聊天
 
 ![聊天页](./docs/images/chat.png)
 
-### 登录 Login
+### 2、登录
 ![登录页](./docs/images/Login.png)
 
 
-### 注册 Register
+### 3、注册
 ![注册页](./docs/images/Register.png)
 
-### 个人中心 Profile
+### 4、个人中心
 
 ![个人中心](./docs/images/Profile.png)
 
+> 管理后台
 
-
-本项目需要依赖特定的后端，以及相应的后台管理前端项目。
-
-This project depends on the given projects below.
-
-### AI Chat Console(front-end project)
-
-https://github.com/Nanjiren01/AIChatConsole
-
-#### 会员列表 Member List
+### 1、会员列表
 
 ![成员列表](./docs/images/members.png)
 
-#### 次数变动记录/手动添加次数 Quota Record
+### 2、次数变动记录/手动添加次数
 
 ![次数变动记录](./docs/images/quota.png)
 
-### AI Chat Admin(back-end project)
-
-https://github.com/Nanjiren01/AIChatAdmin
+## 依赖
+本项目需要依赖特定的[**后端**](https://github.com/Nanjiren01/AIChatAdmin)，以及相应的[**管理后台前端项目**](https://github.com/Nanjiren01/AIChatConsole)。
 
 ## 一键部署
 
@@ -187,26 +195,22 @@ Super Admin Password is valid.
 
 由于在命令行中设定的密码较为简单（只包含字母和数字），建议应用启动后，尽快进入后台修改超管密码。
 
-## License 
+## 许可证 
 本仓库是基于仓库 [Yidadaa's ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web) 的996许可证，以[MIT license](./LICENSE)的形式重新分发。
-
-
 
 ## 交流
 
-加入QQ交流群、微信群获取更多内容
+> 加入QQ交流群、电报群、微信群获取更多内容
 
 QQ群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=Z-vLdIURiLJW7IInTMfRPnjFF2w5biv9&jump_from=webapi&authKey=xwz1vwqsxZvdsYVqbs8jhUz85CnwKAnNq2MLmfAewdOvtgQrX99I1i3DpNx4AnM5" target="_blank">437863036</a>
 
-telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
+Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 
 <img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
 
-<img src="https://chat.nanjiren.online/api/file/5f234015-cf2e-46f7-ad7b-a4de29853750" width="400px" alt="wechat" style="display: inline-block" />
-
 ## AI好望角
 
-加入AI好望角福利
+加入 **AI好望角-AIChat用户专属社区** 福利：
 - 免费获取AIChat pro版
 - 有可能获得免费定制服务
 - 优秀案例展示（需达到标准）
@@ -222,7 +226,6 @@ telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 当前加入AI好望角价格为188元，随着功能的不断完善，价格逐步提升
 
 <img src="https://chat.nanjiren.online/api/file/7c3b8658-4ff6-4d3c-89bd-6b309023e26d" width="200px" alt="AI好望角"/>
-
 
 ## 优秀案例
 
@@ -246,14 +249,272 @@ telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 网址：[https://chat.mice.pub](https://chat.mice.pub)
 用户：~1000
 
-### pro版本规划路线
+### 专业版规划路线
 
-1. 对接支付系统 Pay
+1. 对接支付系统
 2. 邀请机制（邀请赠送额度）
 3. 仪表盘（新增用户数曲线图、聊天数量曲线图）
 4. 对接发卡平台
-5. 服务端消息保存（Chat Saved by Server）
+5. 服务端消息保存
 6. 多模型支持（Claude、Bard……）
 
-特别提醒：此项目应仅限于学习和交流使用，如若用于商业用途，请确保符合当地法律法规
+# English
 
+> **Special Reminder:** This project should be used for learning and communication purposes only. If you intend to use it for commercial purposes, please ensure compliance with local laws and regulations.
+
+<div align="center" style="margin-bottom: 10px;">
+<img src="./docs/images/icon.svg" alt="logo"/>
+
+<h1 align="center">AIChat Web</h1>
+
+![](https://img.shields.io/badge/-Browser-purple?logo=firefox)
+![](https://img.shields.io/badge/-MacOS & iOS-black?logo=apple)
+![](https://img.shields.io/badge/-Windows-blue?logo=windows)
+![](https://img.shields.io/badge/-Android-green?logo=android)
+
+  <table>
+    <tbody>
+      <tr>
+        <td>
+         <a href="#One-Click Deployment">📝One-Click Deployment</a>
+        </td>
+        <td>
+         <a href="https://www.nanjiren.online" target="_blank">🌏Official Website</a>
+        </td>
+        <td>
+         <a href="#Demo">🎭Demo</a>
+        </td>
+        <td> 
+         <a href="#Advantages">😍Advantages</a>
+        </td>
+        <td>
+         <a href="#Communication">👨‍👩‍👧‍👦Communication</a>
+        </td>
+        <td> 
+         <a href="#Excellent Cases">📕Excellent Cases</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+![img](https://nanjiren.online/images/preview.png)
+
+</div>
+
+This project is an extension of [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git) that includes features like login and registration. Please note that since login and registration require backend support, this project needs a separate deployment of backend services to run.
+
+> **This project can NOT run on the vercel**
+
+---
+
+# Demo
+
+- User Frontend: [https://chat.nanjiren.online](https://chat.nanjiren.online)
+- Admin Backend: [https://admin.nanjiren.online](https://admin.nanjiren.online)
+
+**Login Credentials:**
+- Username: aichat
+- Password: aichatadmin
+
+> **Note: As the backend is open for demonstration purposes, please refrain from entering sensitive information in the demo site.**
+
+## Advantages
+
+### 1. Zero coding experience required
+
+Quick: The project provides a one-click deployment script, allowing you to set up the project in less than 3 minutes after purchasing the server.
+
+Simple: Once deployed, you can access the provided admin panel to define the content of your website without any code modification. Changes take effect immediately without the need for building or deploying.
+
+### 2. Highly customizable
+
+The project offers a user-friendly and stable admin panel (based on [vue-element-admin](https://panjiachen.github.io/vue-element-admin)) that allows you to customize most aspects of your website.
+
+#### 2.1. Customizable website title, welcome message, and announcements
+
+You can customize the website title and subtitle.
+You can define a welcome message with support for rich text formatting. You can also add images (e.g., QR codes) to attract visitors.
+You can edit announcements with rich text formatting as well. You can choose whether to display them on the splash screen.
+
+![Customizable website title, welcome message, and announcements](./docs/images/intro1.png)
+
+#### 2.2. Customizable package options
+
+Whether it's a one-time pass, weekly pass, or monthly pass, you can define all the package options in the admin panel.
+
+![Packages](./docs/images/package.png)
+
+![Package configuration in the admin panel](./docs/images/package2.png)
+
+#### 2.3. More customization options
+
+In the admin panel, you can also set the registration method (supporting username + password, graphical captcha, and email registration), main and sub-titles for each page, prompt messages for sensitive words, insufficient balance, and more.
+
+## Community Edition Features
+
+| Feature                                                    | Progress |
+| --------------------------------------------------------- | -------- |
+| User Management                                           | ✔ Completed(v0.0.1) |
+| Quota Management                                          | ✔ Completed(v0.1) |
+| Registration Limit Gift                                   | ✔ Completed(v0.1) |
+| Email Verification Code Registration                     | ✔ Completed(v0.1) |
+| User-Based Call Frequency Limit                       | ✔ Completed(v0.1) |
+| Graphic Verification Code Registration                   | ✔ Completed(v0.2) |
+| Website Title Customization                              | ✔ Completed(v0.2) |
+| Package Management                                       | ✔ Completed(v0.2) |
+| Custom Sensitive Word Interception                       | ✔ Completed(v0.2) |
+| Reset Password                                           | ✔ Completed(v0.4) |
+| Auto Query Balance/Quota                                 | ✔ Completed(v0.4) |
+| Change Password                                          | In Progress |
+| Drawing Function                                         | In Progress |
+
+## Professional Edition Features
+
+| Feature                                                    | Progress |
+| --------------------------------------------------------- | -------- |
+| Full functionality of the Community Edition                | ✔ Completed |
+| Advanced Dashboard                                       | ✔ Completed(v0.3) |
+| Connect to the Payment System Pay                          | ✔ Integrated with Huipijiao, Lantu(v0.3), others in progress |
+| Email Template                                           | ✔ Completed(v0.5) |
+| Inviting Code                                            | ✔ Completed(v0.5) |
+| Wechat Login                                             | ✔ Completed(v0.5) |
+| View Chat Log                                            | ✔ Completed(v0.5) |
+| Model Name Map                                           | ✔ Completed(v0.5) |
+| Redeem Code                                              | ✔ Completed(v0.7 Preview) |
+| Docking with Card Issuing Platforms                      | In Progress |
+| Multiple Model Support                                   | Ongoing |
+
+## Preview
+
+> User Frontend
+### 1. Chat
+
+![Chat Page](./docs/images/chat.png)
+
+### 2. Login
+![Login Page](./docs/images/Login.png)
+
+
+### 3. Register
+![Register Page](./docs/images/Register.png)
+
+### 4. Profile
+
+![Profile Page](./docs/images/Profile.png)
+
+> Admin Backend
+
+### 1. Member List
+
+![Member List](./docs/images/members.png)
+
+### 2. Quota Change History / Manual Quota Addition
+
+![Quota Change History](./docs/images/quota.png)
+
+## Dependencies
+This project requires specific [**backend**](https://github.com/Nanjiren01/AIChatAdmin) and corresponding [**administration frontend project**](https://github.com/Nanjiren01/AIChatConsole).
+
+## One-Click Deployment
+
+> If you are using Baota, please refer to the exclusive beta channel in Haowangjiao for the tutorial.
+
+1. Purchase a suitable server from a cloud provider, and choose CentOS 7.9 as the operating system (other versions are not tested).
+2. Open port 80 and port 8080 in the security group of the server.
+3. Connect to the cloud server and run the following command in the command line:
+
+```shell
+bash <(curl -s https://raw.githubusercontent.com/Nanjiren01/AIChatWeb/main/scripts/setup.sh)
+```
+
+During the execution of the command, you will be prompted to set the username and password for the super admin (please change "aichat888" to your own username and password and remember them), as shown below:
+
+```text
+Please input the super admin username. 
+Only letters and numbers are supported, the length should be between 6 and 20, and they cannot start with a number.
+Username: aichat888
+Super Admin Username is valid.
+Please input the super admin password. 
+Only letters and numbers are supported, and the length should be between 6 and 20. 
+You can change it on the web page after the application is running.
+Password: aichat888
+Super Admin Password is valid.
+```
+
+When you see the following prompt, it means the deployment is successful:
+
+```shell
+[+] Running 5/5
+ ✔ Network root_default      Created
+ ✔ Container aichat-db       Started
+ ✔ Container aichat-admin    Started
+ ✔ Container aichat-console  Started
+ ✔ Container aichat-web      Started         
+```
+
+Wait a few seconds for the application to initialize. You can then open http://IP to access the frontend and http://IP:8080 to access the backend service.
+
+Since the password set in the command line is relatively simple (only contains letters and numbers), it is recommended to enter the backend as soon as possible after the application starts and change the password for the super admin.
+
+## License
+This repository is distributed under the MIT license, based on the repository [Yidadaa's ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web) with the 996 License.
+
+## Communication
+
+> Join QQ group, Telegram group, WeChat group to get more content
+
+QQ group: [437863036](https://qm.qq.com/cgi-bin/qm/qr?k=Z-vLdIURiLJW7IInTMfRPnjFF2w5biv9&jump_from=webapi&authKey=xwz1vwqsxZvdsYVqbs8jhUz85CnwKAnNq2MLmfAewdOvtgQrX99I1i3DpNx4AnM5)
+
+Telegram: [aichatadmin](https://t.me/aichatadmin)
+
+<img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
+
+## AI Horizon
+
+Join **AI Horizon - Exclusive Community for AIChat Users** and enjoy the following benefits:
+- Free access to AIChat Pro version
+- Possibility of receiving free custom services
+- Showcase of outstanding use cases (subject to meeting standards)
+- Advanced tutorials (including HTTPS setup, domain registration, server purchase, advanced package page creation)
+- ChatGPT advanced user manual
+- Early access to new features
+
+> The current project is in the trial phase, and some content is still under development.
+
+> AI Horizon is a self-built platform for this project, which is currently under construction. You can only join by showing appreciation (no refunds are available). After showing appreciation, you can immediately enter the AIChatAdmin Pro version testing group to access exclusive information.
+> Once the new platform is completed, the content in the Knowledge Planet will be migrated to the new platform, and new users will not need to join the Knowledge Planet.
+
+The current price to join AI Horizon is 188 yuan, and the price will gradually increase as the features are improved.
+
+<img src="https://chat.nanjiren.online/api/file/7c3b8658-4ff6-4d3c-89bd-6b309023e26d" width="200px" alt="AI Horizon"/>
+
+## Excellent Cases
+
+### YOURS-AI
+Website: [https://junmao.shop/](https://junmao.shop/)
+Users: 300+
+
+### NEU-GPT
+Website: [https://neu.zxyt.top/](https://neu.zxyt.top/)
+Users: 150+
+
+### AI Ultra
+Website: [https://chat.wzunjh.top/](https://chat.wzunjh.top/)
+Users: 1100+
+
+### AI Peppa
+Website: [https://candy666.top/](https://candy666.top/)
+Users: ~1000
+
+### AI Little Mouse
+Website: [https://chat.mice.pub](https://chat.mice.pub)
+Users: ~1000
+
+### Professional Version Roadmap
+
+1. Integration with Pay payment system
+2. Invitation mechanism (invitations with bonus credits)
+3. Dashboard (graphs for new user count and chat volume)
+4. Integration with card issuing platform
+5. Server-side message storage
+6. Multi-model support (Claude, Bard, etc.)
