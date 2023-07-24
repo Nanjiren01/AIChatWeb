@@ -277,7 +277,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
     <tbody>
       <tr>
         <td>
-         <a href="#one-click deployment">📝One-Click Deployment</a>
+         <a href="#one-click-deployment">📝One-Click Deployment</a>
         </td>
         <td>
          <a href="https://www.nanjiren.online" target="_blank">🌏Official Website</a>
@@ -292,7 +292,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
          <a href="#communication">👨‍👩‍👧‍👦Communication</a>
         </td>
         <td> 
-         <a href="#excellent cases">📕Excellent Cases</a>
+         <a href="#excellent-cases">📕Excellent Cases</a>
         </td>
       </tr>
     </tbody>
