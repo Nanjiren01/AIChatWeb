@@ -226,7 +226,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 
 当前加入AI好望角价格为188元，随着功能的不断完善，价格逐步提升
 
-<img src="https://chat.nanjiren.online/api/file/7c3b8658-4ff6-4d3c-89bd-6b309023e26d" width="200px" alt="AI好望角"/>
+<img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI好望角"/>
 
 ## 优秀案例
 
@@ -487,7 +487,7 @@ Join **AI Horizon - Exclusive Community for AIChat Users** and enjoy the followi
 
 The current price to join AI Horizon is 188 yuan, and the price will gradually increase as the features are improved.
 
-<img src="https://chat.nanjiren.online/api/file/7c3b8658-4ff6-4d3c-89bd-6b309023e26d" width="200px" alt="AI Horizon"/>
+<img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI Horizon"/>
 
 ## Excellent Cases
 
