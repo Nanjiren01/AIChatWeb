@@ -5,7 +5,7 @@
 
 <h1 align="center">AIChat Web</h1>
 
-**简体中文** | [English](#English)
+**简体中文** | [English](#english)
 
 ![](https://img.shields.io/badge/-Browser-purple?logo=firefox)
 ![](https://img.shields.io/badge/-MacOS%20&%20iOS-black?logo=apple)
@@ -269,7 +269,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 <h1 align="center">AIChat Web</h1>
 
 ![](https://img.shields.io/badge/-Browser-purple?logo=firefox)
-![](https://img.shields.io/badge/-MacOS & iOS-black?logo=apple)
+![](https://img.shields.io/badge/-MacOS%20&%20iOS-black?logo=apple)
 ![](https://img.shields.io/badge/-Windows-blue?logo=windows)
 ![](https://img.shields.io/badge/-Android-green?logo=android)
 
@@ -277,22 +277,22 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
     <tbody>
       <tr>
         <td>
-         <a href="#One-Click Deployment">📝One-Click Deployment</a>
+         <a href="#one-click deployment">📝One-Click Deployment</a>
         </td>
         <td>
          <a href="https://www.nanjiren.online" target="_blank">🌏Official Website</a>
         </td>
         <td>
-         <a href="#Demo">🎭Demo</a>
+         <a href="#demo">🎭Demo</a>
         </td>
         <td> 
-         <a href="#Advantages">😍Advantages</a>
+         <a href="#advantages">😍Advantages</a>
         </td>
         <td>
-         <a href="#Communication">👨‍👩‍👧‍👦Communication</a>
+         <a href="#communication">👨‍👩‍👧‍👦Communication</a>
         </td>
         <td> 
-         <a href="#Excellent Cases">📕Excellent Cases</a>
+         <a href="#excellent cases">📕Excellent Cases</a>
         </td>
       </tr>
     </tbody>
