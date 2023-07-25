@@ -10,7 +10,7 @@ services:
       - db
       - redis
     environment:
-      DB_URL: jdbc:mysql://aichat-db:3306/aichat?useSSL=false&serverTimezone=UTC%2B8
+      DB_URL: jdbc:mysql://aichat-db:3306/aichat?useSSL=false
       DB_USERNAME: root
       DB_PASSWORD: 123456
       REDIS_HOST: aichat-redis
