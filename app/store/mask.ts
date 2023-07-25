@@ -18,8 +18,8 @@ export type Mask = {
   builtin: boolean;
   state?: number;
   type?: string;
-  modelConfigJson?: string;
-  contextJson?: string;
+  modelConfigJson?: string | undefined;
+  contextJson?: string | undefined;
   createTime?: Date;
   updateTime?: Date;
 };
@@ -63,8 +63,8 @@ export interface RemoteMask {
   state?: number;
   type?: string;
   syncGlobalConfig?: boolean;
-  modelConfigJson?: string;
-  contextJson?: string;
+  modelConfigJson?: string | undefined;
+  contextJson?: string | undefined;
   context?: ChatMessage[];
   modelConfig: ModelConfig;
   builtin?: any;
@@ -152,8 +152,6 @@ export const useMaskStore = create<MaskStore>()(
                 builtin: true,
                 state: mask.state,
                 type: mask.type,
-                modelConfigJson: mask.modelConfigJson,
-                contextJson: mask.contextJson,
                 context: context,
                 modelConfig: modelConfig,
                 createTime: mask.createTime,
