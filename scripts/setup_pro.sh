@@ -76,7 +76,7 @@ done
 
 # Clone the repository and install dependencies
 echo "curl -o docker-compose.yml..."
-curl -o docker-compose.yml https://raw.githubusercontent.com/Nanjiren01/AIChatWeb/main/docker-compose.yml
+curl -o docker-compose.yml https://raw.githubusercontent.com/Nanjiren01/AIChatWeb/pro/docker-compose.yml
 
 # Replace the image repository with the private registry
 if sed -i 's/nanjiren01\/aichat-/harbor.nanjiren.online:8099\/aichat\/aichat-/g' docker-compose.yml; then
