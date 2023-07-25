@@ -18,6 +18,11 @@
         "all": false,
         "open": true
       },
+      "http": {
+        "all": true,
+        "request": true,
+        "scope":["http://**", "https://**"]
+      },
       "dialog": {
         "all": true,
         "ask": true,

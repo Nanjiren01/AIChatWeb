@@ -43,21 +43,29 @@ export function ListItem(props: {
   subTitle?: string;
   children?: JSX.Element | JSX.Element[];
   icon?: JSX.Element;
+  hideTitle?: boolean;
   className?: string;
 }) {
+  const hideTitle = props.hideTitle;
   return (
     <div className={styles["list-item"] + ` ${props.className || ""}`}>
-      <div className={styles["list-header"]}>
-        {props.icon && <div className={styles["list-icon"]}>{props.icon}</div>}
-        <div className={styles["list-item-title"]}>
-          <div>{props.title || ""}</div>
-          {props.subTitle && (
-            <div className={styles["list-item-sub-title"]}>
-              {props.subTitle}
-            </div>
+      {hideTitle === undefined || !hideTitle ? (
+        <div className={styles["list-header"]}>
+          {props.icon && (
+            <div className={styles["list-icon"]}>{props.icon}</div>
           )}
+          <div className={styles["list-item-title"]}>
+            <div>{props.title || ""}</div>
+            {props.subTitle && (
+              <div className={styles["list-item-sub-title"]}>
+                {props.subTitle}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <></>
+      )}
       {props.children}
     </div>
   );

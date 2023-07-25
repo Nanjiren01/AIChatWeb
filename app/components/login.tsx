@@ -1,10 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+
+import NextImage from "next/image";
 
 import styles from "./login.module.scss";
 
 import CloseIcon from "../icons/close.svg";
 import WechatIcon from "../icons/wechat.svg";
 import ReturnIcon from "../icons/return.svg";
+import MaxIcon from "../icons/max.svg";
+import MinIcon from "../icons/min.svg";
+import ChatBotIcon from "../icons/ai-chat-bot.png";
 
 import { SingleInput, List, ListItem, PasswordInput } from "./ui-lib";
 
@@ -14,6 +19,7 @@ import {
   useAccessStore,
   useWebsiteConfigStore,
   useWechatConfigStore,
+  useAppConfig,
 } from "../store";
 
 import Locale from "../locales";
@@ -23,22 +29,25 @@ import { useNavigate } from "react-router-dom";
 import { showToast } from "../components/ui-lib";
 import { Response } from "../api/common";
 import "../../scripts/wxLogin.js";
+import { useMobileScreen } from "../utils";
+import { getClientConfig } from "../config/client";
+import { isInWechat } from "../utils/wechat";
 
-export interface WechatConfigData {
-  appId: string;
-  state: string;
-}
-export type WechatConfigResponse = Response<WechatConfigData>;
-
-export function Login() {
+export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
   const wechatStore = useWechatConfigStore();
-  const { loginPageSubTitle, registerTypes } = useWebsiteConfigStore();
+  const {
+    loginPageSubTitle,
+    registerTypes,
+    mainTitle,
+    hideChatLogWhenNotLogin,
+  } = useWebsiteConfigStore();
   const registerType = registerTypes[0];
   const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
     "UsernameAndEmailWithCaptchaAndCode";
+  const REG_TYPE_CLOSE = "Close";
 
   const [loadingUsage, setLoadingUsage] = useState(false);
   const [showWechatCode, setShowWechatCode] = useState(false);
@@ -64,8 +73,14 @@ export function Login() {
   }, []);
 
   useEffect(() => {
-    setShowWechatLogin(!!wechatStore.appId);
-  }, [wechatStore.appId, setShowWechatLogin]);
+    setShowWechatLogin(
+      !!wechatStore.webstiteAppAppId || !!wechatStore.webAppAppId,
+    );
+  }, [
+    wechatStore.webstiteAppAppId,
+    wechatStore.webAppAppId,
+    setShowWechatLogin,
+  ]);
 
   useEffect(() => {
     if (showWechatCode) {
@@ -77,10 +92,10 @@ export function Login() {
       const obj = new WxLogin({
         self_redirect: false,
         id: "wx_login_container",
-        appid: wechatStore.appId,
+        appid: wechatStore.webstiteAppAppId,
         scope: "snsapi_login",
         redirect_uri: encodeURIComponent(redirect_uri),
-        state: wechatStore.state,
+        state: wechatStore.webstiteAppState,
       });
     }
   }, [showWechatCode, wechatStore]);
@@ -116,6 +131,30 @@ export function Login() {
     setTimeout(() => authStore.logout(), 500);
   }
 
+  function clickWechatLoginButton() {
+    if (
+      (isInWechat() && !!wechatStore.webAppAppId) ||
+      !wechatStore.webstiteAppAppId
+    ) {
+      // 微信公众号应用，不支持扫码登录，只能通过
+      const url = "/wechatCallback?appType=webApp";
+      const BASE_URL = process.env.BASE_URL;
+      const mode = process.env.BUILD_MODE;
+      const redirect_uri = encodeURIComponent(
+        `${window.location.origin}${url}`,
+      );
+
+      location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wechatStore.webAppAppId}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_base&state=${wechatStore.webAppState}#wechat_redirect`;
+      return;
+    }
+    setShowWechatCode(true);
+  }
+
+  const config = useAppConfig();
+  const isMobileScreen = useMobileScreen();
+  const clientConfig = useMemo(() => getClientConfig(), []);
+  const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
+
   return (
     <ErrorBoundary>
       <div className="window-header" data-tauri-drag-region>
@@ -126,17 +165,55 @@ export function Login() {
           <div className="window-header-sub-title">{loginPageSubTitle}</div>
         </div>
         <div className="window-actions">
-          <div className="window-action-button">
+          {showMaxIcon && (
+            <div className="window-action-button">
+              <IconButton
+                icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
+                bordered
+                onClick={() => {
+                  config.update(
+                    (config) => (config.tightBorder = !config.tightBorder),
+                  );
+                }}
+              />
+            </div>
+          )}
+          {/* <div className="window-action-button">
             <IconButton
               icon={<CloseIcon />}
               onClick={() => navigate(Path.Home)}
               bordered
               title={Locale.LoginPage.Actions.Close}
             />
-          </div>
+          </div> */}
         </div>
       </div>
       <div className={styles["login"]}>
+        {hideChatLogWhenNotLogin && (
+          <div style={{ textAlign: "center" }}>
+            <div className={styles["sidebar-logo"] + " no-dark"}>
+              {props.logoLoading ? (
+                <></>
+              ) : !props.logoUrl ? (
+                <NextImage
+                  src={ChatBotIcon.src}
+                  width={64}
+                  height={64}
+                  alt="bot"
+                />
+              ) : (
+                <img src={props.logoUrl} width={64} height={64} />
+              )}
+            </div>
+            <div
+              style={{ lineHeight: "100px" }}
+              dangerouslySetInnerHTML={{
+                __html: mainTitle || "AI Chat",
+              }}
+              data-tauri-drag-region
+            ></div>
+          </div>
+        )}
         <List>
           {!showWechatCode ? (
             <ListItem
@@ -215,8 +292,9 @@ export function Login() {
                 <IconButton
                   icon={<WechatIcon />}
                   type="second"
+                  text="微信登录"
                   onClick={() => {
-                    setShowWechatCode(true);
+                    clickWechatLoginButton();
                   }}
                 />
               </div>
@@ -246,6 +324,7 @@ export function Login() {
                 <IconButton
                   icon={<ReturnIcon />}
                   type="second"
+                  text="返回"
                   onClick={() => {
                     setShowWechatCode(false);
                   }}
@@ -272,15 +351,17 @@ export function Login() {
                   />
                 </ListItem>
               )}
-              <ListItem>
-                <IconButton
-                  text={Locale.LoginPage.GoToRegister}
-                  type="second"
-                  onClick={() => {
-                    navigate(Path.Register);
-                  }}
-                />
-              </ListItem>
+              {registerType !== REG_TYPE_CLOSE && (
+                <ListItem>
+                  <IconButton
+                    text={Locale.LoginPage.GoToRegister}
+                    type="second"
+                    onClick={() => {
+                      navigate(Path.Register);
+                    }}
+                  />
+                </ListItem>
+              )}
             </>
           )}
         </List>

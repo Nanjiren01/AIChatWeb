@@ -97,6 +97,13 @@ const Pay = dynamic(async () => (await import("./pay")).Pay, {
   loading: () => <Loading noLogo logoLoading />,
 });
 
+const RedeemCode = dynamic(
+  async () => (await import("./redeem-code")).RedeemCode,
+  {
+    loading: () => <Loading noLogo logoLoading />,
+  },
+);
+
 const Balance = dynamic(async () => (await import("./balance")).Balance, {
   loading: () => <Loading noLogo logoLoading />,
 });
@@ -228,17 +235,12 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
     loadAsyncGoogleFont();
   }, []);
 
-  const { fetchWebsiteConfig } = useWebsiteConfigStore();
-  useEffect(() => {
-    fetchWebsiteConfig();
-  }, [fetchWebsiteConfig]);
-
   const { fetchWechatConfig } = useWechatConfigStore();
   useEffect(() => {
     fetchWechatConfig();
   }, [fetchWechatConfig]);
 
-  const { botHello } = useWebsiteConfigStore();
+  const { botHello, icp, hideChatLogWhenNotLogin } = useWebsiteConfigStore();
   useEffect(() => {
     if (botHello) {
       // todo i18n
@@ -270,7 +272,9 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
         }
       })
       .catch(() => {
-        console.error("[GlobalConfig] failed to fetch config");
+        console.error(
+          "[GlobalConfig] failed to fetch notice config in home.tsx",
+        );
       })
       .finally(() => {
         // fetchState = 2;
@@ -283,55 +287,101 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
     setFavicon(logoUrl, "");
   }, [logoUrl]);
 
+  const separator =
+    hideChatLogWhenNotLogin &&
+    (
+      [
+        Path.Login,
+        Path.Register,
+        Path.WechatCallback,
+        Path.ForgetPassword,
+      ] as string[]
+    ).includes(location.pathname);
+
   return (
-    <div
-      className={
-        styles.container +
-        ` ${
-          config.tightBorder && !isMobileScreen
-            ? styles["tight-container"]
-            : styles.container
-        } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
-      }
-    >
-      {isAuth ? (
-        <>
-          <AuthPage />
-        </>
-      ) : (
-        <>
-          <SideBar
-            className={isHome ? styles["sidebar-show"] : ""}
-            noticeShow={noticeShow}
-            noticeTitle={noticeTitle}
-            noticeContent={noticeContent}
-            setNoticeShow={setNoticeShow}
-            logoLoading={logoLoading}
-            logoUrl={logoUrl}
-          />
+    <>
+      <div className={(separator ? "separator-page " : "") + "body"}>
+        <div
+          className={
+            styles.container +
+            ` ${
+              config.tightBorder && !isMobileScreen
+                ? styles["tight-container"]
+                : styles.container
+            } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
+          }
+        >
+          {isAuth ? (
+            <>
+              <AuthPage />
+            </>
+          ) : (
+            <>
+              {!separator && (
+                <SideBar
+                  className={isHome ? styles["sidebar-show"] : ""}
+                  noticeShow={noticeShow}
+                  noticeTitle={noticeTitle}
+                  noticeContent={noticeContent}
+                  setNoticeShow={setNoticeShow}
+                  logoLoading={logoLoading}
+                  logoUrl={logoUrl}
+                />
+              )}
 
-          <div className={styles["window-content"]} id={SlotID.AppBody}>
-            <Routes>
-              <Route path={Path.Home} element={<Chat />} />
-              <Route path={Path.NewChat} element={<NewChat />} />
-              <Route path={Path.Masks} element={<MaskPage />} />
-              <Route path={Path.Chat} element={<Chat />} />
-              <Route path={Path.Settings} element={<Settings />} />
-              <Route path={Path.Login} element={<Login />} />
-              <Route path={Path.WechatCallback} element={<WechatCallback />} />
+              <div className={styles["window-content"]} id={SlotID.AppBody}>
+                <Routes>
+                  <Route path={Path.Home} element={<Chat />} />
+                  <Route path={Path.NewChat} element={<NewChat />} />
+                  <Route path={Path.Masks} element={<MaskPage />} />
+                  <Route path={Path.Chat} element={<Chat />} />
+                  <Route path={Path.Settings} element={<Settings />} />
+                  <Route
+                    path={Path.Login}
+                    element={
+                      <Login logoLoading={logoLoading} logoUrl={logoUrl} />
+                    }
+                  />
+                  <Route
+                    path={Path.WechatCallback}
+                    element={<WechatCallback />}
+                  />
 
-              <Route path={Path.Register} element={<Register />} />
-              <Route path={Path.ForgetPassword} element={<ForgetPassword />} />
-              <Route path={Path.Profile} element={<Profile />} />
-              <Route path={Path.Pricing} element={<Pricing />} />
-              <Route path={Path.Pay} element={<Pay />} />
-              <Route path={Path.Balance} element={<Balance />} />
-              <Route path={Path.Order} element={<Order />} />
-            </Routes>
-          </div>
-        </>
+                  <Route
+                    path={Path.Register}
+                    element={
+                      <Register logoLoading={logoLoading} logoUrl={logoUrl} />
+                    }
+                  />
+                  <Route
+                    path={Path.ForgetPassword}
+                    element={
+                      <ForgetPassword
+                        logoLoading={logoLoading}
+                        logoUrl={logoUrl}
+                      />
+                    }
+                  />
+                  <Route path={Path.Profile} element={<Profile />} />
+                  <Route path={Path.Pricing} element={<Pricing />} />
+                  <Route path={Path.RedeemCode} element={<RedeemCode />} />
+                  <Route path={Path.Pay} element={<Pay />} />
+                  <Route path={Path.Balance} element={<Balance />} />
+                  <Route path={Path.Order} element={<Order />} />
+                </Routes>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      {!config.tightBorder && !isMobileScreen && (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: icp,
+          }}
+        />
       )}
-    </div>
+    </>
   );
 }
 
@@ -340,49 +390,19 @@ export function Home() {
 
   const authStore = useAuthStore();
   const [logoLoading, setLogoLoading] = useState(false);
-  const { fetchWebsiteConfig, logoUrl } = useWebsiteConfigStore();
+  const { fetchWebsiteConfig, logoUrl, availableModelNames } =
+    useWebsiteConfigStore();
   useEffect(() => {
     fetchWebsiteConfig();
   }, [fetchWebsiteConfig]);
 
-  // const [logoInfo, setLogoInfo] = useState({
-  //   uuid: false,
-  //   url: "",
-  //   mimeType: "",
-  // } as any as LogoInfo);
-  // useEffect(() => {
-  //   setLogoLoading(true);
-  //   // console.log('fetching logo info')
-  //   fetch("/api/file/logoInfo", {
-  //     method: "get",
-  //     headers: {
-  //       Authorization: "Bearer " + authStore.token,
-  //     },
-  //   })
-  //     .then(async (resp) => {
-  //       const json = (await resp.json()) as LogoInfoResponse;
-  //       // console.log('fetched logo info')
-  //       // console.log("json", json);
-  //       const info = json.data;
-  //       if (info.uuid !== null) {
-  //         info.url = "/api/file/" + info.uuid;
-  //         setLogoInfo({
-  //           uuid: info.uuid,
-  //           url: info.url,
-  //           mimeType: info.mimeType
-  //         });
-  //         setFavicon(info.url, info.mimeType);
-  //         console.log('logo set new', info)
-  //       }
-  //     })
-  //     .finally(() => {
-  //       setLogoLoading(false);
-  //     });
-  // }, [authStore.token]);
-
   useEffect(() => {
     console.log("[Config] got config from build time", getClientConfig());
   }, []);
+  useEffect(() => {
+    console.log("set default model", availableModelNames[0]);
+    useAppConfig.getState().modelConfig.model = availableModelNames[0];
+  }, [availableModelNames]);
 
   if (!useHasHydrated()) {
     return <Loading noLogo logoLoading={logoLoading} logoUrl={logoUrl} />;

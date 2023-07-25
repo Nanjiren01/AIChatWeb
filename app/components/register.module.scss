@@ -1,6 +1,10 @@
 .register {
   padding: 20px;
   overflow: auto;
+  min-width: min(600px, 100%);
+  max-width: 600px;
+  margin: 10px auto;
+  box-sizing: border-box;
 }
 
 .avatar {

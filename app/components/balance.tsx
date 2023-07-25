@@ -104,7 +104,11 @@ export function Balance() {
 
   const reloadBalanceList = useCallback((token: string) => {
     setLoading(true);
-    fetch("/api/my/balance", {
+    const url = "/my/balance";
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    fetch(requestUrl, {
       method: "get",
       headers: {
         Authorization: "Bearer " + token,
@@ -206,9 +210,10 @@ export function Balance() {
                 >
                   <div style={{ minWidth: "100px", maxWidth: "200px" }}>
                     <div style={{ margin: "10px 0" }}>
-                      <div
-                        style={{ fontSize: "14px" }}
-                      >{`购买时间：${pkg.createTime}`}</div>
+                      <div style={{ fontSize: "14px" }}>
+                        {(pkg.sourceId === 6 ? "兑换" : "购买") +
+                          `时间：${pkg.createTime}`}
+                      </div>
                     </div>
                   </div>
                 </DangerousListItem>
@@ -247,6 +252,16 @@ export function Balance() {
               type="second"
               onClick={() => {
                 navigate(Path.Order);
+              }}
+            />
+          </ListItem>
+          <ListItem>
+            <IconButton
+              text={Locale.BalancePage.Actions.RedeemCode}
+              block={true}
+              type="second"
+              onClick={() => {
+                navigate(Path.RedeemCode);
               }}
             />
           </ListItem>

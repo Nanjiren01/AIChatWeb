@@ -57,7 +57,7 @@ export function Profile() {
     setLoading(true);
     fetchProfile(authStore.token)
       .then((res) => {
-        if (!res.data || !res.data.id) {
+        if (!res?.data || !res?.data?.id) {
           authStore.logout();
           navigate(Path.Login);
         }
@@ -162,11 +162,23 @@ export function Profile() {
             {authStore.inviteCode ? (
               <>
                 <span>
-                  <span>{authStore.inviteCode}</span>
                   <span
                     className={styles["copy-action"]}
                     onClick={() => {
                       copyToClipboard(authStore.inviteCode);
+                    }}
+                  >
+                    {authStore.inviteCode}
+                  </span>
+                  <span
+                    className={styles["copy-action"]}
+                    onClick={() => {
+                      copyToClipboard(
+                        location.origin +
+                          Path.Register +
+                          "?code=" +
+                          authStore.inviteCode,
+                      );
                     }}
                   >
                     {Locale.Profile.Actions.Copy}
@@ -297,6 +309,16 @@ export function Profile() {
           ) : (
             <></>
           )}
+
+          <ListItem>
+            <IconButton
+              text={Locale.Profile.Actions.Redeem}
+              type="second"
+              onClick={() => {
+                navigate(Path.RedeemCode);
+              }}
+            />
+          </ListItem>
         </List>
 
         <List>

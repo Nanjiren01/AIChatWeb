@@ -12,7 +12,12 @@ import DeleteIcon from "../icons/delete.svg";
 import EyeIcon from "../icons/eye.svg";
 import CopyIcon from "../icons/copy.svg";
 
-import { DEFAULT_MASK_AVATAR, Mask, useMaskStore } from "../store/mask";
+import {
+  DEFAULT_MASK_AVATAR,
+  Mask,
+  RemoteMask,
+  useMaskStore,
+} from "../store/mask";
 import { ChatMessage, ModelConfig, useAppConfig, useChatStore } from "../store";
 import { ROLES } from "../client/api";
 import {
@@ -36,22 +41,26 @@ import { ModelConfigList } from "./model-config";
 import { FileName, Path } from "../constant";
 import { BUILTIN_MASK_STORE } from "../masks";
 
-export function MaskAvatar(props: { mask: Mask; logoUrl?: string }) {
+export function MaskAvatar(props: {
+  mask: Mask | RemoteMask;
+  logoUrl?: string;
+}) {
   return props.mask.avatar !== DEFAULT_MASK_AVATAR ? (
     <Avatar avatar={props.mask.avatar} logoUrl={props.logoUrl} />
   ) : (
-    <Avatar model={props.mask.modelConfig.model} logoUrl={props.logoUrl} />
+    <Avatar model={props.mask.modelConfig?.model} logoUrl={props.logoUrl} />
   );
 }
 
 export function MaskConfig(props: {
-  mask: Mask;
+  mask: Mask | RemoteMask;
   updateMask: Updater<Mask>;
   extraListItems?: JSX.Element;
   readonly?: boolean;
   shouldSyncFromGlobal?: boolean;
 }) {
   const [showPicker, setShowPicker] = useState(false);
+  console.log("mask", props.mask);
 
   const updateConfig = (updater: (config: ModelConfig) => void) => {
     if (props.readonly) return;
@@ -70,9 +79,9 @@ export function MaskConfig(props: {
   return (
     <>
       <ContextPrompts
-        context={props.mask.context}
+        context={props.mask.context || []}
         updateContext={(updater) => {
-          const context = props.mask.context.slice();
+          const context = (props.mask.context || []).slice();
           updater(context);
           props.updateMask((mask) => (mask.context = context));
         }}
@@ -276,32 +285,54 @@ export function MaskPage() {
 
   const [filterLang, setFilterLang] = useState<Lang>();
 
-  const allMasks = maskStore
-    .getAll()
-    .filter((m) => !filterLang || m.lang === filterLang);
+  const [allMasks, setAllMasks] = useState<RemoteMask[]>([]);
+  // const allMasks = maskStore
+  //   .getAll()
+  //   .filter((m) => !filterLang || m.lang === filterLang);
+  useEffect(() => {
+    maskStore.fetch().then((remoteMasks) => {
+      if (remoteMasks.length === 0) {
+        setAllMasks(maskStore.getAll());
+      } else {
+        setAllMasks(remoteMasks);
+      }
+    });
+  }, [maskStore]);
 
-  const [searchMasks, setSearchMasks] = useState<Mask[]>([]);
+  const [searchMasks, setSearchMasks] = useState<RemoteMask[]>([]);
   const [searchText, setSearchText] = useState("");
-  const masks = searchText.length > 0 ? searchMasks : allMasks;
-
-  // simple search, will refactor later
-  const onSearch = (text: string) => {
-    setSearchText(text);
-    if (text.length > 0) {
-      const result = allMasks.filter((m) => m.name.includes(text));
+  useEffect(() => {
+    let masks = (maskStore.getUserMasks() as RemoteMask[]).concat(allMasks);
+    if (filterLang) {
+      masks = masks.filter((m) => m.lang === filterLang);
+    }
+    if (searchText.length > 0) {
+      const result = masks.filter((m) => m.name.includes(searchText));
       setSearchMasks(result);
     } else {
-      setSearchMasks(allMasks);
+      setSearchMasks(masks);
     }
-  };
+  }, [allMasks, searchText, filterLang, maskStore]);
+
+  // const masks = searchText.length > 0 || (filterLang && filterLang !== Locale.Settings.Lang.All) ? searchMasks : allMasks;
+
+  // simple search, will refactor later
+  // const onSearch = () => {
+  //   console.log('OnSearch')
+  //   const text: string = searchText
+
+  // };
 
   const [editingMaskId, setEditingMaskId] = useState<number | undefined>();
   const editingMask =
-    maskStore.get(editingMaskId) ?? BUILTIN_MASK_STORE.get(editingMaskId);
+    maskStore.get(editingMaskId) ??
+    BUILTIN_MASK_STORE.get(editingMaskId) ??
+    allMasks.filter((m) => m.id == editingMaskId)[0];
+  console.log("editingMask", editingMask, BUILTIN_MASK_STORE);
   const closeMaskModal = () => setEditingMaskId(undefined);
 
   const downloadAll = () => {
-    downloadAs(JSON.stringify(masks), FileName.Masks);
+    downloadAs(JSON.stringify(searchMasks), FileName.Masks);
   };
 
   const importFromFile = () => {
@@ -369,7 +400,7 @@ export function MaskPage() {
               className={styles["search-bar"]}
               placeholder={Locale.Mask.Page.Search}
               autoFocus
-              onInput={(e) => onSearch(e.currentTarget.value)}
+              onInput={(e) => setSearchText(e.currentTarget.value)}
             />
             <Select
               className={styles["mask-filter-lang"]}
@@ -406,7 +437,20 @@ export function MaskPage() {
           </div>
 
           <div>
-            {masks.map((m) => (
+            {searchMasks.length === 0 && (
+              <div className={styles["mask-item"]}>
+                <div
+                  style={{
+                    textAlign: "center",
+                    width: "100%",
+                    color: "var(--black)",
+                  }}
+                >
+                  暂无面具
+                </div>
+              </div>
+            )}
+            {searchMasks.map((m) => (
               <div className={styles["mask-item"]} key={m.id}>
                 <div className={styles["mask-header"]}>
                   <div className={styles["mask-icon"]}>
@@ -415,9 +459,9 @@ export function MaskPage() {
                   <div className={styles["mask-title"]}>
                     <div className={styles["mask-name"]}>{m.name}</div>
                     <div className={styles["mask-info"] + " one-line"}>
-                      {`${Locale.Mask.Item.Info(m.context.length)} / ${
+                      {`${Locale.Mask.Item.Info(m.context?.length || 0)} / ${
                         ALL_LANG_OPTIONS[m.lang]
-                      } / ${m.modelConfig.model}`}
+                      } / ${m.modelConfig?.model}`}
                     </div>
                   </div>
                 </div>
@@ -425,8 +469,9 @@ export function MaskPage() {
                   <IconButton
                     icon={<AddIcon />}
                     text={Locale.Mask.Item.Chat}
+                    type="second"
                     onClick={() => {
-                      chatStore.newSession(m);
+                      chatStore.newSession(m as Mask);
                       navigate(Path.Chat);
                     }}
                   />
@@ -434,7 +479,10 @@ export function MaskPage() {
                     <IconButton
                       icon={<EyeIcon />}
                       text={Locale.Mask.Item.View}
-                      onClick={() => setEditingMaskId(m.id)}
+                      onClick={() => {
+                        console.log("m.id", m.id);
+                        setEditingMaskId(m.id);
+                      }}
                     />
                   ) : (
                     <IconButton

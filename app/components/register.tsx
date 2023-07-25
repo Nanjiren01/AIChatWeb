@@ -1,30 +1,57 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import NextImage from "next/image";
 
 import styles from "./register.module.scss";
 
-import CloseIcon from "../icons/close.svg";
+import MaxIcon from "../icons/max.svg";
+import MinIcon from "../icons/min.svg";
+// import CloseIcon from "../icons/close.svg";
+import ChatBotIcon from "../icons/ai-chat-bot.png";
 import { SingleInput, Input, List, ListItem, PasswordInput } from "./ui-lib";
 
 import { IconButton } from "./button";
-import { useAuthStore, useAccessStore, useWebsiteConfigStore } from "../store";
+import {
+  useAuthStore,
+  useAccessStore,
+  useWebsiteConfigStore,
+  useAppConfig,
+} from "../store";
 
 import Locale from "../locales";
 import { Path } from "../constant";
 import { ErrorBoundary } from "./error";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { showToast } from "../components/ui-lib";
+import { useMobileScreen } from "../utils";
+import { getClientConfig } from "../config/client";
 
-export function Register() {
+export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
-  const { registerPageSubTitle, registerTypes } = useWebsiteConfigStore();
+  const {
+    registerPageSubTitle,
+    registerTypes,
+    registerForInviteCodeOnly,
+    mainTitle,
+    hideChatLogWhenNotLogin,
+  } = useWebsiteConfigStore();
   const registerType = registerTypes[0];
   const REG_TYPE_ONLY_USERNAME = "OnlyUsername";
   const REG_TYPE_USERNAME_WITH_CAPTCHA = "OnlyUsernameWithCaptcha";
   const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
     "UsernameAndEmailWithCaptchaAndCode";
+
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  let code = params.get("code") || "";
+  (() => {
+    if (code) {
+      localStorage.setItem("registerInviteCode", code);
+    } else {
+      code = localStorage.getItem("registerInviteCode") || "";
+    }
+  })();
 
   const [loadingUsage, setLoadingUsage] = useState(false);
   const [captcha, setCaptcha] = useState("");
@@ -64,7 +91,7 @@ export function Register() {
   const [password, setPassword] = useState("");
   const [comfirmedPassword, setComfirmedPassword] = useState("");
   const [captchaInput, setCaptchaInput] = useState("");
-  const [inviteCode, setInviteCode] = useState("");
+  const [inviteCode, setInviteCode] = useState(code || "");
   function handleClickSendEmailCode() {
     if (email === null || email == "") {
       showToast(Locale.RegisterPage.Toast.EmailIsEmpty);
@@ -125,6 +152,10 @@ export function Register() {
         return;
       }
     }
+    if (registerForInviteCodeOnly && !inviteCode) {
+      showToast("请输入邀请码！");
+      return;
+    }
     setLoadingUsage(true);
     showToast(Locale.RegisterPage.Toast.Registering);
     authStore
@@ -163,7 +194,11 @@ export function Register() {
   }
   function getRegisterCaptcha(captchaId: string) {
     // console.log('getRegisterCaptcha', captchaId)
-    fetch("/api/getRegisterCaptcha?captchaId=" + captchaId, {
+    const url = "/getRegisterCaptcha?captchaId=" + captchaId;
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    fetch(requestUrl, {
       method: "get",
     }).then(async (resp) => {
       const result = await resp.json();
@@ -178,6 +213,11 @@ export function Register() {
     getRegisterCaptcha(captchaId);
   }, [captchaId]);
 
+  const config = useAppConfig();
+  const isMobileScreen = useMobileScreen();
+  const clientConfig = useMemo(() => getClientConfig(), []);
+  const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
+
   return (
     <ErrorBoundary>
       <div className="window-header" data-tauri-drag-region>
@@ -188,17 +228,55 @@ export function Register() {
           <div className="window-header-sub-title">{registerPageSubTitle}</div>
         </div>
         <div className="window-actions">
-          <div className="window-action-button">
+          {showMaxIcon && (
+            <div className="window-action-button">
+              <IconButton
+                icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
+                bordered
+                onClick={() => {
+                  config.update(
+                    (config) => (config.tightBorder = !config.tightBorder),
+                  );
+                }}
+              />
+            </div>
+          )}
+          {/* <div className="window-action-button">
             <IconButton
               icon={<CloseIcon />}
               onClick={() => navigate(Path.Home)}
               bordered
               title={Locale.RegisterPage.Actions.Close}
             />
-          </div>
+          </div> */}
         </div>
       </div>
       <div className={styles["register"]}>
+        {hideChatLogWhenNotLogin && (
+          <div style={{ textAlign: "center" }}>
+            <div className={styles["sidebar-logo"] + " no-dark"}>
+              {props.logoLoading ? (
+                <></>
+              ) : !props.logoUrl ? (
+                <NextImage
+                  src={ChatBotIcon.src}
+                  width={64}
+                  height={64}
+                  alt="bot"
+                />
+              ) : (
+                <img src={props.logoUrl} width={64} height={64} />
+              )}
+            </div>
+            <div
+              style={{ lineHeight: "100px" }}
+              dangerouslySetInnerHTML={{
+                __html: mainTitle || "AI Chat",
+              }}
+              data-tauri-drag-region
+            ></div>
+          </div>
+        )}
         <List>
           {/* <ListItem
             title={Locale.RegisterPage.Name.Title}
@@ -349,7 +427,11 @@ export function Register() {
           <ListItem title={Locale.Profile.InviteCode.Title}>
             <SingleInput
               value={inviteCode}
-              placeholder={Locale.Profile.InviteCode.Placeholder}
+              placeholder={
+                registerForInviteCodeOnly
+                  ? Locale.Profile.InviteCode.PlaceholderRequired
+                  : Locale.Profile.InviteCode.Placeholder
+              }
               onChange={(e) => {
                 setInviteCode(e.currentTarget.value);
               }}

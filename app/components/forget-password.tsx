@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import NextImage from "next/image";
 
 import styles from "./forget-password.module.scss";
 
 import CloseIcon from "../icons/close.svg";
+import ChatBotIcon from "../icons/ai-chat-bot.png";
 import { SingleInput, Input, List, ListItem, PasswordInput } from "./ui-lib";
 
 import { IconButton } from "./button";
@@ -15,11 +16,14 @@ import { ErrorBoundary } from "./error";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "./ui-lib";
 
-export function ForgetPassword() {
+export function ForgetPassword(props: {
+  logoLoading: boolean;
+  logoUrl?: string;
+}) {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   // const accessStore = useAccessStore();
-  const { registerPageSubTitle } = useWebsiteConfigStore();
+  const { mainTitle, hideChatLogWhenNotLogin } = useWebsiteConfigStore();
   // const registerType = registerTypes[0];
   // const REG_TYPE_ONLY_USERNAME = "OnlyUsername";
   // const REG_TYPE_USERNAME_WITH_CAPTCHA = "OnlyUsernameWithCaptcha";
@@ -131,22 +135,6 @@ export function ForgetPassword() {
         setLoadingUsage(false);
       });
   }
-  // function getRegisterCaptcha(captchaId: string) {
-  //   // console.log('getRegisterCaptcha', captchaId)
-  //   fetch("/api/getRegisterCaptcha?captchaId=" + captchaId, {
-  //     method: "get",
-  //   }).then(async (resp) => {
-  //     const result = await resp.json();
-  //     if (result.code != 0) {
-  //       showToast(result.message);
-  //     } else {
-  //       setCaptcha("data:image/jpg;base64," + result.data);
-  //     }
-  //   });
-  // }
-  // useEffect(() => {
-  //   getRegisterCaptcha(captchaId);
-  // }, [captchaId]);
 
   return (
     <ErrorBoundary>
@@ -171,6 +159,31 @@ export function ForgetPassword() {
         </div>
       </div>
       <div className={styles["forget-password"]}>
+        {hideChatLogWhenNotLogin && (
+          <div style={{ textAlign: "center" }}>
+            <div className={styles["sidebar-logo"] + " no-dark"}>
+              {props.logoLoading ? (
+                <></>
+              ) : !props.logoUrl ? (
+                <NextImage
+                  src={ChatBotIcon.src}
+                  width={64}
+                  height={64}
+                  alt="bot"
+                />
+              ) : (
+                <img src={props.logoUrl} width={64} height={64} />
+              )}
+            </div>
+            <div
+              style={{ lineHeight: "100px" }}
+              dangerouslySetInnerHTML={{
+                __html: mainTitle || "AI Chat",
+              }}
+              data-tauri-drag-region
+            ></div>
+          </div>
+        )}
         <List>
           <ListItem
             title={Locale.RegisterPage.Email.Title}

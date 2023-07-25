@@ -163,7 +163,7 @@ const cn = {
     },
     Username: {
       Title: "用户名",
-      SubTitle: "",
+      SubTitle: "用户名只能包含字母、数字、下划线，不可以包含中文",
       Placeholder: "请输入用户名",
     },
     Password: {
@@ -225,8 +225,9 @@ const cn = {
     Username: "账号",
     Email: "邮箱",
     InviteCode: {
-      Title: "邀请码",
-      Placeholder: "选填",
+      Title: "邀请码(选填)",
+      Placeholder: "输入邀请码获得额外权益",
+      PlaceholderRequired: "必填",
     },
     Tokens: {
       Title: "tokens",
@@ -252,7 +253,8 @@ const cn = {
       ConsultAdministrator: "请咨询站长",
       All: "所有套餐",
       CreateInviteCode: "生成邀请码",
-      Copy: "复制",
+      Copy: "复制链接",
+      Redeem: "兑换码",
     },
     BalanceItem: {
       Title: "套餐类型",
@@ -269,6 +271,17 @@ const cn = {
       SubTitle: "",
     },
   },
+  RedeemCodePage: {
+    Title: "兑换码",
+    RedeemCodeInput: {
+      Title: "兑换码",
+      Placeholder: "请输入兑换码",
+    },
+    Actions: {
+      Close: "关闭",
+      Redeem: "开始兑换",
+    },
+  },
   PricingPage: {
     Title: "充值",
     SubTitle: "畅享与AI聊天的乐趣",
@@ -276,6 +289,7 @@ const cn = {
       Close: "关闭",
       Buy: " 购 买 ",
       Order: "订单中心",
+      RedeemCode: "兑换码",
     },
     NoPackage: "暂无可用套餐",
     Loading: "请稍候……",
@@ -302,6 +316,7 @@ const cn = {
       Profile: "个人中心",
       Refresh: "刷新",
       Refreshing: "刷新中……",
+      RedeemCode: "兑换码",
     },
   },
   OrderPage: {

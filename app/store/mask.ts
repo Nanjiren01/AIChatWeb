@@ -16,6 +16,12 @@ export type Mask = {
   modelConfig: ModelConfig;
   lang: Lang;
   builtin: boolean;
+  state?: number;
+  type?: string;
+  modelConfigJson?: string | undefined;
+  contextJson?: string | undefined;
+  createTime?: Date;
+  updateTime?: Date;
 };
 
 export const DEFAULT_MASK_STATE = {
@@ -31,6 +37,8 @@ type MaskStore = MaskState & {
   search: (text: string) => Mask[];
   get: (id?: number) => Mask | null;
   getAll: () => Mask[];
+  getUserMasks: () => Mask[];
+  fetch: () => Promise<RemoteMask[]>;
 };
 
 export const DEFAULT_MASK_ID = 1145141919810;
@@ -46,6 +54,27 @@ export const createEmptyMask = () =>
     lang: getLang(),
     builtin: false,
   } as Mask);
+
+export interface RemoteMask {
+  id: number;
+  name: string;
+  avatar: string;
+  lang: Lang;
+  state?: number;
+  type?: string;
+  syncGlobalConfig?: boolean;
+  modelConfigJson?: string | undefined;
+  contextJson?: string | undefined;
+  context?: ChatMessage[];
+  modelConfig: ModelConfig;
+  builtin?: any;
+  createTime?: Date;
+  updateTime?: Date;
+  hideContext?: boolean;
+}
+
+import { Response } from "../api/common";
+export type RemoteMaskListResponse = Response<RemoteMask[]>;
 
 export const useMaskStore = create<MaskStore>()(
   persist(
@@ -83,7 +112,60 @@ export const useMaskStore = create<MaskStore>()(
       },
 
       get(id) {
-        return get().masks[id ?? 1145141919810];
+        return get().masks[id ?? 1145141919810] || undefined;
+      },
+      async fetch() {
+        return fetch("/api/mask/normal", {
+          method: "get",
+        })
+          .then((res) => res.json())
+          .then((resp: RemoteMaskListResponse) => {
+            const masks = resp.data;
+            const remoteMasks = masks.map((mask) => {
+              let context, modelConfig;
+              try {
+                context = JSON.parse(mask.contextJson || "{}");
+              } catch (e) {
+                console.error(
+                  "mask.contextJson is not json",
+                  mask.contextJson,
+                  e,
+                );
+                context = [];
+              }
+              try {
+                modelConfig = JSON.parse(mask.modelConfigJson || "{}");
+              } catch (e) {
+                console.error(
+                  "mask.modelConfigJson is not json",
+                  mask.modelConfigJson,
+                  e,
+                );
+                modelConfig = {};
+              }
+              modelConfig.template = "{{input}}";
+              const remoteMask: RemoteMask = {
+                id: mask.id,
+                name: mask.name,
+                avatar: mask.avatar,
+                lang: mask.lang,
+                builtin: true,
+                state: mask.state,
+                type: mask.type,
+                context: context,
+                modelConfig: modelConfig,
+                createTime: mask.createTime,
+                updateTime: mask.updateTime,
+                hideContext: mask.hideContext,
+              };
+              return remoteMask;
+            });
+            console.log("remoteMasks", remoteMasks);
+            return remoteMasks;
+          });
+      },
+      getUserMasks() {
+        return Object.values(get().masks).sort((a, b) => b.id - a.id);
       },
       getAll() {
         const userMasks = Object.values(get().masks).sort(

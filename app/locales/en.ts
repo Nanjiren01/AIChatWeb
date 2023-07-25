@@ -230,6 +230,7 @@ const en: LocaleType = {
     InviteCode: {
       Title: "邀请码",
       Placeholder: "选填",
+      PlaceholderRequired: "必填",
     },
     Tokens: {
       Title: "tokens",
@@ -255,7 +256,8 @@ const en: LocaleType = {
       ConsultAdministrator: "请咨询站长",
       All: "所有套餐",
       CreateInviteCode: "生成邀请码",
-      Copy: "复制",
+      Copy: "复制链接",
+      Redeem: "兑换码",
     },
     BalanceItem: {
       Title: "套餐类型",
@@ -272,6 +274,17 @@ const en: LocaleType = {
       SubTitle: "",
     },
   },
+  RedeemCodePage: {
+    Title: "兑换码",
+    RedeemCodeInput: {
+      Title: "兑换码",
+      Placeholder: "请输入兑换码",
+    },
+    Actions: {
+      Close: "关闭",
+      Redeem: "开始兑换",
+    },
+  },
   PricingPage: {
     Title: "充值",
     SubTitle: "畅享与AI聊天的乐趣",
@@ -279,6 +292,7 @@ const en: LocaleType = {
       Close: "关闭",
       Buy: " 购 买 ",
       Order: "订单中心",
+      RedeemCode: "兑换码",
     },
     NoPackage: "暂无可用套餐",
     Loading: "请稍候……",
@@ -305,6 +319,7 @@ const en: LocaleType = {
       Profile: "个人中心",
       Refresh: "刷新",
       Refreshing: "刷新中……",
+      RedeemCode: "兑换码",
     },
   },
   OrderPage: {

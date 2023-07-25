@@ -158,12 +158,13 @@ export async function requestSendEmailCode(
 export function requestWechatLogin(
   code: string,
   state: string,
+  appType: string,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
 ): Promise<RegisterResult> {
   return request(
-    `/wechat/loginCallback?code=${code}&state=${state}`,
+    `/wechat/loginCallback?code=${code}&state=${state}&appType=${appType}`,
     "GET",
     null,
     options,
