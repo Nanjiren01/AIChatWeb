@@ -163,7 +163,7 @@ const cn = {
     },
     Username: {
       Title: "用户名",
-      SubTitle: "",
+      SubTitle: "用户名只能包含字母、数字、下划线，不可以包含中文",
       Placeholder: "请输入用户名",
     },
     Password: {
@@ -225,8 +225,8 @@ const cn = {
     Username: "账号",
     Email: "邮箱",
     InviteCode: {
-      Title: "邀请码",
-      Placeholder: "选填",
+      Title: "邀请码(选填)",
+      Placeholder: "输入邀请码获得额外权益",
       PlaceholderRequired: "必填",
     },
     Tokens: {
