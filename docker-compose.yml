@@ -26,6 +26,7 @@ services:
       MAIL_PORT: 25
       MAIL_USERNAME: your-email-username
       MAIL_PASSWORD: your-email-password
+      TZ: Asia/Shanghai
     ports:
       - "8082:8080"
 
