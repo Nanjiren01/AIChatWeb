@@ -112,7 +112,7 @@ export const useMaskStore = create<MaskStore>()(
       },
 
       get(id) {
-        return get().masks[id ?? 1145141919810];
+        return get().masks[id ?? 1145141919810] || undefined;
       },
       async fetch() {
         return fetch("/api/mask/normal", {
@@ -158,7 +158,7 @@ export const useMaskStore = create<MaskStore>()(
                 modelConfig: modelConfig,
                 createTime: mask.createTime,
                 updateTime: mask.updateTime,
-                hideContext: false,
+                hideContext: mask.hideContext,
               };
               return remoteMask;
             });
