@@ -263,6 +263,16 @@ export function RedeemCode() {
         <List>
           <ListItem>
             <IconButton
+              text={Locale.Profile.Actions.Pricing}
+              block={true}
+              type="primary"
+              onClick={() => {
+                navigate(Path.Pricing);
+              }}
+            />
+          </ListItem>
+          <ListItem>
+            <IconButton
               text={Locale.Profile.Actions.All}
               block={true}
               type="second"

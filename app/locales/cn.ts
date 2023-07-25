@@ -289,6 +289,7 @@ const cn = {
       Close: "关闭",
       Buy: " 购 买 ",
       Order: "订单中心",
+      RedeemCode: "兑换码",
     },
     NoPackage: "暂无可用套餐",
     Loading: "请稍候……",
