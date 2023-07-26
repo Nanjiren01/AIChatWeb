@@ -12,6 +12,7 @@ import Locale from "../locales";
 import { createRoot } from "react-dom/client";
 import React, { HTMLProps, useEffect, useState } from "react";
 import { IconButton } from "./button";
+import { copyToClipboard } from "../utils";
 
 export function Popover(props: {
   children: JSX.Element;
@@ -77,13 +78,24 @@ export function DangerousListItem(props: {
   children?: JSX.Element | JSX.Element[];
   icon?: JSX.Element;
   className?: string;
+  titleCopy?: boolean;
 }) {
   return (
     <div className={styles["list-item"] + ` ${props.className}`}>
       <div className={styles["list-header"]}>
         {props.icon && <div className={styles["list-icon"]}>{props.icon}</div>}
         <div className={styles["list-item-title"]}>
-          <div dangerouslySetInnerHTML={{ __html: props.title || "" }}></div>
+          {props.titleCopy && (
+            <div
+              dangerouslySetInnerHTML={{ __html: props.title || "" }}
+              onClick={() => {
+                copyToClipboard(props.title!);
+              }}
+            ></div>
+          )}
+          {!props.titleCopy && (
+            <div dangerouslySetInnerHTML={{ __html: props.title || "" }}></div>
+          )}
           {props.subTitle && (
             <div
               className={styles["list-item-sub-title"]}

@@ -238,8 +238,15 @@ export function RedeemCode() {
               return (
                 <DangerousListItem
                   key={redeemCodeEntity.key}
-                  title={redeemCodeEntity.key}
+                  title={
+                    redeemCodeEntity.key.substring(0, 8) +
+                    "……" +
+                    redeemCodeEntity.key.substring(
+                      redeemCodeEntity.key.length - 8,
+                    )
+                  }
                   subTitle={getSubTitle(redeemCodeEntity)}
+                  titleCopy={true}
                 >
                   <div style={{ minWidth: "100px", maxWidth: "200px" }}>
                     <div style={{ margin: "10px 0" }}>
