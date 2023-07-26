@@ -39,7 +39,7 @@ export interface AuthStore {
     email: string,
     code: string,
   ) => Promise<any>;
-  wechatLogin: (code: string, state: string) => Promise<any>;
+  wechatLogin: (code: string, state: string, appType: string) => Promise<any>;
   removeToken: () => void;
   updateInviteCode: (code: string) => void;
 }
@@ -180,8 +180,8 @@ export const useAuthStore = create<AuthStore>()(
         }
         return result;
       },
-      async wechatLogin(code, state) {
-        let result = await requestWechatLogin(code, state, {
+      async wechatLogin(code, state, appType) {
+        let result = await requestWechatLogin(code, state, appType, {
           onError: (err) => {
             console.error(err);
           },

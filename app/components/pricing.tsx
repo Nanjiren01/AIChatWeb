@@ -280,6 +280,16 @@ export function Pricing() {
               }}
             />
           </ListItem>
+          <ListItem>
+            <IconButton
+              text={Locale.PricingPage.Actions.RedeemCode}
+              block={true}
+              type="second"
+              onClick={() => {
+                navigate(Path.RedeemCode);
+              }}
+            />
+          </ListItem>
         </List>
       </div>
     </ErrorBoundary>

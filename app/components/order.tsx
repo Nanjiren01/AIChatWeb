@@ -436,6 +436,18 @@ export function Order() {
               }}
             />
           </ListItem>
+
+          <ListItem>
+            <IconButton
+              text={Locale.PricingPage.Actions.RedeemCode}
+              block={true}
+              type="second"
+              onClick={() => {
+                navigate(Path.RedeemCode);
+              }}
+            />
+          </ListItem>
+
           <ListItem>
             <IconButton
               text={Locale.OrderPage.Actions.Profile}

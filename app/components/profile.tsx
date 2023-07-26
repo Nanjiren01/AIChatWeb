@@ -57,7 +57,7 @@ export function Profile() {
     setLoading(true);
     fetchProfile(authStore.token)
       .then((res) => {
-        if (!res.data || !res.data.id) {
+        if (!res?.data || !res?.data?.id) {
           authStore.logout();
           navigate(Path.Login);
         }

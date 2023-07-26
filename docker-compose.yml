@@ -3,14 +3,14 @@ version: '3'
 services:
 
   admin:
-    image: nanjiren01/aichat-admin:latest
+    image: harbor.nanjiren.online:8099/aichat/aichat-admin:latest
     container_name: aichat-admin
     restart: always
     depends_on:
       - db
       - redis
     environment:
-      DB_URL: jdbc:mysql://aichat-db:3306/aichat?useSSL=false&serverTimezone=UTC%2B8
+      DB_URL: jdbc:mysql://aichat-db:3306/aichat?useSSL=false
       DB_USERNAME: root
       DB_PASSWORD: 123456
       REDIS_HOST: aichat-redis
@@ -26,11 +26,12 @@ services:
       MAIL_PORT: 25
       MAIL_USERNAME: your-email-username
       MAIL_PASSWORD: your-email-password
+      TZ: Asia/Shanghai
     ports:
       - "8082:8080"
 
   web:
-    image: nanjiren01/aichat-web:latest
+    image: nanjiren01/aichat-web:pro-latest
     container_name: aichat-web
     restart: always
     depends_on:
@@ -41,7 +42,7 @@ services:
       BASE_URL: http://aichat-admin:8080
 
   console:
-    image: nanjiren01/aichat-console:latest
+    image: nanjiren01/aichat-console:pro-latest
     container_name: aichat-console
     restart: always
     depends_on:
