@@ -506,14 +506,16 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
             <></>
           )}
 
-          <ListItem title={Locale.Profile.InviteCode.Title}>
+          <ListItem
+            title={
+              registerForInviteCodeOnly
+                ? Locale.Profile.InviteCode.TitleRequired
+                : Locale.Profile.InviteCode.Title
+            }
+          >
             <SingleInput
               value={inviteCode}
-              placeholder={
-                registerForInviteCodeOnly
-                  ? Locale.Profile.InviteCode.PlaceholderRequired
-                  : Locale.Profile.InviteCode.Placeholder
-              }
+              placeholder={Locale.Profile.InviteCode.Placeholder}
               onChange={(e) => {
                 setInviteCode(e.currentTarget.value);
               }}

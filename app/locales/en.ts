@@ -248,8 +248,8 @@ const en: LocaleType = {
     Phone: "手机号",
     InviteCode: {
       Title: "邀请码",
-      Placeholder: "选填",
-      PlaceholderRequired: "必填",
+      TitleRequired: "邀请码(必填)",
+      Placeholder: "输入邀请码获得额外权益",
     },
     Tokens: {
       Title: "tokens",

@@ -245,8 +245,8 @@ const cn = {
     Phone: "手机号",
     InviteCode: {
       Title: "邀请码(选填)",
+      TitleRequired: "邀请码(必填)",
       Placeholder: "输入邀请码获得额外权益",
-      PlaceholderRequired: "必填",
     },
     Tokens: {
       Title: "tokens",
