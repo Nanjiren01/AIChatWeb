@@ -5,8 +5,6 @@
   
 <h1 align="center">AIChat Web</h1>
 
-<!DOCTYPE html> <html> <head> <style> .nameplate { background: linear-gradient(45deg, #ff00ff, #00ffff, #00ff00); background-size: 400% 400%; animation: gradientAnimation 10s ease infinite; color: #fff; padding: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; border-radius: 6px; display: inline-block; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); } @keyframes gradientAnimation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } } </style> </head> <body> <div class="nameplate">应用级AI服务平台</div> </body> </html>
-
 **简体中文** | [English](#english)
 
 ![](https://img.shields.io/badge/-Browser-purple?logo=microsoftedge)
