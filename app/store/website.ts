@@ -29,6 +29,7 @@ export interface WebsiteConfigStore {
   hideChatLogWhenNotLogin: boolean;
   logoUrl?: string;
   availableModelNames: string[];
+  defaultSystemTemplate?: string;
   fetchWebsiteConfig: () => Promise<any>;
 }
 
@@ -58,6 +59,7 @@ export interface WebsiteConfig {
   botHello: string;
   hideChatLogWhenNotLogin: boolean;
   logoUuid?: string;
+  defaultSystemTemplate: string;
   availableModelNames: string[];
 }
 export interface WebsiteConfigData {
@@ -96,6 +98,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       redeemCodePageTop: "",
       redeemCodePageIndex: "",
       redeemCodePageBottom: "",
+      defaultSystemTemplate: "",
 
       async fetchWebsiteConfig() {
         const url = "/globalConfig/website";
@@ -152,6 +155,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
                   ? getBaseUrl() + "/api/file/" + website.logoUuid
                   : "",
               availableModelNames: website.availableModelNames,
+              defaultSystemTemplate: website.defaultSystemTemplate,
             }));
             return res;
           })

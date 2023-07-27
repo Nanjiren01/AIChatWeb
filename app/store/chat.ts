@@ -108,7 +108,9 @@ interface ChatStore {
     updater: (message?: ChatMessage) => void,
   ) => void;
   resetSession: () => void;
-  getMessagesWithMemory: () => ChatMessage[];
+  getMessagesWithMemory: (
+    websiteConfigStore: WebsiteConfigStore,
+  ) => ChatMessage[];
   getMemoryPrompt: () => ChatMessage;
 
   clearAllData: () => void;
@@ -312,7 +314,7 @@ export const useChatStore = create<ChatStore>()(
         });
 
         // get recent messages
-        const recentMessages = get().getMessagesWithMemory();
+        const recentMessages = get().getMessagesWithMemory(websiteConfigStore);
         const sendMessages = recentMessages.concat(userMessage);
         const sessionIndex = get().currentSessionIndex;
         const messageIndex = get().currentSession().messages.length + 1;
@@ -431,7 +433,7 @@ export const useChatStore = create<ChatStore>()(
         } as ChatMessage;
       },
 
-      getMessagesWithMemory() {
+      getMessagesWithMemory(websiteConfigStore: WebsiteConfigStore) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
         const clearContextIndex = session.clearContextIndex ?? 0;
@@ -450,7 +452,9 @@ export const useChatStore = create<ChatStore>()(
                 role: "system",
                 content: fillTemplateWith("", {
                   ...modelConfig,
-                  template: DEFAULT_SYSTEM_TEMPLATE,
+                  template:
+                    websiteConfigStore.defaultSystemTemplate ??
+                    DEFAULT_SYSTEM_TEMPLATE,
                 }),
               }),
             ]
