@@ -2,12 +2,63 @@
 
 <div align="center" style="margin-bottom: 10px;">
 <img src="./docs/images/icon.svg" alt="logo"/>
-  
-<h1 align="center">AIChat Web</h1>
+
+<style>
+.nameplate {
+  margin-bottom: 0;
+}
+
+.rainbow-text {
+  line-height: 0.8;
+}
+
+@keyframes rainbow {
+  0% {color: red;}
+  14% {color: orange;}
+  28% {color: yellow;}
+  42% {color: green;}
+  57% {color: blue;}
+  71% {color: indigo;}
+  85% {color: violet;}
+  100% {color: red;}
+}
+
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.rainbow-text {
+  animation: rainbow 15s linear infinite;
+  font-size: 45px;
+}
+
+.nameplate {
+  background: linear-gradient(45deg, #ff00ff, #00ffff, #00ff00);
+  background-size: 400% 400%;
+  animation: gradientAnimation 10s ease infinite;
+  color: #fff;
+  padding: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-radius: 6px;
+  display: inline-block;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+</style>
+</head>
+<body>
+<span class="rainbow-text"><strong>AIChat</strong></span>
+<br>
+<div class="nameplate">全链路应用级AI服务平台</div>
+</body>
+
 
 **简体中文** | [English](#english)
 
-![](https://img.shields.io/badge/-Browser-purple?logo=firefox)
+![](https://img.shields.io/badge/-Browser-purple?logo=microsoftedge)
 ![](https://img.shields.io/badge/-MacOS%20&%20iOS-black?logo=apple)
 ![](https://img.shields.io/badge/-Windows-blue?logo=windows)
 ![](https://img.shields.io/badge/-Android-green?logo=android)
@@ -94,35 +145,40 @@
 
 | 功能                                                      | 进度 |
 | --------------------------------------------------------- | -------- |
-| 用户管理（User Management）                               |    ✔已完成(v0.0.1)     |
-| 额度管理（Quota Management）                              |    ✔已完成(v0.1)     |
-| 注册额度赠送（Registration limit gift）                   |    ✔已完成(v0.1)     |
-| 邮箱验证码注册（Email verification code registration）    |    ✔已完成(v0.1)     |
-| 调用频率限制（User based call frequency limit） |   ✔已完成(v0.1)       |
-| 图形验证码注册（Graphic verification code registration）  |    ✔已完成(v0.2)     |
-| 网站标题（Website Title Customization）                   |   ✔已完成(v0.2)      |
-| 套餐管理（Package Management）                            |   ✔已完成(v0.2)      |
-| 自定义敏感词拦截（Custom sensitive word interception）    |   ✔已完成(v0.2)   |
-| 忘记/重置密码（Reset Password）                           |   ✔已完成(v0.4)   |
-| API KEY余额自动查询（Auto Query Balance/Quota）            |   ✔已完成(v0.4)   |
-| 修改密码（Change password）                               |   进行中       |
-| 绘图功能（Drawing function）                              |   进行中       |
+| 用户管理                               |    ✔已完成(v0.0.1)     |
+| 额度管理                              |    ✔已完成(v0.1)     |
+| 注册额度赠送                       |    ✔已完成(v0.1)     |
+| 邮箱验证码注册    |    ✔已完成(v0.1)     |
+| 调用频率限制 |   ✔已完成(v0.1)       |
+| 图形验证码注册  |    ✔已完成(v0.2)     |
+| 网站标题                   |   ✔已完成(v0.2)      |
+| 套餐管理                            |   ✔已完成(v0.2)      |
+| 自定义敏感词拦截    |   ✔已完成(v0.2)   |
+| 忘记/重置密码                           |   ✔已完成(v0.4)   |
+| API KEY余额自动查询            |   ✔已完成(v0.4)   |
+| 忘记密码                           |   ✔已完成(v0.4)       |
+| 第三方API状态余额查询                                      |   ✔已完成(v0.6) |
+| 绘图功能                              |   进行中       |
 
 ## 专业版功能
 
 | 功能                                                         | 进度     |
 | ------------------------------------------------------------ | -------- |
-| 社区版的全功能（Full functionality of the community version） | ✔        |
-| 仪表盘（advanced dashboard）                                | ✔已完成(v0.3)  |
-| 对接支付系统（Connect to the payment system Pay）            | ✔已接入虎皮椒、蓝兔(v0.3)，其他进行中   |
-| 邮件模板（Email Template）                                | ✔已完成(v0.5)  |
-| 邀请机制（Inviting Code）                                | ✔已完成(v0.5)  |
-| 微信登录（Wechat Login）                                | ✔已完成(v0.5)  |
-| 后台查看聊天记录（Chat Log）                                | ✔已完成(v0.5)  |
-| 模型名称重映射（Model Name Map）                                | ✔已完成(v0.5)  |
-| 兑换码（Redeem Code）                                | ✔已完成(v0.7预览版Preview)  |
-| 对接发卡平台（Docking with card issuing platforms）          | 进行中   |
-| 多模型支持（Multiple model support）                         | 长期进行 |
+| 社区版的全功能 | ✔        |
+| 仪表盘                                | ✔已完成(v0.3)  |
+| 对接支付系统            | ✔已接入虎皮椒、蓝兔(v0.3)，其他进行中   |
+| 邮件模板                                | ✔已完成(v0.5)  |
+| 邀请机制                                | ✔已完成(v0.5)  |
+| 微信登录                                | ✔已完成(v0.5)  |
+| 后台查看聊天记录                                | ✔已完成(v0.5)  |
+| 模型名称重映射                                | ✔已完成(v0.5)  |
+| 兑换码                                | ✔已完成(v0.7)  |
+| 面具管理                                | ✔已完成(v0.7)  |
+| 独立注册登录界面                                | ✔已完成(v0.7)  |
+| key余额协议配置                                | ✔已完成(v0.7)  |
+| 更多UI自定义                                | ✔已完成(v0.7)  |
+| 对接发卡平台          | 进行中   |
+| 多模型支持                         | 长期进行 |
 
 ## 预览
 
@@ -224,7 +280,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 > AI好望角为本项目自建平台，目前仍在筹建中，只能以赞赏形式加入（不支持退款），赞赏后可立即进入AIChatAdmin专业版内测群获取专业版专属信息。
 > 新平台筹建完毕后，会将知识星球中的内容迁移至新平台，新用户无需进入星球。
 
-当前加入AI好望角价格为188元，随着功能的不断完善，价格逐步提升
+当前加入AI好望角价格为218元，随着功能的不断完善，价格逐步提升
 
 <img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI好望角"/>
 
@@ -268,7 +324,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 
 <h1 align="center">AIChat Web</h1>
 
-![](https://img.shields.io/badge/-Browser-purple?logo=firefox)
+![](https://img.shields.io/badge/-Browser-purple?logo=microsoftedge)
 ![](https://img.shields.io/badge/-MacOS%20&%20iOS-black?logo=apple)
 ![](https://img.shields.io/badge/-Windows-blue?logo=windows)
 ![](https://img.shields.io/badge/-Android-green?logo=android)
@@ -485,7 +541,7 @@ Join **AI Horizon - Exclusive Community for AIChat Users** and enjoy the followi
 > AI Horizon is a self-built platform for this project, which is currently under construction. You can only join by showing appreciation (no refunds are available). After showing appreciation, you can immediately enter the AIChatAdmin Pro version testing group to access exclusive information.
 > Once the new platform is completed, the content in the Knowledge Planet will be migrated to the new platform, and new users will not need to join the Knowledge Planet.
 
-The current price to join AI Horizon is 188 yuan, and the price will gradually increase as the features are improved.
+The current price to join AI Horizon is 218 yuan, and the price will gradually increase as the features are improved.
 
 <img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI Horizon"/>
 
