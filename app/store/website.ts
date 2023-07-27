@@ -17,6 +17,7 @@ export interface WebsiteConfigStore {
   hideGithubIcon: boolean;
   botHello: string;
   availableModelNames: string[];
+  defaultSystemTemplate?: string;
   fetchWebsiteConfig: () => Promise<any>;
 }
 
@@ -34,6 +35,7 @@ export interface WebsiteConfig {
   balanceNotEnough: string;
   hideGithubIcon: boolean;
   botHello: string;
+  defaultSystemTemplate: string;
   availableModelNames: string[];
 }
 export interface WebsiteConfigData {
@@ -59,7 +61,8 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       balanceNotEnough: "",
       hideGithubIcon: false,
       botHello: "",
-      availableModelNames: [],
+      availableModelNames: [] as string[],
+      defaultSystemTemplate: "",
 
       async fetchWebsiteConfig() {
         const url = "/globalConfig/website";
@@ -92,6 +95,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               hideGithubIcon: website.hideGithubIcon,
               botHello: website.botHello,
               availableModelNames: website.availableModelNames,
+              defaultSystemTemplate: website.defaultSystemTemplate,
             }));
             return res;
           })
