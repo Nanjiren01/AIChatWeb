@@ -2,59 +2,10 @@
 
 <div align="center" style="margin-bottom: 10px;">
 <img src="./docs/images/icon.svg" alt="logo"/>
+  
+<h1 align="center">AIChat Web</h1>
 
-<style>
-.nameplate {
-  margin-bottom: 0;
-}
-
-.rainbow-text {
-  line-height: 0.8;
-}
-
-@keyframes rainbow {
-  0% {color: red;}
-  14% {color: orange;}
-  28% {color: yellow;}
-  42% {color: green;}
-  57% {color: blue;}
-  71% {color: indigo;}
-  85% {color: violet;}
-  100% {color: red;}
-}
-
-@keyframes gradientAnimation {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.rainbow-text {
-  animation: rainbow 15s linear infinite;
-  font-size: 45px;
-}
-
-.nameplate {
-  background: linear-gradient(45deg, #ff00ff, #00ffff, #00ff00);
-  background-size: 400% 400%;
-  animation: gradientAnimation 10s ease infinite;
-  color: #fff;
-  padding: 4px;
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  border-radius: 6px;
-  display: inline-block;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-</style>
-</head>
-<body>
-<span class="rainbow-text"><strong>AIChat</strong></span>
-<br>
-<div class="nameplate">全链路应用级AI服务平台</div>
-</body>
-
+<!DOCTYPE html> <html> <head> <style> .nameplate { background: linear-gradient(45deg, #ff00ff, #00ffff, #00ff00); background-size: 400% 400%; animation: gradientAnimation 10s ease infinite; color: #fff; padding: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; border-radius: 6px; display: inline-block; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); } @keyframes gradientAnimation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } } </style> </head> <body> <div class="nameplate">应用级AI服务平台</div> </body> </html>
 
 **简体中文** | [English](#english)
 
@@ -409,37 +360,42 @@ In the admin panel, you can also set the registration method (supporting usernam
 
 ## Community Edition Features
 
-| Feature                                                    | Progress |
-| --------------------------------------------------------- | -------- |
-| User Management                                           | ✔ Completed(v0.0.1) |
-| Quota Management                                          | ✔ Completed(v0.1) |
-| Registration Limit Gift                                   | ✔ Completed(v0.1) |
-| Email Verification Code Registration                     | ✔ Completed(v0.1) |
-| User-Based Call Frequency Limit                       | ✔ Completed(v0.1) |
-| Graphic Verification Code Registration                   | ✔ Completed(v0.2) |
-| Website Title Customization                              | ✔ Completed(v0.2) |
-| Package Management                                       | ✔ Completed(v0.2) |
-| Custom Sensitive Word Interception                       | ✔ Completed(v0.2) |
-| Reset Password                                           | ✔ Completed(v0.4) |
-| Auto Query Balance/Quota                                 | ✔ Completed(v0.4) |
-| Change Password                                          | In Progress |
-| Drawing Function                                         | In Progress |
+| Feature                                                     | Progress |
+| ----------------------------------------------------------- | -------- |
+| User Management                                            | ✔ Completed (v0.0.1) |
+| Quota Management                                           | ✔ Completed (v0.1) |
+| Registration Limit Gift                                    | ✔ Completed (v0.1) |
+| Email Verification Code Registration                       | ✔ Completed (v0.1) |
+| User-Based Call Frequency Limit                            | ✔ Completed (v0.1) |
+| Graphic Verification Code Registration                     | ✔ Completed (v0.2) |
+| Website Title Customization                                | ✔ Completed (v0.2) |
+| Package Management                                         | ✔ Completed (v0.2) |
+| Custom Sensitive Word Interception                         | ✔ Completed (v0.2) |
+| Reset Password                                             | ✔ Completed (v0.4) |
+| Auto Query Balance/Quota                                   | ✔ Completed (v0.4) |
+| Forgot Password                                            | ✔ Completed (v0.4) |
+| Third-Party API Status and Balance Query                    | ✔ Completed (v0.6) |
+| Drawing Function                                           | In Progress |
 
 ## Professional Edition Features
 
-| Feature                                                    | Progress |
-| --------------------------------------------------------- | -------- |
-| Full functionality of the Community Edition                | ✔ Completed |
-| Advanced Dashboard                                       | ✔ Completed(v0.3) |
-| Connect to the Payment System Pay                          | ✔ Integrated with Huipijiao, Lantu(v0.3), others in progress |
-| Email Template                                           | ✔ Completed(v0.5) |
-| Inviting Code                                            | ✔ Completed(v0.5) |
-| Wechat Login                                             | ✔ Completed(v0.5) |
-| View Chat Log                                            | ✔ Completed(v0.5) |
-| Model Name Map                                           | ✔ Completed(v0.5) |
-| Redeem Code                                              | ✔ Completed(v0.7 Preview) |
-| Docking with Card Issuing Platforms                      | In Progress |
-| Multiple Model Support                                   | Ongoing |
+| Feature                                                     | Progress |
+| ----------------------------------------------------------- | -------- |
+| Full Functionality of the Community Version                 | ✔ Completed |
+| Advanced Dashboard                                         | ✔ Completed (v0.3) |
+| Integration with Payment System (Pay)                       | ✔ Integrated with Hupijiao and Lantu (v0.3), others in progress |
+| Email Template                                             | ✔ Completed (v0.5) |
+| Invitation Mechanism                                       | ✔ Completed (v0.5) |
+| Wechat Login                                               | ✔ Completed (v0.5) |
+| Chat Log Viewing                                           | ✔ Completed (v0.5) |
+| Model Name Map                                             | ✔ Completed (v0.5) |
+| Redeem Code                                                | ✔ Completed (v0.7) |
+| Mask Management                                            | ✔ Completed (v0.7) |
+| Independent Registration and Login Page                     | ✔ Completed (v0.7) |
+| API Key Balance Protocol Configuration                     | ✔ Completed (v0.7) |
+| More UI Customization                                      | ✔ Completed (v0.7) |
+| Integration with Card Issuing Platforms                     | In Progress |
+| Multiple Model Support                                     | Ongoing |
 
 ## Preview
 
