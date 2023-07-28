@@ -1,6 +1,6 @@
-# docker build -t nanjiren01/aichat-web:0.6 .
-# docker push nanjiren01/aichat-web:0.6
-# docker tag nanjiren01/aichat-web:0.6 nanjiren01/aichat-web:latest
+# docker build -t nanjiren01/aichat-web:0.8 .
+# docker push nanjiren01/aichat-web:0.8
+# docker tag nanjiren01/aichat-web:0.8 nanjiren01/aichat-web:latest
 # docker push nanjiren01/aichat-web:latest
 
 # 需要先在本地执行yarn install && yarn build
