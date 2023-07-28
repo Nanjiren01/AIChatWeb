@@ -7,7 +7,7 @@
 
 **简体中文** | [English](#english)
 
-![](https://img.shields.io/badge/-Browser-purple?logo=firefox)
+![](https://img.shields.io/badge/-Browser-purple?logo=microsoftedge)
 ![](https://img.shields.io/badge/-MacOS%20&%20iOS-black?logo=apple)
 ![](https://img.shields.io/badge/-Windows-blue?logo=windows)
 ![](https://img.shields.io/badge/-Android-green?logo=android)
@@ -94,35 +94,40 @@
 
 | 功能                                                      | 进度 |
 | --------------------------------------------------------- | -------- |
-| 用户管理（User Management）                               |    ✔已完成(v0.0.1)     |
-| 额度管理（Quota Management）                              |    ✔已完成(v0.1)     |
-| 注册额度赠送（Registration limit gift）                   |    ✔已完成(v0.1)     |
-| 邮箱验证码注册（Email verification code registration）    |    ✔已完成(v0.1)     |
-| 调用频率限制（User based call frequency limit） |   ✔已完成(v0.1)       |
-| 图形验证码注册（Graphic verification code registration）  |    ✔已完成(v0.2)     |
-| 网站标题（Website Title Customization）                   |   ✔已完成(v0.2)      |
-| 套餐管理（Package Management）                            |   ✔已完成(v0.2)      |
-| 自定义敏感词拦截（Custom sensitive word interception）    |   ✔已完成(v0.2)   |
-| 忘记/重置密码（Reset Password）                           |   ✔已完成(v0.4)   |
-| API KEY余额自动查询（Auto Query Balance/Quota）            |   ✔已完成(v0.4)   |
-| 修改密码（Change password）                               |   进行中       |
-| 绘图功能（Drawing function）                              |   进行中       |
+| 用户管理                               |    ✔已完成(v0.0.1)     |
+| 额度管理                              |    ✔已完成(v0.1)     |
+| 注册额度赠送                       |    ✔已完成(v0.1)     |
+| 邮箱验证码注册    |    ✔已完成(v0.1)     |
+| 调用频率限制 |   ✔已完成(v0.1)       |
+| 图形验证码注册  |    ✔已完成(v0.2)     |
+| 网站标题                   |   ✔已完成(v0.2)      |
+| 套餐管理                            |   ✔已完成(v0.2)      |
+| 自定义敏感词拦截    |   ✔已完成(v0.2)   |
+| 忘记/重置密码                           |   ✔已完成(v0.4)   |
+| API KEY余额自动查询            |   ✔已完成(v0.4)   |
+| 忘记密码                           |   ✔已完成(v0.4)       |
+| 第三方API状态余额查询                                      |   ✔已完成(v0.6) |
+| 绘图功能                              |   进行中       |
 
 ## 专业版功能
 
 | 功能                                                         | 进度     |
 | ------------------------------------------------------------ | -------- |
-| 社区版的全功能（Full functionality of the community version） | ✔        |
-| 仪表盘（advanced dashboard）                                | ✔已完成(v0.3)  |
-| 对接支付系统（Connect to the payment system Pay）            | ✔已接入虎皮椒、蓝兔(v0.3)，其他进行中   |
-| 邮件模板（Email Template）                                | ✔已完成(v0.5)  |
-| 邀请机制（Inviting Code）                                | ✔已完成(v0.5)  |
-| 微信登录（Wechat Login）                                | ✔已完成(v0.5)  |
-| 后台查看聊天记录（Chat Log）                                | ✔已完成(v0.5)  |
-| 模型名称重映射（Model Name Map）                                | ✔已完成(v0.5)  |
-| 兑换码（Redeem Code）                                | ✔已完成(v0.7预览版Preview)  |
-| 对接发卡平台（Docking with card issuing platforms）          | 进行中   |
-| 多模型支持（Multiple model support）                         | 长期进行 |
+| 社区版的全功能 | ✔        |
+| 仪表盘                                | ✔已完成(v0.3)  |
+| 对接支付系统            | ✔已接入虎皮椒、蓝兔(v0.3)，其他进行中   |
+| 邮件模板                                | ✔已完成(v0.5)  |
+| 邀请机制                                | ✔已完成(v0.5)  |
+| 微信登录                                | ✔已完成(v0.5)  |
+| 后台查看聊天记录                                | ✔已完成(v0.5)  |
+| 模型名称重映射                                | ✔已完成(v0.5)  |
+| 兑换码                                | ✔已完成(v0.7)  |
+| 面具管理                                | ✔已完成(v0.7)  |
+| 独立注册登录界面                                | ✔已完成(v0.7)  |
+| key余额协议配置                                | ✔已完成(v0.7)  |
+| 更多UI自定义                                | ✔已完成(v0.7)  |
+| 对接发卡平台          | 进行中   |
+| 多模型支持                         | 长期进行 |
 
 ## 预览
 
@@ -224,7 +229,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 > AI好望角为本项目自建平台，目前仍在筹建中，只能以赞赏形式加入（不支持退款），赞赏后可立即进入AIChatAdmin专业版内测群获取专业版专属信息。
 > 新平台筹建完毕后，会将知识星球中的内容迁移至新平台，新用户无需进入星球。
 
-当前加入AI好望角价格为188元，随着功能的不断完善，价格逐步提升
+当前加入AI好望角价格为218元，随着功能的不断完善，价格逐步提升
 
 <img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI好望角"/>
 
@@ -268,7 +273,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 
 <h1 align="center">AIChat Web</h1>
 
-![](https://img.shields.io/badge/-Browser-purple?logo=firefox)
+![](https://img.shields.io/badge/-Browser-purple?logo=microsoftedge)
 ![](https://img.shields.io/badge/-MacOS%20&%20iOS-black?logo=apple)
 ![](https://img.shields.io/badge/-Windows-blue?logo=windows)
 ![](https://img.shields.io/badge/-Android-green?logo=android)
@@ -353,37 +358,42 @@ In the admin panel, you can also set the registration method (supporting usernam
 
 ## Community Edition Features
 
-| Feature                                                    | Progress |
-| --------------------------------------------------------- | -------- |
-| User Management                                           | ✔ Completed(v0.0.1) |
-| Quota Management                                          | ✔ Completed(v0.1) |
-| Registration Limit Gift                                   | ✔ Completed(v0.1) |
-| Email Verification Code Registration                     | ✔ Completed(v0.1) |
-| User-Based Call Frequency Limit                       | ✔ Completed(v0.1) |
-| Graphic Verification Code Registration                   | ✔ Completed(v0.2) |
-| Website Title Customization                              | ✔ Completed(v0.2) |
-| Package Management                                       | ✔ Completed(v0.2) |
-| Custom Sensitive Word Interception                       | ✔ Completed(v0.2) |
-| Reset Password                                           | ✔ Completed(v0.4) |
-| Auto Query Balance/Quota                                 | ✔ Completed(v0.4) |
-| Change Password                                          | In Progress |
-| Drawing Function                                         | In Progress |
+| Feature                                                     | Progress |
+| ----------------------------------------------------------- | -------- |
+| User Management                                            | ✔ Completed (v0.0.1) |
+| Quota Management                                           | ✔ Completed (v0.1) |
+| Registration Limit Gift                                    | ✔ Completed (v0.1) |
+| Email Verification Code Registration                       | ✔ Completed (v0.1) |
+| User-Based Call Frequency Limit                            | ✔ Completed (v0.1) |
+| Graphic Verification Code Registration                     | ✔ Completed (v0.2) |
+| Website Title Customization                                | ✔ Completed (v0.2) |
+| Package Management                                         | ✔ Completed (v0.2) |
+| Custom Sensitive Word Interception                         | ✔ Completed (v0.2) |
+| Reset Password                                             | ✔ Completed (v0.4) |
+| Auto Query Balance/Quota                                   | ✔ Completed (v0.4) |
+| Forgot Password                                            | ✔ Completed (v0.4) |
+| Third-Party API Status and Balance Query                    | ✔ Completed (v0.6) |
+| Drawing Function                                           | In Progress |
 
 ## Professional Edition Features
 
-| Feature                                                    | Progress |
-| --------------------------------------------------------- | -------- |
-| Full functionality of the Community Edition                | ✔ Completed |
-| Advanced Dashboard                                       | ✔ Completed(v0.3) |
-| Connect to the Payment System Pay                          | ✔ Integrated with Huipijiao, Lantu(v0.3), others in progress |
-| Email Template                                           | ✔ Completed(v0.5) |
-| Inviting Code                                            | ✔ Completed(v0.5) |
-| Wechat Login                                             | ✔ Completed(v0.5) |
-| View Chat Log                                            | ✔ Completed(v0.5) |
-| Model Name Map                                           | ✔ Completed(v0.5) |
-| Redeem Code                                              | ✔ Completed(v0.7 Preview) |
-| Docking with Card Issuing Platforms                      | In Progress |
-| Multiple Model Support                                   | Ongoing |
+| Feature                                                     | Progress |
+| ----------------------------------------------------------- | -------- |
+| Full Functionality of the Community Version                 | ✔ Completed |
+| Advanced Dashboard                                         | ✔ Completed (v0.3) |
+| Integration with Payment System (Pay)                       | ✔ Integrated with Hupijiao and Lantu (v0.3), others in progress |
+| Email Template                                             | ✔ Completed (v0.5) |
+| Invitation Mechanism                                       | ✔ Completed (v0.5) |
+| Wechat Login                                               | ✔ Completed (v0.5) |
+| Chat Log Viewing                                           | ✔ Completed (v0.5) |
+| Model Name Map                                             | ✔ Completed (v0.5) |
+| Redeem Code                                                | ✔ Completed (v0.7) |
+| Mask Management                                            | ✔ Completed (v0.7) |
+| Independent Registration and Login Page                     | ✔ Completed (v0.7) |
+| API Key Balance Protocol Configuration                     | ✔ Completed (v0.7) |
+| More UI Customization                                      | ✔ Completed (v0.7) |
+| Integration with Card Issuing Platforms                     | In Progress |
+| Multiple Model Support                                     | Ongoing |
 
 ## Preview
 
@@ -485,7 +495,7 @@ Join **AI Horizon - Exclusive Community for AIChat Users** and enjoy the followi
 > AI Horizon is a self-built platform for this project, which is currently under construction. You can only join by showing appreciation (no refunds are available). After showing appreciation, you can immediately enter the AIChatAdmin Pro version testing group to access exclusive information.
 > Once the new platform is completed, the content in the Knowledge Planet will be migrated to the new platform, and new users will not need to join the Knowledge Planet.
 
-The current price to join AI Horizon is 188 yuan, and the price will gradually increase as the features are improved.
+The current price to join AI Horizon is 218 yuan, and the price will gradually increase as the features are improved.
 
 <img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI Horizon"/>
 
