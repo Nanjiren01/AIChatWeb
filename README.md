@@ -480,9 +480,9 @@ Telegram: [aichatadmin](https://t.me/aichatadmin)
 
 <img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
 
-## AI Horizon
+## AI Good Hope
 
-Join **AI Horizon - Exclusive Community for AIChat Users** and enjoy the following benefits:
+Join **AI Good Hope - Exclusive Community for AIChat Users** and enjoy the following benefits:
 - Free access to AIChat Pro version
 - Possibility of receiving free custom services
 - Showcase of outstanding use cases (subject to meeting standards)
@@ -492,12 +492,12 @@ Join **AI Horizon - Exclusive Community for AIChat Users** and enjoy the followi
 
 > The current project is in the trial phase, and some content is still under development.
 
-> AI Horizon is a self-built platform for this project, which is currently under construction. You can only join by showing appreciation (no refunds are available). After showing appreciation, you can immediately enter the AIChatAdmin Pro version testing group to access exclusive information.
+> AI Good Hope is a self-built platform for this project, which is currently under construction. You can only join by showing appreciation (no refunds are available). After showing appreciation, you can immediately enter the AIChatAdmin Pro version testing group to access exclusive information.
 > Once the new platform is completed, the content in the Knowledge Planet will be migrated to the new platform, and new users will not need to join the Knowledge Planet.
 
-The current price to join AI Horizon is 218 yuan, and the price will gradually increase as the features are improved.
+The current price to join AI Good Hope is 218 yuan, and the price will gradually increase as the features are improved.
 
-<img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI Horizon"/>
+<img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI Good Hope"/>
 
 ## Excellent Cases
 
