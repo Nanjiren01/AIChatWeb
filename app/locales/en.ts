@@ -57,6 +57,7 @@ const en: LocaleType = {
       Masks: "Masks",
       Clear: "Clear Context",
       Settings: "Settings",
+      Internet: "Access Internet",
     },
     TooFrequently: "您发送太快啦，请稍后重试",
     Rename: "Rename Chat",

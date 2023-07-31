@@ -121,7 +121,7 @@ export const useMaskStore = create<MaskStore>()(
           .then((res) => res.json())
           .then((resp: RemoteMaskListResponse) => {
             const masks = resp.data;
-            const remoteMasks = masks.map((mask) => {
+            const remoteMasks = (masks || []).map((mask) => {
               let context, modelConfig;
               try {
                 context = JSON.parse(mask.contextJson || "{}");

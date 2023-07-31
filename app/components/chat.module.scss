@@ -33,6 +33,7 @@
       pointer-events: none;
     }
 
+    &.hover,
     &:hover {
       width: var(--full-width);
 

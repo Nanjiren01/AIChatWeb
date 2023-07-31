@@ -1,6 +1,12 @@
 import { getClientConfig } from "../config/client";
 import { ACCESS_CODE_PREFIX } from "../constant";
-import { ChatMessage, ModelType, useAccessStore, useAuthStore } from "../store";
+import {
+  ChatMessage,
+  ModelType,
+  PluginActionModel,
+  useAccessStore,
+  useAuthStore,
+} from "../store";
 import { ChatGPTApi } from "./platforms/openai";
 
 export const ROLES = ["system", "user", "assistant"] as const;
@@ -26,6 +32,7 @@ export interface LLMConfig {
 export interface ChatOptions {
   messages: RequestMessage[];
   config: LLMConfig;
+  plugins: PluginActionModel[];
 
   onUpdate?: (message: string, chunk: string) => void;
   onFinish: (message: string) => void;

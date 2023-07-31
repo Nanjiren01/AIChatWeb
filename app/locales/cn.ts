@@ -55,6 +55,7 @@ const cn = {
       Masks: "所有面具",
       Clear: "清除聊天",
       Settings: "对话设置",
+      Internet: "联网模式",
     },
     TooFrequently: "您发送太快啦，请稍后重试",
     Rename: "重命名对话",

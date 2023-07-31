@@ -2,6 +2,16 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { StoreKey } from "../constant";
 
+export interface AiPlugin {
+  id: number;
+  uuid: string;
+  name: string;
+  logo?: string;
+  alone: boolean;
+  builtin: boolean;
+  state: number;
+}
+
 export interface WebsiteConfigStore {
   title: string;
   mainTitle: string;
@@ -30,6 +40,7 @@ export interface WebsiteConfigStore {
   logoUrl?: string;
   availableModelNames: string[];
   defaultSystemTemplate?: string;
+  plugins?: AiPlugin[];
   fetchWebsiteConfig: () => Promise<any>;
 }
 
@@ -61,6 +72,7 @@ export interface WebsiteConfig {
   logoUuid?: string;
   defaultSystemTemplate: string;
   availableModelNames: string[];
+  plugins?: AiPlugin[];
 }
 export interface WebsiteConfigData {
   websiteContent: WebsiteConfig;
@@ -99,6 +111,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       redeemCodePageIndex: "",
       redeemCodePageBottom: "",
       defaultSystemTemplate: "",
+      plugins: [] as AiPlugin[],
 
       async fetchWebsiteConfig() {
         const url = "/globalConfig/website";
@@ -156,6 +169,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
                   : "",
               availableModelNames: website.availableModelNames,
               defaultSystemTemplate: website.defaultSystemTemplate,
+              plugins: website.plugins,
             }));
             return res;
           })
