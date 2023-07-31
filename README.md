@@ -19,16 +19,19 @@
          <a href="#一键部署">📝一键部署</a> 
         </td>
         <td>
-         <a href="https://www.nanjiren.online" target="_blank">🌏官网</a>
+         <a href="https://nanjiren.online" target="_blank">🌏官方网站</a>
         </td>
         <td>
-         <a href="#演示站">🎭演示站</a>
+         <a href="#演示站点">🎭演示站点</a>
         </td>
         <td> 
          <a href="#项目优势">😍项目优势</a> 
         </td>
         <td>
-         <a href="#交流">👨‍👩‍👧‍👦交流</a>
+         <a href="#交流">💬合作交流</a>
+        </td>
+        <td> 
+         <a href="#ai好望角">👨‍👩‍👧‍👦社区论坛</a>
         </td>
         <td> 
          <a href="#优秀案例">📕优秀案例</a>
@@ -43,11 +46,12 @@
 
 本项目是在[ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git)的基础上增加登录，注册等功能（注意，由于登录注册需要后台支持，因此本项目需要单独部署后端服务才可以运行）
 
-> **本项目不再支持在vercel上正常运行**
+> **本项目不再支持在vercel上进行完整部署**
 
----
+🧡💛💚💙💜🤎🖤🧡💛💚💙💜🤎🖤🧡💛💚💙💜🤎🧡💛💚💙💜🤎🖤🧡💛💚💙💜🤎🖤🧡💛💚
 
-# 演示站
+
+## 演示站点
 
 - 用户前台：[https://chat.nanjiren.online](https://chat.nanjiren.online)
 - 管理后台：[https://admin.nanjiren.online](https://admin.nanjiren.online)
@@ -72,9 +76,9 @@
 
 #### 2.1、网站标题、欢迎词、公告自定义
 
-可以自定义网站标题，副标题；
-可以自定义欢迎词，支持富文本格式，您可以在此处添加图片（例如二维码）进行引流；
-可以编辑公告，同样支持富文本格式，您可以在此处展示使用声明、通知，可以选择是否开屏展示；
+①可以自定义网站标题，副标题；
+②可以自定义欢迎词，支持富文本格式，您可以在此处添加图片（例如二维码）进行引流；
+③可以编辑公告，同样支持富文本格式，您可以在此处展示使用声明、通知，可以选择是否开屏展示。
 
 ![网站标题、欢迎词、公告自定义](./docs/images/intro1.png)
 
@@ -221,15 +225,15 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 - 有可能获得免费定制服务
 - 优秀案例展示（需达到标准）
 - 高级教程（包括HTTPS搭建、域名注册、服务器购买、高级套餐页制作）
-- ChatGPT高级使用手册
+- ChatGPT高级使用教程
 - 新功能优先体验
 
 > 当前项目为试运行阶段，部分内容仍在筹备中
 
-> AI好望角为本项目自建平台，目前仍在筹建中，只能以赞赏形式加入（不支持退款），赞赏后可立即进入AIChatAdmin专业版内测群获取专业版专属信息。
+> AI好望角为本项目自建平台，目前仍在筹建中，只能以赞赏形式加入（不支持退款），赞赏后可立即进入AIChat专业版内测群获取专业版专属信息。
 > 新平台筹建完毕后，会将知识星球中的内容迁移至新平台，新用户无需进入星球。
 
-当前加入AI好望角价格为218元，随着功能的不断完善，价格逐步提升
+当前加入AI好望角价格仅为**￥218**，随着功能的不断完善，价格逐步提升
 
 <img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI好望角"/>
 
@@ -285,7 +289,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
          <a href="#one-click-deployment">📝Deployment</a>
         </td>
         <td>
-         <a href="https://www.nanjiren.online" target="_blank">🌏Website</a>
+         <a href="https://nanjiren.online" target="_blank">🌏Website</a>
         </td>
         <td>
          <a href="#demo">🎭Demo</a>
@@ -294,7 +298,10 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
          <a href="#advantages">😍Advantages</a>
         </td>
         <td>
-         <a href="#communication">👨‍👩‍👧‍👦Communication</a>
+         <a href="#communication">💬Communication</a>
+        </td>
+        <td> 
+         <a href="#ai-cape-of-good-hope">👨‍👩‍👧‍👦Forum</a>
         </td>
         <td> 
          <a href="#excellent-cases">📕Examples</a>
@@ -309,11 +316,11 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 
 This project is an extension of [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git) that includes features like login and registration. Please note that since login and registration require backend support, this project needs a separate deployment of backend services to run.
 
-> **This project can NOT run on the vercel**
+> **This project no longer supports full deployment on Vercel**
 
----
+🧡💛💚💙💜🤎🖤🧡💛💚💙💜🤎🖤🧡💛💚💙💜🤎🧡💛💚💙💜🤎🖤🧡💛💚💙💜🤎🖤🧡💛💚
 
-# Demo
+## Demo
 
 - User Frontend: [https://chat.nanjiren.online](https://chat.nanjiren.online)
 - Admin Backend: [https://admin.nanjiren.online](https://admin.nanjiren.online)
@@ -338,9 +345,9 @@ The project offers a user-friendly and stable admin panel (based on [vue-element
 
 #### 2.1. Customizable website title, welcome message, and announcements
 
-You can customize the website title and subtitle.
-You can define a welcome message with support for rich text formatting. You can also add images (e.g., QR codes) to attract visitors.
-You can edit announcements with rich text formatting as well. You can choose whether to display them on the splash screen.
+①You can customize the website title and subtitle.
+②You can define a welcome message with support for rich text formatting. You can also add images (e.g., QR codes) to attract visitors.
+③You can edit announcements with rich text formatting as well. You can choose whether to display them on the splash screen.
 
 ![Customizable website title, welcome message, and announcements](./docs/images/intro1.png)
 
@@ -480,24 +487,24 @@ Telegram: [aichatadmin](https://t.me/aichatadmin)
 
 <img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
 
-## AI Good Hope
+## AI Cape of Good Hope
 
-Join **AI Good Hope - Exclusive Community for AIChat Users** and enjoy the following benefits:
+Join the **AI Cape of Good Hope - AIChat User Exclusive Community** and enjoy the following benefits:
 - Free access to AIChat Pro version
-- Possibility of receiving free custom services
-- Showcase of outstanding use cases (subject to meeting standards)
+- Possibility of receiving free customized services
+- Showcase of outstanding use cases (subject to meeting the standards)
 - Advanced tutorials (including HTTPS setup, domain registration, server purchase, advanced package page creation)
-- ChatGPT advanced user manual
-- Early access to new features
+- Advanced usage tutorials for ChatGPT
+- Priority access to new features
 
 > The current project is in the trial phase, and some content is still under development.
 
-> AI Good Hope is a self-built platform for this project, which is currently under construction. You can only join by showing appreciation (no refunds are available). After showing appreciation, you can immediately enter the AIChatAdmin Pro version testing group to access exclusive information.
-> Once the new platform is completed, the content in the Knowledge Planet will be migrated to the new platform, and new users will not need to join the Knowledge Planet.
+> AI Cape of Good Hope is a self-built platform for this project, which is currently under construction. Joining is only possible through appreciation (no refunds are supported). After showing your appreciation, you can immediately join the AIChat Pro beta group and gain access to exclusive information for the professional version.
+> Once the new platform is ready, the content from the Knowledge Planet will be migrated to the new platform, and new users will not need to join the Planet.
 
-The current price to join AI Good Hope is 218 yuan, and the price will gradually increase as the features are improved.
+The current price to join AI Cape of Good Hope is only **￥218**. As the functionality continues to improve, the price will gradually increase.
 
-<img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI Good Hope"/>
+<img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI Cape of Good Hope"/>
 
 ## Excellent Cases
 
