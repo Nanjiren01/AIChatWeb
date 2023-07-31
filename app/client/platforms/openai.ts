@@ -30,6 +30,7 @@ export class ChatGPTApi implements LLMApi {
   }
 
   async chat(options: ChatOptions) {
+    const plugins = options.plugins;
     const messages = options.messages.map((v) => ({
       role: v.role,
       content: v.content,
@@ -50,6 +51,14 @@ export class ChatGPTApi implements LLMApi {
       temperature: modelConfig.temperature,
       presence_penalty: modelConfig.presence_penalty,
       frequency_penalty: modelConfig.frequency_penalty,
+      plugins: plugins.map((p) => {
+        return {
+          id: p.plugin.id,
+          uuid: p.plugin.uuid,
+          name: p.plugin.name,
+          value: p.value,
+        };
+      }),
     };
 
     console.log("[Request] openai payload: ", requestPayload);
@@ -138,6 +147,9 @@ export class ChatGPTApi implements LLMApi {
               return finish();
             }
             const text = msg.data;
+            if (text === "") {
+              return;
+            }
             try {
               const json = JSON.parse(text);
               const delta = json.choices[0].delta.content;

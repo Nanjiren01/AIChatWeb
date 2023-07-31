@@ -16,7 +16,7 @@ import { api, RequestMessage } from "../client/api";
 import { ChatControllerPool } from "../client/controller";
 import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
-import { WebsiteConfigStore } from "./website";
+import { AiPlugin, WebsiteConfigStore } from "./website";
 import { AuthStore } from "./auth";
 
 export type ChatMessage = RequestMessage & {
@@ -81,6 +81,11 @@ function createEmptySession(): ChatSession {
   };
 }
 
+export interface PluginActionModel {
+  plugin: AiPlugin;
+  value: boolean;
+}
+
 interface ChatStore {
   sessions: ChatSession[];
   currentSessionIndex: number;
@@ -95,6 +100,7 @@ interface ChatStore {
   onNewMessage: (message: ChatMessage) => void;
   onUserInput: (
     content: string,
+    plugins: PluginActionModel[],
     websiteConfigStore: WebsiteConfigStore,
     authStore: AuthStore,
     navigateToLogin: () => void,
@@ -289,6 +295,7 @@ export const useChatStore = create<ChatStore>()(
 
       async onUserInput(
         content,
+        plugins,
         websiteConfigStore,
         authStore,
         navigateToLogin,
@@ -335,6 +342,7 @@ export const useChatStore = create<ChatStore>()(
         api.llm.chat({
           messages: sendMessages,
           config: { ...modelConfig, stream: true },
+          plugins: plugins,
           onUpdate(message) {
             botMessage.streaming = true;
             if (message) {
@@ -557,6 +565,7 @@ export const useChatStore = create<ChatStore>()(
           );
           api.llm.chat({
             messages: topicMessages,
+            plugins: [],
             config: {
               model: "gpt-3.5-turbo",
             },
@@ -610,6 +619,7 @@ export const useChatStore = create<ChatStore>()(
               content: Locale.Store.Prompt.Summarize,
               date: "",
             }),
+            plugins: [],
             config: { ...modelConfig, stream: true },
             onUpdate(message) {
               session.memoryPrompt = message;
