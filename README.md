@@ -76,9 +76,9 @@
 
 #### 2.1、网站标题、欢迎词、公告自定义
 
-可以自定义网站标题，副标题；
-可以自定义欢迎词，支持富文本格式，您可以在此处添加图片（例如二维码）进行引流；
-可以编辑公告，同样支持富文本格式，您可以在此处展示使用声明、通知，可以选择是否开屏展示；
+①可以自定义网站标题，副标题；
+②可以自定义欢迎词，支持富文本格式，您可以在此处添加图片（例如二维码）进行引流；
+③可以编辑公告，同样支持富文本格式，您可以在此处展示使用声明、通知，可以选择是否开屏展示。
 
 ![网站标题、欢迎词、公告自定义](./docs/images/intro1.png)
 
@@ -345,9 +345,9 @@ The project offers a user-friendly and stable admin panel (based on [vue-element
 
 #### 2.1. Customizable website title, welcome message, and announcements
 
-You can customize the website title and subtitle.
-You can define a welcome message with support for rich text formatting. You can also add images (e.g., QR codes) to attract visitors.
-You can edit announcements with rich text formatting as well. You can choose whether to display them on the splash screen.
+①You can customize the website title and subtitle.
+②You can define a welcome message with support for rich text formatting. You can also add images (e.g., QR codes) to attract visitors.
+③You can edit announcements with rich text formatting as well. You can choose whether to display them on the splash screen.
 
 ![Customizable website title, welcome message, and announcements](./docs/images/intro1.png)
 
