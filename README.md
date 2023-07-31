@@ -28,7 +28,10 @@
          <a href="#项目优势">😍项目优势</a> 
         </td>
         <td>
-         <a href="#交流">👨‍👩‍👧‍👦交流</a>
+         <a href="#交流">💬交流</a>
+        </td>
+        <td> 
+         <a href="#AI好望角">👨‍👩‍👧‍👦论坛社区</a>
         </td>
         <td> 
          <a href="#优秀案例">📕优秀案例</a>
@@ -47,7 +50,7 @@
 
 ---
 
-# 演示站
+## 演示站
 
 - 用户前台：[https://chat.nanjiren.online](https://chat.nanjiren.online)
 - 管理后台：[https://admin.nanjiren.online](https://admin.nanjiren.online)
@@ -294,8 +297,12 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
          <a href="#advantages">😍Advantages</a>
         </td>
         <td>
-         <a href="#communication">👨‍👩‍👧‍👦Communication</a>
+         <a href="#communication">👨‍👩‍👧‍💬Communication</a>
         </td>
+        <td> 
+         <a href="#ai-cape-of-good-hope">👨‍👩‍👧‍👦Forum</a>
+        </td>
+        <td> 
         <td> 
          <a href="#excellent-cases">📕Examples</a>
         </td>
@@ -313,7 +320,7 @@ This project is an extension of [ChatGPT-Next-Web](https://github.com/Yidadaa/Ch
 
 ---
 
-# Demo
+## Demo
 
 - User Frontend: [https://chat.nanjiren.online](https://chat.nanjiren.online)
 - Admin Backend: [https://admin.nanjiren.online](https://admin.nanjiren.online)
