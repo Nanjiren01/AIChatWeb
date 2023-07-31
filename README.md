@@ -297,7 +297,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
          <a href="#advantages">😍Advantages</a>
         </td>
         <td>
-         <a href="#communication">👨‍👩‍👧‍💬Communication</a>
+         <a href="#communication">💬Communication</a>
         </td>
         <td> 
          <a href="#ai-cape-of-good-hope">👨‍👩‍👧‍👦Forum</a>
