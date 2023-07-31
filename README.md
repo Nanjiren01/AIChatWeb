@@ -31,7 +31,7 @@
          <a href="#交流">💬交流</a>
         </td>
         <td> 
-         <a href="#AI好望角">👨‍👩‍👧‍👦论坛社区</a>
+         <a href="#ai好望角">👨‍👩‍👧‍👦社区论坛</a>
         </td>
         <td> 
          <a href="#优秀案例">📕优秀案例</a>
@@ -302,7 +302,6 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
         <td> 
          <a href="#ai-cape-of-good-hope">👨‍👩‍👧‍👦Forum</a>
         </td>
-        <td> 
         <td> 
          <a href="#excellent-cases">📕Examples</a>
         </td>
