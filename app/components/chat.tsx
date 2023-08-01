@@ -542,7 +542,7 @@ export function ChatActions(props: {
               onClick={() => {
                 model.value = !model.value;
                 showToast(
-                  (!model.value ? "已开启" : "已关闭") + model.plugin.name,
+                  (model.value ? "已开启" : "已关闭") + model.plugin.name,
                 );
               }}
               text={model.plugin.name}
