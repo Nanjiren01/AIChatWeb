@@ -426,7 +426,6 @@ export function ChatActions(props: {
   const navigate = useNavigate();
   const chatStore = useChatStore();
   const { availableModelNames } = useWebsiteConfigStore();
-  console.log("plugins", props.plugins);
 
   // switch themes
   const theme = config.theme;
