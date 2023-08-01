@@ -532,7 +532,6 @@ export function ChatActions(props: {
 
       <>
         {props.plugins.map((model) => {
-          console.log("plugin model", model);
           return (
             <SwitchChatAction
               key={model.plugin.uuid}
@@ -651,7 +650,6 @@ export function Chat() {
 
   const [pluignModels, setPluginModels] = useState<PluginActionModel[]>([]);
   useEffect(() => {
-    console.log("plugins", plugins);
     const models = (plugins || []).map((plugin) => {
       return {
         plugin: plugin,
