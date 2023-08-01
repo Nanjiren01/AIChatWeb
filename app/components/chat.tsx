@@ -307,7 +307,9 @@ function ChatAction(props: {
   });
 
   function updateWidth() {
+    console.log("updateWidth", iconRef, textRef);
     if (!iconRef.current || !textRef.current) return;
+    console.log("1");
     const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
     const textWidth = getWidth(textRef.current);
     const iconWidth = getWidth(iconRef.current);
@@ -335,6 +337,9 @@ function ChatAction(props: {
     >
       <div ref={iconRef} className={styles["icon"]}>
         {props.icon}
+      </div>
+      <div className={styles["text"]} ref={textRef}>
+        {props.text}
       </div>
     </div>
   );
