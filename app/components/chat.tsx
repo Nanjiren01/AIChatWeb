@@ -942,7 +942,11 @@ function _Chat() {
 
     // resend the message
     setIsLoading(true);
-    chatStore.onUserInput(userMessage.content).then(() => setIsLoading(false));
+    chatStore
+      .onUserInput(content, pluignModels, websiteConfigStore, authStore, () =>
+        navigate(Path.Login),
+      )
+      .then(() => setIsLoading(false));
     inputRef.current?.focus();
   };
 
