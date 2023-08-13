@@ -37,7 +37,6 @@ export const getServerSideConfig = () => {
     );
   }
 
-  // console.log('process.env.OPENAI_API_KEY', process.env.OPENAI_API_KEY)
   return {
     apiKey: process.env.OPENAI_API_KEY,
     code: process.env.CODE,
@@ -47,7 +46,7 @@ export const getServerSideConfig = () => {
     proxyUrl: process.env.PROXY_URL,
     isVercel: !!process.env.VERCEL,
     hideUserApiKey: !!process.env.HIDE_USER_API_KEY,
-    enableGPT4: !process.env.DISABLE_GPT4,
+    disableGPT4: !!process.env.DISABLE_GPT4,
     hideBalanceQuery: !!process.env.HIDE_BALANCE_QUERY,
   };
 };

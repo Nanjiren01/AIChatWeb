@@ -28,15 +28,6 @@
     }
   }
 
-  &.second {
-    background-color: var(--second);
-    //color: white;
-
-    // path {
-    //   fill: white !important;
-    // }
-  }
-
   &.danger {
     color: rgba($color: red, $alpha: 0.8);
     border-color: rgba($color: red, $alpha: 0.5);
@@ -64,11 +55,6 @@
 
 .border {
   border: var(--border-in-light);
-}
-
-.block {
-  display: block;
-  width: 100%;
 }
 
 .icon-button-icon {

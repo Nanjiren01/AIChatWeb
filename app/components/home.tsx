@@ -191,8 +191,7 @@ const loadAsyncGoogleFont = () => {
     getClientConfig()?.buildMode === "export" ? remoteFontUrl : proxyFontUrl;
   linkEl.rel = "stylesheet";
   linkEl.href =
-    googleFontUrl +
-    "/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap";
+    googleFontUrl + "/css2?family=Noto+Sans:wght@300;400;700;900&display=swap";
   document.head.appendChild(linkEl);
 };
 
@@ -301,22 +300,22 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   return (
     <>
       <div className={(separator ? "separator-page " : "") + "body"}>
-        <div
-          className={
-            styles.container +
-            ` ${
-              config.tightBorder && !isMobileScreen
-                ? styles["tight-container"]
-                : styles.container
-            } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
-          }
-        >
-          {isAuth ? (
-            <>
-              <AuthPage />
-            </>
-          ) : (
-            <>
+    <div
+      className={
+        styles.container +
+        ` ${
+          config.tightBorder && !isMobileScreen
+            ? styles["tight-container"]
+            : styles.container
+        } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
+      }
+    >
+      {isAuth ? (
+        <>
+          <AuthPage />
+        </>
+      ) : (
+        <>
               {!separator && (
                 <SideBar
                   className={isHome ? styles["sidebar-show"] : ""}
@@ -329,13 +328,13 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
                 />
               )}
 
-              <div className={styles["window-content"]} id={SlotID.AppBody}>
-                <Routes>
-                  <Route path={Path.Home} element={<Chat />} />
-                  <Route path={Path.NewChat} element={<NewChat />} />
-                  <Route path={Path.Masks} element={<MaskPage />} />
-                  <Route path={Path.Chat} element={<Chat />} />
-                  <Route path={Path.Settings} element={<Settings />} />
+          <div className={styles["window-content"]} id={SlotID.AppBody}>
+            <Routes>
+              <Route path={Path.Home} element={<Chat />} />
+              <Route path={Path.NewChat} element={<NewChat />} />
+              <Route path={Path.Masks} element={<MaskPage />} />
+              <Route path={Path.Chat} element={<Chat />} />
+              <Route path={Path.Settings} element={<Settings />} />
                   <Route
                     path={Path.Login}
                     element={
@@ -368,11 +367,11 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
                   <Route path={Path.Pay} element={<Pay />} />
                   <Route path={Path.Balance} element={<Balance />} />
                   <Route path={Path.Order} element={<Order />} />
-                </Routes>
-              </div>
-            </>
-          )}
-        </div>
+            </Routes>
+          </div>
+        </>
+      )}
+    </div>
       </div>
       {!config.tightBorder && !isMobileScreen && (
         <div
@@ -385,7 +384,20 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   );
 }
 
+export function useLoadData() {
+  const config = useAppConfig();
+
+  useEffect(() => {
+    (async () => {
+      const models = await api.llm.models();
+      config.mergeModels(models);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+}
+
 export function Home() {
+  useLoadData();
   useSwitchTheme();
 
   const authStore = useAuthStore();
@@ -398,6 +410,7 @@ export function Home() {
 
   useEffect(() => {
     console.log("[Config] got config from build time", getClientConfig());
+    useAccessStore.getState().fetch();
   }, []);
   useEffect(() => {
     console.log("set default model", availableModelNames[0]);

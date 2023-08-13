@@ -52,13 +52,3 @@ export function IconButton(props: {
     </button>
   );
 }
-
-// export function Button(props: {
-//   onClick?: () => void;
-// }) {
-//   return (
-//     <button>
-
-//     </button>
-//   )
-// }
