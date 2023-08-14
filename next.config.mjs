@@ -3,8 +3,6 @@ import webpack from "webpack";
 const mode = process.env.BUILD_MODE ?? "standalone";
 console.log("[Next] build mode", mode);
 
-const BASE_URL = process.env.BASE_URL
-
 const disableChunk = !!process.env.DISABLE_CHUNK || mode === "export";
 console.log("[Next] build with chunk: ", !disableChunk);
 
@@ -19,18 +17,21 @@ const nextConfig = {
     if (disableChunk) {
       config.plugins.push(
         new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
-        new webpack.DefinePlugin({
-          'process.env.BASE_URL': JSON.stringify(BASE_URL),
-          'process.env.BUILD_MODE': JSON.stringify(mode)
-        })
       );
     }
+
+    config.resolve.fallback = {
+      child_process: false,
+    };
 
     return config;
   },
   output: mode,
   images: {
     unoptimized: mode === "export",
+  },
+  experimental: {
+    forceSwcTransforms: true,
   },
 };
 
@@ -72,10 +73,6 @@ if (mode !== "export") {
       {
         source: "/sharegpt",
         destination: "https://sharegpt.com/api/conversations",
-      },
-      {
-        source: "/:path([A-Za-z\\-]+)",
-        destination: "/",
       },
     ];
 
