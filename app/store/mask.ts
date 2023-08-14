@@ -57,7 +57,8 @@ export const createEmptyMask = () =>
   } as Mask);
 
 export interface RemoteMask {
-  id: number;
+  id: string;
+  createdAt: number;
   name: string;
   avatar: string;
   lang: Lang;
@@ -146,6 +147,7 @@ export const useMaskStore = create<MaskStore>()(
               modelConfig.template = "{{input}}";
               const remoteMask: RemoteMask = {
                 id: mask.id,
+                createdAt: mask.createdAt,
                 name: mask.name,
                 avatar: mask.avatar,
                 lang: mask.lang,
@@ -165,7 +167,7 @@ export const useMaskStore = create<MaskStore>()(
           });
       },
       getUserMasks() {
-        return Object.values(get().masks).sort((a, b) => b.id - a.id);
+        return Object.values(get().masks).sort((a, b) => Number(b.id) - Number(a.id));
       },
       getAll() {
         const userMasks = Object.values(get().masks).sort(

@@ -6,7 +6,7 @@ import { trimTopic } from "../utils";
 import Locale, { getLang } from "../locales";
 import { showToast } from "../components/ui-lib";
 import { ModelConfig, ModelType, useAppConfig } from "./config";
-import { createEmptyMask, Mask } from "./mask";
+import { createEmptyMask, Mask, RemoteMask } from "./mask";
 import {
   DEFAULT_INPUT_TEMPLATE,
   DEFAULT_SYSTEM_TEMPLATE,
@@ -16,6 +16,8 @@ import { api, RequestMessage } from "../client/api";
 import { ChatControllerPool } from "../client/controller";
 import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
+import { AiPlugin, WebsiteConfigStore } from "./website";
+import { AuthStore } from "./auth";
 import { nanoid } from "nanoid";
 
 export type ChatMessage = RequestMessage & {
@@ -91,7 +93,7 @@ interface ChatStore {
   clearSessions: () => void;
   moveSession: (from: number, to: number) => void;
   selectSession: (index: number) => void;
-  newSession: (mask?: Mask) => void;
+  newSession: (mask?: Mask | RemoteMask) => void;
   deleteSession: (index: number) => void;
   currentSession: () => ChatSession;
   nextSession: (delta: number) => void;
@@ -191,7 +193,7 @@ export const useChatStore = create<ChatStore>()(
         });
       },
 
-      newSession(mask) {
+      newSession(mask?: Mask | RemoteMask) {
         const session = createEmptySession();
 
         if (mask) {
@@ -200,6 +202,8 @@ export const useChatStore = create<ChatStore>()(
 
           session.mask = {
             ...mask,
+            builtin: mask.builtin || false, 
+            context: mask.context || [],
             modelConfig: {
               ...globalModelConfig,
               ...mask.modelConfig,
@@ -314,7 +318,7 @@ export const useChatStore = create<ChatStore>()(
         });
 
         // get recent messages
-        const recentMessages = get().getMessagesWithMemory();
+        const recentMessages = get().getMessagesWithMemory(websiteConfigStore);
         const sendMessages = recentMessages.concat(userMessage);
         const messageIndex = get().currentSession().messages.length + 1;
 
@@ -381,7 +385,7 @@ export const useChatStore = create<ChatStore>()(
               get().onNewMessage(botMessage);
             }
             ChatControllerPool.remove(
-              sessionIndex,
+              session.id,
               botMessage.id ?? messageIndex,
             );
             if (logout) {

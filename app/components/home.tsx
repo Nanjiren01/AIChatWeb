@@ -10,6 +10,7 @@ import ChatBotIcon from "../icons/ai-chat-bot.png";
 import LoadingIcon from "../icons/three-dots.svg";
 import NextImage from "next/image";
 
+
 import { getCSSVar, useMobileScreen } from "../utils";
 
 import dynamic from "next/dynamic";
@@ -28,12 +29,17 @@ import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
 import { AuthPage } from "./auth";
 import { getClientConfig } from "../config/client";
+import { api } from "../client/api";
 import {
   useWebsiteConfigStore,
   useAuthStore,
   BOT_HELLO,
   useWechatConfigStore,
+  useAccessStore,
 } from "../store";
+import { DEFAULT_INPUT_TEMPLATE, DEFAULT_MODELS, StoreKey } from "../constant";
+
+export type ModelType = (typeof DEFAULT_MODELS)[number]["name"];
 
 export function Loading(props: {
   noLogo?: boolean;
@@ -300,22 +306,21 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   return (
     <>
       <div className={(separator ? "separator-page " : "") + "body"}>
-    <div
-      className={
-        styles.container +
-        ` ${
-          config.tightBorder && !isMobileScreen
-            ? styles["tight-container"]
-            : styles.container
-        } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
-      }
-    >
-      {isAuth ? (
-        <>
-          <AuthPage />
-        </>
-      ) : (
-        <>
+        <div
+          className={
+            styles.container +
+            ` ${config.tightBorder && !isMobileScreen
+              ? styles["tight-container"]
+              : styles.container
+            } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
+          }
+        >
+          {isAuth ? (
+            <>
+              <AuthPage />
+            </>
+          ) : (
+            <>
               {!separator && (
                 <SideBar
                   className={isHome ? styles["sidebar-show"] : ""}
@@ -328,13 +333,13 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
                 />
               )}
 
-          <div className={styles["window-content"]} id={SlotID.AppBody}>
-            <Routes>
-              <Route path={Path.Home} element={<Chat />} />
-              <Route path={Path.NewChat} element={<NewChat />} />
-              <Route path={Path.Masks} element={<MaskPage />} />
-              <Route path={Path.Chat} element={<Chat />} />
-              <Route path={Path.Settings} element={<Settings />} />
+              <div className={styles["window-content"]} id={SlotID.AppBody}>
+                <Routes>
+                  <Route path={Path.Home} element={<Chat />} />
+                  <Route path={Path.NewChat} element={<NewChat />} />
+                  <Route path={Path.Masks} element={<MaskPage />} />
+                  <Route path={Path.Chat} element={<Chat />} />
+                  <Route path={Path.Settings} element={<Settings />} />
                   <Route
                     path={Path.Login}
                     element={
@@ -367,11 +372,11 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
                   <Route path={Path.Pay} element={<Pay />} />
                   <Route path={Path.Balance} element={<Balance />} />
                   <Route path={Path.Order} element={<Order />} />
-            </Routes>
-          </div>
-        </>
-      )}
-    </div>
+                </Routes>
+              </div>
+            </>
+          )}
+        </div>
       </div>
       {!config.tightBorder && !isMobileScreen && (
         <div
@@ -413,8 +418,8 @@ export function Home() {
     useAccessStore.getState().fetch();
   }, []);
   useEffect(() => {
-    console.log("set default model", availableModelNames[0]);
-    useAppConfig.getState().modelConfig.model = availableModelNames[0];
+    const modelName = availableModelNames[0] as ModelType; // 使用类型断言
+    useAppConfig.getState().modelConfig.model = modelName;
   }, [availableModelNames]);
 
   if (!useHasHydrated()) {

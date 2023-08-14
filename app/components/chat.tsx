@@ -943,7 +943,7 @@ function _Chat() {
     // resend the message
     setIsLoading(true);
     chatStore
-      .onUserInput(content, pluignModels, websiteConfigStore, authStore, () =>
+      .onUserInput(userMessage.content, pluignModels, websiteConfigStore, authStore, () =>
         navigate(Path.Login),
       )
       .then(() => setIsLoading(false));

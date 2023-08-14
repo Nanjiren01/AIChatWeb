@@ -38,7 +38,7 @@ function MaskItem(props: { mask: RemoteMask; onClick?: () => void }) {
 }
 
 function useMaskGroup(masks: RemoteMask[] | Mask[]) {
-  const [groups, setGroups] = useState<RemoteMask[][] | Mask[][]>([]);
+  const [groups, setGroups] = useState<(Mask | RemoteMask)[][]>([]);
 
   useEffect(() => {
     const computeGroup = () => {
