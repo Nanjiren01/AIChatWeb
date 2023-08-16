@@ -1,6 +1,5 @@
 import {
   DEFAULT_API_HOST,
-  DEFAULT_MODELS,
   OpenaiPath,
   REQUEST_TIMEOUT_MS,
 } from "@/app/constant";
@@ -14,18 +13,10 @@ import {
 } from "@fortaine/fetch-event-source";
 import { prettyObject } from "@/app/utils/format";
 
-export interface OpenAIListModelResponse {
-  object: string;
-  data: Array<{
-    id: string;
-    object: string;
-    root: string;
-  }>;
-}
-
 export class ChatGPTApi implements LLMApi {
-  private disableListModels = true;
-
+  models(): Promise<LLMModel[]> {
+    throw new Error("Method not implemented.");
+  }
   path(path: string): string {
     const BASE_URL = process.env.BASE_URL;
     const mode = process.env.BUILD_MODE;
@@ -64,7 +55,6 @@ export class ChatGPTApi implements LLMApi {
       temperature: modelConfig.temperature,
       presence_penalty: modelConfig.presence_penalty,
       frequency_penalty: modelConfig.frequency_penalty,
-      top_p: modelConfig.top_p,
       plugins: plugins.map((p) => {
         return {
           id: p.plugin.id,
@@ -193,7 +183,7 @@ export class ChatGPTApi implements LLMApi {
         options.onFinish(message);
       }
     } catch (e) {
-      console.log("[Request] failed to make a chat request", e);
+      console.log("[Request] failed to make a chat reqeust", e);
       options.onError?.(e as Error);
     }
   }
@@ -261,32 +251,6 @@ export class ChatGPTApi implements LLMApi {
       used: response.total_usage,
       total: total.hard_limit_usd,
     } as LLMUsage;
-  }
-
-  async models(): Promise<LLMModel[]> {
-    if (this.disableListModels) {
-      return DEFAULT_MODELS.slice();
-    }
-
-    const res = await fetch(this.path(OpenaiPath.ListModelPath), {
-      method: "GET",
-      headers: {
-        ...getHeaders(),
-      },
-    });
-
-    const resJson = (await res.json()) as OpenAIListModelResponse;
-    const chatModels = resJson.data?.filter((m) => m.id.startsWith("gpt-"));
-    console.log("[Models]", chatModels);
-
-    if (!chatModels) {
-      return [];
-    }
-
-    return chatModels.map((m) => ({
-      name: m.id,
-      available: true,
-    }));
   }
 }
 export { OpenaiPath };
