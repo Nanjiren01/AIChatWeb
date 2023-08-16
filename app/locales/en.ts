@@ -64,14 +64,15 @@ const en: LocaleType = {
     SensitiveWordsTip: (question: string) =>
       `您的提问中包含敏感词：${question}`,
     BalanceNotEnough: "您的额度不足，请联系管理员",
-    Input: (submitKey: string) => {
-      var inputHints = `${submitKey} to send`;
+    Input: (submitKey: string, action: string) => {
+      var inputHints = `${submitKey} to ${action}`;
       if (submitKey === String(SubmitKey.Enter)) {
         inputHints += ", Shift + Enter to wrap";
       }
       return inputHints + ", / to search prompts, : to use commands";
     },
     Send: "Send",
+    Draw: "Draw",
     Config: {
       Reset: "Reset to Default",
       SaveAs: "Save as Mask",

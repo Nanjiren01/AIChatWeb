@@ -62,14 +62,15 @@ const cn = {
     SensitiveWordsTip: (question: string) =>
       `您的提问中包含敏感词：${question}`,
     BalanceNotEnough: "您的额度不足，请联系管理员",
-    Input: (submitKey: string) => {
-      var inputHints = `${submitKey} 发送`;
+    Input: (submitKey: string, action: string) => {
+      var inputHints = `${submitKey} ${action}`;
       if (submitKey === String(SubmitKey.Enter)) {
         inputHints += "，Shift + Enter 换行";
       }
       return inputHints + "，/ 触发补全，: 触发命令";
     },
     Send: "发送",
+    Draw: "绘画",
     Config: {
       Reset: "清除记忆",
       SaveAs: "存为面具",

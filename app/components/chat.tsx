@@ -1227,7 +1227,12 @@ export function Chat() {
           <textarea
             ref={inputRef}
             className={styles["chat-input"]}
-            placeholder={Locale.Chat.Input(submitKey)}
+            placeholder={Locale.Chat.Input(
+              submitKey,
+              session.mask?.modelConfig?.contentType === "Image"
+                ? Locale.Chat.Draw
+                : Locale.Chat.Send,
+            )}
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}
@@ -1241,7 +1246,11 @@ export function Chat() {
           />
           <IconButton
             icon={<SendWhiteIcon />}
-            text={Locale.Chat.Send}
+            text={
+              session.mask?.modelConfig?.contentType === "Image"
+                ? Locale.Chat.Draw
+                : Locale.Chat.Send
+            }
             className={styles["chat-input-send"]}
             type="primary"
             onClick={() => doSubmit(userInput)}
