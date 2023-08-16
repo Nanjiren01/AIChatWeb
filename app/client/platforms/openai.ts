@@ -1,5 +1,6 @@
 import {
   DEFAULT_API_HOST,
+  DEFAULT_MODELS,
   OpenaiPath,
   REQUEST_TIMEOUT_MS,
 } from "@/app/constant";
@@ -12,21 +13,35 @@ import {
   fetchEventSource,
 } from "@fortaine/fetch-event-source";
 import { prettyObject } from "@/app/utils/format";
+import { getClientConfig } from "@/app/config/client";
+
+export interface OpenAIListModelResponse {
+  object: string;
+  data: Array<{
+    id: string;
+    object: string;
+    root: string;
+  }>;
+}
 
 export class ChatGPTApi implements LLMApi {
-  models(): Promise<LLMModel[]> {
-    throw new Error("Method not implemented.");
-  }
-  path(path: string): string {
-    const BASE_URL = process.env.BASE_URL;
-    const mode = process.env.BUILD_MODE;
-    let baseUrl =
-      mode === "export" ? (BASE_URL ?? DEFAULT_API_HOST) + "/api" : "/api";
+  private disableListModels = true;
 
-    if (baseUrl.endsWith("/")) {
-      baseUrl = baseUrl.slice(0, baseUrl.length - 1);
+  path(path: string): string {
+    let openaiUrl = useAccessStore.getState().openaiUrl;
+    const apiPath = "/openai";
+
+    if (openaiUrl.length === 0) {
+      const isApp = !!getClientConfig()?.isApp;
+      openaiUrl = isApp ? DEFAULT_API_HOST : apiPath;
     }
-    return [baseUrl, path].join("/");
+    if (openaiUrl.endsWith("/")) {
+      openaiUrl = openaiUrl.slice(0, openaiUrl.length - 1);
+    }
+    if (!openaiUrl.startsWith("http") && !openaiUrl.startsWith(apiPath)) {
+      openaiUrl = "https://" + openaiUrl;
+    }
+    return [openaiUrl, path].join("/");
   }
 
   extractMessage(res: any) {
@@ -34,7 +49,6 @@ export class ChatGPTApi implements LLMApi {
   }
 
   async chat(options: ChatOptions) {
-    const plugins = options.plugins;
     const messages = options.messages.map((v) => ({
       role: v.role,
       content: v.content,
@@ -55,26 +69,17 @@ export class ChatGPTApi implements LLMApi {
       temperature: modelConfig.temperature,
       presence_penalty: modelConfig.presence_penalty,
       frequency_penalty: modelConfig.frequency_penalty,
-      plugins: plugins.map((p) => {
-        return {
-          id: p.plugin.id,
-          uuid: p.plugin.uuid,
-          name: p.plugin.name,
-          value: p.value,
-        };
-      }),
+      top_p: modelConfig.top_p,
     };
 
     console.log("[Request] openai payload: ", requestPayload);
 
     const shouldStream = !!options.config.stream;
-    console.log("shouldStream", shouldStream);
     const controller = new AbortController();
     options.onController?.(controller);
 
     try {
       const chatPath = this.path(OpenaiPath.ChatPath);
-      console.log("chatPath", chatPath);
       const chatPayload = {
         method: "POST",
         body: JSON.stringify(requestPayload),
@@ -125,13 +130,10 @@ export class ChatGPTApi implements LLMApi {
             ) {
               const responseTexts = [responseText];
               let extraInfo = await res.clone().text();
-              // console.log('extraInfo', extraInfo)
-              // try {
-              //   const resJson = await res.clone().json();
-              //   console.log('resJson', resJson)
-              //   extraInfo = prettyObject(resJson);
-              //   console.log('extraInfo', extraInfo)
-              // } catch {}
+              try {
+                const resJson = await res.clone().json();
+                extraInfo = prettyObject(resJson);
+              } catch {}
 
               if (res.status === 401) {
                 responseTexts.push(Locale.Error.Unauthorized);
@@ -151,9 +153,6 @@ export class ChatGPTApi implements LLMApi {
               return finish();
             }
             const text = msg.data;
-            if (text === "") {
-              return;
-            }
             try {
               const json = JSON.parse(text);
               const delta = json.choices[0].delta.content;
@@ -183,7 +182,7 @@ export class ChatGPTApi implements LLMApi {
         options.onFinish(message);
       }
     } catch (e) {
-      console.log("[Request] failed to make a chat reqeust", e);
+      console.log("[Request] failed to make a chat request", e);
       options.onError?.(e as Error);
     }
   }
@@ -251,6 +250,32 @@ export class ChatGPTApi implements LLMApi {
       used: response.total_usage,
       total: total.hard_limit_usd,
     } as LLMUsage;
+  }
+
+  async models(): Promise<LLMModel[]> {
+    if (this.disableListModels) {
+      return DEFAULT_MODELS.slice();
+    }
+
+    const res = await fetch(this.path(OpenaiPath.ListModelPath), {
+      method: "GET",
+      headers: {
+        ...getHeaders(),
+      },
+    });
+
+    const resJson = (await res.json()) as OpenAIListModelResponse;
+    const chatModels = resJson.data?.filter((m) => m.id.startsWith("gpt-"));
+    console.log("[Models]", chatModels);
+
+    if (!chatModels) {
+      return [];
+    }
+
+    return chatModels.map((m) => ({
+      name: m.id,
+      available: true,
+    }));
   }
 }
 export { OpenaiPath };
