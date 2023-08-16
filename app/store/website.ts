@@ -12,6 +12,12 @@ export interface AiPlugin {
   state: number;
 }
 
+export type ModelContentType = "Text" | "Image";
+export interface SimpleModel {
+  name: string;
+  contentType: ModelContentType;
+}
+
 export interface WebsiteConfigStore {
   title: string;
   mainTitle: string;
@@ -38,7 +44,7 @@ export interface WebsiteConfigStore {
   botHello: string;
   hideChatLogWhenNotLogin: boolean;
   logoUrl?: string;
-  availableModelNames: string[];
+  availableModels: SimpleModel[];
   defaultSystemTemplate?: string;
   plugins?: AiPlugin[];
   fetchWebsiteConfig: () => Promise<any>;
@@ -71,7 +77,7 @@ export interface WebsiteConfig {
   hideChatLogWhenNotLogin: boolean;
   logoUuid?: string;
   defaultSystemTemplate: string;
-  availableModelNames: string[];
+  availableModels: SimpleModel[];
   plugins?: AiPlugin[];
 }
 export interface WebsiteConfigData {
@@ -103,7 +109,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       botHello: "",
       hideChatLogWhenNotLogin: false as boolean,
       logoUrl: "",
-      availableModelNames: [] as string[],
+      availableModels: [] as SimpleModel[],
       redeemCodePageTitle: "",
       redeemCodePageSubTitle: "",
       redeemCodePageBanner: "",
@@ -167,7 +173,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
                 website.logoUuid !== ""
                   ? getBaseUrl() + "/api/file/" + website.logoUuid
                   : "",
-              availableModelNames: website.availableModelNames,
+              availableModels: website.availableModels,
               defaultSystemTemplate: website.defaultSystemTemplate,
               plugins: website.plugins,
             }));

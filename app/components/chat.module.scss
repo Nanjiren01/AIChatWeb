@@ -341,6 +341,34 @@
   }
 }
 
+.chat-message-mj-actions {
+
+  &.column-flex{
+    flex-direction: column;
+    justify-content: center;
+    align-items: end;
+  }
+}
+
+
+.chat-message-mj-action-btn {
+  font-size: 12px;
+  background-color: var(--white);
+  color: var(--black);
+
+  border: var(--border-in-light);
+  box-shadow: var(--card-shadow);
+  padding: 8px 16px;
+  border-radius: 16px;
+
+  animation: slide-in-from-top ease 0.3s;
+  transition: all .3s;
+  cursor: pointer;
+  margin: 2px 2px;
+
+  width: 50px;
+}
+
 .chat-message-action-date {
   font-size: 12px;
   opacity: 0.2;

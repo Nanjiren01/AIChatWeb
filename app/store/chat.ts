@@ -25,6 +25,7 @@ export type ChatMessage = RequestMessage & {
   isError?: boolean;
   id?: number;
   model?: ModelType;
+  attr?: any;
 };
 
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
@@ -33,6 +34,7 @@ export function createMessage(override: Partial<ChatMessage>): ChatMessage {
     date: new Date().toLocaleString(),
     role: "user",
     content: "",
+    attr: {},
     ...override,
   };
 }
@@ -341,6 +343,8 @@ export const useChatStore = create<ChatStore>()(
         // make request
         api.llm.chat({
           messages: sendMessages,
+          botMessage: botMessage,
+          content,
           config: { ...modelConfig, stream: true },
           plugins: plugins,
           onUpdate(message) {
@@ -549,6 +553,9 @@ export const useChatStore = create<ChatStore>()(
 
       summarizeSession() {
         const session = get().currentSession();
+        if (session.mask.modelConfig?.contentType !== "Text") {
+          return;
+        }
 
         // remove error messages if any
         const messages = session.messages;
@@ -559,14 +566,17 @@ export const useChatStore = create<ChatStore>()(
           session.topic === DEFAULT_TOPIC &&
           countMessages(messages) >= SUMMARIZE_MIN_LEN
         ) {
+          const content = Locale.Store.Prompt.Topic;
           const topicMessages = messages.concat(
             createMessage({
               role: "user",
-              content: Locale.Store.Prompt.Topic,
+              content,
             }),
           );
           api.llm.chat({
             messages: topicMessages,
+            botMessage: topicMessages[topicMessages.length - 1],
+            content,
             plugins: [],
             config: {
               model: "gpt-3.5-turbo",
@@ -615,12 +625,15 @@ export const useChatStore = create<ChatStore>()(
           historyMsgLength > modelConfig.compressMessageLengthThreshold &&
           modelConfig.sendMemory
         ) {
+          const content = Locale.Store.Prompt.Summarize;
           api.llm.chat({
             messages: toBeSummarizedMsgs.concat({
               role: "system",
-              content: Locale.Store.Prompt.Summarize,
+              content,
               date: "",
             }),
+            botMessage: toBeSummarizedMsgs[toBeSummarizedMsgs.length - 1],
+            content,
             plugins: [],
             config: { ...modelConfig, stream: true },
             onUpdate(message) {

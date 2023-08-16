@@ -390,8 +390,9 @@ export function Home() {
 
   const authStore = useAuthStore();
   const [logoLoading, setLogoLoading] = useState(false);
-  const { fetchWebsiteConfig, logoUrl, availableModelNames } =
+  const { fetchWebsiteConfig, logoUrl, availableModels } =
     useWebsiteConfigStore();
+
   useEffect(() => {
     fetchWebsiteConfig();
   }, [fetchWebsiteConfig]);
@@ -400,9 +401,16 @@ export function Home() {
     console.log("[Config] got config from build time", getClientConfig());
   }, []);
   useEffect(() => {
-    console.log("set default model", availableModelNames[0]);
-    useAppConfig.getState().modelConfig.model = availableModelNames[0];
-  }, [availableModelNames]);
+    console.log("set default model", availableModels[0]);
+    if (availableModels.length > 0) {
+      useAppConfig.getState().modelConfig.model = availableModels[0].name;
+      useAppConfig.getState().modelConfig.contentType =
+        availableModels[0].contentType;
+    } else {
+      useAppConfig.getState().modelConfig.model = "";
+      useAppConfig.getState().modelConfig.contentType = "Text";
+    }
+  }, [availableModels]);
 
   if (!useHasHydrated()) {
     return <Loading noLogo logoLoading={logoLoading} logoUrl={logoUrl} />;

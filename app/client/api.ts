@@ -15,6 +15,8 @@ export type MessageRole = (typeof ROLES)[number];
 export const Models = ["gpt-3.5-turbo", "gpt-4"] as const;
 export type ChatModel = ModelType;
 
+export type ContentType = "Text" | "Image";
+
 export interface RequestMessage {
   role: MessageRole;
   content: string;
@@ -22,6 +24,7 @@ export interface RequestMessage {
 
 export interface LLMConfig {
   model: string;
+  contentType?: ContentType;
   temperature?: number;
   top_p?: number;
   stream?: boolean;
@@ -31,6 +34,9 @@ export interface LLMConfig {
 
 export interface ChatOptions {
   messages: RequestMessage[];
+  botMessage: ChatMessage;
+  content: string;
+
   config: LLMConfig;
   plugins: PluginActionModel[];
 
@@ -94,7 +100,7 @@ export class ClientApi {
         {
           from: "human",
           value:
-            "Share from [ChatGPT Next Web]: https://github.com/Yidadaa/ChatGPT-Next-Web",
+            "Share from [AIChatWeb]: https://github.com/Nanjiren01/AIChatWeb",
         },
       ]);
     // 敬告二开开发者们，为了开源大模型的发展，请不要修改上述消息，此消息用于后续数据清洗使用
