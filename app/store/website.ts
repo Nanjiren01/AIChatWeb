@@ -12,6 +12,12 @@ export interface AiPlugin {
   state: number;
 }
 
+export type ModelContentType = "Text" | "Image";
+export interface SimpleModel {
+  name: string;
+  contentType: ModelContentType;
+}
+
 export interface WebsiteConfigStore {
   title: string;
   mainTitle: string;
@@ -26,7 +32,7 @@ export interface WebsiteConfigStore {
   registerTypes: string[];
   hideGithubIcon: boolean;
   botHello: string;
-  availableModelNames: string[];
+  availableModels: SimpleModel[];
   defaultSystemTemplate?: string;
   plugins?: AiPlugin[];
   fetchWebsiteConfig: () => Promise<any>;
@@ -47,7 +53,7 @@ export interface WebsiteConfig {
   hideGithubIcon: boolean;
   botHello: string;
   defaultSystemTemplate: string;
-  availableModelNames: string[];
+  availableModels: SimpleModel[];
   plugins?: AiPlugin[];
 }
 export interface WebsiteConfigData {
@@ -73,7 +79,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       balanceNotEnough: "",
       hideGithubIcon: false,
       botHello: "",
-      availableModelNames: [] as string[],
+      availableModels: [] as SimpleModel[],
       defaultSystemTemplate: "",
       plugins: [] as AiPlugin[],
 
@@ -99,7 +105,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               registerTypes:
                 website.registerTypes && website.registerTypes.length
                   ? website.registerTypes
-                  : ["OnlyUsername"],
+                  : (["OnlyUsername"] as string[]),
               pricingPageTitle: website.pricingPageTitle,
               pricingPageSubTitle: website.pricingPageSubTitle,
               chatPageSubTitle: website.chatPageSubTitle,
@@ -107,7 +113,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               balanceNotEnough: website.balanceNotEnough,
               hideGithubIcon: website.hideGithubIcon,
               botHello: website.botHello,
-              availableModelNames: website.availableModelNames,
+              availableModels: website.availableModels,
               defaultSystemTemplate: website.defaultSystemTemplate,
               plugins: website.plugins,
             }));

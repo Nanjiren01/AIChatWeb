@@ -168,10 +168,10 @@ function Screen() {
     loadAsyncGoogleFont();
   }, []);
 
-  const { fetchWebsiteConfig } = useWebsiteConfigStore();
-  useEffect(() => {
-    fetchWebsiteConfig();
-  }, [fetchWebsiteConfig]);
+  // const { fetchWebsiteConfig } = useWebsiteConfigStore();
+  // useEffect(() => {
+  //   fetchWebsiteConfig();
+  // }, [fetchWebsiteConfig]);
 
   const { botHello } = useWebsiteConfigStore();
   useEffect(() => {
@@ -260,9 +260,25 @@ function Screen() {
 export function Home() {
   useSwitchTheme();
 
+  const { fetchWebsiteConfig, availableModels } = useWebsiteConfigStore();
+  useEffect(() => {
+    fetchWebsiteConfig();
+  }, [fetchWebsiteConfig]);
+
   useEffect(() => {
     console.log("[Config] got config from build time", getClientConfig());
   }, []);
+  useEffect(() => {
+    console.log("set default model", availableModels[0]);
+    if (availableModels.length > 0) {
+      useAppConfig.getState().modelConfig.model = availableModels[0].name;
+      useAppConfig.getState().modelConfig.contentType =
+        availableModels[0].contentType;
+    } else {
+      useAppConfig.getState().modelConfig.model = "";
+      useAppConfig.getState().modelConfig.contentType = "Text";
+    }
+  }, [availableModels]);
 
   if (!useHasHydrated()) {
     return <Loading />;

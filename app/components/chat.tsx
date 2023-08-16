@@ -430,7 +430,7 @@ export function ChatActions(props: {
   const config = useAppConfig();
   const navigate = useNavigate();
   const chatStore = useChatStore();
-  const { availableModelNames } = useWebsiteConfigStore();
+  const { availableModels } = useWebsiteConfigStore();
 
   // switch themes
   const theme = config.theme;
@@ -448,13 +448,18 @@ export function ChatActions(props: {
 
   // switch model
   const currentModel = chatStore.currentSession().mask.modelConfig.model;
+  const currentContentType =
+    chatStore.currentSession().mask.modelConfig.contentType;
   function nextModel() {
-    const models = availableModelNames;
-    const modelIndex = models.indexOf(currentModel);
+    const models = availableModels;
+    const modelIndex = models.findIndex(
+      (m) => m.name === currentModel && m.contentType === currentContentType,
+    );
     const nextIndex = (modelIndex + 1) % models.length;
     const nextModel = models[nextIndex];
     chatStore.updateCurrentSession((session) => {
-      session.mask.modelConfig.model = nextModel as ModelType;
+      session.mask.modelConfig.model = nextModel.name as ModelType;
+      session.mask.modelConfig.contentType = nextModel.contentType;
       session.mask.syncGlobalConfig = false;
     });
   }
@@ -1093,7 +1098,51 @@ export function Chat() {
                       parentRef={scrollRef}
                       defaultShow={i >= messages.length - 10}
                     />
-
+                    {!isUser &&
+                      ["VARIATION", "IMAGINE"].includes(message.attr?.action) &&
+                      message.attr?.status === "SUCCESS" && (
+                        <div
+                          className={[
+                            styles["chat-message-mj-actions"],
+                            styles["column-flex"],
+                          ].join(" ")}
+                        >
+                          <div>
+                            {[1, 2, 3, 4].map((index) => {
+                              return (
+                                <button
+                                  key={index}
+                                  onClick={() =>
+                                    doSubmit(
+                                      `UPSCALE::${index}::${message.attr.taskId}`,
+                                    )
+                                  }
+                                  className={`${styles["chat-message-mj-action-btn"]} clickable`}
+                                >
+                                  U{index}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <div>
+                            {[1, 2, 3, 4].map((index) => {
+                              return (
+                                <button
+                                  key={index}
+                                  onClick={() =>
+                                    doSubmit(
+                                      `VARIATION::${index}::${message.attr.taskId}`,
+                                    )
+                                  }
+                                  className={`${styles["chat-message-mj-action-btn"]} clickable`}
+                                >
+                                  V{index}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     {showActions && (
                       <div className={styles["chat-message-actions"]}>
                         <div
