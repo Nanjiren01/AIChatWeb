@@ -29,7 +29,7 @@ export class ChatGPTApi implements LLMApi {
 
   path(path: string): string {
     let openaiUrl = useAccessStore.getState().openaiUrl;
-    const apiPath = "/openai";
+    const apiPath = "/api/openai";
 
     if (openaiUrl.length === 0) {
       const isApp = !!getClientConfig()?.isApp;
@@ -69,7 +69,6 @@ export class ChatGPTApi implements LLMApi {
       temperature: modelConfig.temperature,
       presence_penalty: modelConfig.presence_penalty,
       frequency_penalty: modelConfig.frequency_penalty,
-      top_p: modelConfig.top_p,
     };
 
     console.log("[Request] openai payload: ", requestPayload);
