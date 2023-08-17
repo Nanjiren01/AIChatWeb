@@ -23,7 +23,6 @@ export interface RequestMessage {
 export interface LLMConfig {
   model: string;
   temperature?: number;
-  top_p?: number;
   stream?: boolean;
   presence_penalty?: number;
   frequency_penalty?: number;
@@ -45,9 +44,15 @@ export interface LLMUsage {
   total: number;
 }
 
+export interface LLMModel {
+  name: string;
+  available: boolean;
+}
+
 export abstract class LLMApi {
   abstract chat(options: ChatOptions): Promise<void>;
   abstract usage(): Promise<LLMUsage>;
+  abstract models(): Promise<LLMModel[]>;
 }
 
 type ProviderName = "openai" | "azure" | "claude" | "palm";

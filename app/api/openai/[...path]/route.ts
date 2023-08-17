@@ -16,27 +16,22 @@ async function handle(
     return NextResponse.json({ body: "OK" }, { status: 200 });
   }
 
-  // const subpath = params.path.join("/");
+  const subpath = params.path.join("/");
 
-  // if (!ALLOWD_PATH.has(subpath)) {
-  //   console.log("[OpenAI Route] forbidden path ", subpath);
-  //   return NextResponse.json(
-  //     {
-  //       error: true,
-  //       msg: "you are not allowed to request " + subpath,
-  //     },
-  //     {
-  //       status: 403,
-  //     },
-  //   );
-  // }
+  if (!ALLOWD_PATH.has(subpath)) {
+    console.log("[OpenAI Route] forbidden path ", subpath);
+    return NextResponse.json(
+      {
+        error: true,
+        msg: "you are not allowed to request " + subpath,
+      },
+      {
+        status: 403,
+      },
+    );
+  }
 
-  // const authResult = auth(req);
-  // if (authResult.error) {
-  //   return NextResponse.json(authResult, {
-  //     status: 401,
-  //   });
-  // }
+
 
   try {
     return await requestOpenai(req);

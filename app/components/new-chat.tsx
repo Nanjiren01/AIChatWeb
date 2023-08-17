@@ -15,6 +15,7 @@ import { useAppConfig, useChatStore } from "../store";
 import { MaskAvatar } from "./mask";
 import { useCommand } from "../command";
 import { showConfirm } from "./ui-lib";
+import { BUILTIN_MASK_STORE } from "../masks";
 
 function getIntersectionArea(aRect: DOMRect, bRect: DOMRect) {
   const xmin = Math.max(aRect.x, bRect.x);
@@ -37,7 +38,7 @@ function MaskItem(props: { mask: RemoteMask; onClick?: () => void }) {
 }
 
 function useMaskGroup(masks: RemoteMask[] | Mask[]) {
-  const [groups, setGroups] = useState<RemoteMask[][] | Mask[][]>([]);
+  const [groups, setGroups] = useState<(Mask | RemoteMask)[][]>([]);
 
   useEffect(() => {
     const computeGroup = () => {
@@ -64,6 +65,7 @@ function useMaskGroup(masks: RemoteMask[] | Mask[]) {
             .fill(0)
             .map((_, j) => (j < 1 || j > cols - 2 ? randomMask() : nextMask())),
         );
+
       setGroups(newGroups);
     };
 
@@ -133,14 +135,16 @@ export function NewChat() {
   const { state } = useLocation();
 
   const startChat = (mask?: Mask | RemoteMask) => {
-    chatStore.newSession(mask as Mask);
-    setTimeout(() => navigate(Path.Chat), 1);
+    setTimeout(() => {
+      chatStore.newSession(mask);
+      navigate(Path.Chat);
+    }, 10);
   };
 
   useCommand({
     mask: (id) => {
       try {
-        const mask = maskStore.get(parseInt(id));
+        const mask = maskStore.get(id) ?? BUILTIN_MASK_STORE.get(id);
         startChat(mask ?? undefined);
       } catch {
         console.error("[New Chat] failed to create chat from mask id=", id);

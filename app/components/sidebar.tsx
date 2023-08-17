@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import styles from "./home.module.scss";
 
@@ -14,6 +14,7 @@ import AddIcon from "../icons/add.svg";
 import CloseIcon from "../icons/close.svg";
 import MaskIcon from "../icons/mask.svg";
 import PluginIcon from "../icons/plugin.svg";
+import DragIcon from "../icons/drag.svg";
 import NextImage from "next/image";
 
 import Locale from "../locales";
@@ -266,11 +267,11 @@ export function SideBar(props: {
             <></>
           )}
           {!websiteConfigStore.hideGithubIcon ? (
-            <div className={styles["sidebar-action"]}>
-              <a href={REPO_URL} target="_blank">
-                <IconButton icon={<GithubIcon />} shadow />
-              </a>
-            </div>
+          <div className={styles["sidebar-action"]}>
+            <a href={REPO_URL} target="_blank">
+              <IconButton icon={<GithubIcon />} shadow />
+            </a>
+          </div>
           ) : (
             <></>
           )}
@@ -295,8 +296,10 @@ export function SideBar(props: {
       <div
         className={styles["sidebar-drag"]}
         onMouseDown={(e) => onDragMouseDown(e as any)}
-      ></div>
-
+      >
+        <DragIcon />
+      </div>
+      
       {props.noticeShow && (
         <NoticeModel
           title={props.noticeTitle}

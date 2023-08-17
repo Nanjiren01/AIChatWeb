@@ -26,11 +26,18 @@ const nextConfig = {
       );
     }
 
+    config.resolve.fallback = {
+      child_process: false,
+    };
+
     return config;
   },
   output: mode,
   images: {
     unoptimized: mode === "export",
+  },
+  experimental: {
+    forceSwcTransforms: true,
   },
 };
 

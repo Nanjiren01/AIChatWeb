@@ -10,6 +10,7 @@ import ChatBotIcon from "../icons/ai-chat-bot.png";
 import LoadingIcon from "../icons/three-dots.svg";
 import NextImage from "next/image";
 
+
 import { getCSSVar, useMobileScreen } from "../utils";
 
 import dynamic from "next/dynamic";
@@ -28,12 +29,17 @@ import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
 import { AuthPage } from "./auth";
 import { getClientConfig } from "../config/client";
+import { api } from "../client/api";
 import {
   useWebsiteConfigStore,
   useAuthStore,
   BOT_HELLO,
   useWechatConfigStore,
+  useAccessStore,
 } from "../store";
+import { DEFAULT_INPUT_TEMPLATE, DEFAULT_MODELS, StoreKey } from "../constant";
+
+export type ModelType = (typeof DEFAULT_MODELS)[number]["name"];
 
 export function Loading(props: {
   noLogo?: boolean;
@@ -191,8 +197,7 @@ const loadAsyncGoogleFont = () => {
     getClientConfig()?.buildMode === "export" ? remoteFontUrl : proxyFontUrl;
   linkEl.rel = "stylesheet";
   linkEl.href =
-    googleFontUrl +
-    "/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap";
+    googleFontUrl + "/css2?family=Noto+Sans:wght@300;400;700;900&display=swap";
   document.head.appendChild(linkEl);
 };
 
@@ -304,10 +309,9 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
         <div
           className={
             styles.container +
-            ` ${
-              config.tightBorder && !isMobileScreen
-                ? styles["tight-container"]
-                : styles.container
+            ` ${config.tightBorder && !isMobileScreen
+              ? styles["tight-container"]
+              : styles.container
             } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
           }
         >
@@ -385,7 +389,20 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   );
 }
 
+export function useLoadData() {
+  const config = useAppConfig();
+
+  useEffect(() => {
+    (async () => {
+      const models = await api.llm.models();
+      config.mergeModels(models);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+}
+
 export function Home() {
+  useLoadData();
   useSwitchTheme();
 
   const authStore = useAuthStore();
@@ -398,10 +415,11 @@ export function Home() {
 
   useEffect(() => {
     console.log("[Config] got config from build time", getClientConfig());
+    useAccessStore.getState().fetch();
   }, []);
   useEffect(() => {
-    console.log("set default model", availableModelNames[0]);
-    useAppConfig.getState().modelConfig.model = availableModelNames[0];
+    const modelName = availableModelNames[0] as ModelType; // 使用类型断言
+    useAppConfig.getState().modelConfig.model = modelName;
   }, [availableModelNames]);
 
   if (!useHasHydrated()) {
