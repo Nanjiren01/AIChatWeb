@@ -63,12 +63,12 @@ const cn = {
     SensitiveWordsTip: (question: string) =>
       `您的提问中包含敏感词：${question}`,
     BalanceNotEnough: "您的额度不足，请联系管理员",
-    Input: (submitKey: string, action: string) => {
+    Input: (submitKey: string, action: string, append?: boolean) => {
       var inputHints = `${submitKey} ${action}`;
       if (submitKey === String(SubmitKey.Enter)) {
         inputHints += "，Shift + Enter 换行";
       }
-      return inputHints + "，/ 触发补全，: 触发命令";
+      return inputHints + (append ? "，/ 触发补全，: 触发命令" : "");
     },
     Send: "发送",
     Draw: "绘画",
