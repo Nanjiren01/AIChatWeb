@@ -1232,6 +1232,7 @@ export function Chat() {
               session.mask?.modelConfig?.contentType === "Image"
                 ? Locale.Chat.Draw
                 : Locale.Chat.Send,
+              session.mask?.modelConfig?.contentType !== "Image",
             )}
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
