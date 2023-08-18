@@ -1220,7 +1220,11 @@ export function Chat() {
             setUserInput("/");
             onSearch("");
           }}
-          plugins={pluignModels}
+          plugins={
+            session.mask?.modelConfig?.contentType !== "Image"
+              ? pluignModels
+              : []
+          }
           SetOpenInternet={SetOpenInternet}
         />
         <div className={styles["chat-input-panel-inner"]}>
