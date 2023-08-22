@@ -1099,7 +1099,9 @@ export function Chat() {
                       defaultShow={i >= messages.length - 10}
                     />
                     {!isUser &&
-                      ["VARIATION", "IMAGINE"].includes(message.attr?.action) &&
+                      ["VARIATION", "IMAGINE", "ZOOMOUT"].includes(
+                        message.attr?.action,
+                      ) &&
                       message.attr?.status === "SUCCESS" && (
                         <div
                           className={[
