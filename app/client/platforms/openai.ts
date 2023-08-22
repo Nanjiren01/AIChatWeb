@@ -284,6 +284,7 @@ export class ChatGPTApi implements LLMApi {
           "DESCRIBE",
           "BLEND",
           "REROLL",
+          "ZOOMOUT",
         ].includes(action)
       ) {
         options.onFinish(Locale.Midjourney.TaskErrUnknownType);
@@ -292,11 +293,17 @@ export class ChatGPTApi implements LLMApi {
       botMessage.attr.action = action;
       let actionIndex: any = null;
       let actionUseTaskId: any = null;
+      let zoomRatio: any = null;
       if (action === "VARIATION" || action == "UPSCALE" || action == "REROLL") {
         actionIndex = parseInt(
           prompt.substring(firstSplitIndex + 2, firstSplitIndex + 3),
         );
         actionUseTaskId = prompt.substring(firstSplitIndex + 5);
+      } else if (action === "ZOOMOUT") {
+        const temp = prompt.substring(firstSplitIndex + 2);
+        const index = temp.indexOf("::");
+        zoomRatio = temp.substring(0, index);
+        actionUseTaskId = temp.substring(index + 2);
       }
       try {
         let res = null;
@@ -360,6 +367,15 @@ export class ChatGPTApi implements LLMApi {
               targetIndex: actionIndex,
               targetUuid: actionUseTaskId,
             });
+            break;
+          }
+          case "ZOOMOUT": {
+            res = await reqFn("draw/zoomOut", "POST", {
+              zoomRatio: zoomRatio,
+              targetUuid: actionUseTaskId,
+            });
+            botMessage.attr.zoomRatio = zoomRatio;
+            botMessage.attr.targetUuid = actionUseTaskId;
             break;
           }
           default:
@@ -461,6 +477,12 @@ export class ChatGPTApi implements LLMApi {
               : statusResJson.data.type === "variation"
               ? "(VARIATION::" +
                 botMessage.attr.targetIndex +
+                "::" +
+                botMessage.attr.targetUuid +
+                ")"
+              : statusResJson.data.type === "zoomOut"
+              ? "(ZOOMOUT::" +
+                botMessage.attr.zoomRatio +
                 "::" +
                 botMessage.attr.targetUuid +
                 ")"

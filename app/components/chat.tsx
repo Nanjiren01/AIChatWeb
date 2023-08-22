@@ -1143,6 +1143,34 @@ export function Chat() {
                           </div>
                         </div>
                       )}
+                    {!isUser &&
+                      ["UPSCALE"].includes(message.attr?.action) &&
+                      message.attr?.status === "SUCCESS" && (
+                        <div
+                          className={[
+                            styles["chat-message-mj-actions"],
+                            styles["column-flex"],
+                          ].join(" ")}
+                        >
+                          <div>
+                            {[1, 1.5, 2, 3].map((index) => {
+                              return (
+                                <button
+                                  key={index}
+                                  onClick={() =>
+                                    doSubmit(
+                                      `ZOOMOUT::${index}::${message.attr.taskId}`,
+                                    )
+                                  }
+                                  className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["zoom-out"]}`}
+                                >
+                                  Z×{index}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     {showActions && (
                       <div className={styles["chat-message-actions"]}>
                         <div
