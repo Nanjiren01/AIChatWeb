@@ -46,6 +46,45 @@ interface PackageResponse {
   data: Package[];
 }
 
+export function GoToPayModel(props: {
+  title: string;
+  wechatCodeUrl: string;
+  onClose: () => void;
+}) {
+  return (
+    <div className="modal-mask">
+      <Modal title={props.title} onClose={() => props.onClose()} actions={[]}>
+        <div>
+          <div style={{ textAlign: "center" }}>
+            订单已创建，请点击以下按钮前往付款（微信支付）
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <a
+              href="javascript:void(0)"
+              style={{
+                background: "#00C250",
+                fontSize: "12px",
+                color: "#FFFFFF",
+                lineHeight: "32px",
+                fontWeight: 500,
+                display: "inline-block",
+                borderRadius: "4px",
+                width: "160px",
+                marginTop: "20px",
+                textDecoration: "none",
+              }}
+              target="_blank"
+              onClick={() => window.open(props.wechatCodeUrl, "_blank")}
+            >
+              点此付款
+            </a>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
 export function Pricing() {
   const router = useRouter();
   const navigate = useNavigate();
@@ -129,6 +168,8 @@ export function Pricing() {
       });
   }, [authStore.token]);
 
+  const [goToPayModelShow, setGoToPayModelShow] = useState(false);
+  const [wechatCodeUrl, setWechatCodeUrl] = useState("");
   function handleClickBuy(pkg: Package) {
     console.log("buy pkg", pkg);
     setLoading(true);
@@ -175,7 +216,15 @@ export function Pricing() {
           } else {
             // lantu
             if (inWechat || inMobile) {
-              router.push(order.payUrl);
+              if (inWechat) {
+                // showToast('window.open navigate to ' + order.payUrl)
+                // window.open(order.payUrl, "_blank")
+                // setGoToPayModelShow(true);
+                // setWechatCodeUrl(order.payUrl)
+                router.push(order.payUrl);
+              } else {
+                router.push(order.payUrl);
+              }
             } else {
               navigate(Path.Pay + "?uuid=" + order.uuid);
             }
@@ -303,6 +352,14 @@ export function Pricing() {
           </ListItem>
         </List>
       </div>
+
+      {goToPayModelShow && (
+        <GoToPayModel
+          title={"前往支付"}
+          wechatCodeUrl={wechatCodeUrl}
+          onClose={() => setGoToPayModelShow(false)}
+        />
+      )}
     </ErrorBoundary>
   );
 }
