@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { showToast } from "./ui-lib";
 import { useRouter } from "next/navigation";
 import { isInWechat } from "../utils/wechat";
+import { isMobile } from "../utils";
 
 export interface Package {
   id: number;
@@ -132,6 +133,7 @@ export function Pricing() {
     console.log("buy pkg", pkg);
     setLoading(true);
     const inWechat = isInWechat();
+    const inMobile = isMobile();
     const url = "/order";
     const BASE_URL = process.env.BASE_URL;
     const mode = process.env.BUILD_MODE;
@@ -147,6 +149,7 @@ export function Pricing() {
         packageUuid: pkg.uuid,
         count: 1,
         inWechat,
+        inMobile,
       }),
     })
       .then((res) => res.json())
@@ -171,7 +174,7 @@ export function Pricing() {
             router.push(order.payUrl);
           } else {
             // lantu
-            if (inWechat) {
+            if (inWechat || inMobile) {
               router.push(order.payUrl);
             } else {
               navigate(Path.Pay + "?uuid=" + order.uuid);
