@@ -1155,7 +1155,7 @@ export function Chat() {
                           ].join(" ")}
                         >
                           <div>
-                            {[1, 1.5, 2, 3].map((index) => {
+                            {[1.5, 2].map((index) => {
                               return (
                                 <button
                                   key={index}
