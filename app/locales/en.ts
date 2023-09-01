@@ -110,7 +110,7 @@ const en: LocaleType = {
     TaskStatus: "Task status",
     TaskRemoteSubmit: "Task has been submitted to Midjourney server",
     TaskProgressTip: (progress: number | undefined) =>
-      `Task is running${progress ? `, current progress: ${progress}` : ""}`,
+      `Task is running${progress ? `, current progress: ${progress}%` : ""}`,
     TaskNotStart: "Task has not started",
     Url: "URL",
     SettingProxyCoverTip:

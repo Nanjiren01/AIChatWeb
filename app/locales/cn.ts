@@ -106,7 +106,7 @@ const cn = {
     TaskStatus: "任务状态",
     TaskRemoteSubmit: "任务已提交至绘图服务器",
     TaskProgressTip: (progress: number | undefined) =>
-      `任务正在运行${progress ? `，当前进度：${progress}` : ""}`,
+      `任务正在运行${progress ? `，当前进度：${progress}%` : ""}`,
     TaskNotStart: "任务尚未开始",
     Url: "地址",
     SettingProxyCoverTip:
