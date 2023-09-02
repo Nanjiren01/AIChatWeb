@@ -57,6 +57,7 @@ const en: LocaleType = {
       Masks: "Masks",
       Clear: "Clear Context",
       Settings: "Settings",
+      Internet: "Access Internet",
     },
     TooFrequently: "您发送太快啦，请稍后重试",
     Rename: "Rename Chat",
@@ -64,18 +65,59 @@ const en: LocaleType = {
     SensitiveWordsTip: (question: string) =>
       `您的提问中包含敏感词：${question}`,
     BalanceNotEnough: "您的额度不足，请联系管理员",
-    Input: (submitKey: string) => {
-      var inputHints = `${submitKey} to send`;
+    Input: (submitKey: string, action: string, append?: boolean) => {
+      var inputHints = `${submitKey} to ${action}`;
       if (submitKey === String(SubmitKey.Enter)) {
         inputHints += ", Shift + Enter to wrap";
       }
-      return inputHints + ", / to search prompts, : to use commands";
+      return (
+        inputHints + (append ? ", / to search prompts, : to use commands" : "")
+      );
     },
     Send: "Send",
+    Draw: "Draw",
     Config: {
       Reset: "Reset to Default",
       SaveAs: "Save as Mask",
     },
+  },
+  Midjourney: {
+    SelectImgMax: (max: number) => `Select up to ${max} images`,
+    InputDisabled: "Input is disabled in this mode",
+    HasImgTip:
+      "Tip: In the mask mode, only the first image will be used. In the blend mode, the five selected images will be used in order (click the image to remove it)",
+    ModeImagineUseImg: "Mask Mode",
+    ModeBlend: "Blend Mode",
+    ModeDescribe: "Describe Mode",
+    NeedInputUseImgPrompt:
+      'You need to enter content to use the image in the mask mode, please enter the content starting with "/mj"',
+    BlendMinImg: (min: number, max: number) =>
+      `At least ${min} images are required in the mixed image mode, and up to ${max} images are required`,
+    TaskErrUnknownType: "Task submission failed: unknown task type",
+    TaskErrNotSupportType: (type: string) =>
+      `Task submission failed: unsupported task type -> ${type}`,
+    StatusCode: (code: number) => `Status code: ${code}`,
+    TaskSubmitErr: (err: string) => `Task submission failed: ${err}`,
+    RespBody: (body: string) => `Response body: ${body}`,
+    None: "None",
+    UnknownError: "Unknown error",
+    UnknownReason: "Unknown reason",
+    TaskPrefix: (prompt: string, taskId: string) =>
+      `**Prompt:** ${prompt}\n**Task ID:** ${taskId}\n`,
+    PleaseWait: "Please wait a moment",
+    TaskSubmitOk: "Task submitted successfully",
+    TaskStatusFetchFail: "Failed to get task status",
+    TaskStatus: "Task status",
+    TaskRemoteSubmit: "Task has been submitted to Midjourney server",
+    TaskProgressTip: (progress: number | undefined) =>
+      `Task is running${progress ? `, current progress: ${progress}%` : ""}`,
+    TaskNotStart: "Task has not started",
+    Url: "URL",
+    SettingProxyCoverTip:
+      "The MidjourneyProxy address defined here will override the MIDJOURNEY_PROXY_URL in the environment variables",
+    ImageAgent: "Image Agent",
+    ImageAgentOpenTip:
+      "After turning it on, the returned Midjourney image will be proxied by this program itself, so this program needs to be in a network environment that can access cdn.discordapp.com to be effective",
   },
   Export: {
     Title: "Export Messages",
@@ -164,6 +206,16 @@ const en: LocaleType = {
       SubTitle: "系统将向您邮箱发送的验证码",
       Placeholder: "请输入验证码",
     },
+    Phone: {
+      Title: "手机号",
+      SubTitle: "",
+      Placeholder: "请输入手机号",
+    },
+    PhoneCode: {
+      Title: "验证码",
+      SubTitle: "系统将向您手机号发送的短信验证码",
+      Placeholder: "请输入短信验证码",
+    },
     Username: {
       Title: "用户名",
       SubTitle: "",
@@ -197,6 +249,14 @@ const en: LocaleType = {
       EmailFormatError: "邮箱格式不正确",
       EmailCodeEmpty: "请输入邮箱验证码",
       EmailExistsError: "该邮箱已注册",
+      SendPhoneCode: "发送短信验证码",
+      PhoneCodeSending: "验证码发送中",
+      PhoneCodeSent: "验证码已发送，请查看短信",
+      PhoneIsEmpty: "请输入手机号",
+      PhoneCodeSentFrequently: "验证码发送过于频繁，请稍后再试",
+      PhoneFormatError: "手机号格式不正确",
+      PhoneCodeEmpty: "请输入短信验证码",
+      PhoneExistsError: "该手机号已注册",
     },
     GoToLogin: "前往登录",
     Captcha: "",
@@ -227,10 +287,11 @@ const en: LocaleType = {
     SubTitle: "个人中心",
     Username: "账号",
     Email: "邮箱",
+    Phone: "手机号",
     InviteCode: {
       Title: "邀请码",
-      Placeholder: "选填",
-      PlaceholderRequired: "必填",
+      TitleRequired: "邀请码(必填)",
+      Placeholder: "输入邀请码获得额外权益",
     },
     Tokens: {
       Title: "tokens",

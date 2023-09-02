@@ -148,6 +148,14 @@ export function Profile() {
             <span>{authStore.username}</span>
           </ListItem>
 
+          {authStore.phone ? (
+            <ListItem title={Locale.Profile.Phone}>
+              <span>{authStore.phone}</span>
+            </ListItem>
+          ) : (
+            <></>
+          )}
+
           {registerType == REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE ? (
             <ListItem title={Locale.Profile.Email}>
               <span>{authStore.email}</span>

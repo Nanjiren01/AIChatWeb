@@ -2,6 +2,22 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { StoreKey } from "../constant";
 
+export interface AiPlugin {
+  id: number;
+  uuid: string;
+  name: string;
+  logo?: string;
+  alone: boolean;
+  builtin: boolean;
+  state: number;
+}
+
+export type ModelContentType = "Text" | "Image";
+export interface SimpleModel {
+  name: string;
+  contentType: ModelContentType;
+}
+
 export interface WebsiteConfigStore {
   title: string;
   mainTitle: string;
@@ -28,7 +44,9 @@ export interface WebsiteConfigStore {
   botHello: string;
   hideChatLogWhenNotLogin: boolean;
   logoUrl?: string;
-  availableModelNames: string[];
+  availableModels: SimpleModel[];
+  defaultSystemTemplate?: string;
+  plugins?: AiPlugin[];
   fetchWebsiteConfig: () => Promise<any>;
 }
 
@@ -58,7 +76,9 @@ export interface WebsiteConfig {
   botHello: string;
   hideChatLogWhenNotLogin: boolean;
   logoUuid?: string;
-  availableModelNames: string[];
+  defaultSystemTemplate: string;
+  availableModels: SimpleModel[];
+  plugins?: AiPlugin[];
 }
 export interface WebsiteConfigData {
   websiteContent: WebsiteConfig;
@@ -89,13 +109,15 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       botHello: "",
       hideChatLogWhenNotLogin: false as boolean,
       logoUrl: "",
-      availableModelNames: [] as string[],
+      availableModels: [] as SimpleModel[],
       redeemCodePageTitle: "",
       redeemCodePageSubTitle: "",
       redeemCodePageBanner: "",
       redeemCodePageTop: "",
       redeemCodePageIndex: "",
       redeemCodePageBottom: "",
+      defaultSystemTemplate: "",
+      plugins: [] as AiPlugin[],
 
       async fetchWebsiteConfig() {
         const url = "/globalConfig/website";
@@ -151,7 +173,9 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
                 website.logoUuid !== ""
                   ? getBaseUrl() + "/api/file/" + website.logoUuid
                   : "",
-              availableModelNames: website.availableModelNames,
+              availableModels: website.availableModels,
+              defaultSystemTemplate: website.defaultSystemTemplate,
+              plugins: website.plugins,
             }));
             return res;
           })

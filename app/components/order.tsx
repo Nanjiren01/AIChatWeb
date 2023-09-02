@@ -20,7 +20,7 @@ import {
   useProfileStore,
 } from "../store";
 
-import { copyToClipboard } from "../utils";
+import { copyToClipboard, isMobile } from "../utils";
 
 import Locale from "../locales";
 import { Path } from "../constant";
@@ -30,6 +30,7 @@ import { showToast, Popover } from "./ui-lib";
 // import { Avatar, AvatarPicker } from "./emoji";
 import { Package } from "./pricing";
 import { useRouter } from "next/navigation";
+import { isInWechat } from "../utils/wechat";
 
 interface OrderLog {
   time: Date;
@@ -68,6 +69,7 @@ interface Order {
   payTime?: Date;
   payUrl: string;
   payChannel?: string;
+  payAgent: string;
   orderPackages: OrderPackage[];
 }
 interface OrderListResponse {
@@ -106,6 +108,9 @@ export function Order() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const inWechat = isInWechat();
+  const inMobile = isMobile();
+
   function handleClickPay(order: Order) {
     console.log("handleClickPay", order);
     if (order.state !== 5) {
@@ -115,7 +120,23 @@ export function Order() {
     if (order.payChannel === "xunhu") {
       router.push(order.payUrl);
     } else {
-      navigate(Path.Pay + "?uuid=" + order.uuid);
+      if (order.payAgent === "wechat") {
+        if (inWechat) {
+          router.push(order.payUrl);
+        } else {
+          showToast("请在微信中打开并继续支付！");
+        }
+      } else if (order.payAgent === "mobile") {
+        if (!inWechat && inMobile) {
+          router.push(order.payUrl);
+        } else if (inWechat) {
+          showToast("请在微信外部浏览器中打开并继续支付!");
+        } else {
+          showToast("请在手机浏览器中打开并继续支付！");
+        }
+      } else {
+        navigate(Path.Pay + "?uuid=" + order.uuid); // pc
+      }
     }
     // window.open(order.payUrl);
   }

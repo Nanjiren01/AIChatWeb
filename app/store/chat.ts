@@ -16,7 +16,7 @@ import { api, RequestMessage } from "../client/api";
 import { ChatControllerPool } from "../client/controller";
 import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
-import { WebsiteConfigStore } from "./website";
+import { AiPlugin, WebsiteConfigStore } from "./website";
 import { AuthStore } from "./auth";
 
 export type ChatMessage = RequestMessage & {
@@ -25,6 +25,7 @@ export type ChatMessage = RequestMessage & {
   isError?: boolean;
   id?: number;
   model?: ModelType;
+  attr?: any;
 };
 
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
@@ -33,6 +34,7 @@ export function createMessage(override: Partial<ChatMessage>): ChatMessage {
     date: new Date().toLocaleString(),
     role: "user",
     content: "",
+    attr: {},
     ...override,
   };
 }
@@ -81,6 +83,11 @@ function createEmptySession(): ChatSession {
   };
 }
 
+export interface PluginActionModel {
+  plugin: AiPlugin;
+  value: boolean;
+}
+
 interface ChatStore {
   sessions: ChatSession[];
   currentSessionIndex: number;
@@ -95,6 +102,7 @@ interface ChatStore {
   onNewMessage: (message: ChatMessage) => void;
   onUserInput: (
     content: string,
+    plugins: PluginActionModel[],
     websiteConfigStore: WebsiteConfigStore,
     authStore: AuthStore,
     navigateToLogin: () => void,
@@ -108,7 +116,9 @@ interface ChatStore {
     updater: (message?: ChatMessage) => void,
   ) => void;
   resetSession: () => void;
-  getMessagesWithMemory: () => ChatMessage[];
+  getMessagesWithMemory: (
+    websiteConfigStore: WebsiteConfigStore,
+  ) => ChatMessage[];
   getMemoryPrompt: () => ChatMessage;
 
   clearAllData: () => void;
@@ -287,6 +297,7 @@ export const useChatStore = create<ChatStore>()(
 
       async onUserInput(
         content,
+        plugins,
         websiteConfigStore,
         authStore,
         navigateToLogin,
@@ -312,7 +323,7 @@ export const useChatStore = create<ChatStore>()(
         });
 
         // get recent messages
-        const recentMessages = get().getMessagesWithMemory();
+        const recentMessages = get().getMessagesWithMemory(websiteConfigStore);
         const sendMessages = recentMessages.concat(userMessage);
         const sessionIndex = get().currentSessionIndex;
         const messageIndex = get().currentSession().messages.length + 1;
@@ -332,7 +343,10 @@ export const useChatStore = create<ChatStore>()(
         // make request
         api.llm.chat({
           messages: sendMessages,
+          botMessage: botMessage,
+          content,
           config: { ...modelConfig, stream: true },
+          plugins: plugins,
           onUpdate(message) {
             botMessage.streaming = true;
             if (message) {
@@ -431,7 +445,7 @@ export const useChatStore = create<ChatStore>()(
         } as ChatMessage;
       },
 
-      getMessagesWithMemory() {
+      getMessagesWithMemory(websiteConfigStore: WebsiteConfigStore) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
         const clearContextIndex = session.clearContextIndex ?? 0;
@@ -450,7 +464,9 @@ export const useChatStore = create<ChatStore>()(
                 role: "system",
                 content: fillTemplateWith("", {
                   ...modelConfig,
-                  template: DEFAULT_SYSTEM_TEMPLATE,
+                  template:
+                    websiteConfigStore.defaultSystemTemplate ??
+                    DEFAULT_SYSTEM_TEMPLATE,
                 }),
               }),
             ]
@@ -537,6 +553,9 @@ export const useChatStore = create<ChatStore>()(
 
       summarizeSession() {
         const session = get().currentSession();
+        if (session.mask.modelConfig?.contentType !== "Text") {
+          return;
+        }
 
         // remove error messages if any
         const messages = session.messages;
@@ -547,14 +566,18 @@ export const useChatStore = create<ChatStore>()(
           session.topic === DEFAULT_TOPIC &&
           countMessages(messages) >= SUMMARIZE_MIN_LEN
         ) {
+          const content = Locale.Store.Prompt.Topic;
           const topicMessages = messages.concat(
             createMessage({
               role: "user",
-              content: Locale.Store.Prompt.Topic,
+              content,
             }),
           );
           api.llm.chat({
             messages: topicMessages,
+            botMessage: topicMessages[topicMessages.length - 1],
+            content,
+            plugins: [],
             config: {
               model: "gpt-3.5-turbo",
             },
@@ -602,12 +625,16 @@ export const useChatStore = create<ChatStore>()(
           historyMsgLength > modelConfig.compressMessageLengthThreshold &&
           modelConfig.sendMemory
         ) {
+          const content = Locale.Store.Prompt.Summarize;
           api.llm.chat({
             messages: toBeSummarizedMsgs.concat({
               role: "system",
-              content: Locale.Store.Prompt.Summarize,
+              content,
               date: "",
             }),
+            botMessage: toBeSummarizedMsgs[toBeSummarizedMsgs.length - 1],
+            content,
+            plugins: [],
             config: { ...modelConfig, stream: true },
             onUpdate(message) {
               session.memoryPrompt = message;

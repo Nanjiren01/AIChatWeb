@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { getClientConfig } from "../config/client";
 import { DEFAULT_INPUT_TEMPLATE, StoreKey } from "../constant";
+import { ModelContentType } from "./website";
 
 export enum SubmitKey {
   Enter = "Enter",
@@ -32,6 +33,7 @@ export const DEFAULT_CONFIG = {
 
   modelConfig: {
     model: "gpt-3.5-turbo" as ModelType,
+    contentType: "Text" as ModelContentType,
     temperature: 0.5,
     max_tokens: 2000,
     presence_penalty: 0,
@@ -145,6 +147,9 @@ export function limitModel(name: string) {
 export const ModalConfigValidator = {
   model(x: string) {
     return x as ModelType;
+  },
+  modelContentType(x: string) {
+    return x as ModelContentType;
   },
   max_tokens(x: number) {
     return limitNumber(x, 0, 32000, 2000);
