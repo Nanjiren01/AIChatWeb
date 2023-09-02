@@ -82,7 +82,7 @@ services:
   #      - "6380:6379"
 
   util:
-    image: harbor.nanjiren.online:8099/aichat/aichat-util:0.9
+    image: harbor.nanjiren.online:8099/aichat/aichat-util:latest
     container_name: aichat-util
     restart: always
     network_mode: host
