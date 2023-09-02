@@ -57,24 +57,66 @@ const en: LocaleType = {
       Masks: "Masks",
       Clear: "Clear Context",
       Settings: "Settings",
+      Internet: "Access Internet",
     },
     Rename: "Rename Chat",
     Typing: "Typing…",
     SensitiveWordsTip: (question: string) =>
       `您的提问中包含敏感词：${question}`,
     BalanceNotEnough: "您的额度不足，请联系管理员",
-    Input: (submitKey: string) => {
-      var inputHints = `${submitKey} to send`;
+    Input: (submitKey: string, action: string, append?: boolean) => {
+      var inputHints = `${submitKey} to ${action}`;
       if (submitKey === String(SubmitKey.Enter)) {
         inputHints += ", Shift + Enter to wrap";
       }
-      return inputHints + ", / to search prompts, : to use commands";
+      return (
+        inputHints + (append ? ", / to search prompts, : to use commands" : "")
+      );
     },
     Send: "Send",
+    Draw: "Draw",
     Config: {
       Reset: "Reset to Default",
       SaveAs: "Save as Mask",
     },
+  },
+  Midjourney: {
+    SelectImgMax: (max: number) => `Select up to ${max} images`,
+    InputDisabled: "Input is disabled in this mode",
+    HasImgTip:
+      "Tip: In the mask mode, only the first image will be used. In the blend mode, the five selected images will be used in order (click the image to remove it)",
+    ModeImagineUseImg: "Mask Mode",
+    ModeBlend: "Blend Mode",
+    ModeDescribe: "Describe Mode",
+    NeedInputUseImgPrompt:
+      'You need to enter content to use the image in the mask mode, please enter the content starting with "/mj"',
+    BlendMinImg: (min: number, max: number) =>
+      `At least ${min} images are required in the mixed image mode, and up to ${max} images are required`,
+    TaskErrUnknownType: "Task submission failed: unknown task type",
+    TaskErrNotSupportType: (type: string) =>
+      `Task submission failed: unsupported task type -> ${type}`,
+    StatusCode: (code: number) => `Status code: ${code}`,
+    TaskSubmitErr: (err: string) => `Task submission failed: ${err}`,
+    RespBody: (body: string) => `Response body: ${body}`,
+    None: "None",
+    UnknownError: "Unknown error",
+    UnknownReason: "Unknown reason",
+    TaskPrefix: (prompt: string, taskId: string) =>
+      `**Prompt:** ${prompt}\n**Task ID:** ${taskId}\n`,
+    PleaseWait: "Please wait a moment",
+    TaskSubmitOk: "Task submitted successfully",
+    TaskStatusFetchFail: "Failed to get task status",
+    TaskStatus: "Task status",
+    TaskRemoteSubmit: "Task has been submitted to Midjourney server",
+    TaskProgressTip: (progress: number | undefined) =>
+      `Task is running${progress ? `, current progress: ${progress}` : ""}`,
+    TaskNotStart: "Task has not started",
+    Url: "URL",
+    SettingProxyCoverTip:
+      "The MidjourneyProxy address defined here will override the MIDJOURNEY_PROXY_URL in the environment variables",
+    ImageAgent: "Image Agent",
+    ImageAgentOpenTip:
+      "After turning it on, the returned Midjourney image will be proxied by this program itself, so this program needs to be in a network environment that can access cdn.discordapp.com to be effective",
   },
   Export: {
     Title: "Export Messages",

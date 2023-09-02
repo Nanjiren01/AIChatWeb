@@ -18,6 +18,7 @@ import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
 import PromptIcon from "../icons/prompt.svg";
 import MaskIcon from "../icons/mask.svg";
+// import InternetIcon from "../icons/internet.svg";
 import MaxIcon from "../icons/max.svg";
 import MinIcon from "../icons/min.svg";
 import ResetIcon from "../icons/reload.svg";
@@ -46,6 +47,8 @@ import {
   useAppConfig,
   DEFAULT_TOPIC,
   ModelType,
+  AiPlugin,
+  PluginActionModel,
 } from "../store";
 
 import {
@@ -304,7 +307,9 @@ function ChatAction(props: {
   });
 
   function updateWidth() {
+    console.log("updateWidth", iconRef, textRef);
     if (!iconRef.current || !textRef.current) return;
+    console.log("1");
     const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
     const textWidth = getWidth(textRef.current);
     const iconWidth = getWidth(iconRef.current);
@@ -333,6 +338,56 @@ function ChatAction(props: {
       <div ref={iconRef} className={styles["icon"]}>
         {props.icon}
       </div>
+      <div className={styles["text"]} ref={textRef}>
+        {props.text}
+      </div>
+    </div>
+  );
+}
+
+function SwitchChatAction(props: {
+  text: string;
+  icon?: JSX.Element;
+  value?: boolean;
+  onClick: () => void;
+}) {
+  const iconRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState({
+    full: 16,
+    icon: props.icon ? 16 : 0,
+  });
+
+  // function updateWidth() {
+  //   if (props.icon && !iconRef.current || !textRef.current) return;
+  //   const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
+  //   const textWidth = getWidth(textRef.current);
+  //   const iconWidth = props.icon ? getWidth(iconRef.current!) : 0;
+  //   setWidth({
+  //     full: textWidth + iconWidth,
+  //     icon: iconWidth,
+  //   });
+  // }
+  // useEffect(() => {
+  //   setTimeout(updateWidth, 100)
+  // })
+
+  return (
+    <div
+      className={`${styles["chat-input-action"]} ${styles["hover"]} clickable`}
+      onClick={() => {
+        props.onClick();
+      }}
+      style={{
+        color: props.value ? "var(--primary)" : "",
+        borderColor: props.value ? "var(--primary)" : "",
+      }}
+    >
+      {props.icon && (
+        <div ref={iconRef} className={styles["icon"]}>
+          {props.icon}
+        </div>
+      )}
       <div className={styles["text"]} ref={textRef}>
         {props.text}
       </div>
@@ -369,11 +424,13 @@ export function ChatActions(props: {
   scrollToBottom: () => void;
   showPromptHints: () => void;
   hitBottom: boolean;
+  plugins: PluginActionModel[];
+  SetOpenInternet: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
   const chatStore = useChatStore();
-  const { availableModelNames } = useWebsiteConfigStore();
+  const { availableModels } = useWebsiteConfigStore();
 
   // switch themes
   const theme = config.theme;
@@ -391,13 +448,18 @@ export function ChatActions(props: {
 
   // switch model
   const currentModel = chatStore.currentSession().mask.modelConfig.model;
+  const currentContentType =
+    chatStore.currentSession().mask.modelConfig.contentType;
   function nextModel() {
-    const models = availableModelNames;
-    const modelIndex = models.indexOf(currentModel);
+    const models = availableModels;
+    const modelIndex = models.findIndex(
+      (m) => m.name === currentModel && m.contentType === currentContentType,
+    );
     const nextIndex = (modelIndex + 1) % models.length;
     const nextModel = models[nextIndex];
     chatStore.updateCurrentSession((session) => {
-      session.mask.modelConfig.model = nextModel as ModelType;
+      session.mask.modelConfig.model = nextModel.name as ModelType;
+      session.mask.modelConfig.contentType = nextModel.contentType;
       session.mask.syncGlobalConfig = false;
     });
   }
@@ -476,6 +538,24 @@ export function ChatActions(props: {
         text={currentModel}
         icon={<RobotIcon />}
       />
+
+      <>
+        {props.plugins.map((model) => {
+          return (
+            <SwitchChatAction
+              key={model.plugin.uuid}
+              onClick={() => {
+                model.value = !model.value;
+                showToast(
+                  (model.value ? "已开启" : "已关闭") + model.plugin.name,
+                );
+              }}
+              text={model.plugin.name}
+              value={model.value}
+            />
+          );
+        })}
+      </>
     </div>
   );
 }
@@ -501,7 +581,8 @@ export function Chat() {
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const websiteConfigStore = useWebsiteConfigStore();
-  const { chatPageSubTitle } = websiteConfigStore;
+  const { chatPageSubTitle, plugins } = websiteConfigStore;
+
   const navigate = useNavigate();
 
   const authStore = useAuthStore();
@@ -577,6 +658,17 @@ export function Chat() {
     }
   };
 
+  const [pluignModels, setPluginModels] = useState<PluginActionModel[]>([]);
+  useEffect(() => {
+    const models = (plugins || []).map((plugin) => {
+      return {
+        plugin: plugin,
+        value: false as boolean,
+      } as PluginActionModel;
+    });
+    setPluginModels(models);
+  }, [plugins]);
+
   const doSubmit = (userInput: string) => {
     if (userInput.trim() === "") return;
     const matchCommand = chatCommands.match(userInput);
@@ -588,7 +680,7 @@ export function Chat() {
     }
     setIsLoading(true);
     chatStore
-      .onUserInput(userInput, websiteConfigStore, authStore, () =>
+      .onUserInput(userInput, pluignModels, websiteConfigStore, authStore, () =>
         navigate(Path.Login),
       )
       .then(() => setIsLoading(false));
@@ -650,6 +742,7 @@ export function Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [openInternet, SetOpenInternet] = useState(false);
   // check if should send message
   const onInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // if ArrowUp and no userInput, fill with last input
@@ -715,7 +808,7 @@ export function Chat() {
     const content = session.messages[userIndex].content;
     deleteMessage(userIndex);
     chatStore
-      .onUserInput(content, websiteConfigStore, authStore, () =>
+      .onUserInput(content, pluignModels, websiteConfigStore, authStore, () =>
         navigate(Path.Login),
       )
       .then(() => setIsLoading(false));
@@ -1005,7 +1098,51 @@ export function Chat() {
                       parentRef={scrollRef}
                       defaultShow={i >= messages.length - 10}
                     />
-
+                    {!isUser &&
+                      ["VARIATION", "IMAGINE"].includes(message.attr?.action) &&
+                      message.attr?.status === "SUCCESS" && (
+                        <div
+                          className={[
+                            styles["chat-message-mj-actions"],
+                            styles["column-flex"],
+                          ].join(" ")}
+                        >
+                          <div>
+                            {[1, 2, 3, 4].map((index) => {
+                              return (
+                                <button
+                                  key={index}
+                                  onClick={() =>
+                                    doSubmit(
+                                      `UPSCALE::${index}::${message.attr.taskId}`,
+                                    )
+                                  }
+                                  className={`${styles["chat-message-mj-action-btn"]} clickable`}
+                                >
+                                  U{index}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <div>
+                            {[1, 2, 3, 4].map((index) => {
+                              return (
+                                <button
+                                  key={index}
+                                  onClick={() =>
+                                    doSubmit(
+                                      `VARIATION::${index}::${message.attr.taskId}`,
+                                    )
+                                  }
+                                  className={`${styles["chat-message-mj-action-btn"]} clickable`}
+                                >
+                                  V{index}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     {showActions && (
                       <div className={styles["chat-message-actions"]}>
                         <div
@@ -1083,12 +1220,20 @@ export function Chat() {
             setUserInput("/");
             onSearch("");
           }}
+          plugins={pluignModels}
+          SetOpenInternet={SetOpenInternet}
         />
         <div className={styles["chat-input-panel-inner"]}>
           <textarea
             ref={inputRef}
             className={styles["chat-input"]}
-            placeholder={Locale.Chat.Input(submitKey)}
+            placeholder={Locale.Chat.Input(
+              submitKey,
+              session.mask?.modelConfig?.contentType === "Image"
+                ? Locale.Chat.Draw
+                : Locale.Chat.Send,
+              session.mask?.modelConfig?.contentType !== "Image",
+            )}
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}
@@ -1102,7 +1247,11 @@ export function Chat() {
           />
           <IconButton
             icon={<SendWhiteIcon />}
-            text={Locale.Chat.Send}
+            text={
+              session.mask?.modelConfig?.contentType === "Image"
+                ? Locale.Chat.Draw
+                : Locale.Chat.Send
+            }
             className={styles["chat-input-send"]}
             type="primary"
             onClick={() => doSubmit(userInput)}

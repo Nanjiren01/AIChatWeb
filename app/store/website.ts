@@ -2,6 +2,22 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { StoreKey } from "../constant";
 
+export interface AiPlugin {
+  id: number;
+  uuid: string;
+  name: string;
+  logo?: string;
+  alone: boolean;
+  builtin: boolean;
+  state: number;
+}
+
+export type ModelContentType = "Text" | "Image";
+export interface SimpleModel {
+  name: string;
+  contentType: ModelContentType;
+}
+
 export interface WebsiteConfigStore {
   title: string;
   mainTitle: string;
@@ -16,7 +32,9 @@ export interface WebsiteConfigStore {
   registerTypes: string[];
   hideGithubIcon: boolean;
   botHello: string;
-  availableModelNames: string[];
+  availableModels: SimpleModel[];
+  defaultSystemTemplate?: string;
+  plugins?: AiPlugin[];
   fetchWebsiteConfig: () => Promise<any>;
 }
 
@@ -34,7 +52,9 @@ export interface WebsiteConfig {
   balanceNotEnough: string;
   hideGithubIcon: boolean;
   botHello: string;
-  availableModelNames: string[];
+  defaultSystemTemplate: string;
+  availableModels: SimpleModel[];
+  plugins?: AiPlugin[];
 }
 export interface WebsiteConfigData {
   websiteContent: WebsiteConfig;
@@ -59,7 +79,9 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       balanceNotEnough: "",
       hideGithubIcon: false,
       botHello: "",
-      availableModelNames: [],
+      availableModels: [] as SimpleModel[],
+      defaultSystemTemplate: "",
+      plugins: [] as AiPlugin[],
 
       async fetchWebsiteConfig() {
         const url = "/globalConfig/website";
@@ -83,7 +105,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               registerTypes:
                 website.registerTypes && website.registerTypes.length
                   ? website.registerTypes
-                  : ["OnlyUsername"],
+                  : (["OnlyUsername"] as string[]),
               pricingPageTitle: website.pricingPageTitle,
               pricingPageSubTitle: website.pricingPageSubTitle,
               chatPageSubTitle: website.chatPageSubTitle,
@@ -91,7 +113,9 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               balanceNotEnough: website.balanceNotEnough,
               hideGithubIcon: website.hideGithubIcon,
               botHello: website.botHello,
-              availableModelNames: website.availableModelNames,
+              availableModels: website.availableModels,
+              defaultSystemTemplate: website.defaultSystemTemplate,
+              plugins: website.plugins,
             }));
             return res;
           })
