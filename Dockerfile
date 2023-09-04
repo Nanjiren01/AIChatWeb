@@ -1,9 +1,9 @@
 
 # 需要先在本地执行yarn install && yarn build
 
-# docker build -t nanjiren01/aichat-web:0.9 .
-# docker push nanjiren01/aichat-web:0.9
-# docker tag nanjiren01/aichat-web:0.9 nanjiren01/aichat-web:pro-latest
+# docker build -t nanjiren01/aichat-web:0.9.1 .
+# docker push nanjiren01/aichat-web:0.9.1
+# docker tag nanjiren01/aichat-web:0.9.1 nanjiren01/aichat-web:pro-latest
 # docker push nanjiren01/aichat-web:pro-latest
 
 FROM node:18-alpine
