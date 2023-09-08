@@ -90,7 +90,7 @@ export function Profile() {
 
   function getPrefix(balance: Balance) {
     return balance.calcType == "Total"
-      ? "剩余"
+      ? "总额"
       : balance.calcType == "Daily"
       ? Locale.Profile.BalanceItem.CalcTypes.Daily
       : balance.calcType == "Hourly"

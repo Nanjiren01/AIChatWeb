@@ -295,19 +295,19 @@ const en: LocaleType = {
     },
     Tokens: {
       Title: "tokens",
-      SubTitle: "tokens数量",
+      SubTitle: "",
     },
     ChatCount: {
-      Title: "询问次数",
-      SubTitle: "询问次数（GPT3.5等）",
+      Title: "聊天积分",
+      SubTitle: "",
     },
     AdvanceChatCount: {
-      Title: "询问次数（GPT4）",
-      SubTitle: "询问次数（GPT4）",
+      Title: "高级聊天积分",
+      SubTitle: "",
     },
     DrawCount: {
-      Title: "绘图次数",
-      SubTitle: "绘图次数",
+      Title: "绘图积分",
+      SubTitle: "",
     },
     Actions: {
       Close: "关闭",
