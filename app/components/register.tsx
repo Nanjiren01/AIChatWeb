@@ -210,7 +210,10 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
           showToast(Locale.RegisterPage.Toast.Success);
           navigate(Path.Chat);
         } else {
-          if (result.message) {
+          if (result.code === 10151) {
+            // 注册成功，但是需要审核
+            showToast(result.cnMessage || result.message);
+          } else if (result.cnMessage || result.message) {
             showToast(
               Locale.RegisterPage.Toast.FailedWithReason +
                 (result.cnMessage || result.message),
