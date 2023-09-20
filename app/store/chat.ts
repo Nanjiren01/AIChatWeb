@@ -381,6 +381,8 @@ export const useChatStore = create<ChatStore>()(
                   logout = true;
                   authStore.removeToken();
                   message = Locale.Error.Unauthorized;
+                } else if (jsonContent?.code === 10301) {
+                  message = Locale.Chat.TooFrequently;
                 } else {
                   message = prettyObject(jsonContent);
                 }

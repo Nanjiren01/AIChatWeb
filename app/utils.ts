@@ -109,6 +109,10 @@ export function isFirefox() {
   );
 }
 
+export function isMobile() {
+  return /Mobi|Android|iPhone/i.test(navigator.userAgent);
+}
+
 export function selectOrCopy(el: HTMLElement, content: string) {
   const currentSelection = window.getSelection();
 

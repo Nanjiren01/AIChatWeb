@@ -57,6 +57,7 @@ const cn = {
       Settings: "对话设置",
       Internet: "联网模式",
     },
+    TooFrequently: "您发送太快啦，请稍后重试",
     Rename: "重命名对话",
     Typing: "正在输入…",
     SensitiveWordsTip: (question: string) =>
@@ -105,7 +106,7 @@ const cn = {
     TaskStatus: "任务状态",
     TaskRemoteSubmit: "任务已提交至绘图服务器",
     TaskProgressTip: (progress: number | undefined) =>
-      `任务正在运行${progress ? `，当前进度：${progress}` : ""}`,
+      `任务正在运行${progress ? `，当前进度：${progress}%` : ""}`,
     TaskNotStart: "任务尚未开始",
     Url: "地址",
     SettingProxyCoverTip:
@@ -202,7 +203,7 @@ const cn = {
     },
     Username: {
       Title: "用户名",
-      SubTitle: "",
+      SubTitle: "用户名只能包含字母、数字、下划线，不可以包含中文",
       Placeholder: "请输入用户名",
     },
     Password: {
@@ -284,6 +285,7 @@ const cn = {
       Pricing: "购买套餐",
       GoToBalanceList: "更多",
       ConsultAdministrator: "请咨询站长",
+      All: "所有套餐",
     },
     BalanceItem: {
       Title: "套餐类型",
@@ -296,7 +298,7 @@ const cn = {
       },
     },
     ExpireList: {
-      Title: "过期时间",
+      Title: "到期时间",
       SubTitle: "",
     },
   },
@@ -308,9 +310,23 @@ const cn = {
       Buy: " 购 买 ",
     },
     NoPackage: "暂无可用套餐",
-    Loading: "套餐加载中……",
+    Loading: "请稍候……",
     PleaseLogin: "请先登录",
     ConsultAdministrator: "请咨询站长",
+  },
+  BalancePage: {
+    Title: "已购套餐",
+    NoBalance: "您尚未购买任何套餐",
+    Loading: "请稍候……",
+    Actions: {
+      Close: "关闭",
+      Pricing: "购买套餐",
+      Order: "订单中心",
+      Profile: "个人中心",
+      Refresh: "刷新",
+      Refreshing: "刷新中……",
+      RedeemCode: "兑换码",
+    },
   },
   Settings: {
     Title: "设置",

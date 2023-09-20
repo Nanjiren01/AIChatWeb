@@ -178,6 +178,7 @@ const es: PartialLocaleType = {
       Pricing: "购买套餐",
       GoToBalanceList: "更多",
       ConsultAdministrator: "请咨询站长",
+      All: "所有套餐",
     },
     BalanceItem: {
       Title: "套餐类型",
