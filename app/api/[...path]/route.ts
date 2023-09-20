@@ -4,6 +4,8 @@ import { request } from "../common";
 // import type { Response } from "../common";
 
 async function handle(req: NextRequest) {
+  const ip = req.headers.get("X-Forwarded-For") || req.ip;
+  req.headers.set("X-Forwarded-For", ip || "");
   return await request(req);
 }
 
