@@ -1,6 +1,26 @@
 .profile {
   padding: 20px;
   overflow: auto;
+  min-width: min(800px, 100%);
+  max-width: 800px;
+  margin: 10px auto;
+  box-sizing: border-box;
+}
+
+.copy-action {
+  opacity: 0.5;
+  color: var(--black);
+  white-space: nowrap;
+  cursor: pointer;
+  margin-left: 5px;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  // &:not(:first-child) {
+  //   margin-right: 10px;
+  // }
 }
 
 .avatar {
