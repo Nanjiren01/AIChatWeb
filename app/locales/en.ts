@@ -59,6 +59,7 @@ const en: LocaleType = {
       Settings: "Settings",
       Internet: "Access Internet",
     },
+    TooFrequently: "您发送太快啦，请稍后重试",
     Rename: "Rename Chat",
     Typing: "Typing…",
     SensitiveWordsTip: (question: string) =>
@@ -109,7 +110,7 @@ const en: LocaleType = {
     TaskStatus: "Task status",
     TaskRemoteSubmit: "Task has been submitted to Midjourney server",
     TaskProgressTip: (progress: number | undefined) =>
-      `Task is running${progress ? `, current progress: ${progress}` : ""}`,
+      `Task is running${progress ? `, current progress: ${progress}%` : ""}`,
     TaskNotStart: "Task has not started",
     Url: "URL",
     SettingProxyCoverTip:
@@ -289,6 +290,7 @@ const en: LocaleType = {
       Pricing: "购买套餐",
       GoToBalanceList: "更多",
       ConsultAdministrator: "请咨询站长",
+      All: "所有套餐",
     },
     BalanceItem: {
       Title: "套餐类型",
@@ -301,7 +303,7 @@ const en: LocaleType = {
       },
     },
     ExpireList: {
-      Title: "过期时间",
+      Title: "到期时间",
       SubTitle: "",
     },
   },
@@ -313,9 +315,23 @@ const en: LocaleType = {
       Buy: " 购 买 ",
     },
     NoPackage: "暂无可用套餐",
-    Loading: "套餐加载中……",
+    Loading: "请稍候……",
     PleaseLogin: "请先登录",
     ConsultAdministrator: "请咨询站长",
+  },
+  BalancePage: {
+    Title: "已购套餐",
+    NoBalance: "您尚未购买任何套餐",
+    Loading: "请稍候……",
+    Actions: {
+      Close: "关闭",
+      Pricing: "购买套餐",
+      Order: "订单中心",
+      Profile: "个人中心",
+      Refresh: "刷新",
+      Refreshing: "刷新中……",
+      RedeemCode: "兑换码",
+    },
   },
   Settings: {
     Title: "Settings",
