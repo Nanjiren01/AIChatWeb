@@ -34,13 +34,13 @@ export async function request(
     const mode = process.env.BUILD_MODE;
     // console.log('BASE_URL', BASE_URL)
     // console.log('mode', mode)
-    let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
     const res = await fetch(requestUrl, {
       method: method,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: body === null ? null : JSON.stringify(body),
       // // @ts-ignore
       // duplex: "half",
     });
@@ -122,7 +122,15 @@ export async function requestRegister(
   return request(
     "/register",
     "POST",
-    { name, username, password, captchaId, captcha: captchaInput, email, code },
+    {
+      name,
+      username,
+      password,
+      captchaId,
+      captcha: captchaInput,
+      email,
+      code,
+    },
     options,
   );
 }
