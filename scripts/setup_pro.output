@@ -1,0 +1,211 @@
+Running on Linux
+curl -o install-docker-v20.10.21.sh...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 23172  100 23172    0     0  54242      0 --:--:-- --:--:-- --:--:-- 54140
+# Executing docker install script, commit: 4f282167c425347a931ccfd95cc91fab041d414f
++ sh -c 'yum install -y -q yum-utils'
+Package yum-utils-1.1.31-54.el7_8.noarch already installed and latest version
++ sh -c 'yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo'
+Loaded plugins: fastestmirror
+adding repo from: https://download.docker.com/linux/centos/docker-ce.repo
+grabbing file https://download.docker.com/linux/centos/docker-ce.repo to /etc/yum.repos.d/docker-ce.repo
+repo saved to /etc/yum.repos.d/docker-ce.repo
++ '[' stable '!=' stable ']'
++ '[' centos = rhel ']'
++ '[' centos = ol ']'
++ sh -c 'yum makecache'
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+base                                                                                                                                                                                                                              | 3.6 kB  00:00:00     
+docker-ce-stable                                                                                                                                                                                                                  | 3.5 kB  00:00:00     
+epel                                                                                                                                                                                                                              | 4.7 kB  00:00:00     
+extras                                                                                                                                                                                                                            | 2.9 kB  00:00:00     
+updates                                                                                                                                                                                                                           | 2.9 kB  00:00:00     
+(1/13): docker-ce-stable/7/x86_64/filelists_db                                                                                                                                                                                    |  45 kB  00:00:00     
+(2/13): docker-ce-stable/7/x86_64/primary_db                                                                                                                                                                                      | 111 kB  00:00:00     
+(3/13): docker-ce-stable/7/x86_64/other_db                                                                                                                                                                                        | 133 kB  00:00:00     
+(4/13): docker-ce-stable/7/x86_64/updateinfo                                                                                                                                                                                      |   55 B  00:00:00     
+(5/13): epel/x86_64/prestodelta                                                                                                                                                                                                   | 1.5 kB  00:00:00     
+(6/13): base/7/x86_64/other_db                                                                                                                                                                                                    | 2.6 MB  00:00:00     
+(7/13): base/7/x86_64/filelists_db                                                                                                                                                                                                | 7.2 MB  00:00:00     
+(8/13): epel/x86_64/other_db                                                                                                                                                                                                      | 3.4 MB  00:00:00     
+(9/13): extras/7/x86_64/filelists_db                                                                                                                                                                                              | 276 kB  00:00:00     
+(10/13): epel/x86_64/filelists_db                                                                                                                                                                                                 |  12 MB  00:00:00     
+(11/13): extras/7/x86_64/other_db                                                                                                                                                                                                 | 149 kB  00:00:00     
+(12/13): updates/7/x86_64/other_db                                                                                                                                                                                                | 1.3 MB  00:00:00     
+(13/13): updates/7/x86_64/filelists_db                                                                                                                                                                                            |  11 MB  00:00:00     
+Metadata Cache Created
+INFO: Searching repository for VERSION '20.10.21'
+INFO: yum list --showduplicates 'docker-ce' | grep '20.10.21.*el' | tail -1 | awk '{print $2}'
++ sh -c 'yum install -y -q docker-ce-20.10.21-3.el7 docker-ce-cli-20.10.21-3.el7 containerd.io docker-scan-plugin docker-compose-plugin docker-ce-rootless-extras-20.10.21-3.el7'
+warning: /var/cache/yum/x86_64/7/docker-ce-stable/packages/docker-ce-20.10.21-3.el7.x86_64.rpm: Header V4 RSA/SHA512 Signature, key ID 621e9f35: NOKEY
+Public key for docker-ce-20.10.21-3.el7.x86_64.rpm is not installed
+Importing GPG key 0x621E9F35:
+ Userid     : "Docker Release (CE rpm) <docker@docker.com>"
+ Fingerprint: 060a 61c5 1b55 8a7f 742b 77aa c52f eb6b 621e 9f35
+ From       : https://download.docker.com/linux/centos/gpg
+setsebool:  SELinux is disabled.
+
+================================================================================
+
+To run Docker as a non-privileged user, consider setting up the
+Docker daemon in rootless mode for your user:
+
+    dockerd-rootless-setuptool.sh install
+
+Visit https://docs.docker.com/go/rootless/ to learn about rootless mode.
+
+
+To run the Docker daemon as a fully privileged service, but granting non-root
+users access, refer to https://docs.docker.com/go/daemon-access/
+
+WARNING: Access to the remote API on a privileged Docker daemon is equivalent
+         to root access on the host. Refer to the 'Docker daemon attack surface'
+         documentation for details: https://docs.docker.com/go/attack-surface/
+
+================================================================================
+
+Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service to /usr/lib/systemd/system/docker.service.
+jq is not installed, installing now...
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+Resolving Dependencies
+--> Running transaction check
+---> Package jq.x86_64 0:1.6-2.el7 will be installed
+--> Processing Dependency: libonig.so.5()(64bit) for package: jq-1.6-2.el7.x86_64
+--> Running transaction check
+---> Package oniguruma.x86_64 0:6.8.2-2.el7 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+=========================================================================================================================================================================================================================================================
+ Package                                                       Arch                                                       Version                                                         Repository                                                Size
+=========================================================================================================================================================================================================================================================
+Installing:
+ jq                                                            x86_64                                                     1.6-2.el7                                                       epel                                                     167 k
+Installing for dependencies:
+ oniguruma                                                     x86_64                                                     6.8.2-2.el7                                                     epel                                                     181 k
+
+Transaction Summary
+=========================================================================================================================================================================================================================================================
+Install  1 Package (+1 Dependent package)
+
+Total download size: 348 k
+Installed size: 1.0 M
+Downloading packages:
+(1/2): jq-1.6-2.el7.x86_64.rpm                                                                                                                                                                                                    | 167 kB  00:00:00     
+(2/2): oniguruma-6.8.2-2.el7.x86_64.rpm                                                                                                                                                                                           | 181 kB  00:00:00     
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Total                                                                                                                                                                                                                    813 kB/s | 348 kB  00:00:00     
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : oniguruma-6.8.2-2.el7.x86_64                                                                                                                                                                                                          1/2 
+  Installing : jq-1.6-2.el7.x86_64                                                                                                                                                                                                                   2/2 
+  Verifying  : oniguruma-6.8.2-2.el7.x86_64                                                                                                                                                                                                          1/2 
+  Verifying  : jq-1.6-2.el7.x86_64                                                                                                                                                                                                                   2/2 
+
+Installed:
+  jq.x86_64 0:1.6-2.el7                                                                                                                                                                                                                                  
+
+Dependency Installed:
+  oniguruma.x86_64 0:6.8.2-2.el7                                                                                                                                                                                                                         
+
+Complete!
+daemon.json does not exist, creating it...
+Restarting Docker daemon...
+Please input AIChat Pro authorized account username:
+Username: aaaaaa
+Please input AIChat Pro authorized account password:
+Password: 
+Logging in to Docker private registry...
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+Error response from daemon: Get "http://harbor.nanjiren.online:8099/v2/": unauthorized: authentication required
+AIChat Pro authorization failed, please re-enter your account and password.
+Please input AIChat Pro authorized account username:
+Username: zsxq-common
+Please input AIChat Pro authorized account password:
+Password: 
+Logging in to Docker private registry...
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+curl -o docker-compose.yml...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1543  100  1543    0     0   4039      0 --:--:-- --:--:-- --:--:--  4039
+Successfully converted to AIChat Pro private registry.
+Please input the super admin username. 
+Only letters and numbers are supported, the length should between 6 and 20, and they cannot start with a number.
+Username: aichat   
+Super Admin Username is valid.
+Please input the super admin password. 
+Only letters and numbers are supported, and the length should between 6 and 20. 
+You can change it on the web page after the Application running
+Password: aichat888
+Super Admin Password is valid.
+[+] Pulling 50/50
+ ✔ admin 6 layers [⣿⣿⣿⣿⣿⣿]      0B/0B      Pulled                                                                                                                                                                                                  15.2s 
+   ✔ f0412dfb1aae Pull complete                                                                                                                                                                                                                     7.2s 
+   ✔ 59b3eaead270 Pull complete                                                                                                                                                                                                                     9.9s 
+   ✔ 6fce3fbd6cbc Pull complete                                                                                                                                                                                                                    13.9s 
+   ✔ 828d1902aa07 Pull complete                                                                                                                                                                                                                    14.0s 
+   ✔ 3923919db29a Pull complete                                                                                                                                                                                                                    14.9s 
+   ✔ 064b91f126bb Pull complete                                                                                                                                                                                                                    15.0s 
+ ✔ web 10 layers [⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿]      0B/0B      Pulled                                                                                                                                                                                               13.1s 
+   ✔ 31e352740f53 Pull complete                                                                                                                                                                                                                     1.3s 
+   ✔ 560412e561fb Pull complete                                                                                                                                                                                                                     7.2s 
+   ✔ 02735cb6c78b Pull complete                                                                                                                                                                                                                     9.9s 
+   ✔ 86d562f7b855 Pull complete                                                                                                                                                                                                                    10.1s 
+   ✔ 210f8718e9b1 Pull complete                                                                                                                                                                                                                    10.2s 
+   ✔ 80b5f3650ab9 Pull complete                                                                                                                                                                                                                    10.5s 
+   ✔ ab504af90fe0 Pull complete                                                                                                                                                                                                                    10.7s 
+   ✔ 830c64cc5a94 Pull complete                                                                                                                                                                                                                    12.2s 
+   ✔ d971ea4fc415 Pull complete                                                                                                                                                                                                                    12.4s 
+   ✔ 795e7a1febc7 Pull complete                                                                                                                                                                                                                    12.9s 
+ ✔ console 10 layers [⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿]      0B/0B      Pulled                                                                                                                                                                                           11.6s 
+   ✔ 5b5fe70539cd Pull complete                                                                                                                                                                                                                     7.2s 
+   ✔ 441a1b465367 Pull complete                                                                                                                                                                                                                     9.9s 
+   ✔ 3b9543f2b500 Pull complete                                                                                                                                                                                                                    10.0s 
+   ✔ ca89ed5461a9 Pull complete                                                                                                                                                                                                                    10.2s 
+   ✔ b0e1283145af Pull complete                                                                                                                                                                                                                    10.4s 
+   ✔ 4b98867cde79 Pull complete                                                                                                                                                                                                                    10.6s 
+   ✔ 4a85ce26214d Pull complete                                                                                                                                                                                                                    10.8s 
+   ✔ 400d25d9d30f Pull complete                                                                                                                                                                                                                    11.0s 
+   ✔ f9e33238d018 Pull complete                                                                                                                                                                                                                    11.3s 
+   ✔ 6ecdeaf28504 Pull complete                                                                                                                                                                                                                    11.4s 
+ ✔ db 13 layers [⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿]      0B/0B      Pulled                                                                                                                                                                                             17.3s 
+   ✔ a076a628af6f Pull complete                                                                                                                                                                                                                     7.1s 
+   ✔ f6c208f3f991 Pull complete                                                                                                                                                                                                                     9.8s 
+   ✔ 88a9455a9165 Pull complete                                                                                                                                                                                                                    10.3s 
+   ✔ 406c9b8427c6 Pull complete                                                                                                                                                                                                                    10.6s 
+   ✔ 7c88599c0b25 Pull complete                                                                                                                                                                                                                    10.8s 
+   ✔ 25b5c6debdaf Pull complete                                                                                                                                                                                                                    12.3s 
+   ✔ 43a5816f1617 Pull complete                                                                                                                                                                                                                    12.4s 
+   ✔ 69dd1fbf9190 Pull complete                                                                                                                                                                                                                    12.8s 
+   ✔ 5346a60dcee8 Pull complete                                                                                                                                                                                                                    16.9s 
+   ✔ ef28da371fc9 Pull complete                                                                                                                                                                                                                    17.0s 
+   ✔ fd04d935b852 Pull complete                                                                                                                                                                                                                    17.0s 
+   ✔ 050c49742ea2 Pull complete                                                                                                                                                                                                                    17.1s 
+   ✔ aeea1096c43d Pull complete                                                                                                                                                                                                                    17.1s 
+ ✔ redis 6 layers [⣿⣿⣿⣿⣿⣿]      0B/0B      Pulled                                                                                                                                                                                                  11.5s 
+   ✔ f03b40093957 Pull complete                                                                                                                                                                                                                     7.2s 
+   ✔ 8db26c5e8435 Pull complete                                                                                                                                                                                                                     7.3s 
+   ✔ 37e84c7a626f Pull complete                                                                                                                                                                                                                    10.1s 
+   ✔ 806c192e0375 Pull complete                                                                                                                                                                                                                    10.9s 
+   ✔ 08769906aa59 Pull complete                                                                                                                                                                                                                    11.1s 
+   ✔ 635073d8ccd5 Pull complete                                                                                                                                                                                                                    11.3s 
+[+] Building 0.0s (0/0)                                                                                                                                                                                                                                  
+[+] Running 6/6
+ ✔ Network root_default      Created                                                                                                                                                                                                                0.0s 
+ ✔ Container aichat-db       Started                                                                                                                                                                                                                2.8s 
+ ✔ Container aichat-redis    Started                                                                                                                                                                                                                2.9s 
+ ✔ Container aichat-admin    Started                                                                                                                                                                                                                1.1s 
+ ✔ Container aichat-web      Started                                                                                                                                                                                                                1.8s 
+ ✔ Container aichat-console  Started                                                                                                                                                                                                                1.8s 

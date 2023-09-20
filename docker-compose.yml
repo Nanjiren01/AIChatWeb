@@ -1,0 +1,70 @@
+version: '3'
+
+services:
+
+  admin:
+    image: nanjiren01/aichat-admin:latest
+    container_name: aichat-admin
+    restart: always
+    depends_on:
+      - db
+      - redis
+    environment:
+      DB_URL: jdbc:mysql://aichat-db:3306/aichat?useSSL=false
+      DB_USERNAME: root
+      DB_PASSWORD: 123456
+      REDIS_HOST: aichat-redis
+      REDIS_PORT: 6379
+      SUPERADMIN_USERNAME: aichat
+      SUPERADMIN_PASSWORD: aichatadmin
+      PASSWORD_SALT: any-is-ok
+      DEFAULT_TOKENS: 3000
+      DEFAULT_CHAT_COUNT: 20
+      DEFAULT_ADVANCED_CHAT_COUNT: 2
+      DEFAULT_DRAW_COUNT: 0
+      MAIL_HOST: smtp.qq.com
+      MAIL_PORT: 25
+      MAIL_USERNAME: your-email-username
+      MAIL_PASSWORD: your-email-password
+      TZ: Asia/Shanghai
+    ports:
+      - "8082:8080"
+
+  web:
+    image: nanjiren01/aichat-web:latest
+    container_name: aichat-web
+    restart: always
+    depends_on:
+      - admin
+    ports:
+      - "80:3000"
+    environment:
+      BASE_URL: http://aichat-admin:8080
+
+  console:
+    image: nanjiren01/aichat-console:latest
+    container_name: aichat-console
+    restart: always
+    depends_on:
+      - admin
+    ports:
+      - "8080:80"
+
+  db:
+    image: nanjiren01/aichat-db:latest
+    container_name: aichat-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      TZ: Asia/Shanghai
+    ports:
+      - "3310:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+
+  redis:
+    image: nanjiren01/aichat-redis:latest
+    container_name: aichat-redis
+    restart: always
+  #    ports:
+  #      - "6380:6379"

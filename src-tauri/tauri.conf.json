@@ -1,0 +1,108 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "build": {
+    "beforeBuildCommand": "yarn export",
+    "beforeDevCommand": "yarn export:dev",
+    "devPath": "http://localhost:3000",
+    "distDir": "../out",
+    "withGlobalTauri": true
+  },
+  "package": {
+    "productName": "AIChatWeb App",
+    "version": "0.5.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      },
+      "dialog": {
+        "all": true,
+        "ask": true,
+        "confirm": true,
+        "message": true,
+        "open": true,
+        "save": true
+      },
+      "clipboard": {
+        "all": true,
+        "writeText": true,
+        "readText": true
+      },
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "maximize": true,
+        "minimize": true,
+        "setIcon": true,
+        "setIgnoreCursorEvents": true,
+        "setResizable": true,
+        "show": true,
+        "startDragging": true,
+        "unmaximize": true,
+        "unminimize": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "DeveloperTool",
+      "copyright": "2023, Nanjiren01 All Rights Reserved.",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "identifier": "com.nanjiren01.aichat.web",
+      "longDescription": "AIChatWeb is a cross-platform AI Chat client, including Web/Win/Linux/OSX/PWA.",
+      "macOS": {
+        "entitlements": null,
+        "exceptionDomain": "",
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
+      },
+      "resources": [],
+      "shortDescription": "AIChatWeb App",
+      "targets": "all",
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      }
+    },
+    "security": {
+      "csp": null
+    },
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://github.com/Nanjiren01/AIChatWeb/releases/latest/download/latest.json"
+      ],
+      "dialog": false,
+      "windows": {
+        "installMode": "passive"
+      },
+      "pubkey": "to-do"
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 600,
+        "resizable": true,
+        "title": "AIChatWeb App",
+        "width": 960,
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay"
+      }
+    ]
+  }
+}
