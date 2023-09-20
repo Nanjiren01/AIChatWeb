@@ -73,6 +73,10 @@ const Pricing = dynamic(async () => (await import("./pricing")).Pricing, {
   loading: () => <Loading noLogo />,
 });
 
+const Balance = dynamic(async () => (await import("./balance")).Balance, {
+  loading: () => <Loading noLogo />,
+});
+
 const Chat = dynamic(async () => (await import("./chat")).Chat, {
   loading: () => <Loading noLogo />,
 });
@@ -188,7 +192,7 @@ function Screen() {
     const url = "/globalConfig/notice";
     const BASE_URL = process.env.BASE_URL;
     const mode = process.env.BUILD_MODE;
-    let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
     fetch(requestUrl, {
       method: "get",
     })
@@ -205,7 +209,9 @@ function Screen() {
         }
       })
       .catch(() => {
-        console.error("[GlobalConfig] failed to fetch config");
+        console.error(
+          "[GlobalConfig] failed to fetch notice config in home.tsx",
+        );
       })
       .finally(() => {
         // fetchState = 2;
@@ -249,6 +255,7 @@ function Screen() {
               <Route path={Path.ForgetPassword} element={<ForgetPassword />} />
               <Route path={Path.Profile} element={<Profile />} />
               <Route path={Path.Pricing} element={<Pricing />} />
+              <Route path={Path.Balance} element={<Balance />} />
             </Routes>
           </div>
         </>

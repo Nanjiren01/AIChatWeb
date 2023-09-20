@@ -8,6 +8,7 @@ export function IconButton(props: {
   onClick?: () => void;
   icon?: JSX.Element;
   type?: ButtonType;
+  style?: object;
   text?: string;
   block?: boolean;
   bordered?: boolean;
@@ -30,6 +31,7 @@ export function IconButton(props: {
       title={props.title}
       disabled={props.disabled}
       role="button"
+      style={props.style}
       tabIndex={props.tabIndex}
       autoFocus={props.autoFocus}
     >

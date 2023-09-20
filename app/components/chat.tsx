@@ -582,7 +582,6 @@ export function Chat() {
   const isMobileScreen = useMobileScreen();
   const websiteConfigStore = useWebsiteConfigStore();
   const { chatPageSubTitle, plugins } = websiteConfigStore;
-
   const navigate = useNavigate();
 
   const authStore = useAuthStore();
@@ -845,6 +844,7 @@ export function Chat() {
   ) {
     const copiedHello = Object.assign({}, BOT_HELLO);
     if (!authStore.token) {
+      navigate(Path.Login);
       copiedHello.content = Locale.Error.Unauthorized;
     }
     context.push(copiedHello);
@@ -1099,7 +1099,9 @@ export function Chat() {
                       defaultShow={i >= messages.length - 10}
                     />
                     {!isUser &&
-                      ["VARIATION", "IMAGINE"].includes(message.attr?.action) &&
+                      ["VARIATION", "IMAGINE", "ZOOMOUT"].includes(
+                        message.attr?.action,
+                      ) &&
                       message.attr?.status === "SUCCESS" && (
                         <div
                           className={[
@@ -1137,6 +1139,34 @@ export function Chat() {
                                   className={`${styles["chat-message-mj-action-btn"]} clickable`}
                                 >
                                   V{index}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    {!isUser &&
+                      ["UPSCALE"].includes(message.attr?.action) &&
+                      message.attr?.status === "SUCCESS" && (
+                        <div
+                          className={[
+                            styles["chat-message-mj-actions"],
+                            styles["column-flex"],
+                          ].join(" ")}
+                        >
+                          <div>
+                            {[1.5, 2].map((index) => {
+                              return (
+                                <button
+                                  key={index}
+                                  onClick={() =>
+                                    doSubmit(
+                                      `ZOOMOUT::${index}::${message.attr.taskId}`,
+                                    )
+                                  }
+                                  className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["zoom-out"]}`}
+                                >
+                                  Z×{index}
                                 </button>
                               );
                             })}
@@ -1220,7 +1250,11 @@ export function Chat() {
             setUserInput("/");
             onSearch("");
           }}
-          plugins={pluignModels}
+          plugins={
+            session.mask?.modelConfig?.contentType !== "Image"
+              ? pluignModels
+              : []
+          }
           SetOpenInternet={SetOpenInternet}
         />
         <div className={styles["chat-input-panel-inner"]}>
