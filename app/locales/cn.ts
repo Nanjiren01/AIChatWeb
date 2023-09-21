@@ -37,7 +37,7 @@ const cn = {
     },
     Commands: {
       new: "新建聊天",
-      newm: "从面具新建聊天",
+      newm: "选择应用新建聊天",
       next: "下一个聊天",
       prev: "上一个聊天",
       clear: "清除上下文",
@@ -52,7 +52,7 @@ const cn = {
         dark: "深色模式",
       },
       Prompt: "快捷指令",
-      Masks: "所有面具",
+      Masks: "所有应用",
       Clear: "清除聊天",
       Settings: "对话设置",
       Internet: "联网模式",
@@ -74,7 +74,7 @@ const cn = {
     Draw: "绘画",
     Config: {
       Reset: "清除记忆",
-      SaveAs: "存为面具",
+      SaveAs: "存为应用",
     },
   },
   Midjourney: {
@@ -127,8 +127,8 @@ const cn = {
       SubTitle: "可以导出 Markdown 文本或者 PNG 图片",
     },
     IncludeContext: {
-      Title: "包含面具上下文",
-      SubTitle: "是否在消息中展示面具上下文",
+      Title: "包含应用上下文",
+      SubTitle: "是否在消息中展示应用上下文",
     },
     Steps: {
       Select: "选取",
@@ -160,7 +160,7 @@ const cn = {
     Title: "登录",
     SubTitle: "登录后可跟AI交流",
     Username: {
-      Title: "用户名或邮箱",
+      Title: "用户名",
       SubTitle: "",
       Placeholder: "请输入用户名或邮箱",
     },
@@ -198,7 +198,7 @@ const cn = {
     },
     EmailCode: {
       Title: "验证码",
-      SubTitle: "系统将向您邮箱发送的验证码",
+      SubTitle: "",
       Placeholder: "请输入验证码",
     },
     Phone: {
@@ -208,13 +208,13 @@ const cn = {
     },
     PhoneCode: {
       Title: "验证码",
-      SubTitle: "系统将向您手机号发送的短信验证码",
+      SubTitle: "",
       Placeholder: "请输入短信验证码",
     },
     Username: {
       Title: "用户名",
-      SubTitle: "用户名只能包含字母、数字、下划线，不可以包含中文",
-      Placeholder: "请输入用户名",
+      SubTitle: "",
+      Placeholder: "请输入用户名（不可以包含中文）",
     },
     Password: {
       Title: "密码",
@@ -448,8 +448,8 @@ const cn = {
       SubTitle: "在预览气泡中预览 Markdown 内容",
     },
     Mask: {
-      Title: "面具启动页",
-      SubTitle: "新建聊天时，展示面具启动页",
+      Title: "应用启动页",
+      SubTitle: "新建聊天时，展示应用启动页",
     },
     Prompt: {
       Disable: {
@@ -546,15 +546,21 @@ const cn = {
     Clear: "上下文已清除",
     Revert: "恢复上下文",
   },
+  Shop: {
+    Name: "订阅",
+  },
+  User: {
+    Name: "用户",
+  },
   Plugin: {
     Name: "插件",
   },
   Mask: {
-    Name: "面具",
+    Name: "应用",
     Page: {
-      Title: "预设角色面具",
-      SubTitle: (count: number) => `${count} 个预设角色定义`,
-      Search: "搜索角色面具",
+      Title: "应用中心",
+      SubTitle: (count: number) => `${count} 个应用定义`,
+      Search: "搜索应用",
       Create: "新建",
     },
     Item: {
@@ -567,7 +573,7 @@ const cn = {
     },
     EditModal: {
       Title: (readonly: boolean) =>
-        `编辑预设面具 ${readonly ? "（只读）" : ""}`,
+        `编辑预设应用 ${readonly ? "（只读）" : ""}`,
       Download: "下载预设",
       Clone: "克隆预设",
     },
@@ -590,8 +596,8 @@ const cn = {
     Skip: "直接开始",
     NotShow: "不再展示",
     ConfirmNoShow: "确认禁用？禁用后可以随时在设置中重新启用。",
-    Title: "挑选一个面具",
-    SubTitle: "现在开始，与面具背后的灵魂思维碰撞",
+    Title: "选择一个应用",
+    SubTitle: "现在开始，使用人工智能的高级方法",
     More: "查看全部",
   },
 

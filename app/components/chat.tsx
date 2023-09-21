@@ -17,7 +17,7 @@ import ReturnIcon from "../icons/return.svg";
 import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
 import PromptIcon from "../icons/prompt.svg";
-import MaskIcon from "../icons/mask.svg";
+import MaskIcon from "../icons/app.svg";
 // import InternetIcon from "../icons/internet.svg";
 import MaxIcon from "../icons/max.svg";
 import MinIcon from "../icons/min.svg";
@@ -34,6 +34,7 @@ import AutoIcon from "../icons/auto.svg";
 import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
+import Internet from "../icons/internetsearch.svg"
 
 import {
   ChatMessage,
@@ -357,31 +358,38 @@ function SwitchChatAction(props: {
     full: 16,
     icon: props.icon ? 16 : 0,
   });
+  const [isClicked, setIsClicked] = useState(false); // 新增state
 
-  // function updateWidth() {
-  //   if (props.icon && !iconRef.current || !textRef.current) return;
-  //   const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
-  //   const textWidth = getWidth(textRef.current);
-  //   const iconWidth = props.icon ? getWidth(iconRef.current!) : 0;
-  //   setWidth({
-  //     full: textWidth + iconWidth,
-  //     icon: iconWidth,
-  //   });
-  // }
-  // useEffect(() => {
-  //   setTimeout(updateWidth, 100)
-  // })
+  function updateWidth() {
+    console.log("updateWidth", iconRef, textRef);
+    if (!iconRef.current || !textRef.current) return;
+    console.log("1");
+    const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
+    const textWidth = getWidth(textRef.current);
+    const iconWidth = getWidth(iconRef.current);
+    setWidth({
+      full: textWidth + iconWidth,
+      icon: iconWidth,
+    });
+  }
 
   return (
     <div
-      className={`${styles["chat-input-action"]} ${styles["hover"]} clickable`}
+      className={`${styles['chat-input-action']} clickable`}
       onClick={() => {
         props.onClick();
+        setIsClicked(!isClicked); // 更新isClicked的状态
+        setTimeout(updateWidth, 1);
       }}
-      style={{
-        color: props.value ? "var(--primary)" : "",
-        borderColor: props.value ? "var(--primary)" : "",
-      }}
+      onMouseEnter={updateWidth}
+      onTouchStart={updateWidth}
+      style={
+        {
+          "--icon-width": `${width.icon}px`,
+          "--full-width": `${width.full}px`,
+          backgroundColor: isClicked ? '#dafbe1' : '', // 根据isClicked的状态设置背景颜色
+        } as React.CSSProperties
+      }
     >
       {props.icon && (
         <div ref={iconRef} className={styles["icon"]}>
@@ -518,7 +526,7 @@ export function ChatActions(props: {
         icon={<MaskIcon />}
       />
 
-      <ChatAction
+      <SwitchChatAction
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}
         onClick={() => {
@@ -551,6 +559,7 @@ export function ChatActions(props: {
                 );
               }}
               text={model.plugin.name}
+              icon={<Internet />}
               value={model.value}
             />
           );
@@ -975,7 +984,7 @@ export function Chat() {
               />
             </div>
           )}
-          <div className="window-action-button">
+          {/* <div className="window-action-button">
             <IconButton
               icon={<CartIcon />}
               bordered
@@ -988,7 +997,7 @@ export function Chat() {
               bordered
               onClick={() => navigate(Path.Profile)}
             />
-          </div>
+          </div> */}
           <div className="window-action-button">
             <IconButton
               icon={<ExportIcon />}

@@ -12,9 +12,11 @@ import NoticeIcon from "../icons/notice.svg";
 import ChatBotIcon from "../icons/ai-chat-bot.png";
 import AddIcon from "../icons/add.svg";
 import CloseIcon from "../icons/close.svg";
-import MaskIcon from "../icons/mask.svg";
+import MaskIcon from "../icons/app.svg";
 import PluginIcon from "../icons/plugin.svg";
 import NextImage from "next/image";
+import UserIcon from "../icons/user.svg";
+import CartIcon from "../icons/cart-outline.svg";
 
 import Locale from "../locales";
 
@@ -185,7 +187,7 @@ export function SideBar(props: {
         <div
           className={styles["sidebar-title"]}
           dangerouslySetInnerHTML={{
-            __html: websiteConfigStore.mainTitle || "AI Chat",
+            __html: websiteConfigStore.mainTitle || "AIChat Next Web",
           }}
           data-tauri-drag-region
         ></div>
@@ -208,6 +210,23 @@ export function SideBar(props: {
       </div>
 
       <div className={styles["sidebar-header-bar"]}>
+        <IconButton
+          icon={<CartIcon />}
+          text={shouldNarrow ? undefined : Locale.Shop.Name}
+          className={styles["sidebar-bar-button"]}
+          onClick={() => navigate(Path.Pricing)}
+          shadow
+        />
+        <IconButton
+          icon={<UserIcon />}
+          text={shouldNarrow ? undefined : Locale.User.Name}
+          className={styles["sidebar-bar-button"]}
+          onClick={() => navigate(Path.Profile)}
+          shadow
+        />
+      </div>
+
+      <div className={styles["sidebar-header-bar"]} style={{ marginTop: '-10px' }}>
         <IconButton
           icon={<MaskIcon />}
           text={shouldNarrow ? undefined : Locale.Mask.Name}
