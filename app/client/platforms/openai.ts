@@ -498,7 +498,6 @@ export class ChatGPTApi implements LLMApi {
             const entireContent =
               prefixContent + `[![${taskId}](${imgUrl})](${imgUrl})`;
             isFinished = true;
-            options.onFinish(entireContent);
 
             botMessage.attr.imgUrl = imgUrl;
             // if (statusResJson.action === "DESCRIBE" && statusResJson.prompt) {
@@ -506,20 +505,21 @@ export class ChatGPTApi implements LLMApi {
             // }
             botMessage.attr.status = "SUCCESS";
             botMessage.attr.finished = true;
+            options.onFinish(entireContent);
             break;
           }
           case 40:
             content =
               statusResJson.data.error || Locale.Midjourney.UnknownReason;
             isFinished = true;
+            botMessage.attr.status = "FAILURE";
+            botMessage.attr.finished = true;
             options.onFinish(
               prefixContent +
                 `**${
                   Locale.Midjourney.TaskStatus
                 }:** [${new Date().toLocaleString()}] - ${content}`,
             );
-            botMessage.attr.status = "FAILURE";
-            botMessage.attr.finished = true;
             break;
           case 0:
             content = Locale.Midjourney.TaskNotStart;
