@@ -1,3 +1,11 @@
+
+
+
+# docker build -t nanjiren01/aichat-web:0.9.4 ../AIChatWeb
+# docker push nanjiren01/aichat-web:0.9.4
+# docker tag nanjiren01/aichat-web:0.9.4 nanjiren01/aichat-web:pro-latest
+# docker push nanjiren01/aichat-web:pro-latest
+
 FROM node:18-alpine AS builder
 
 WORKDIR /app

@@ -160,7 +160,7 @@ const cn = {
     Title: "登录",
     SubTitle: "登录后可跟AI交流",
     Username: {
-      Title: "用户名",
+      Title: "用户名或邮箱",
       SubTitle: "",
       Placeholder: "请输入用户名或邮箱",
     },
@@ -198,7 +198,7 @@ const cn = {
     },
     EmailCode: {
       Title: "验证码",
-      SubTitle: "",
+      SubTitle: "系统将向您邮箱发送的验证码",
       Placeholder: "请输入验证码",
     },
     Phone: {
@@ -208,13 +208,13 @@ const cn = {
     },
     PhoneCode: {
       Title: "验证码",
-      SubTitle: "",
+      SubTitle: "系统将向您手机号发送的短信验证码",
       Placeholder: "请输入短信验证码",
     },
     Username: {
       Title: "用户名",
-      SubTitle: "",
-      Placeholder: "请输入用户名（不可以包含中文）",
+      SubTitle: "用户名只能包含字母、数字、下划线，不可以包含中文",
+      Placeholder: "请输入用户名",
     },
     Password: {
       Title: "密码",

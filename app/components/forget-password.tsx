@@ -161,7 +161,7 @@ export function ForgetPassword(props: {
       <div className={styles["forget-password"]}>
         {hideChatLogWhenNotLogin && (
           <div style={{ textAlign: "center" }}>
-            <div className={styles["sidebar-logo"] + " no-dark"} style={{ marginTop: '-10px' }}>
+            <div className={styles["sidebar-logo"] + " no-dark"}>
               {props.logoLoading ? (
                 <></>
               ) : !props.logoUrl ? (
@@ -176,9 +176,9 @@ export function ForgetPassword(props: {
               )}
             </div>
             <div
-              style={{ lineHeight: "50px" }}
+              style={{ lineHeight: "100px" }}
               dangerouslySetInnerHTML={{
-                __html: mainTitle || "AIChat Next Web",
+                __html: mainTitle || "AI Chat",
               }}
               data-tauri-drag-region
             ></div>
