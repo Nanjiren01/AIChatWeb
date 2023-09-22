@@ -334,7 +334,7 @@ export function Profile() {
             <IconButton
               text={Locale.Profile.Actions.Pricing}
               block={true}
-              type="second"
+              type="primary"
               onClick={() => {
                 navigate(Path.Pricing);
               }}
@@ -356,7 +356,7 @@ export function Profile() {
             <IconButton
               text={Locale.LoginPage.Actions.Logout}
               block={true}
-              type="primary"
+              type="second"
               onClick={() => {
                 logout();
               }}

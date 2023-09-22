@@ -1,25 +1,10 @@
 .login {
   padding: 20px;
   overflow: auto;
-  min-width: min(300px, 100%);
+  min-width: min(600px, 100%);
   max-width: 600px;
   margin: 10px auto;
   box-sizing: border-box;
-}
-
-.container {
-  padding: 20px;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.input-group {
-  margin-top: 20px;
-}
-
-.input-item {
-  margin-bottom: 10px;
 }
 
 .avatar {

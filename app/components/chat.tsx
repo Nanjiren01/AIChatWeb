@@ -35,7 +35,7 @@ import AutoIcon from "../icons/auto.svg";
 import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
-import Internet from "../icons/internetsearch.svg"
+import Internet from "../icons/internetsearch.svg";
 
 import {
   ChatMessage,
@@ -362,9 +362,9 @@ function SwitchChatAction(props: {
   const [isClicked, setIsClicked] = useState(false); // 新增state
 
   function updateWidth() {
-    console.log("updateWidth", iconRef, textRef);
+    //console.log("updateWidth", iconRef, textRef);
     if (!iconRef.current || !textRef.current) return;
-    console.log("1");
+    //console.log("1");
     const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
     const textWidth = getWidth(textRef.current);
     const iconWidth = getWidth(iconRef.current);
@@ -376,7 +376,7 @@ function SwitchChatAction(props: {
 
   return (
     <div
-      className={`${styles['chat-input-action']} clickable`}
+      className={`${styles["chat-input-action"]} clickable`}
       onClick={() => {
         props.onClick();
         setIsClicked(!isClicked); // 更新isClicked的状态
@@ -388,7 +388,7 @@ function SwitchChatAction(props: {
         {
           "--icon-width": `${width.icon}px`,
           "--full-width": `${width.full}px`,
-          backgroundColor: isClicked ? '#dafbe1' : '', // 根据isClicked的状态设置背景颜色
+          backgroundColor: isClicked ? "#dafbe1" : "", // 根据isClicked的状态设置背景颜色
         } as React.CSSProperties
       }
     >
@@ -497,41 +497,41 @@ export function ChatActions(props: {
         />
       )}
 
-<div className={styles["hide-on-mobile"]}>
-  <ChatAction
-    onClick={nextTheme}
-    text={Locale.Chat.InputActions.Theme[theme]}
-    icon={
-      <>
-        {theme === Theme.Auto ? (
-          <AutoIcon />
-        ) : theme === Theme.Light ? (
-          <LightIcon />
-        ) : theme === Theme.Dark ? (
-          <DarkIcon />
-        ) : null}
-      </>
-    }
-  />
-</div>
+      <div className={styles["hide-on-mobile"]}>
+        <ChatAction
+          onClick={nextTheme}
+          text={Locale.Chat.InputActions.Theme[theme]}
+          icon={
+            <>
+              {theme === Theme.Auto ? (
+                <AutoIcon />
+              ) : theme === Theme.Light ? (
+                <LightIcon />
+              ) : theme === Theme.Dark ? (
+                <DarkIcon />
+              ) : null}
+            </>
+          }
+        />
+      </div>
 
-<div className={styles["hide-on-mobile"]}>
-  <ChatAction
-    onClick={props.showPromptHints}
-    text={Locale.Chat.InputActions.Prompt}
-    icon={<PromptIcon />}
-  />
-</div>
+      <div className={styles["hide-on-mobile"]}>
+        <ChatAction
+          onClick={props.showPromptHints}
+          text={Locale.Chat.InputActions.Prompt}
+          icon={<PromptIcon />}
+        />
+      </div>
 
-<div className={styles["hide-on-mobile"]}>
-  <ChatAction
-    onClick={() => {
-      navigate(Path.Masks);
-    }}
-    text={Locale.Chat.InputActions.Masks}
-    icon={<MaskIcon />}
-  />
-</div>
+      <div className={styles["hide-on-mobile"]}>
+        <ChatAction
+          onClick={() => {
+            navigate(Path.Masks);
+          }}
+          text={Locale.Chat.InputActions.Masks}
+          icon={<MaskIcon />}
+        />
+      </div>
 
       <SwitchChatAction
         text={Locale.Chat.InputActions.Clear}
