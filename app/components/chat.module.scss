@@ -1,5 +1,23 @@
 @import "../styles/animation.scss";
 
+.hide-on-mobile {
+  display: inline-block;
+
+  &:not(:last-child) {
+    margin-right: 5px;
+  }
+}
+
+.dropdown-menu {
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+}
+
+.window-action-button {
+  position: relative;
+}
+
 .chat-input-actions {
   display: flex;
   flex-wrap: wrap;
@@ -507,5 +525,9 @@
 
   .chat-input-send {
     bottom: 30px;
+  }
+
+  .hide-on-mobile {
+    display: none;
   }
 }

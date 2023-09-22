@@ -553,6 +553,12 @@ const en: LocaleType = {
     Clear: "Context Cleared",
     Revert: "Revert",
   },
+  Shop: {
+    Name: "Subscribe",
+  },
+  User: {
+    Name: "Profile",
+  },
   Plugin: {
     Name: "Plugin",
   },
