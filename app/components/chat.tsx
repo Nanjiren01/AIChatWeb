@@ -27,6 +27,7 @@ import SettingsIcon from "../icons/chat-settings.svg";
 import DeleteIcon from "../icons/clear.svg";
 import PinIcon from "../icons/pin.svg";
 import EditIcon from "../icons/rename.svg";
+import MenuIcon from "../icons/boldmenu.svg";
 
 import LightIcon from "../icons/light.svg";
 import DarkIcon from "../icons/dark.svg";
@@ -496,35 +497,41 @@ export function ChatActions(props: {
         />
       )}
 
-      <ChatAction
-        onClick={nextTheme}
-        text={Locale.Chat.InputActions.Theme[theme]}
-        icon={
-          <>
-            {theme === Theme.Auto ? (
-              <AutoIcon />
-            ) : theme === Theme.Light ? (
-              <LightIcon />
-            ) : theme === Theme.Dark ? (
-              <DarkIcon />
-            ) : null}
-          </>
-        }
-      />
+<div className={styles["hide-on-mobile"]}>
+  <ChatAction
+    onClick={nextTheme}
+    text={Locale.Chat.InputActions.Theme[theme]}
+    icon={
+      <>
+        {theme === Theme.Auto ? (
+          <AutoIcon />
+        ) : theme === Theme.Light ? (
+          <LightIcon />
+        ) : theme === Theme.Dark ? (
+          <DarkIcon />
+        ) : null}
+      </>
+    }
+  />
+</div>
 
-      <ChatAction
-        onClick={props.showPromptHints}
-        text={Locale.Chat.InputActions.Prompt}
-        icon={<PromptIcon />}
-      />
+<div className={styles["hide-on-mobile"]}>
+  <ChatAction
+    onClick={props.showPromptHints}
+    text={Locale.Chat.InputActions.Prompt}
+    icon={<PromptIcon />}
+  />
+</div>
 
-      <ChatAction
-        onClick={() => {
-          navigate(Path.Masks);
-        }}
-        text={Locale.Chat.InputActions.Masks}
-        icon={<MaskIcon />}
-      />
+<div className={styles["hide-on-mobile"]}>
+  <ChatAction
+    onClick={() => {
+      navigate(Path.Masks);
+    }}
+    text={Locale.Chat.InputActions.Masks}
+    icon={<MaskIcon />}
+  />
+</div>
 
       <SwitchChatAction
         text={Locale.Chat.InputActions.Clear}
@@ -914,6 +921,11 @@ export function Chat() {
 
   const autoFocus = !isMobileScreen || isChat; // only focus in chat page
   const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
 
   useCommand({
     fill: setUserInput,
@@ -974,51 +986,71 @@ export function Chat() {
               : Locale.Chat.SubTitle(session.messages.length)}
           </div>
         </div>
-        <div className="window-actions">
-          {!isMobileScreen && (
-            <div className="window-action-button">
+        <div className={styles["window-actions"]}>
+          {isMobileScreen ? (
+            <div className={styles["window-action-button"]}>
               <IconButton
-                icon={<RenameIcon />}
+                icon={<MenuIcon />}
                 bordered
-                onClick={renameSession}
+                onClick={toggleDropdown}
               />
+              {isDropdownOpen && (
+                <div className={styles["dropdown-menu"]}>
+                  <IconButton
+                    icon={<CartIcon />}
+                    bordered
+                    onClick={() => navigate(Path.Pricing)}
+                  />
+                  <IconButton
+                    icon={<UserIcon />}
+                    bordered
+                    onClick={() => navigate(Path.Profile)}
+                  />
+                  <IconButton
+                    icon={<ExportIcon />}
+                    bordered
+                    title={Locale.Chat.Actions.Export}
+                    onClick={() => {
+                      setShowExport(true);
+                    }}
+                  />
+                </div>
+              )}
             </div>
-          )}
-          {/* <div className="window-action-button">
-            <IconButton
-              icon={<CartIcon />}
-              bordered
-              onClick={() => navigate(Path.Pricing)}
-            />
-          </div>
-          <div className="window-action-button">
-            <IconButton
-              icon={<UserIcon />}
-              bordered
-              onClick={() => navigate(Path.Profile)}
-            />
-          </div> */}
-          <div className="window-action-button">
-            <IconButton
-              icon={<ExportIcon />}
-              bordered
-              title={Locale.Chat.Actions.Export}
-              onClick={() => {
-                setShowExport(true);
-              }}
-            />
-          </div>
-          {showMaxIcon && (
-            <div className="window-action-button">
-              <IconButton
-                icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
-                bordered
-                onClick={() => {
-                  config.update(
-                    (config) => (config.tightBorder = !config.tightBorder),
-                  );
-                }}
-              />
+          ) : (
+            <div className="window-actions">
+              {!isMobileScreen && (
+                <div className="window-action-button">
+                  <IconButton
+                    icon={<RenameIcon />}
+                    bordered
+                    onClick={renameSession}
+                  />
+                </div>
+              )}
+              <div className="window-action-button">
+                <IconButton
+                  icon={<ExportIcon />}
+                  bordered
+                  title={Locale.Chat.Actions.Export}
+                  onClick={() => {
+                    setShowExport(true);
+                  }}
+                />
+              </div>
+              {showMaxIcon && (
+                <div className="window-action-button">
+                  <IconButton
+                    icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
+                    bordered
+                    onClick={() => {
+                      config.update(
+                        (config) => (config.tightBorder = !config.tightBorder),
+                      );
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -193,7 +193,7 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
       <div className={styles["login"]}>
         {hideChatLogWhenNotLogin && (
           <div style={{ textAlign: "center" }}>
-            <div className={styles["sidebar-logo"] + " no-dark"} style={{ marginTop: '60px' }}>
+            <div className={styles["sidebar-logo"] + " no-dark"} style={{ marginTop: '-10px' }}>
               {props.logoLoading ? (
                 <></>
               ) : !props.logoUrl ? (

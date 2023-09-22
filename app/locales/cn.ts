@@ -547,16 +547,16 @@ const cn = {
     Revert: "恢复上下文",
   },
   Shop: {
-    Name: "订阅",
+    Name: "服务订阅",
   },
   User: {
-    Name: "用户",
+    Name: "个人中心",
   },
   Plugin: {
-    Name: "插件",
+    Name: "插件管理",
   },
   Mask: {
-    Name: "应用",
+    Name: "高级应用",
     Page: {
       Title: "应用中心",
       SubTitle: (count: number) => `${count} 个应用定义`,

@@ -289,7 +289,7 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
       <div className={styles["register"]}>
         {hideChatLogWhenNotLogin && (
           <div style={{ textAlign: "center" }}>
-            <div className={styles["sidebar-logo"] + " no-dark"}>
+            <div className={styles["sidebar-logo"] + " no-dark"} style={{ marginTop: '-10px' }}>
               {props.logoLoading ? (
                 <></>
               ) : !props.logoUrl ? (

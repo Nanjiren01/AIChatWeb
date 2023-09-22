@@ -211,22 +211,22 @@ export function SideBar(props: {
 
       <div className={styles["sidebar-header-bar"]}>
         <IconButton
-          icon={<CartIcon />}
-          text={shouldNarrow ? undefined : Locale.Shop.Name}
-          className={styles["sidebar-bar-button"]}
-          onClick={() => navigate(Path.Pricing)}
-          shadow
-        />
-        <IconButton
           icon={<UserIcon />}
           text={shouldNarrow ? undefined : Locale.User.Name}
           className={styles["sidebar-bar-button"]}
           onClick={() => navigate(Path.Profile)}
           shadow
         />
+        <IconButton
+          icon={<CartIcon />}
+          text={shouldNarrow ? undefined : Locale.Shop.Name}
+          className={styles["sidebar-bar-button"]}
+          onClick={() => navigate(Path.Pricing)}
+          shadow
+        />
       </div>
 
-      <div className={styles["sidebar-header-bar"]} style={{ marginTop: '-10px' }}>
+      {/* <div className={styles["sidebar-header-bar"]} style={{ marginTop: '-10px' }}>
         <IconButton
           icon={<MaskIcon />}
           text={shouldNarrow ? undefined : Locale.Mask.Name}
@@ -241,7 +241,7 @@ export function SideBar(props: {
           onClick={() => showToast(Locale.WIP)}
           shadow
         />
-      </div>
+      </div> */}
 
       <div
         className={styles["sidebar-body"]}
