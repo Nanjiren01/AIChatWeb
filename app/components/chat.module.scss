@@ -12,6 +12,22 @@
   position: absolute;
   z-index: 1;
   top: 100%;
+  right: 0;
+  background: #fff;
+  border: var(--border-in-light);
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 5px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  animation: slide-in-from-top ease 0.3s;
+
+  .window-action-button {
+    margin-top: 5px;
+  }
+
 }
 
 .window-action-button {

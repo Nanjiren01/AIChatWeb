@@ -18,6 +18,7 @@ import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
 import PromptIcon from "../icons/prompt.svg";
 import MaskIcon from "../icons/app.svg";
+import CloseIcon from "../icons/close.svg";
 // import InternetIcon from "../icons/internet.svg";
 import MaxIcon from "../icons/max.svg";
 import MinIcon from "../icons/min.svg";
@@ -923,9 +924,36 @@ export function Chat() {
   const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const toggleDropdown = () => {
+  // const toggleDropdown = () => {
+  //   // setIsDropdownOpen(!isDropdownOpen);
+  // };
+
+  const dropdownRef = useRef(null);
+  const handleOutsideClick = (event: any) => {
+    console.log("event", event.target, dropdownRef.current);
     setIsDropdownOpen(!isDropdownOpen);
+
+    if (
+      dropdownRef.current &&
+      !(dropdownRef.current as HTMLElement).contains(event.target)
+    ) {
+      console.log("not contains");
+      setIsDropdownOpen(false);
+    } else {
+      console.log("contains", isDropdownOpen);
+      setIsDropdownOpen(!isDropdownOpen);
+      setTimeout(() => {
+        console.log("new isDropdownOpen", isDropdownOpen);
+      }, 50);
+    }
   };
+  useEffect(() => {
+    document.addEventListener("click", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
 
   useCommand({
     fill: setUserInput,
@@ -989,26 +1017,33 @@ export function Chat() {
         <div className={styles["window-actions"]}>
           {isMobileScreen ? (
             <div className={styles["window-action-button"]}>
-              <IconButton
-                icon={<MenuIcon />}
-                bordered
-                onClick={toggleDropdown}
-              />
+              <div ref={dropdownRef}>
+                <IconButton
+                  icon={isDropdownOpen ? <CloseIcon /> : <MenuIcon />}
+                  bordered
+                />
+              </div>
               {isDropdownOpen && (
                 <div className={styles["dropdown-menu"]}>
                   <IconButton
+                    className={styles["window-action-button"]}
                     icon={<CartIcon />}
                     bordered
+                    text="购买套餐"
                     onClick={() => navigate(Path.Pricing)}
                   />
                   <IconButton
+                    className={styles["window-action-button"]}
                     icon={<UserIcon />}
                     bordered
+                    text="个人中心"
                     onClick={() => navigate(Path.Profile)}
                   />
                   <IconButton
+                    className={styles["window-action-button"]}
                     icon={<ExportIcon />}
                     bordered
+                    text={Locale.Chat.Actions.Export}
                     title={Locale.Chat.Actions.Export}
                     onClick={() => {
                       setShowExport(true);
