@@ -288,6 +288,9 @@ const en: LocaleType = {
     Username: "账号",
     Email: "邮箱",
     Phone: "手机号",
+    Invitor: {
+      Title: "邀请人",
+    },
     InviteCode: {
       Title: "邀请码",
       TitleRequired: "邀请码(必填)",

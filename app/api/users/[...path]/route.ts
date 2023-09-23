@@ -36,6 +36,8 @@ export interface ProfileData {
   name: string;
   username: string;
   state: number;
+  inviteCode: string;
+  invitorId: number;
   role: number;
   tokens: number;
   chatCount: number;
