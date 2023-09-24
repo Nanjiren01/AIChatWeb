@@ -244,7 +244,15 @@ export function Invitation() {
                   invitation.phone) + `(#${invitation.id})`;
               return (
                 <DangerousListItem key={id} title={title}>
-                  <span>邀请时间：{invitation.createTime}</span>
+                  <span
+                    style={{
+                      flexGrow: 0,
+                      fontSize: "12px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    邀请时间：{invitation.createTime}
+                  </span>
                 </DangerousListItem>
               );
             })}
