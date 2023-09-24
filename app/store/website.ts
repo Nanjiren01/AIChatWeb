@@ -23,6 +23,7 @@ export interface WebsiteConfigStore {
   mainTitle: string;
   subTitle: string;
   icp: string;
+  globalJavaScript: string;
   loginPageSubTitle: string;
   registerPageSubTitle: string;
   pricingPageTitle: string;
@@ -55,6 +56,7 @@ export interface WebsiteConfig {
   mainTitle: string;
   subTitle: string;
   icp: string;
+  globalJavaScript: string;
   loginPageSubTitle: string;
   registerPageSubTitle: string;
   registerTypes: string[];
@@ -94,6 +96,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       mainTitle: "",
       subTitle: "",
       icp: "",
+      globalJavaScript: "",
       loginPageSubTitle: "",
       registerPageSubTitle: "",
       registerTypes: [] as string[],
@@ -144,6 +147,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               mainTitle: website.mainTitle,
               subTitle: website.subTitle,
               icp: website.icp || "",
+              globalJavaScript: website.globalJavaScript || "",
               loginPageSubTitle: website.loginPageSubTitle,
               registerPageSubTitle: website.registerPageSubTitle,
               registerTypes:

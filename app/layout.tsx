@@ -6,7 +6,7 @@ import { getClientConfig } from "./config/client";
 
 export const metadata = {
   title: "AI Chat Web",
-  description: "Your personal ChatGPT Chat Bot.",
+  description: "Your personal AI Chat Bot.",
   viewport: {
     width: "device-width",
     initialScale: 1,

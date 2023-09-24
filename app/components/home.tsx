@@ -393,12 +393,13 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   );
 }
 
+let runAIChatWebInitScript = false;
 export function Home() {
   useSwitchTheme();
 
   const authStore = useAuthStore();
   const [logoLoading, setLogoLoading] = useState(false);
-  const { fetchWebsiteConfig, logoUrl, availableModels } =
+  const { fetchWebsiteConfig, logoUrl, globalJavaScript, availableModels } =
     useWebsiteConfigStore();
 
   useEffect(() => {
@@ -419,6 +420,14 @@ export function Home() {
       useAppConfig.getState().modelConfig.contentType = "Text";
     }
   }, [availableModels]);
+  useEffect(() => {
+    if (globalJavaScript) {
+      if (!runAIChatWebInitScript) {
+        eval(globalJavaScript);
+        runAIChatWebInitScript = true;
+      }
+    }
+  }, [globalJavaScript]);
 
   if (!useHasHydrated()) {
     return <Loading noLogo logoLoading={logoLoading} logoUrl={logoUrl} />;
