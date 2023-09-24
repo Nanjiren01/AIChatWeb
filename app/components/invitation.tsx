@@ -8,7 +8,7 @@ import { List, ListItem, DangerousListItem } from "./ui-lib";
 import { IconButton } from "./button";
 import { useAuthStore, useProfileStore } from "../store";
 
-// import { copyToClipboard } from "../utils";
+import { copyToClipboard } from "../utils";
 
 import Locale from "../locales";
 import { Path } from "../constant";
@@ -105,6 +105,18 @@ export function Invitation() {
     reloadInvitationList(authStore.token);
   }, [authStore.token, reloadInvitationList]);
 
+  function createInviteCode() {
+    setLoading(true);
+    profileStore
+      .createInviteCode(authStore)
+      .then((resp) => {
+        console.log("resp", resp);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+
   return (
     <ErrorBoundary>
       <div className="window-header">
@@ -166,6 +178,51 @@ export function Invitation() {
                 : loading
                 ? Locale.InvitationPage.Loading
                 : Locale.InvitationPage.NoInvitation}
+            </div>
+            <div
+              style={{
+                height: "100px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {authStore.inviteCode ? (
+                <>
+                  <span>
+                    <span
+                      className={styles["copy-action"]}
+                      onClick={() => {
+                        copyToClipboard(authStore.inviteCode);
+                      }}
+                    >
+                      {authStore.inviteCode}
+                    </span>
+                    <span
+                      className={styles["copy-action"]}
+                      onClick={() => {
+                        copyToClipboard(
+                          location.origin +
+                            Path.Register +
+                            "?code=" +
+                            authStore.inviteCode,
+                        );
+                      }}
+                    >
+                      {Locale.Profile.Actions.Copy}
+                    </span>
+                  </span>
+                </>
+              ) : (
+                <IconButton
+                  text={Locale.Profile.Actions.CreateInviteCode}
+                  type="second"
+                  disabled={loading}
+                  onClick={() => {
+                    createInviteCode();
+                  }}
+                />
+              )}
             </div>
           </List>
         ) : (
