@@ -107,6 +107,7 @@
   .modal-footer {
     padding: var(--modal-padding);
     display: flex;
+    align-items: center;
     justify-content: flex-end;
     border-top: var(--border-in-light);
     box-shadow: var(--shadow);
