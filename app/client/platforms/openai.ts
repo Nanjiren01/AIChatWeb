@@ -493,7 +493,10 @@ export class ChatGPTApi implements LLMApi {
         switch (state) {
           case 30: {
             const result = JSON.parse(statusResJson.data.result);
-            const imgUrl = result.url;
+            let imgUrl = result.url;
+            if (imgUrl.startsWith("/")) {
+              imgUrl = "/api" + imgUrl;
+            }
 
             const entireContent =
               prefixContent + `[![${taskId}](${imgUrl})](${imgUrl})`;
