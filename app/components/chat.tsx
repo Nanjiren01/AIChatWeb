@@ -36,7 +36,7 @@ import AutoIcon from "../icons/auto.svg";
 import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
-import Internet from "../icons/internetsearch.svg";
+import Internet from "../icons/internetsearch.svg"
 
 import {
   ChatMessage,
@@ -363,9 +363,9 @@ function SwitchChatAction(props: {
   const [isClicked, setIsClicked] = useState(false); // 新增state
 
   function updateWidth() {
-    //console.log("updateWidth", iconRef, textRef);
+    console.log("updateWidth", iconRef, textRef);
     if (!iconRef.current || !textRef.current) return;
-    //console.log("1");
+    console.log("1");
     const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
     const textWidth = getWidth(textRef.current);
     const iconWidth = getWidth(iconRef.current);
@@ -377,7 +377,7 @@ function SwitchChatAction(props: {
 
   return (
     <div
-      className={`${styles["chat-input-action"]} clickable`}
+      className={`${styles['chat-input-action']} clickable`}
       onClick={() => {
         props.onClick();
         setIsClicked(!isClicked); // 更新isClicked的状态
@@ -389,7 +389,7 @@ function SwitchChatAction(props: {
         {
           "--icon-width": `${width.icon}px`,
           "--full-width": `${width.full}px`,
-          backgroundColor: isClicked ? "#dafbe1" : "", // 根据isClicked的状态设置背景颜色
+          backgroundColor: isClicked ? '#dafbe1' : '', // 根据isClicked的状态设置背景颜色
         } as React.CSSProperties
       }
     >
@@ -498,7 +498,7 @@ export function ChatActions(props: {
         />
       )}
 
-      <div className={styles["hide-on-mobile"]}>
+<div className={styles["hide-on-mobile"]}>
         <ChatAction
           onClick={nextTheme}
           text={Locale.Chat.InputActions.Theme[theme]}
@@ -515,7 +515,7 @@ export function ChatActions(props: {
           }
         />
       </div>
-
+      
       <div className={styles["hide-on-mobile"]}>
         <ChatAction
           onClick={props.showPromptHints}
@@ -523,7 +523,7 @@ export function ChatActions(props: {
           icon={<PromptIcon />}
         />
       </div>
-
+      
       <div className={styles["hide-on-mobile"]}>
         <ChatAction
           onClick={() => {
@@ -923,12 +923,12 @@ export function Chat() {
   const autoFocus = !isMobileScreen || isChat; // only focus in chat page
   const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   // const toggleDropdown = () => {
   //   // setIsDropdownOpen(!isDropdownOpen);
   // };
-
-  const dropdownRef = useRef(null);
+  
   const handleOutsideClick = (event: any) => {
     console.log("event", event.target, dropdownRef.current);
     setIsDropdownOpen(!isDropdownOpen);
@@ -947,13 +947,25 @@ export function Chat() {
       }, 50);
     }
   };
-  useEffect(() => {
-    document.addEventListener("click", handleOutsideClick);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => { // 为 event 参数添加类型
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    // 点击外部时关闭菜单
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("click", handleOutsideClick);
+      // 清理事件监听器
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
 
   useCommand({
     fill: setUserInput,
@@ -1021,6 +1033,7 @@ export function Chat() {
                 <IconButton
                   icon={isDropdownOpen ? <CloseIcon /> : <MenuIcon />}
                   bordered
+                  onClick={toggleDropdown}
                 />
               </div>
               {isDropdownOpen && (
