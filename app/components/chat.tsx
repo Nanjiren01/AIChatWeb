@@ -923,7 +923,7 @@ export function Chat() {
   const autoFocus = !isMobileScreen || isChat; // only focus in chat page
   const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const dropdownRef = useRef(null);
 
   // const toggleDropdown = () => {
   //   // setIsDropdownOpen(!isDropdownOpen);
@@ -947,25 +947,17 @@ export function Chat() {
       }, 50);
     }
   };
-
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => { // 为 event 参数添加类型
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    // 点击外部时关闭菜单
-    document.addEventListener("mousedown", handleClickOutside);
+    if (isDropdownOpen) {
+      document.addEventListener("click", handleOutsideClick);
+    } else {
+      document.removeEventListener("click", handleOutsideClick);
+    }
+  
     return () => {
-      // 清理事件监听器
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleOutsideClick);
     };
-  }, []);
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
+  }, [isDropdownOpen]);
 
   useCommand({
     fill: setUserInput,
@@ -1033,7 +1025,7 @@ export function Chat() {
                 <IconButton
                   icon={isDropdownOpen ? <CloseIcon /> : <MenuIcon />}
                   bordered
-                  onClick={toggleDropdown}
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 />
               </div>
               {isDropdownOpen && (
@@ -1042,7 +1034,7 @@ export function Chat() {
                     className={styles["window-action-button"]}
                     icon={<CartIcon />}
                     bordered
-                    text="购买套餐"
+                    text="服务订阅"
                     onClick={() => navigate(Path.Pricing)}
                   />
                   <IconButton
