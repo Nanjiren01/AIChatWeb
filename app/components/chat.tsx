@@ -310,9 +310,9 @@ function ChatAction(props: {
   });
 
   function updateWidth() {
-    // console.log("updateWidth", iconRef, textRef);
+    console.log("updateWidth", iconRef, textRef);
     if (!iconRef.current || !textRef.current) return;
-    // console.log("1");
+    console.log("1");
     const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
     const textWidth = getWidth(textRef.current);
     const iconWidth = getWidth(iconRef.current);
@@ -363,9 +363,9 @@ function SwitchChatAction(props: {
   const [isClicked, setIsClicked] = useState(false); // 新增state
 
   function updateWidth() {
-    console.log("updateWidth", iconRef, textRef);
+    //console.log("updateWidth", iconRef, textRef);
     if (!iconRef.current || !textRef.current) return;
-    console.log("1");
+    //console.log("1");
     const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
     const textWidth = getWidth(textRef.current);
     const iconWidth = getWidth(iconRef.current);
@@ -377,7 +377,7 @@ function SwitchChatAction(props: {
 
   return (
     <div
-      className={`${styles['chat-input-action']} clickable`}
+      className={`${styles["chat-input-action"]} clickable`}
       onClick={() => {
         props.onClick();
         setIsClicked(!isClicked); // 更新isClicked的状态
@@ -515,7 +515,7 @@ export function ChatActions(props: {
           }
         />
       </div>
-      
+
       <div className={styles["hide-on-mobile"]}>
         <ChatAction
           onClick={props.showPromptHints}
@@ -523,7 +523,7 @@ export function ChatActions(props: {
           icon={<PromptIcon />}
         />
       </div>
-      
+
       <div className={styles["hide-on-mobile"]}>
         <ChatAction
           onClick={() => {
