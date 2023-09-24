@@ -55,7 +55,7 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
 
   useEffect(() => {
     wechatStore.fetchWechatConfig().then((res) => {
-      const wechat = res.data;
+      const wechat = res?.data;
       if (wechat?.appId) {
         setShowWechatLogin(true);
       }

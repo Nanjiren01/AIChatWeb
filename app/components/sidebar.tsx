@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import styles from "./home.module.scss";
 
@@ -109,45 +109,86 @@ function useDragSideBar() {
   };
 }
 
+export const NoticeModelBody = React.memo(
+  (props: { title: string; content: string }) => {
+    return (
+      <div>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "20px",
+            lineHeight: "40px",
+            marginBottom: "10px",
+          }}
+          dangerouslySetInnerHTML={{ __html: props.title || "" }}
+        ></div>
+        <div
+          dangerouslySetInnerHTML={{
+            __html: props.content || "",
+          }}
+        ></div>
+      </div>
+    );
+  },
+);
+NoticeModelBody.displayName = "NoticeModelBody";
+
+function sameDate(d1: Date, d2: Date) {
+  if (d1.constructor.name === "String") {
+    d1 = new Date(d1);
+  }
+  return (
+    d1.getDate() === d2.getDate() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getFullYear() === d2.getFullYear()
+  );
+}
 export function NoticeModel(props: {
   title: string;
   content: string;
-  onClose: () => void;
+  noticeNotShowToday: Date | null;
+  onClose: (notShowToday: boolean) => void;
 }) {
-  const noticeConfigStore = useNoticeConfigStore();
+  const init =
+    props.noticeNotShowToday === null
+      ? false
+      : sameDate(props.noticeNotShowToday, new Date());
+  const [notShowToday, setNotShowToday] = useState(init);
 
   return (
     <div className="modal-mask">
       <Modal
         title={Locale.Sidebar.Title}
-        onClose={() => props.onClose()}
+        onClose={() => props.onClose(notShowToday)}
         actions={[
           <IconButton
             key="reset"
             bordered
             text={Locale.Sidebar.Close}
             onClick={() => {
-              props.onClose();
+              props.onClose(notShowToday);
             }}
           />,
         ]}
-      >
-        <div>
+        footer={
           <div
             style={{
-              textAlign: "center",
-              fontSize: "20px",
-              lineHeight: "40px",
-              marginBottom: "10px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight: "20px",
             }}
-            dangerouslySetInnerHTML={{ __html: props.title || "" }}
-          ></div>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: props.content || "",
-            }}
-          ></div>
-        </div>
+          >
+            <input
+              type="checkbox"
+              checked={notShowToday}
+              onChange={() => setNotShowToday(!notShowToday)}
+            />
+            今日不再弹出
+          </div>
+        }
+      >
+        <NoticeModelBody title={props.title} content={props.content} />
       </Modal>
     </div>
   );
@@ -158,7 +199,9 @@ export function SideBar(props: {
   noticeShow: boolean;
   noticeTitle: string;
   noticeContent: string;
-  setNoticeShow: (show: boolean) => void;
+  noticeNotShowToday: Date | null;
+  showNotice: () => void;
+  setNoticeShow: (show: boolean, notShowToday: boolean) => void;
   logoLoading: boolean;
   logoUrl?: string;
 }) {
@@ -259,7 +302,7 @@ export function SideBar(props: {
               <IconButton
                 icon={<NoticeIcon />}
                 onClick={() => {
-                  props.setNoticeShow(true);
+                  props.showNotice();
                 }}
                 shadow
               />
@@ -303,7 +346,10 @@ export function SideBar(props: {
         <NoticeModel
           title={props.noticeTitle}
           content={props.noticeContent}
-          onClose={() => props.setNoticeShow(false)}
+          noticeNotShowToday={props.noticeNotShowToday}
+          onClose={(notShowToday: boolean) =>
+            props.setNoticeShow(false, notShowToday)
+          }
         />
       )}
     </div>
