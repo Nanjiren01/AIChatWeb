@@ -386,6 +386,17 @@ const en: LocaleType = {
       RedeemCode: "兑换码",
     },
   },
+  InvitationPage: {
+    Title: "邀请记录",
+    NoInvitation: "快将邀请链接分享给朋友吧",
+    Loading: "请稍候……",
+    Actions: {
+      Close: "关闭",
+      Profile: "个人中心",
+      Refresh: "刷新",
+      Refreshing: "刷新中……",
+    },
+  },
   OrderPage: {
     Title: "Order Center",
     NoOrder: "No Order",

@@ -25,6 +25,7 @@ export enum Path {
   RedeemCode = "/redeemCode",
   Pay = "/pay",
   Balance = "/balance",
+  Invitation = "/invitation",
   Order = "/order",
 }
 

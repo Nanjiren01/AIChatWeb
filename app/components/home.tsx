@@ -108,6 +108,13 @@ const Balance = dynamic(async () => (await import("./balance")).Balance, {
   loading: () => <Loading noLogo logoLoading />,
 });
 
+const Invitation = dynamic(
+  async () => (await import("./invitation")).Invitation,
+  {
+    loading: () => <Loading noLogo logoLoading />,
+  },
+);
+
 const Order = dynamic(async () => (await import("./order")).Order, {
   loading: () => <Loading noLogo logoLoading />,
 });
@@ -367,6 +374,7 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
                   <Route path={Path.RedeemCode} element={<RedeemCode />} />
                   <Route path={Path.Pay} element={<Pay />} />
                   <Route path={Path.Balance} element={<Balance />} />
+                  <Route path={Path.Invitation} element={<Invitation />} />
                   <Route path={Path.Order} element={<Order />} />
                 </Routes>
               </div>

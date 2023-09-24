@@ -211,6 +211,13 @@ export function Profile() {
               />
             )}
           </ListItem>
+          <ListItem>
+            <IconButton
+              type="second"
+              text="邀请记录"
+              onClick={() => navigate(Path.Invitation)}
+            />
+          </ListItem>
         </List>
 
         <List>
