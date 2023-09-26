@@ -37,6 +37,12 @@ import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
 import Internet from "../icons/internetsearch.svg";
+import HorizontalIcon from "../icons/horizontal.svg";
+import VerticalIcon from "../icons/vertical.svg";
+import PanLeftIcon from "../icons/pan-left.svg";
+import PanRightIcon from "../icons/pan-right.svg";
+import PanUpIcon from "../icons/pan-up.svg";
+import PanDownIcon from "../icons/pan-down.svg";
 
 import {
   ChatMessage,
@@ -1175,9 +1181,13 @@ export function Chat() {
                       defaultShow={i >= messages.length - 10}
                     />
                     {!isUser &&
-                      ["VARIATION", "IMAGINE", "ZOOMOUT"].includes(
-                        message.attr?.action,
-                      ) &&
+                      [
+                        "VARIATION",
+                        "IMAGINE",
+                        "ZOOMOUT",
+                        "PAN",
+                        "SQUARE",
+                      ].includes(message.attr?.action) &&
                       message.attr?.status === "SUCCESS" && (
                         <div
                           className={[
@@ -1185,7 +1195,7 @@ export function Chat() {
                             styles["column-flex"],
                           ].join(" ")}
                         >
-                          <div>
+                          <div style={{ display: "flex" }}>
                             {[1, 2, 3, 4].map((index) => {
                               return (
                                 <button
@@ -1201,24 +1211,36 @@ export function Chat() {
                                 </button>
                               );
                             })}
+                            {/* {message.attr?.action === 'PAN' && <button
+                              onClick={() =>
+                                doSubmit(
+                                  `SQUARE::1::${message.attr.taskId}`,
+                                )
+                              }
+                              className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["chat-message-mj-emoji-btn"]}`}
+                            >
+                              <HorizontalIcon />
+                            </button>} */}
                           </div>
-                          <div>
-                            {[1, 2, 3, 4].map((index) => {
-                              return (
-                                <button
-                                  key={index}
-                                  onClick={() =>
-                                    doSubmit(
-                                      `VARIATION::${index}::${message.attr.taskId}`,
-                                    )
-                                  }
-                                  className={`${styles["chat-message-mj-action-btn"]} clickable`}
-                                >
-                                  V{index}
-                                </button>
-                              );
-                            })}
-                          </div>
+                          {message.attr?.action !== "PAN" && (
+                            <div style={{ display: "flex" }}>
+                              {[1, 2, 3, 4].map((index) => {
+                                return (
+                                  <button
+                                    key={index}
+                                    onClick={() =>
+                                      doSubmit(
+                                        `VARIATION::${index}::${message.attr.taskId}`,
+                                      )
+                                    }
+                                    className={`${styles["chat-message-mj-action-btn"]} clickable`}
+                                  >
+                                    V{index}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       )}
                     {!isUser &&
@@ -1246,6 +1268,60 @@ export function Chat() {
                                 </button>
                               );
                             })}
+                          </div>
+                          <div style={{ display: "flex" }}>
+                            {["⬅️", "➡️", "⬆️", "⬇️"]
+                              .filter((_, index) => {
+                                if (message.attr?.direction === "horizontal") {
+                                  return index <= 1;
+                                } else if (
+                                  message.attr?.direction === "vertical"
+                                ) {
+                                  return index >= 2;
+                                } else {
+                                  return true;
+                                }
+                              })
+                              .map((direction, index) => {
+                                // ➡️
+                                const str = {
+                                  0: "LEFT",
+                                  1: "RIGHT",
+                                  2: "UP",
+                                  3: "DOWN",
+                                }[index];
+                                return (
+                                  <button
+                                    key={str}
+                                    onClick={() =>
+                                      doSubmit(
+                                        `PAN::${str}::${message.attr.taskId}`,
+                                      )
+                                    }
+                                    className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["chat-message-mj-emoji-btn"]}`}
+                                  >
+                                    {direction === "⬅️" && <PanLeftIcon />}
+                                    {direction === "➡️" && <PanRightIcon />}
+                                    {direction === "⬆️" && <PanUpIcon />}
+                                    {direction === "⬇️" && <PanDownIcon />}
+                                  </button>
+                                );
+                              })}
+                            {message.attr?.direction && (
+                              <button
+                                onClick={() =>
+                                  doSubmit(`SQUARE::1::${message.attr.taskId}`)
+                                }
+                                className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["chat-message-mj-emoji-btn"]}`}
+                              >
+                                {message.attr?.direction === "vertical" && (
+                                  <HorizontalIcon />
+                                )}
+                                {message.attr?.direction === "horizontal" && (
+                                  <VerticalIcon />
+                                )}
+                              </button>
+                            )}
                           </div>
                         </div>
                       )}

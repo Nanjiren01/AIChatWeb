@@ -54,7 +54,9 @@ export class ChatGPTApi implements LLMApi {
     };
     if (
       modelConfig.contentType === "Image" ||
-      /^(UPSCALE|VARIATION)::\d::/.test(options.content)
+      /^(UPSCALE|VARIATION|ZOOMOUT|PAN|SQUARE)::([\d\w]+)::/.test(
+        options.content,
+      )
     ) {
       this.handleDraw(options, modelConfig);
       return;
@@ -285,6 +287,8 @@ export class ChatGPTApi implements LLMApi {
           "BLEND",
           "REROLL",
           "ZOOMOUT",
+          "PAN",
+          "SQUARE",
         ].includes(action)
       ) {
         options.onFinish(Locale.Midjourney.TaskErrUnknownType);
@@ -292,6 +296,7 @@ export class ChatGPTApi implements LLMApi {
       }
       botMessage.attr.action = action;
       let actionIndex: any = null;
+      let actionDirection: string | null = null;
       let actionUseTaskId: any = null;
       let zoomRatio: any = null;
       if (action === "VARIATION" || action == "UPSCALE" || action == "REROLL") {
@@ -304,6 +309,18 @@ export class ChatGPTApi implements LLMApi {
         const index = temp.indexOf("::");
         zoomRatio = temp.substring(0, index);
         actionUseTaskId = temp.substring(index + 2);
+      } else if (action == "PAN") {
+        const temp = prompt.substring(firstSplitIndex + 2);
+        const index = temp.indexOf("::");
+        actionDirection = temp.substring(0, index);
+        actionDirection = actionDirection.toLocaleLowerCase();
+        actionUseTaskId = temp.substring(index + 2);
+      } else if (action == "SQUARE") {
+        // actionIndex没啥用
+        actionIndex = parseInt(
+          prompt.substring(firstSplitIndex + 2, firstSplitIndex + 3),
+        );
+        actionUseTaskId = prompt.substring(firstSplitIndex + 5);
       }
       try {
         let res = null;
@@ -375,6 +392,22 @@ export class ChatGPTApi implements LLMApi {
               targetUuid: actionUseTaskId,
             });
             botMessage.attr.zoomRatio = zoomRatio;
+            botMessage.attr.targetUuid = actionUseTaskId;
+            break;
+          }
+          case "PAN": {
+            res = await reqFn("draw/pan", "POST", {
+              panDirection: actionDirection,
+              targetUuid: actionUseTaskId,
+            });
+            botMessage.attr.panDirection = actionDirection;
+            botMessage.attr.targetUuid = actionUseTaskId;
+            break;
+          }
+          case "SQUARE": {
+            res = await reqFn("draw/square", "POST", {
+              targetUuid: actionUseTaskId,
+            });
             botMessage.attr.targetUuid = actionUseTaskId;
             break;
           }
@@ -486,6 +519,18 @@ export class ChatGPTApi implements LLMApi {
                 "::" +
                 botMessage.attr.targetUuid +
                 ")"
+              : statusResJson.data.type === "pan"
+              ? "(PAN::" +
+                botMessage.attr.panDirection +
+                "::" +
+                botMessage.attr.targetUuid +
+                ")"
+              : statusResJson.data.type === "square"
+              ? "(SQUARE::" +
+                botMessage.attr.targetIndex +
+                "::" +
+                botMessage.attr.targetUuid +
+                ")"
               : ""),
           taskId,
         );
@@ -508,6 +553,7 @@ export class ChatGPTApi implements LLMApi {
             // }
             botMessage.attr.status = "SUCCESS";
             botMessage.attr.finished = true;
+            botMessage.attr.direction = statusResJson.data.direction;
             options.onFinish(entireContent);
             break;
           }

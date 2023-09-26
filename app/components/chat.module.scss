@@ -408,6 +408,15 @@
 
 }
 
+.chat-message-mj-emoji-btn {
+  padding: 4px 8px;
+
+  svg {
+    width: 18px;
+    margin-top: 2px;
+  }
+}
+
 .chat-message-action-date {
   font-size: 12px;
   opacity: 0.2;
