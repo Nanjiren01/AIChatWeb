@@ -1282,14 +1282,14 @@ export function Chat() {
                                   return true;
                                 }
                               })
-                              .map((direction, index) => {
+                              .map((direction) => {
                                 // ➡️
                                 const str = {
-                                  0: "LEFT",
-                                  1: "RIGHT",
-                                  2: "UP",
-                                  3: "DOWN",
-                                }[index];
+                                  "⬅️": "LEFT",
+                                  "➡️": "RIGHT",
+                                  "⬆️": "UP",
+                                  "⬇️": "DOWN",
+                                }[direction];
                                 return (
                                   <button
                                     key={str}
