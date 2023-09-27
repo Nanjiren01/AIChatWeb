@@ -1187,6 +1187,7 @@ export function Chat() {
                         "ZOOMOUT",
                         "PAN",
                         "SQUARE",
+                        "VARY",
                       ].includes(message.attr?.action) &&
                       message.attr?.status === "SUCCESS" && (
                         <div
@@ -1195,28 +1196,6 @@ export function Chat() {
                             styles["column-flex"],
                           ].join(" ")}
                         >
-                          {!message.attr?.direction &&
-                            message.attr?.action === "SQUARE" && (
-                              <div style={{ display: "flex" }}>
-                                {["Strong", "Subtle"].map((strength) => {
-                                  return (
-                                    <button
-                                      key={strength}
-                                      onClick={() =>
-                                        doSubmit(
-                                          `VARY::${strength.toLocaleUpperCase()}::${
-                                            message.attr.taskId
-                                          }`,
-                                        )
-                                      }
-                                      className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["vary"]}`}
-                                    >
-                                      Vary ({strength})
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            )}
                           <div style={{ display: "flex" }}>
                             {[1, 2, 3, 4].map((index) => {
                               return (
@@ -1287,7 +1266,7 @@ export function Chat() {
                                         }`,
                                       )
                                     }
-                                    className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["zoom-out"]}`}
+                                    className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["vary"]}`}
                                   >
                                     Vary ({strength})
                                   </button>

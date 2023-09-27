@@ -289,6 +289,7 @@ export class ChatGPTApi implements LLMApi {
           "ZOOMOUT",
           "PAN",
           "SQUARE",
+          "VARY",
         ].includes(action)
       ) {
         options.onFinish(Locale.Midjourney.TaskErrUnknownType);
@@ -537,15 +538,15 @@ export class ChatGPTApi implements LLMApi {
                 ")"
               : statusResJson.data.type === "pan"
               ? "(PAN::" +
-                botMessage.attr.panDirection +
+                botMessage.attr.panDirection.toLocaleUpperCase() +
                 "::" +
                 botMessage.attr.targetUuid +
                 ")"
               : statusResJson.data.type === "square"
-              ? "(SQUARE::1" + "::" + botMessage.attr.targetUuid + ")"
+              ? "(SQUARE::1::" + botMessage.attr.targetUuid + ")"
               : statusResJson.data.type === "vary"
               ? "(VARY::" +
-                botMessage.attr.strength +
+                botMessage.attr.strength.toLocaleUpperCase() +
                 "::" +
                 botMessage.attr.targetUuid +
                 ")"
