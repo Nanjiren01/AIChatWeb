@@ -297,6 +297,7 @@ export class ChatGPTApi implements LLMApi {
       botMessage.attr.action = action;
       let actionIndex: any = null;
       let actionDirection: string | null = null;
+      let actionStrength: string | null = null;
       let actionUseTaskId: any = null;
       let zoomRatio: any = null;
       if (action === "VARIATION" || action == "UPSCALE" || action == "REROLL") {
@@ -321,6 +322,12 @@ export class ChatGPTApi implements LLMApi {
           prompt.substring(firstSplitIndex + 2, firstSplitIndex + 3),
         );
         actionUseTaskId = prompt.substring(firstSplitIndex + 5);
+      } else if (action == "VARY") {
+        const temp = prompt.substring(firstSplitIndex + 2);
+        const index = temp.indexOf("::");
+        actionStrength = temp.substring(0, index);
+        actionStrength = actionStrength.toLocaleLowerCase();
+        actionUseTaskId = temp.substring(index + 2);
       }
       try {
         let res = null;
@@ -408,6 +415,15 @@ export class ChatGPTApi implements LLMApi {
             res = await reqFn("draw/square", "POST", {
               targetUuid: actionUseTaskId,
             });
+            botMessage.attr.targetUuid = actionUseTaskId;
+            break;
+          }
+          case "VARY": {
+            res = await reqFn("draw/vary", "POST", {
+              strength: actionStrength,
+              targetUuid: actionUseTaskId,
+            });
+            botMessage.attr.strength = actionStrength;
             botMessage.attr.targetUuid = actionUseTaskId;
             break;
           }
@@ -526,8 +542,10 @@ export class ChatGPTApi implements LLMApi {
                 botMessage.attr.targetUuid +
                 ")"
               : statusResJson.data.type === "square"
-              ? "(SQUARE::" +
-                botMessage.attr.targetIndex +
+              ? "(SQUARE::1" + "::" + botMessage.attr.targetUuid + ")"
+              : statusResJson.data.type === "vary"
+              ? "(VARY::" +
+                botMessage.attr.strength +
                 "::" +
                 botMessage.attr.targetUuid +
                 ")"

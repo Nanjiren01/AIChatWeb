@@ -1195,6 +1195,28 @@ export function Chat() {
                             styles["column-flex"],
                           ].join(" ")}
                         >
+                          {!message.attr?.direction &&
+                            message.attr?.action === "SQUARE" && (
+                              <div style={{ display: "flex" }}>
+                                {["Strong", "Subtle"].map((strength) => {
+                                  return (
+                                    <button
+                                      key={strength}
+                                      onClick={() =>
+                                        doSubmit(
+                                          `VARY::${strength.toLocaleUpperCase()}::${
+                                            message.attr.taskId
+                                          }`,
+                                        )
+                                      }
+                                      className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["vary"]}`}
+                                    >
+                                      Vary ({strength})
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
                           <div style={{ display: "flex" }}>
                             {[1, 2, 3, 4].map((index) => {
                               return (
@@ -1252,6 +1274,27 @@ export function Chat() {
                             styles["column-flex"],
                           ].join(" ")}
                         >
+                          {!message.attr?.direction && (
+                            <div>
+                              {["Strong", "Subtle"].map((strength) => {
+                                return (
+                                  <button
+                                    key={strength}
+                                    onClick={() =>
+                                      doSubmit(
+                                        `VARY::${strength.toLocaleUpperCase()}::${
+                                          message.attr.taskId
+                                        }`,
+                                      )
+                                    }
+                                    className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["zoom-out"]}`}
+                                  >
+                                    Vary ({strength})
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
                           <div>
                             {[1.5, 2].map((index) => {
                               return (
