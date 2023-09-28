@@ -103,6 +103,8 @@ interface ChatStore {
   onUserInput: (
     content: string,
     plugins: PluginActionModel[],
+    imageMode: string,
+    baseImages: any[],
     websiteConfigStore: WebsiteConfigStore,
     authStore: AuthStore,
     navigateToLogin: () => void,
@@ -298,6 +300,8 @@ export const useChatStore = create<ChatStore>()(
       async onUserInput(
         content,
         plugins,
+        imageMode,
+        baseImages,
         websiteConfigStore,
         authStore,
         navigateToLogin,
@@ -307,8 +311,21 @@ export const useChatStore = create<ChatStore>()(
         const sensitiveWordsTip = websiteConfigStore.sensitiveWordsTip;
         const balanceNotEnough = websiteConfigStore.balanceNotEnough;
 
-        const userContent = fillTemplateWith(content, modelConfig);
-        console.log("[User Input] after template: ", userContent);
+        let userContent: string;
+        if (imageMode && (baseImages?.length ?? 0) > 0) {
+          if (imageMode === "IMAGINE") {
+            userContent = content;
+          } else {
+            // DESCRIBE || BLEND
+            userContent = `${imageMode}`;
+            baseImages.forEach((img: any, index: number) => {
+              userContent += `::[${index + 1}]${img.filename}`;
+            });
+          }
+        } else {
+          userContent = fillTemplateWith(content, modelConfig);
+          console.log("[User Input] after template: ", userContent);
+        }
 
         const userMessage: ChatMessage = createMessage({
           role: "user",
@@ -347,6 +364,8 @@ export const useChatStore = create<ChatStore>()(
           content,
           config: { ...modelConfig, stream: true },
           plugins: plugins,
+          imageMode,
+          baseImages,
           onUpdate(message) {
             botMessage.streaming = true;
             if (message) {
@@ -578,6 +597,8 @@ export const useChatStore = create<ChatStore>()(
             botMessage: topicMessages[topicMessages.length - 1],
             content,
             plugins: [],
+            imageMode: "",
+            baseImages: [],
             config: {
               model: "gpt-3.5-turbo",
             },
@@ -635,6 +656,8 @@ export const useChatStore = create<ChatStore>()(
             botMessage: toBeSummarizedMsgs[toBeSummarizedMsgs.length - 1],
             content,
             plugins: [],
+            imageMode: "",
+            baseImages: [],
             config: { ...modelConfig, stream: true },
             onUpdate(message) {
               session.memoryPrompt = message;

@@ -86,6 +86,18 @@
   }
 }
 
+
+.chat-select-images{
+  margin-bottom: 10px;
+  img{
+    width:80px;
+    height: 80px;
+    margin: 0 5px;
+    border-radius: 10px;
+    border:1px dashed var(--color-border-muted);
+  }
+}
+
 .prompt-toast {
   position: absolute;
   bottom: -50px;

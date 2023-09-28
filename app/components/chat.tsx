@@ -43,6 +43,7 @@ import PanLeftIcon from "../icons/pan-left.svg";
 import PanRightIcon from "../icons/pan-right.svg";
 import PanUpIcon from "../icons/pan-up.svg";
 import PanDownIcon from "../icons/pan-down.svg";
+import UploadIcon from "../icons/upload.svg";
 
 import {
   ChatMessage,
@@ -439,6 +440,7 @@ export function ChatActions(props: {
   showPromptModal: () => void;
   scrollToBottom: () => void;
   showPromptHints: () => void;
+  imageSelected: (img: any) => void;
   hitBottom: boolean;
   plugins: PluginActionModel[];
   SetOpenInternet: React.Dispatch<React.SetStateAction<boolean>>;
@@ -479,6 +481,26 @@ export function ChatActions(props: {
       session.mask.syncGlobalConfig = false;
     });
   }
+
+  function selectImage() {
+    document.getElementById("chat-image-file-select-upload")?.click();
+  }
+
+  const onImageSelected = (e: any) => {
+    console.log(e);
+    const file = e.target.files[0];
+    const filename = file.name;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const base64 = reader.result;
+      props.imageSelected({
+        filename,
+        base64,
+      });
+    };
+    e.target.value = null;
+  };
 
   return (
     <div className={styles["chat-input-actions"]}>
@@ -555,6 +577,20 @@ export function ChatActions(props: {
         }}
       />
 
+      <div
+        className={`${styles["chat-input-action"]} clickable`}
+        onClick={selectImage}
+      >
+        <input
+          type="file"
+          accept=".png,.jpg,.webp,.jpeg"
+          id="chat-image-file-select-upload"
+          style={{ display: "none" }}
+          onChange={onImageSelected}
+        />
+        <UploadIcon />
+      </div>
+
       <ChatAction
         onClick={nextModel}
         text={currentModel}
@@ -598,6 +634,8 @@ export function Chat() {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState("");
+  const [useImages, setUseImages] = useState<any[]>([]);
+  const [mjImageMode, setMjImageMode] = useState<string>("IMAGINE");
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
@@ -692,21 +730,46 @@ export function Chat() {
   }, [plugins]);
 
   const doSubmit = (userInput: string) => {
-    if (userInput.trim() === "") return;
+    if (useImages.length > 0) {
+      if (mjImageMode === "IMAGINE") {
+        if (!userInput) {
+          showToast(Locale.Midjourney.NeedInputUseImgPrompt);
+          return;
+        }
+      } else if (mjImageMode === "BLEND") {
+        if (useImages.length < 2 || useImages.length > 5) {
+          showToast(Locale.Midjourney.BlendMinImg(2, 5));
+          return;
+        }
+      }
+      // setUserInput(userInput = (mjImageMode + "::" + userInput));
+    } else {
+      if (userInput.trim() === "") return;
+    }
     const matchCommand = chatCommands.match(userInput);
     if (matchCommand.matched) {
       setUserInput("");
       setPromptHints([]);
+      setUseImages([]);
+      setMjImageMode("IMAGINE");
       matchCommand.invoke();
       return;
     }
     setIsLoading(true);
     chatStore
-      .onUserInput(userInput, pluignModels, websiteConfigStore, authStore, () =>
-        navigate(Path.Login),
+      .onUserInput(
+        userInput,
+        pluignModels,
+        mjImageMode,
+        useImages,
+        websiteConfigStore,
+        authStore,
+        () => navigate(Path.Login),
       )
       .then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
+    setUseImages([]);
+    setMjImageMode("IMAGINE");
     setUserInput("");
     setPromptHints([]);
     if (!isMobileScreen) inputRef.current?.focus();
@@ -830,8 +893,14 @@ export function Chat() {
     const content = session.messages[userIndex].content;
     deleteMessage(userIndex);
     chatStore
-      .onUserInput(content, pluignModels, websiteConfigStore, authStore, () =>
-        navigate(Path.Login),
+      .onUserInput(
+        content,
+        pluignModels,
+        mjImageMode,
+        useImages,
+        websiteConfigStore,
+        authStore,
+        () => navigate(Path.Login),
       )
       .then(() => setIsLoading(false));
     inputRef.current?.focus();
@@ -1430,18 +1499,67 @@ export function Chat() {
               : []
           }
           SetOpenInternet={SetOpenInternet}
+          imageSelected={(img: any) => {
+            if (useImages.length >= 5) {
+              showToast(Locale.Midjourney.SelectImgMax(5));
+              return;
+            }
+            setUseImages([...useImages, img]);
+          }}
         />
+        {useImages.length > 0 && (
+          <div className={styles["chat-select-images"]}>
+            {useImages.map((img: any, i) => (
+              <img
+                src={img.base64}
+                key={i}
+                onClick={() => {
+                  setUseImages(useImages.filter((_, ii) => ii != i));
+                }}
+                title={img.filename}
+                alt={img.filename}
+              />
+            ))}
+            <div style={{ fontSize: "12px", marginBottom: "5px" }}>
+              {[
+                { name: Locale.Midjourney.ModeImagineUseImg, value: "IMAGINE" },
+                { name: Locale.Midjourney.ModeBlend, value: "BLEND" },
+                { name: Locale.Midjourney.ModeDescribe, value: "DESCRIBE" },
+              ].map((item, i) => (
+                <label key={i}>
+                  <input
+                    type="radio"
+                    name="mj-img-mode"
+                    checked={mjImageMode == item.value}
+                    value={item.value}
+                    onChange={(e) => {
+                      setMjImageMode(e.target.value);
+                    }}
+                  />
+                  <span>{item.name}</span>
+                </label>
+              ))}
+            </div>
+            <div style={{ fontSize: "12px" }}>
+              <small>{Locale.Midjourney.HasImgTip}</small>
+            </div>
+          </div>
+        )}
         <div className={styles["chat-input-panel-inner"]}>
           <textarea
             ref={inputRef}
             className={styles["chat-input"]}
-            placeholder={Locale.Chat.Input(
-              submitKey,
-              session.mask?.modelConfig?.contentType === "Image"
-                ? Locale.Chat.Draw
-                : Locale.Chat.Send,
-              session.mask?.modelConfig?.contentType !== "Image",
-            )}
+            placeholder={
+              useImages.length > 0 && mjImageMode != "IMAGINE"
+                ? Locale.Midjourney.InputDisabled
+                : Locale.Chat.Input(
+                    submitKey,
+                    session.mask?.modelConfig?.contentType === "Image"
+                      ? Locale.Chat.Draw
+                      : Locale.Chat.Send,
+                    session.mask?.modelConfig?.contentType !== "Image",
+                  )
+            }
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}
@@ -1452,6 +1570,7 @@ export function Chat() {
             style={{
               fontSize: config.fontSize,
             }}
+            disabled={useImages.length > 0 && mjImageMode != "IMAGINE"}
           />
           <IconButton
             icon={<SendWhiteIcon />}

@@ -39,6 +39,8 @@ export interface ChatOptions {
 
   config: LLMConfig;
   plugins: PluginActionModel[];
+  imageMode: string;
+  baseImages: any[];
 
   onUpdate?: (message: string, chunk: string) => void;
   onFinish: (message: string) => void;

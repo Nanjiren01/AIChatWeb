@@ -275,7 +275,9 @@ export class ChatGPTApi implements LLMApi {
       const prompt = content; // .substring(3).trim();
       let action: string = "IMAGINE";
       const firstSplitIndex = prompt.indexOf("::");
-      if (firstSplitIndex > 0) {
+      if (options.imageMode) {
+        action = options.imageMode; // IMAGINE | BLEND | DESCRIBE
+      } else if (firstSplitIndex > 0) {
         action = prompt.substring(0, firstSplitIndex);
       }
       if (
@@ -290,6 +292,8 @@ export class ChatGPTApi implements LLMApi {
           "PAN",
           "SQUARE",
           "VARY",
+          "DESCRIBE",
+          "BLEND",
         ].includes(action)
       ) {
         options.onFinish(Locale.Midjourney.TaskErrUnknownType);
@@ -346,29 +350,23 @@ export class ChatGPTApi implements LLMApi {
           case "IMAGINE": {
             res = await reqFn("draw/imagine", "POST", {
               prompt: prompt,
-              // base64: extAttr?.useImages?.[0]?.base64 ?? null,
+              base64: options.baseImages?.[0]?.base64 ?? null,
             });
             break;
           }
-          // case "DESCRIBE": {
-          //     res = await reqFn(
-          //         "submit/describe",
-          //         "POST",
-          //         JSON.stringify({
-          //             base64: extAttr.useImages[0].base64,
-          //         }),
-          //     );
-          //     break;
-          // }
-          // case "BLEND": {
-          //     const base64Array = extAttr.useImages.map((ui: any) => ui.base64)
-          //     res = await reqFn(
-          //         "submit/blend",
-          //         "POST",
-          //         JSON.stringify({base64Array}),
-          //     );
-          //     break;
-          // }
+          case "DESCRIBE": {
+            res = await reqFn("draw/describe", "POST", {
+              base64: options.baseImages[0].base64,
+            });
+            break;
+          }
+          case "BLEND": {
+            const base64Array = options.baseImages.map((ui: any) => ui.base64);
+            res = await reqFn("draw/blend", "POST", {
+              base64Array,
+            });
+            break;
+          }
           case "UPSCALE": {
             res = await reqFn("draw/upscale", "POST", {
               targetIndex: actionIndex,
