@@ -17,7 +17,8 @@ import ReturnIcon from "../icons/return.svg";
 import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
 import PromptIcon from "../icons/prompt.svg";
-import MaskIcon from "../icons/mask.svg";
+import MaskIcon from "../icons/app.svg";
+import CloseIcon from "../icons/close.svg";
 // import InternetIcon from "../icons/internet.svg";
 import MaxIcon from "../icons/max.svg";
 import MinIcon from "../icons/min.svg";
@@ -27,6 +28,7 @@ import SettingsIcon from "../icons/chat-settings.svg";
 import DeleteIcon from "../icons/clear.svg";
 import PinIcon from "../icons/pin.svg";
 import EditIcon from "../icons/rename.svg";
+import MenuIcon from "../icons/boldmenu.svg";
 
 import LightIcon from "../icons/light.svg";
 import DarkIcon from "../icons/dark.svg";
@@ -34,6 +36,13 @@ import AutoIcon from "../icons/auto.svg";
 import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
+import Internet from "../icons/internetsearch.svg";
+import HorizontalIcon from "../icons/horizontal.svg";
+import VerticalIcon from "../icons/vertical.svg";
+import PanLeftIcon from "../icons/pan-left.svg";
+import PanRightIcon from "../icons/pan-right.svg";
+import PanUpIcon from "../icons/pan-up.svg";
+import PanDownIcon from "../icons/pan-down.svg";
 
 import {
   ChatMessage,
@@ -357,31 +366,38 @@ function SwitchChatAction(props: {
     full: 16,
     icon: props.icon ? 16 : 0,
   });
+  const [isClicked, setIsClicked] = useState(false); // 新增state
 
-  // function updateWidth() {
-  //   if (props.icon && !iconRef.current || !textRef.current) return;
-  //   const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
-  //   const textWidth = getWidth(textRef.current);
-  //   const iconWidth = props.icon ? getWidth(iconRef.current!) : 0;
-  //   setWidth({
-  //     full: textWidth + iconWidth,
-  //     icon: iconWidth,
-  //   });
-  // }
-  // useEffect(() => {
-  //   setTimeout(updateWidth, 100)
-  // })
+  function updateWidth() {
+    //console.log("updateWidth", iconRef, textRef);
+    if (!iconRef.current || !textRef.current) return;
+    //console.log("1");
+    const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
+    const textWidth = getWidth(textRef.current);
+    const iconWidth = getWidth(iconRef.current);
+    setWidth({
+      full: textWidth + iconWidth,
+      icon: iconWidth,
+    });
+  }
 
   return (
     <div
-      className={`${styles["chat-input-action"]} ${styles["hover"]} clickable`}
+      className={`${styles["chat-input-action"]} clickable`}
       onClick={() => {
         props.onClick();
+        setIsClicked(!isClicked); // 更新isClicked的状态
+        setTimeout(updateWidth, 1);
       }}
-      style={{
-        color: props.value ? "var(--primary)" : "",
-        borderColor: props.value ? "var(--primary)" : "",
-      }}
+      onMouseEnter={updateWidth}
+      onTouchStart={updateWidth}
+      style={
+        {
+          "--icon-width": `${width.icon}px`,
+          "--full-width": `${width.full}px`,
+          backgroundColor: isClicked ? "#dafbe1" : "", // 根据isClicked的状态设置背景颜色
+        } as React.CSSProperties
+      }
     >
       {props.icon && (
         <div ref={iconRef} className={styles["icon"]}>
@@ -488,37 +504,43 @@ export function ChatActions(props: {
         />
       )}
 
-      <ChatAction
-        onClick={nextTheme}
-        text={Locale.Chat.InputActions.Theme[theme]}
-        icon={
-          <>
-            {theme === Theme.Auto ? (
-              <AutoIcon />
-            ) : theme === Theme.Light ? (
-              <LightIcon />
-            ) : theme === Theme.Dark ? (
-              <DarkIcon />
-            ) : null}
-          </>
-        }
-      />
+      <div className={styles["hide-on-mobile"]}>
+        <ChatAction
+          onClick={nextTheme}
+          text={Locale.Chat.InputActions.Theme[theme]}
+          icon={
+            <>
+              {theme === Theme.Auto ? (
+                <AutoIcon />
+              ) : theme === Theme.Light ? (
+                <LightIcon />
+              ) : theme === Theme.Dark ? (
+                <DarkIcon />
+              ) : null}
+            </>
+          }
+        />
+      </div>
 
-      <ChatAction
-        onClick={props.showPromptHints}
-        text={Locale.Chat.InputActions.Prompt}
-        icon={<PromptIcon />}
-      />
+      <div className={styles["hide-on-mobile"]}>
+        <ChatAction
+          onClick={props.showPromptHints}
+          text={Locale.Chat.InputActions.Prompt}
+          icon={<PromptIcon />}
+        />
+      </div>
 
-      <ChatAction
-        onClick={() => {
-          navigate(Path.Masks);
-        }}
-        text={Locale.Chat.InputActions.Masks}
-        icon={<MaskIcon />}
-      />
+      <div className={styles["hide-on-mobile"]}>
+        <ChatAction
+          onClick={() => {
+            navigate(Path.Masks);
+          }}
+          text={Locale.Chat.InputActions.Masks}
+          icon={<MaskIcon />}
+        />
+      </div>
 
-      <ChatAction
+      <SwitchChatAction
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}
         onClick={() => {
@@ -551,6 +573,7 @@ export function ChatActions(props: {
                 );
               }}
               text={model.plugin.name}
+              icon={<Internet />}
               value={model.value}
             />
           );
@@ -905,6 +928,38 @@ export function Chat() {
 
   const autoFocus = !isMobileScreen || isChat; // only focus in chat page
   const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // const toggleDropdown = () => {
+  //   // setIsDropdownOpen(!isDropdownOpen);
+  // };
+
+  const dropdownRef = useRef(null);
+  const handleOutsideClick = (event: any) => {
+    console.log("event", event.target, dropdownRef.current);
+    setIsDropdownOpen(!isDropdownOpen);
+
+    if (
+      dropdownRef.current &&
+      !(dropdownRef.current as HTMLElement).contains(event.target)
+    ) {
+      console.log("not contains");
+      setIsDropdownOpen(false);
+    } else {
+      console.log("contains", isDropdownOpen);
+      setIsDropdownOpen(!isDropdownOpen);
+      setTimeout(() => {
+        console.log("new isDropdownOpen", isDropdownOpen);
+      }, 50);
+    }
+  };
+  useEffect(() => {
+    document.addEventListener("click", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
 
   useCommand({
     fill: setUserInput,
@@ -965,51 +1020,78 @@ export function Chat() {
               : Locale.Chat.SubTitle(session.messages.length)}
           </div>
         </div>
-        <div className="window-actions">
-          {!isMobileScreen && (
-            <div className="window-action-button">
-              <IconButton
-                icon={<RenameIcon />}
-                bordered
-                onClick={renameSession}
-              />
+        <div className={styles["window-actions"]}>
+          {isMobileScreen ? (
+            <div className={styles["window-action-button"]}>
+              <div ref={dropdownRef}>
+                <IconButton
+                  icon={isDropdownOpen ? <CloseIcon /> : <MenuIcon />}
+                  bordered
+                />
+              </div>
+              {isDropdownOpen && (
+                <div className={styles["dropdown-menu"]}>
+                  <IconButton
+                    className={styles["window-action-button"]}
+                    icon={<CartIcon />}
+                    bordered
+                    text="购买套餐"
+                    onClick={() => navigate(Path.Pricing)}
+                  />
+                  <IconButton
+                    className={styles["window-action-button"]}
+                    icon={<UserIcon />}
+                    bordered
+                    text="个人中心"
+                    onClick={() => navigate(Path.Profile)}
+                  />
+                  <IconButton
+                    className={styles["window-action-button"]}
+                    icon={<ExportIcon />}
+                    bordered
+                    text={Locale.Chat.Actions.Export}
+                    title={Locale.Chat.Actions.Export}
+                    onClick={() => {
+                      setShowExport(true);
+                    }}
+                  />
+                </div>
+              )}
             </div>
-          )}
-          <div className="window-action-button">
-            <IconButton
-              icon={<CartIcon />}
-              bordered
-              onClick={() => navigate(Path.Pricing)}
-            />
-          </div>
-          <div className="window-action-button">
-            <IconButton
-              icon={<UserIcon />}
-              bordered
-              onClick={() => navigate(Path.Profile)}
-            />
-          </div>
-          <div className="window-action-button">
-            <IconButton
-              icon={<ExportIcon />}
-              bordered
-              title={Locale.Chat.Actions.Export}
-              onClick={() => {
-                setShowExport(true);
-              }}
-            />
-          </div>
-          {showMaxIcon && (
-            <div className="window-action-button">
-              <IconButton
-                icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
-                bordered
-                onClick={() => {
-                  config.update(
-                    (config) => (config.tightBorder = !config.tightBorder),
-                  );
-                }}
-              />
+          ) : (
+            <div className="window-actions">
+              {!isMobileScreen && (
+                <div className="window-action-button">
+                  <IconButton
+                    icon={<RenameIcon />}
+                    bordered
+                    onClick={renameSession}
+                  />
+                </div>
+              )}
+              <div className="window-action-button">
+                <IconButton
+                  icon={<ExportIcon />}
+                  bordered
+                  title={Locale.Chat.Actions.Export}
+                  onClick={() => {
+                    setShowExport(true);
+                  }}
+                />
+              </div>
+              {showMaxIcon && (
+                <div className="window-action-button">
+                  <IconButton
+                    icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
+                    bordered
+                    onClick={() => {
+                      config.update(
+                        (config) => (config.tightBorder = !config.tightBorder),
+                      );
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1099,9 +1181,14 @@ export function Chat() {
                       defaultShow={i >= messages.length - 10}
                     />
                     {!isUser &&
-                      ["VARIATION", "IMAGINE", "ZOOMOUT"].includes(
-                        message.attr?.action,
-                      ) &&
+                      [
+                        "VARIATION",
+                        "IMAGINE",
+                        "ZOOMOUT",
+                        "PAN",
+                        "SQUARE",
+                        "VARY",
+                      ].includes(message.attr?.action) &&
                       message.attr?.status === "SUCCESS" && (
                         <div
                           className={[
@@ -1109,7 +1196,7 @@ export function Chat() {
                             styles["column-flex"],
                           ].join(" ")}
                         >
-                          <div>
+                          <div style={{ display: "flex" }}>
                             {[1, 2, 3, 4].map((index) => {
                               return (
                                 <button
@@ -1125,24 +1212,36 @@ export function Chat() {
                                 </button>
                               );
                             })}
+                            {/* {message.attr?.action === 'PAN' && <button
+                              onClick={() =>
+                                doSubmit(
+                                  `SQUARE::1::${message.attr.taskId}`,
+                                )
+                              }
+                              className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["chat-message-mj-emoji-btn"]}`}
+                            >
+                              <HorizontalIcon />
+                            </button>} */}
                           </div>
-                          <div>
-                            {[1, 2, 3, 4].map((index) => {
-                              return (
-                                <button
-                                  key={index}
-                                  onClick={() =>
-                                    doSubmit(
-                                      `VARIATION::${index}::${message.attr.taskId}`,
-                                    )
-                                  }
-                                  className={`${styles["chat-message-mj-action-btn"]} clickable`}
-                                >
-                                  V{index}
-                                </button>
-                              );
-                            })}
-                          </div>
+                          {message.attr?.action !== "PAN" && (
+                            <div style={{ display: "flex" }}>
+                              {[1, 2, 3, 4].map((index) => {
+                                return (
+                                  <button
+                                    key={index}
+                                    onClick={() =>
+                                      doSubmit(
+                                        `VARIATION::${index}::${message.attr.taskId}`,
+                                      )
+                                    }
+                                    className={`${styles["chat-message-mj-action-btn"]} clickable`}
+                                  >
+                                    V{index}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       )}
                     {!isUser &&
@@ -1154,6 +1253,27 @@ export function Chat() {
                             styles["column-flex"],
                           ].join(" ")}
                         >
+                          {!message.attr?.direction && (
+                            <div>
+                              {["Strong", "Subtle"].map((strength) => {
+                                return (
+                                  <button
+                                    key={strength}
+                                    onClick={() =>
+                                      doSubmit(
+                                        `VARY::${strength.toLocaleUpperCase()}::${
+                                          message.attr.taskId
+                                        }`,
+                                      )
+                                    }
+                                    className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["vary"]}`}
+                                  >
+                                    Vary ({strength})
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
                           <div>
                             {[1.5, 2].map((index) => {
                               return (
@@ -1170,6 +1290,60 @@ export function Chat() {
                                 </button>
                               );
                             })}
+                          </div>
+                          <div style={{ display: "flex" }}>
+                            {["⬅️", "➡️", "⬆️", "⬇️"]
+                              .filter((_, index) => {
+                                if (message.attr?.direction === "horizontal") {
+                                  return index <= 1;
+                                } else if (
+                                  message.attr?.direction === "vertical"
+                                ) {
+                                  return index >= 2;
+                                } else {
+                                  return true;
+                                }
+                              })
+                              .map((direction) => {
+                                // ➡️
+                                const str = {
+                                  "⬅️": "LEFT",
+                                  "➡️": "RIGHT",
+                                  "⬆️": "UP",
+                                  "⬇️": "DOWN",
+                                }[direction];
+                                return (
+                                  <button
+                                    key={str}
+                                    onClick={() =>
+                                      doSubmit(
+                                        `PAN::${str}::${message.attr.taskId}`,
+                                      )
+                                    }
+                                    className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["chat-message-mj-emoji-btn"]}`}
+                                  >
+                                    {direction === "⬅️" && <PanLeftIcon />}
+                                    {direction === "➡️" && <PanRightIcon />}
+                                    {direction === "⬆️" && <PanUpIcon />}
+                                    {direction === "⬇️" && <PanDownIcon />}
+                                  </button>
+                                );
+                              })}
+                            {message.attr?.direction && (
+                              <button
+                                onClick={() =>
+                                  doSubmit(`SQUARE::1::${message.attr.taskId}`)
+                                }
+                                className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["chat-message-mj-emoji-btn"]}`}
+                              >
+                                {message.attr?.direction === "vertical" && (
+                                  <HorizontalIcon />
+                                )}
+                                {message.attr?.direction === "horizontal" && (
+                                  <VerticalIcon />
+                                )}
+                              </button>
+                            )}
                           </div>
                         </div>
                       )}

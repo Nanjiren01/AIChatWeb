@@ -18,9 +18,11 @@ export function IconButton(props: {
   disabled?: boolean;
   tabIndex?: number;
   autoFocus?: boolean;
+  ref?: React.LegacyRef<HTMLButtonElement>;
 }) {
   return (
     <button
+      ref={props.ref}
       className={
         styles["icon-button"] +
         ` ${props.bordered && styles.border} ${props.shadow && styles.shadow} ${

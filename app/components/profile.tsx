@@ -55,7 +55,7 @@ export function Profile() {
   const { fetchProfile } = profileStore;
   useEffect(() => {
     setLoading(true);
-    fetchProfile(authStore.token)
+    fetchProfile(authStore.token, authStore)
       .then((res) => {
         if (!res?.data || !res?.data?.id) {
           authStore.logout();
@@ -65,7 +65,7 @@ export function Profile() {
       .finally(() => {
         setLoading(false);
       });
-  }, [fetchProfile, authStore, navigate]);
+  }, [fetchProfile, navigate]);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -166,6 +166,13 @@ export function Profile() {
         </List>
 
         <List>
+          {profileStore.invitorId ? (
+            <ListItem title={Locale.Profile.Invitor.Title}>
+              <span>#{profileStore.invitorId}</span>
+            </ListItem>
+          ) : (
+            <></>
+          )}
           <ListItem title={Locale.Profile.InviteCode.Title}>
             {authStore.inviteCode ? (
               <>
@@ -203,6 +210,13 @@ export function Profile() {
                 }}
               />
             )}
+          </ListItem>
+          <ListItem>
+            <IconButton
+              type="second"
+              text="邀请记录"
+              onClick={() => navigate(Path.Invitation)}
+            />
           </ListItem>
         </List>
 

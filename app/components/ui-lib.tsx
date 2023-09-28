@@ -139,6 +139,7 @@ interface ModalProps {
   title: string;
   children?: any;
   actions?: JSX.Element[];
+  footer?: JSX.Element;
   onClose?: () => void;
 }
 export function Modal(props: ModalProps) {
@@ -170,6 +171,7 @@ export function Modal(props: ModalProps) {
       <div className={styles["modal-content"]}>{props.children}</div>
 
       <div className={styles["modal-footer"]}>
+        {props.footer}
         <div className={styles["modal-actions"]}>
           {props.actions?.map((action, i) => (
             <div key={i} className={styles["modal-action"]}>

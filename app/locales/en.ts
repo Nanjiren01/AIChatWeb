@@ -288,6 +288,9 @@ const en: LocaleType = {
     Username: "账号",
     Email: "邮箱",
     Phone: "手机号",
+    Invitor: {
+      Title: "邀请人",
+    },
     InviteCode: {
       Title: "邀请码",
       TitleRequired: "邀请码(必填)",
@@ -381,6 +384,17 @@ const en: LocaleType = {
       Refresh: "刷新",
       Refreshing: "刷新中……",
       RedeemCode: "兑换码",
+    },
+  },
+  InvitationPage: {
+    Title: "邀请记录",
+    NoInvitation: "快将邀请链接分享给朋友吧",
+    Loading: "请稍候……",
+    Actions: {
+      Close: "关闭",
+      Profile: "个人中心",
+      Refresh: "刷新",
+      Refreshing: "刷新中……",
     },
   },
   OrderPage: {
@@ -552,6 +566,12 @@ const en: LocaleType = {
     Add: "Add a Prompt",
     Clear: "Context Cleared",
     Revert: "Revert",
+  },
+  Shop: {
+    Name: "Subscribe",
+  },
+  User: {
+    Name: "Profile",
   },
   Plugin: {
     Name: "Plugin",

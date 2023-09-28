@@ -55,7 +55,7 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
 
   useEffect(() => {
     wechatStore.fetchWechatConfig().then((res) => {
-      const wechat = res.data;
+      const wechat = res?.data;
       if (wechat?.appId) {
         setShowWechatLogin(true);
       }
@@ -119,8 +119,10 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
         if (result && result.code == 0) {
           showToast(Locale.LoginPage.Toast.Success);
           navigate(Path.Chat);
+        } else if (result && result.code == 11151) {
+          showToast(result.cnMessage || result.message);
         } else if (result && result.message) {
-          showToast(result.message);
+          showToast(result.cnMessage || result.message);
         }
       })
       .finally(() => {

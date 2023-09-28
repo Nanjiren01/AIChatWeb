@@ -10,9 +10,10 @@ export interface ProfileStore {
   // chatCount: number;
   // advanceChatCount: number;
   // drawCount: number;
+  invitorId: number;
   balances: Balance[];
 
-  fetchProfile: (token: string) => Promise<any>;
+  fetchProfile: (token: string, authStore: AuthStore) => Promise<any>;
   createInviteCode: (authStore: AuthStore) => Promise<any>;
 }
 
@@ -26,9 +27,10 @@ export const useProfileStore = create<ProfileStore>()(
       // chatCount: 0,
       // advanceChatCount: 0,
       // drawCount: 0,
+      invitorId: 0,
       balances: [],
 
-      async fetchProfile(token: string) {
+      async fetchProfile(token: string, authStore: AuthStore) {
         const url = "/users/profile";
         const BASE_URL = process.env.BASE_URL;
         const mode = process.env.BUILD_MODE;
@@ -47,12 +49,15 @@ export const useProfileStore = create<ProfileStore>()(
             if (res.data) {
               set(() => ({
                 id: data.id,
+                invitorId: data.invitorId,
                 balances: data.balances || [],
               }));
+              authStore.updateInviteCode(data.inviteCode);
             } else {
               console.log("[Profile] set id = 0");
               set(() => ({
                 id: 0,
+                invitorId: 0,
                 balances: [] as Balance[],
               }));
             }

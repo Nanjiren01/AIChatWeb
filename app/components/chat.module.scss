@@ -1,5 +1,39 @@
 @import "../styles/animation.scss";
 
+.hide-on-mobile {
+  display: inline-block;
+
+  &:not(:last-child) {
+    margin-right: 5px;
+  }
+}
+
+.dropdown-menu {
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border: var(--border-in-light);
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 5px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  animation: slide-in-from-top ease 0.3s;
+
+  .window-action-button {
+    margin-top: 5px;
+  }
+
+}
+
+.window-action-button {
+  position: relative;
+}
+
 .chat-input-actions {
   display: flex;
   flex-wrap: wrap;
@@ -371,7 +405,19 @@
   &.zoom-out {
     width: 70px;
   }
+  &.vary {
+    width: 114px;
+  }
 
+}
+
+.chat-message-mj-emoji-btn {
+  padding: 4px 8px;
+
+  svg {
+    width: 18px;
+    margin-top: 2px;
+  }
 }
 
 .chat-message-action-date {
@@ -507,5 +553,9 @@
 
   .chat-input-send {
     bottom: 30px;
+  }
+
+  .hide-on-mobile {
+    display: none;
   }
 }

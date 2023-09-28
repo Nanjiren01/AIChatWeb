@@ -1,7 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="24" cy="12" r="8" fill="none" stroke="#333333" stroke-width="4" stroke-linecap="round"
-            stroke-linejoin="round"/>
-    <path d="M42 44C42 34.0589 33.9411 26 24 26C14.0589 26 6 34.0589 6 44" stroke="#333333" stroke-width="4"
-          stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1690818205199" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1512" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16"><path d="M298.666667 341.333333a256 213.333333 90 1 0 426.666666 0 256 213.333333 90 1 0-426.666666 0Z" p-id="1513" fill="#515151"></path><path d="M930.133333 814.933333c-38.4-76.8-110.933333-140.8-204.8-179.2-25.6-8.533333-55.466667-8.533333-76.8 4.266667-42.666667 25.6-85.333333 38.4-136.533333 38.4s-93.866667-12.8-136.533333-38.4c-21.333333-8.533333-51.2-12.8-76.8 0-93.866667 38.4-166.4 102.4-204.8 179.2-29.866667 55.466667 17.066667 119.466667 81.066666 119.466667h674.133334c64 0 110.933333-64 81.066666-123.733334z" p-id="1514" fill="#515151"></path></svg>
