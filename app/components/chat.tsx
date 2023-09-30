@@ -929,12 +929,12 @@ export function Chat() {
   const autoFocus = !isMobileScreen || isChat; // only focus in chat page
   const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   // const toggleDropdown = () => {
   //   // setIsDropdownOpen(!isDropdownOpen);
   // };
-
-  const dropdownRef = useRef(null);
+  
   const handleOutsideClick = (event: any) => {
     console.log("event", event.target, dropdownRef.current);
     setIsDropdownOpen(!isDropdownOpen);
@@ -954,12 +954,16 @@ export function Chat() {
     }
   };
   useEffect(() => {
-    document.addEventListener("click", handleOutsideClick);
-
+    if (isDropdownOpen) {
+      document.addEventListener("click", handleOutsideClick);
+    } else {
+      document.removeEventListener("click", handleOutsideClick);
+    }
+  
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
-  }, []);
+  }, [isDropdownOpen]);
 
   useCommand({
     fill: setUserInput,
@@ -1027,6 +1031,7 @@ export function Chat() {
                 <IconButton
                   icon={isDropdownOpen ? <CloseIcon /> : <MenuIcon />}
                   bordered
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 />
               </div>
               {isDropdownOpen && (
@@ -1035,7 +1040,7 @@ export function Chat() {
                     className={styles["window-action-button"]}
                     icon={<CartIcon />}
                     bordered
-                    text="购买套餐"
+                    text="服务订阅"
                     onClick={() => navigate(Path.Pricing)}
                   />
                   <IconButton
