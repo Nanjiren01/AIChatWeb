@@ -559,15 +559,16 @@ export class ChatGPTApi implements LLMApi {
             if (imgUrl.startsWith("/")) {
               imgUrl = "/api" + imgUrl;
             }
+            const prompt = result.prompt; // 图生文
 
             const entireContent =
-              prefixContent + `[![${taskId}](${imgUrl})](${imgUrl})`;
+              statusResJson.data.type === "describe"
+                ? prefixContent + "\n" + prompt
+                : prefixContent + `[![${taskId}](${imgUrl})](${imgUrl})`;
             isFinished = true;
 
             botMessage.attr.imgUrl = imgUrl;
-            // if (statusResJson.action === "DESCRIBE" && statusResJson.prompt) {
-            //     botMessage.content += `\n${statusResJson.prompt}`;
-            // }
+            botMessage.attr.prompt = prompt;
             botMessage.attr.status = "SUCCESS";
             botMessage.attr.finished = true;
             botMessage.attr.direction = statusResJson.data.direction;

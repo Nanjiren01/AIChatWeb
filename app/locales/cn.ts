@@ -86,8 +86,10 @@ const cn = {
     ModeBlend: "混图模式",
     ModeDescribe: "识图（图生文）模式",
     NeedInputUseImgPrompt: "垫图模式下需要输入内容才能使用图片，请输入内容",
+    ImagineMaxImg: (max: number) => `垫图（图生图）模式下至多 ${max} 张图片`,
     BlendMinImg: (min: number, max: number) =>
       `混图模式下至少需要 ${min} 张图片，至多 ${max} 张图片`,
+    DescribeMaxImg: (max: number) => `识图（图生文）模式下至多 ${max} 张图片`,
     TaskErrUnknownType: "任务提交失败：未知的任务类型",
     TaskErrNotSupportType: (type: string) =>
       `任务提交失败：不支持的任务类型 -> ${type}`,

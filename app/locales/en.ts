@@ -91,8 +91,12 @@ const en: LocaleType = {
     ModeDescribe: "Describe Mode",
     NeedInputUseImgPrompt:
       "You need to enter content to use the image in the mask mode, please input the content",
+    ImagineMaxImg: (max: number) =>
+      `up to ${max} iamges are required in the Mask mode`,
     BlendMinImg: (min: number, max: number) =>
       `At least ${min} images are required in the mixed image mode, and up to ${max} images are required`,
+    DescribeMaxImg: (max: number) =>
+      `up to ${max} iamges are required in the describe mode`,
     TaskErrUnknownType: "Task submission failed: unknown task type",
     TaskErrNotSupportType: (type: string) =>
       `Task submission failed: unsupported task type -> ${type}`,

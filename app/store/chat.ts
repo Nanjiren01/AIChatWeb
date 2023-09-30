@@ -331,6 +331,8 @@ export const useChatStore = create<ChatStore>()(
           role: "user",
           content: userContent,
         });
+        userMessage.attr.imageMode = imageMode;
+        userMessage.attr.baseImages = baseImages;
 
         const botMessage: ChatMessage = createMessage({
           role: "assistant",
