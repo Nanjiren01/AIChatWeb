@@ -77,7 +77,14 @@ import Locale from "../locales";
 import { IconButton } from "./button";
 import styles from "./chat.module.scss";
 
-import { ListItem, Modal, showConfirm, showPrompt, showToast } from "./ui-lib";
+import {
+  ListItem,
+  Modal,
+  Selector,
+  showConfirm,
+  showPrompt,
+  showToast,
+} from "./ui-lib";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LAST_INPUT_KEY, Path, REQUEST_TIMEOUT_MS } from "../constant";
 import { Avatar } from "./emoji";
@@ -466,19 +473,12 @@ export function ChatActions(props: {
   const currentModel = chatStore.currentSession().mask.modelConfig.model;
   const currentContentType =
     chatStore.currentSession().mask.modelConfig.contentType;
-  function nextModel() {
-    const models = availableModels;
-    const modelIndex = models.findIndex(
-      (m) => m.name === currentModel && m.contentType === currentContentType,
+    const models = useMemo(
+      () => availableModels,
+      [availableModels],
     );
-    const nextIndex = (modelIndex + 1) % models.length;
-    const nextModel = models[nextIndex];
-    chatStore.updateCurrentSession((session) => {
-      session.mask.modelConfig.model = nextModel.name as ModelType;
-      session.mask.modelConfig.contentType = nextModel.contentType;
-      session.mask.syncGlobalConfig = false;
-    });
-  }
+    const [showModelSelector, setShowModelSelector] = useState(false);
+  
 
   return (
     <div className={styles["chat-input-actions"]}>
@@ -556,7 +556,7 @@ export function ChatActions(props: {
       />
 
       <ChatAction
-        onClick={nextModel}
+        onClick={() => setShowModelSelector(true)}
         text={currentModel}
         icon={<RobotIcon />}
       />
@@ -579,6 +579,29 @@ export function ChatActions(props: {
           );
         })}
       </>
+      {showModelSelector && (
+        <Selector
+          items={models.map((m) => ({
+            title: m.name,
+            value: m.name,
+          }))}
+          onClose={() => setShowModelSelector(false)}
+          onSelection={(s) => {
+            if (s.length === 0) return;
+            chatStore.updateCurrentSession((session) => {
+              session.mask.modelConfig.model = s[0] as ModelType;
+              if (s[0].match(/MidJourney|Stable|Diffusion|sd|mj|绘|画|图/i)) {
+                session.mask.modelConfig.contentType = "Image";
+              }
+              else {
+                session.mask.modelConfig.contentType = "Text";
+              }
+              session.mask.syncGlobalConfig = false;
+            });
+            showToast(s[0]);
+          }}
+        />
+      )}
     </div>
   );
 }

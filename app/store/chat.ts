@@ -483,7 +483,7 @@ export const useChatStore = create<ChatStore>()(
           modelConfig.sendMemory &&
           session.memoryPrompt &&
           session.memoryPrompt.length > 0 &&
-          session.lastSummarizeIndex <= clearContextIndex;
+          session.lastSummarizeIndex > clearContextIndex;
         const longTermMemoryPrompts = shouldSendLongTermMemory
           ? [get().getMemoryPrompt()]
           : [];
@@ -552,6 +552,7 @@ export const useChatStore = create<ChatStore>()(
       },
 
       summarizeSession() {
+        const config = useAppConfig.getState();
         const session = get().currentSession();
         if (session.mask.modelConfig?.contentType !== "Text") {
           return;
@@ -563,6 +564,7 @@ export const useChatStore = create<ChatStore>()(
         // should summarize topic after chating more than 50 words
         const SUMMARIZE_MIN_LEN = 50;
         if (
+          config.enableAutoGenerateTitle &&
           session.topic === DEFAULT_TOPIC &&
           countMessages(messages) >= SUMMARIZE_MIN_LEN
         ) {
