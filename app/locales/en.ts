@@ -465,6 +465,11 @@ const en: LocaleType = {
       Title: "Send Preview Bubble",
       SubTitle: "Preview markdown in bubble",
     },
+    AutoGenerateTitle: {
+      Title: "Auto Generate Title",
+      SubTitle:
+        "Generate a suitable title based on the conversation content (requires default title and content length greater than the set minimum length)",
+    },
     Mask: {
       Title: "Mask Splash Screen",
       SubTitle: "Show a mask splash screen before starting new chat",

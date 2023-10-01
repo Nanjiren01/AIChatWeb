@@ -315,7 +315,7 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
               config.tightBorder && !isMobileScreen
                 ? styles["tight-container"]
                 : styles.container
-            } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
+            }`
           }
         >
           {isAuth ? (
