@@ -84,6 +84,7 @@ const en: LocaleType = {
   Midjourney: {
     SelectImgMax: (max: number) => `Select up to ${max} images`,
     InputDisabled: "Input is disabled in this mode",
+    NotSupports: "not supports",
     HasImgTip:
       "Tip: In the mask mode, only the first image will be used. In the blend mode, the five selected images will be used in order (click the image to remove it)",
     ModeImagineUseImg: "Mask Mode",

@@ -54,7 +54,7 @@ export class ChatGPTApi implements LLMApi {
     };
     if (
       modelConfig.contentType === "Image" ||
-      /^(UPSCALE|VARIATION|ZOOMOUT|PAN|SQUARE)::([\d\w]+)::/.test(
+      /^(UPSCALE|VARIATION|ZOOMOUT|PAN|SQUARE|BLEND|DESCRIBE|IMAGINE)::([\d\w]+)::/.test(
         options.content,
       )
     ) {
@@ -268,7 +268,8 @@ export class ChatGPTApi implements LLMApi {
     } as LLMUsage;
   }
   async handleDraw(options: ChatOptions, modelConfig: any) {
-    options.onUpdate?.("正在绘制……", "");
+    options.onUpdate?.("请稍候……", "");
+    const userMessage = options.userMessage;
     const botMessage = options.botMessage;
     const content = options.content;
     const startFn = async () => {
@@ -365,6 +366,7 @@ export class ChatGPTApi implements LLMApi {
             res = await reqFn("draw/blend", "POST", {
               base64Array,
             });
+            botMessage.attr.prompt = prompt;
             break;
           }
           case "UPSCALE": {
@@ -466,6 +468,7 @@ export class ChatGPTApi implements LLMApi {
           );
           botMessage.attr.taskId = taskId;
           botMessage.attr.status = "NOT_START";
+          this.refreshBaseImages(userMessage!, resJson.data.baseImages);
           this.fetchMidjourneyStatus(options, botMessage);
         }
       } catch (e: any) {
@@ -605,7 +608,6 @@ export class ChatGPTApi implements LLMApi {
           default:
             content = statusResJson.status;
         }
-        console.log("isFinished", isFinished);
         if (!isFinished) {
           let entireContent =
             prefixContent +
@@ -630,6 +632,45 @@ export class ChatGPTApi implements LLMApi {
         // }
       }
     }, 3000);
+  }
+  refreshBaseImages(userMessage: ChatMessage, baseImages: string) {
+    if (
+      userMessage!.attr!.baseImages &&
+      userMessage!.attr!.baseImages.length > 0
+    ) {
+      if (userMessage!.attr!.baseImages[0].url) {
+        return; // 如果存在url，就不更新了
+      }
+    }
+    // {"urls":["url1","url2","url3"]} => [{"url":"url1"},{"url":"url2"},{"url":"url3"}]
+    const newImages = JSON.parse(baseImages || '{"urls":[]}').urls.map(
+      (url: any) => {
+        let newUrl = url;
+        if (newUrl.startsWith("/")) {
+          newUrl = "/api" + newUrl;
+        }
+        return { url: newUrl };
+      },
+    );
+
+    userMessage!.attr!.baseImages = newImages;
+    // const same = function(array1: any[], array2: any[]) : boolean {
+    //   if (array1.length !== array2.length) {
+    //     return false;
+    //   }
+    //   for(let index = 0; index < array2.length; index ++) {
+    //     const item1 = array1[index];
+    //     const item2 = array2[index];
+    //     if (item1.url !== item2.url) {
+    //       return false;
+    //     }
+    //   }
+    //   return true
+    // }
+    // if (!same(userMessage!.attr!.baseImages as any[], newImages as any[])){
+    //   console.log('not same', userMessage!.attr!.baseImages as any[], newImages as any[])
+    //   userMessage!.attr!.baseImages = newImages;
+    // }
   }
 }
 export { OpenaiPath };

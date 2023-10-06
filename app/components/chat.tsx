@@ -763,7 +763,7 @@ export function Chat() {
       setUserInput("");
       setPromptHints([]);
       setUseImages([]);
-      setMjImageMode("IMAGINE");
+      setMjImageMode("");
       matchCommand.invoke();
       return;
     }
@@ -781,7 +781,7 @@ export function Chat() {
       .then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUseImages([]);
-    setMjImageMode("IMAGINE");
+    setMjImageMode("");
     setUserInput("");
     setPromptHints([]);
     if (!isMobileScreen) inputRef.current?.focus();
@@ -901,8 +901,13 @@ export function Chat() {
     const userIndex = findLastUserIndex(botMessageId);
     if (userIndex === null) return;
 
-    setIsLoading(true);
     const message = session.messages[userIndex];
+    if (message.attr?.imageMode) {
+      showToast(Locale.Midjourney.NotSupports);
+      return;
+    }
+
+    setIsLoading(true);
     const content = message.content;
     deleteMessage(userIndex);
     chatStore
@@ -1271,20 +1276,14 @@ export function Chat() {
                     )}
                     {isUser && message.attr?.imageMode && (
                       <div>
-                        {["BLEND", "DESCRIBE"].includes(
-                          message.attr?.imageMode,
-                        ) && (
-                          <div style={{ marginBottom: "5px" }}>
-                            {message.attr?.imageMode === "BLEND"
-                              ? Locale.Midjourney.ModeBlend
-                              : Locale.Midjourney.ModeDescribe}
-                          </div>
-                        )}
-                        <div className={styles["chat-select-images"]}>
+                        <div
+                          className={styles["chat-select-images"]}
+                          style={{ marginTop: "10px" }}
+                        >
                           {message.attr.baseImages.map(
                             (img: any, index: number) => (
                               <img
-                                src={img.base64}
+                                src={img.base64 || img.url}
                                 key={index}
                                 title={img.filename}
                                 alt={img.filename}
@@ -1298,6 +1297,7 @@ export function Chat() {
                       [
                         "VARIATION",
                         "IMAGINE",
+                        "BLEND",
                         "ZOOMOUT",
                         "PAN",
                         "SQUARE",
@@ -1624,7 +1624,10 @@ export function Chat() {
             style={{
               fontSize: config.fontSize,
             }}
-            disabled={useImages.length > 0 && mjImageMode != "IMAGINE"}
+            disabled={
+              useImages.length > 0 &&
+              ["BLEND", "DESCRIBE"].includes(mjImageMode)
+            }
           />
           <IconButton
             icon={<SendWhiteIcon />}

@@ -351,7 +351,7 @@ export const useChatStore = create<ChatStore>()(
         get().updateCurrentSession((session) => {
           const savedUserMessage = {
             ...userMessage,
-            content,
+            content: userContent,
           };
           session.messages = session.messages.concat([
             savedUserMessage,
@@ -362,8 +362,9 @@ export const useChatStore = create<ChatStore>()(
         // make request
         api.llm.chat({
           messages: sendMessages,
+          userMessage: userMessage,
           botMessage: botMessage,
-          content,
+          content: userContent,
           config: { ...modelConfig, stream: true },
           plugins: plugins,
           imageMode,

@@ -34,6 +34,7 @@ export interface LLMConfig {
 
 export interface ChatOptions {
   messages: RequestMessage[];
+  userMessage?: ChatMessage;
   botMessage: ChatMessage;
   content: string;
 
