@@ -903,8 +903,12 @@ export function Chat() {
 
     const message = session.messages[userIndex];
     if (message.attr?.imageMode) {
-      showToast(Locale.Midjourney.NotSupports);
-      return;
+      if (message.attr?.baseImages && message.attr?.baseImages.length > 0) {
+        if (message.attr?.baseImages[0].url) {
+          showToast(Locale.Midjourney.NotSupports);
+          return;
+        }
+      }
     }
 
     setIsLoading(true);
