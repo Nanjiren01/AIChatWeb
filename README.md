@@ -5,6 +5,8 @@
   
 <h1 align="center">AIChat Web</h1>
 
+<div align="center">更新时间：2023-10-07</div>
+
 **简体中文** | [English](#english)
 
 ![](https://img.shields.io/badge/-Browser-purple?logo=microsoftedge)
@@ -111,7 +113,7 @@
 | API KEY余额自动查询            |   ✔已完成(v0.4)   |
 | 忘记密码                           |   ✔已完成(v0.4)       |
 | 第三方API状态余额查询                                      |   ✔已完成(v0.6) |
-| 绘图功能                              |   进行中       |
+| AI绘图功能（Upscale，Variation，ZoomOut）            |    ✔已完成(v0.8)       |
 
 ## 专业版功能
 
@@ -130,6 +132,13 @@
 | 独立注册登录界面                                | ✔已完成(v0.7)  |
 | key余额协议配置                                | ✔已完成(v0.7)  |
 | 更多UI自定义                                | ✔已完成(v0.7)  |
+| 高级绘图功能（Pan，Square，Vary）                                | ✔已完成(v0.9)  |
+| 额度积分制                                | ✔已完成(v0.9)  |
+| 模型倍率                                | ✔已完成(v0.9)  |
+| 全局JS配置项                                | ✔已完成(v0.9)  |
+| 邀请记录                                | ✔已完成(v0.9)  |
+| 注册审核机制                                | ✔已完成(v0.9)  |
+| 消息同步          | 进行中   |
 | 对接发卡平台          | 进行中   |
 | 多模型支持                         | 长期进行 |
 
@@ -150,16 +159,29 @@
 ### 4、个人中心
 
 ![个人中心](./docs/images/Profile.png)
+### 5、绘图
+
+![绘图](./docs/images/draw-demo.jpg)
 
 > 管理后台
 
-### 1、会员列表
+### 1、仪表盘
 
-![成员列表](./docs/images/members.png)
+![仪表盘](./docs/images/dashboard.jpg)
 
-### 2、次数变动记录/手动添加次数
+### 2、会员列表
 
-![次数变动记录](./docs/images/quota.png)
+![成员列表](./docs/images/member.jpg)
+
+### 3、订单列表
+
+![订单列表](./docs/images/order.jpg)
+### 4、兑换码
+
+![兑换码](./docs/images/redeem-code.jpg)
+### 5、站点管理
+
+![站点管理](./docs/images/site-setting.jpg)
 
 ## 依赖
 本项目需要依赖特定的[**后端**](https://github.com/Nanjiren01/AIChatAdmin)，以及相应的[**管理后台前端项目**](https://github.com/Nanjiren01/AIChatConsole)。
