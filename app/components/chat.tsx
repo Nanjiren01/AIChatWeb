@@ -490,30 +490,6 @@ export function ChatActions(props: {
     document.getElementById("chat-image-file-select-upload")?.click();
   }
 
-  // const compress = (file: any) => {
-  //   return new Promise((resolve, reject) => {
-  //     readAndCompressImage(file, {
-  //       //quality: 0.7,
-  //       maxWidth: 200,
-  //       maxHeight: 200
-  //     }).then((resizedImage: any)=> {
-  //       const reader = new FileReader();
-  //       reader.readAsDataURL(resizedImage);
-  //       reader.onload = () => {
-  //         resolve(reader.result);
-  //       }
-  //       reader.onerror = (e) => {
-  //         reject(e)
-  //       }
-  //       reader.onabort = (e) => {
-  //         reject(e)
-  //       }
-  //     }).catch(e => {
-  //       reject(e)
-  //     })
-  //   })
-
-  // }
   const uploadFile = (file: any) => {
     props.setUploading(true);
     const url = "/file/put";
@@ -540,36 +516,12 @@ export function ChatActions(props: {
       });
   };
   const onImageSelected = (e: any) => {
-    // console.log(e);
     const file = e.target.files[0];
-    // const filename = file.name;
-    // const reader = new FileReader();
-    // reader.readAsDataURL(file);
-    // reader.onload = () => {
-    //   const base64 = reader.result;
-    //   // const compressPromise = compress(file);
-    //   const uploadPromise = uploadFile(file);
-    //   Promise.all([uploadPromise]).then(res => {
-    //     // console.log('res', res)
-    //     // const compressBase64 = res[0]
-    //     const fileEntity = res[0].data
-    //     props.imageSelected({
-    //       filename,
-    //       base64,
-    //       // compressBase64,
-    //       uuid: fileEntity.uuid,
-    //       url: fileEntity.url,
-    //       entity: fileEntity
-    //     });
-    //   })
-    // };
     uploadFile(file).then((res) => {
       const filename = file.name;
       const fileEntity = res.data;
       props.imageSelected({
         filename,
-        // base64,
-        // compressBase64,
         uuid: fileEntity.uuid,
         url: fileEntity.url,
         entity: fileEntity,
