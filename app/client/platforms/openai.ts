@@ -351,20 +351,20 @@ export class ChatGPTApi implements LLMApi {
           case "IMAGINE": {
             res = await reqFn("draw/imagine", "POST", {
               prompt: prompt,
-              base64: options.baseImages?.[0]?.base64 ?? null,
+              fileUuid: options.baseImages?.[0]?.uuid ?? null,
             });
             break;
           }
           case "DESCRIBE": {
             res = await reqFn("draw/describe", "POST", {
-              base64: options.baseImages[0].base64,
+              fileUuid: options.baseImages[0].uuid,
             });
             break;
           }
           case "BLEND": {
-            const base64Array = options.baseImages.map((ui: any) => ui.base64);
+            const fileUuidArray = options.baseImages.map((ui: any) => ui.uuid);
             res = await reqFn("draw/blend", "POST", {
-              base64Array,
+              fileUuidArray,
             });
             botMessage.attr.prompt = prompt;
             break;

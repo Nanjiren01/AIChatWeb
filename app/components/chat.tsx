@@ -444,11 +444,14 @@ export function ChatActions(props: {
   hitBottom: boolean;
   plugins: PluginActionModel[];
   contentType: string;
+  uploading: boolean;
+  setUploading: React.Dispatch<React.SetStateAction<boolean>>;
   SetOpenInternet: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
   const chatStore = useChatStore();
+  const authStore = useAuthStore();
   const { availableModels } = useWebsiteConfigStore();
 
   // switch themes
@@ -487,19 +490,91 @@ export function ChatActions(props: {
     document.getElementById("chat-image-file-select-upload")?.click();
   }
 
+  // const compress = (file: any) => {
+  //   return new Promise((resolve, reject) => {
+  //     readAndCompressImage(file, {
+  //       //quality: 0.7,
+  //       maxWidth: 200,
+  //       maxHeight: 200
+  //     }).then((resizedImage: any)=> {
+  //       const reader = new FileReader();
+  //       reader.readAsDataURL(resizedImage);
+  //       reader.onload = () => {
+  //         resolve(reader.result);
+  //       }
+  //       reader.onerror = (e) => {
+  //         reject(e)
+  //       }
+  //       reader.onabort = (e) => {
+  //         reject(e)
+  //       }
+  //     }).catch(e => {
+  //       reject(e)
+  //     })
+  //   })
+
+  // }
+  const uploadFile = (file: any) => {
+    props.setUploading(true);
+    const url = "/file/put";
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    const formData = new FormData();
+    formData.append("usage", "chat");
+    formData.append("file", file);
+    return fetch(requestUrl, {
+      method: "post",
+      headers: {
+        // 'Content-Type': 'multipart/form-data',
+        Authorization: "Bearer " + authStore.token,
+      },
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
+      })
+      .finally(() => {
+        props.setUploading(false);
+      });
+  };
   const onImageSelected = (e: any) => {
     // console.log(e);
     const file = e.target.files[0];
-    const filename = file.name;
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      const base64 = reader.result;
+    // const filename = file.name;
+    // const reader = new FileReader();
+    // reader.readAsDataURL(file);
+    // reader.onload = () => {
+    //   const base64 = reader.result;
+    //   // const compressPromise = compress(file);
+    //   const uploadPromise = uploadFile(file);
+    //   Promise.all([uploadPromise]).then(res => {
+    //     // console.log('res', res)
+    //     // const compressBase64 = res[0]
+    //     const fileEntity = res[0].data
+    //     props.imageSelected({
+    //       filename,
+    //       base64,
+    //       // compressBase64,
+    //       uuid: fileEntity.uuid,
+    //       url: fileEntity.url,
+    //       entity: fileEntity
+    //     });
+    //   })
+    // };
+    uploadFile(file).then((res) => {
+      const filename = file.name;
+      const fileEntity = res.data;
       props.imageSelected({
         filename,
-        base64,
+        // base64,
+        // compressBase64,
+        uuid: fileEntity.uuid,
+        url: fileEntity.url,
+        entity: fileEntity,
       });
-    };
+    });
     e.target.value = null;
   };
 
@@ -654,6 +729,8 @@ export function Chat() {
     const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 10;
     setHitBottom(isTouchBottom);
   };
+
+  const [uploading, setUploading] = useState(false);
 
   // prompt hints
   const promptStore = usePromptStore();
@@ -902,14 +979,6 @@ export function Chat() {
     if (userIndex === null) return;
 
     const message = session.messages[userIndex];
-    if (message.attr?.imageMode) {
-      if (message.attr?.baseImages && message.attr?.baseImages.length > 0) {
-        if (message.attr?.baseImages[0].url) {
-          showToast(Locale.Midjourney.NotSupports);
-          return;
-        }
-      }
-    }
 
     setIsLoading(true);
     const content = message.content;
@@ -1199,6 +1268,11 @@ export function Chat() {
         />
       </div>
 
+      {uploading && (
+        <div className={styles.mask}>
+          <div>{Locale.Midjourney.Uploading}</div>
+        </div>
+      )}
       <div
         className={styles["chat-body"]}
         ref={scrollRef}
@@ -1287,7 +1361,7 @@ export function Chat() {
                           {message.attr.baseImages.map(
                             (img: any, index: number) => (
                               <img
-                                src={img.base64 || img.url}
+                                src={img.url}
                                 key={index}
                                 title={img.filename}
                                 alt={img.filename}
@@ -1531,6 +1605,8 @@ export function Chat() {
           showPromptModal={() => setShowPromptModal(true)}
           scrollToBottom={scrollToBottom}
           hitBottom={hitBottom}
+          uploading={uploading}
+          setUploading={setUploading}
           showPromptHints={() => {
             // Click again to close
             if (promptHints.length > 0) {
@@ -1564,7 +1640,7 @@ export function Chat() {
           <div className={styles["chat-select-images"]}>
             {useImages.map((img: any, i) => (
               <img
-                src={img.base64}
+                src={img.url}
                 key={i}
                 onClick={() => {
                   const newImages = useImages.filter((_, ii) => ii != i);

@@ -87,9 +87,12 @@ export async function request(req: NextRequest) {
 
   try {
     console.log(`url = ${baseUrl}/${uri}`);
+    const contentType = req.headers.get("content-type") || "application/json";
     const res = await fetch(`${baseUrl}/${uri}`, {
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": contentType.startsWith("multipart/form-data")
+          ? contentType
+          : "application/json",
         Authorization: authValue,
       },
       cache: "no-store",

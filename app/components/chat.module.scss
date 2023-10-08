@@ -169,6 +169,17 @@
   }
 }
 
+.mask {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0, .65);
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .memory-prompt {
   margin: 20px 0;
 

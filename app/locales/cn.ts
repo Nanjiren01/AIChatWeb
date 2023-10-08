@@ -78,6 +78,7 @@ const cn = {
     },
   },
   Midjourney: {
+    Uploading: "上传中……",
     SelectImgMax: (max: number) => `最多可选择 ${max} 张图片`,
     InputDisabled: "该模式下不支持输入内容",
     NotSupports: "暂不支持此操作",
@@ -108,7 +109,7 @@ const cn = {
     TaskStatus: "任务状态",
     TaskRemoteSubmit: "任务已提交至绘图服务器",
     TaskProgressTip: (progress: number | undefined) =>
-      `任务正在运行${progress ? `，当前进度：${progress}%` : ""}`,
+      `正在绘制${progress ? `，当前进度：${progress}%` : ""}`,
     TaskNotStart: "任务尚未开始",
     Url: "地址",
     SettingProxyCoverTip:
