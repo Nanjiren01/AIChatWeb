@@ -509,9 +509,13 @@ export function ChatActions(props: {
     })
       .then((res) => res.json())
       .then((res) => {
+        if (res.code === 413) {
+          showToast(res.cnMessage || res.message, undefined, 5000);
+        }
         return res;
       })
       .finally(() => {
+        console.log("finally");
         props.setUploading(false);
       });
   };
