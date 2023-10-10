@@ -118,6 +118,7 @@ const en: LocaleType = {
     TaskProgressTip: (progress: number | undefined) =>
       `Drawing${progress ? `, current progress: ${progress}%` : ""}`,
     TaskNotStart: "Task has not started",
+    Refresh: "Refresh",
     Url: "URL",
     SettingProxyCoverTip:
       "The MidjourneyProxy address defined here will override the MIDJOURNEY_PROXY_URL in the environment variables",

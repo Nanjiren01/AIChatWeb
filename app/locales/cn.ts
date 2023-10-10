@@ -110,7 +110,8 @@ const cn = {
     TaskRemoteSubmit: "任务已提交至绘图服务器",
     TaskProgressTip: (progress: number | undefined) =>
       `正在绘制${progress ? `，当前进度：${progress}%` : ""}`,
-    TaskNotStart: "任务尚未开始",
+    TaskNotStart: "等待调度",
+    Refresh: "获取最新进度",
     Url: "地址",
     SettingProxyCoverTip:
       "在此处定义的MidjourneyProxy地址会覆盖环境变量中的MIDJOURNEY_PROXY_URL",

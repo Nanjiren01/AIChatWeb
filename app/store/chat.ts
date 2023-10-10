@@ -12,7 +12,7 @@ import {
   DEFAULT_SYSTEM_TEMPLATE,
   StoreKey,
 } from "../constant";
-import { api, RequestMessage } from "../client/api";
+import { api, ChatSubmitResult, RequestMessage } from "../client/api";
 import { ChatControllerPool } from "../client/controller";
 import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
@@ -108,7 +108,12 @@ interface ChatStore {
     websiteConfigStore: WebsiteConfigStore,
     authStore: AuthStore,
     navigateToLogin: () => void,
-  ) => Promise<void>;
+  ) => Promise<ChatSubmitResult | void>;
+  getDrawTaskProgress: (
+    message: ChatMessage,
+    websiteConfigStore: WebsiteConfigStore,
+    authStore: AuthStore,
+  ) => Promise<boolean | void>;
   summarizeSession: () => void;
   updateStat: (message: ChatMessage) => void;
   updateCurrentSession: (updater: (session: ChatSession) => void) => void;
@@ -360,7 +365,7 @@ export const useChatStore = create<ChatStore>()(
         });
 
         // make request
-        api.llm.chat({
+        return api.llm.chat({
           messages: sendMessages,
           userMessage: userMessage,
           botMessage: botMessage,
@@ -452,6 +457,72 @@ export const useChatStore = create<ChatStore>()(
             );
           },
         });
+      },
+
+      async getDrawTaskProgress(
+        message: ChatMessage,
+        websiteConfigStore: WebsiteConfigStore,
+        authStore: AuthStore,
+      ) {
+        const botMessage = message;
+        const sensitiveWordsTip = websiteConfigStore.sensitiveWordsTip;
+        const balanceNotEnough = websiteConfigStore.balanceNotEnough;
+        return api.llm.fetchDrawStatus(
+          (message) => {
+            botMessage.streaming = true;
+            if (message) {
+              botMessage.content = message;
+            }
+            get().updateCurrentSession((session) => {
+              session.messages = session.messages.concat();
+            });
+          },
+          (message) => {
+            botMessage.streaming = false;
+            //let logout = false;
+            if (message) {
+              try {
+                let jsonContent = JSON.parse(message);
+                if (jsonContent && jsonContent.code === 10302) {
+                  // 敏感词判断
+                  message = sensitiveWordsTip
+                    ? sensitiveWordsTip.replace(
+                        "${question}",
+                        jsonContent.message,
+                      )
+                    : Locale.Chat.SensitiveWordsTip(jsonContent.message);
+                } else if (jsonContent && jsonContent.code === 10401) {
+                  message = balanceNotEnough
+                    ? balanceNotEnough
+                    : Locale.Chat.BalanceNotEnough;
+                } else if (
+                  jsonContent &&
+                  (jsonContent.code === 10001 || jsonContent.code === 10002)
+                ) {
+                  //logout = true;
+                  authStore.removeToken();
+                  message = Locale.Error.Unauthorized;
+                } else if (jsonContent?.code === 10301) {
+                  message = Locale.Chat.TooFrequently;
+                } else {
+                  message = prettyObject(jsonContent);
+                }
+              } catch (e) {
+                // ignore
+              }
+              botMessage.content = message;
+              get().onNewMessage(botMessage);
+            }
+            // ChatControllerPool.remove(
+            //   sessionIndex,
+            //   botMessage.id ?? messageIndex,
+            // );
+            // if (logout) {
+            //   navigateToLogin();
+            // }
+          },
+          botMessage,
+        );
       },
 
       getMemoryPrompt() {

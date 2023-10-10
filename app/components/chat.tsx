@@ -67,6 +67,8 @@ import {
   selectOrCopy,
   autoGrowTextArea,
   useMobileScreen,
+  getSecondsDiff,
+  fromYYYYMMDD_HHMMSS,
 } from "../utils";
 
 import dynamic from "next/dynamic";
@@ -93,6 +95,8 @@ import { useWebsiteConfigStore } from "../store";
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
 });
+
+//const ChatFetchTaskPool: Record<string, any> = {};
 
 export function SessionConfigModel(props: { onClose: () => void }) {
   const chatStore = useChatStore();
@@ -765,6 +769,31 @@ export function Chat() {
     setPluginModels(models);
   }, [plugins]);
 
+  const [ChatFetchTaskPool, setChatFetchTaskPool] = useState(
+    new Map<string, NodeJS.Timeout | null>(),
+  );
+
+  const refreshDrawStatus = (botMessage: ChatMessage) => {
+    if (ChatFetchTaskPool.get(botMessage.attr.taskId)) {
+      return;
+    }
+    ChatFetchTaskPool.set(
+      botMessage.attr.taskId,
+      setTimeout(async () => {
+        const fetch = await chatStore.getDrawTaskProgress(
+          botMessage,
+          websiteConfigStore,
+          authStore,
+        );
+        ChatFetchTaskPool.set(botMessage.attr.taskId, null);
+        if (fetch) {
+          refreshDrawStatus(botMessage);
+        }
+      }, 3000),
+    );
+    setChatFetchTaskPool(ChatFetchTaskPool);
+  };
+
   const doSubmit = (userInput: string) => {
     if (useImages.length > 0) {
       if (mjImageMode === "IMAGINE") {
@@ -811,7 +840,12 @@ export function Chat() {
         authStore,
         () => navigate(Path.Login),
       )
-      .then(() => setIsLoading(false));
+      .then((result) => {
+        setIsLoading(false);
+        if (result && result.fetch) {
+          refreshDrawStatus(result.botMessage);
+        }
+      });
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUseImages([]);
     setMjImageMode("");
@@ -836,6 +870,17 @@ export function Chat() {
       }
       inputRef.current?.focus();
     }, 30);
+  };
+
+  const addBaseImage = (img: any) => {
+    if (useImages.length >= 5) {
+      showToast(Locale.Midjourney.SelectImgMax(5));
+      return;
+    }
+    setUseImages([...useImages, img]);
+    if (!mjImageMode) {
+      setMjImageMode("IMAGINE");
+    }
   };
 
   // stop response
@@ -970,6 +1015,8 @@ export function Chat() {
       },
     });
   };
+
+  const now = new Date();
 
   const context: RenderMessage[] = session.mask.hideContext
     ? []
@@ -1321,6 +1368,10 @@ export function Chat() {
                                 key={index}
                                 title={img.filename}
                                 alt={img.filename}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => {
+                                  addBaseImage(img);
+                                }}
                               />
                             ),
                           )}
@@ -1495,6 +1546,25 @@ export function Chat() {
                           </div>
                         </div>
                       )}
+                    {!isUser &&
+                      message.attr?.status !== "SUCCESS" &&
+                      message.attr.taskId &&
+                      !ChatFetchTaskPool.get(message.attr.taskId) &&
+                      message.attr.submitTime &&
+                      getSecondsDiff(
+                        fromYYYYMMDD_HHMMSS(message.attr.submitTime),
+                        now,
+                      ) && (
+                        <div>
+                          <button
+                            onClick={() => refreshDrawStatus(message)}
+                            className={`${styles["chat-message-mj-action-btn"]} clickable`}
+                            style={{ width: "150px" }}
+                          >
+                            {Locale.Midjourney.Refresh}
+                          </button>
+                        </div>
+                      )}
                     {showActions && (
                       <div className={styles["chat-message-actions"]}>
                         <div
@@ -1582,14 +1652,7 @@ export function Chat() {
           contentType={session.mask?.modelConfig?.contentType}
           SetOpenInternet={SetOpenInternet}
           imageSelected={(img: any) => {
-            if (useImages.length >= 5) {
-              showToast(Locale.Midjourney.SelectImgMax(5));
-              return;
-            }
-            setUseImages([...useImages, img]);
-            if (!mjImageMode) {
-              setMjImageMode("IMAGINE");
-            }
+            addBaseImage(img);
           }}
         />
         {useImages.length > 0 && (

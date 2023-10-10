@@ -54,9 +54,19 @@ export interface LLMUsage {
   total: number;
 }
 
+export interface ChatSubmitResult {
+  userMessage?: ChatMessage;
+  botMessage: ChatMessage;
+  fetch: boolean;
+}
 export abstract class LLMApi {
-  abstract chat(options: ChatOptions): Promise<void>;
+  abstract chat(options: ChatOptions): Promise<ChatSubmitResult | void>;
   abstract usage(): Promise<LLMUsage>;
+  abstract fetchDrawStatus: (
+    onUpdate: ((message: string, chunk: string) => void) | undefined,
+    onFinish: (message: string) => void,
+    botMessage: ChatMessage,
+  ) => Promise<boolean | void>;
 }
 
 type ProviderName = "openai" | "azure" | "claude" | "palm";
