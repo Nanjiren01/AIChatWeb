@@ -1043,10 +1043,15 @@ export function Chat() {
       : -1;
 
   // preview messages
+  const lastMessageIsDraw =
+    session.messages.length > 0 &&
+    session.messages[session.messages.length - 1].role === "assistant" &&
+    session.messages[session.messages.length - 1].attr &&
+    session.messages[session.messages.length - 1].attr.contentType === "Image";
   const messages = context
     .concat(session.messages as RenderMessage[])
     .concat(
-      isLoading
+      isLoading && !lastMessageIsDraw
         ? [
             {
               ...createMessage({

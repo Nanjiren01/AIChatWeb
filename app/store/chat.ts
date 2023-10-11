@@ -345,6 +345,7 @@ export const useChatStore = create<ChatStore>()(
           id: userMessage.id! + 1,
           model: modelConfig.model,
         });
+        botMessage.attr.contentType = session.mask?.modelConfig?.contentType;
 
         // get recent messages
         const recentMessages = get().getMessagesWithMemory(websiteConfigStore);
