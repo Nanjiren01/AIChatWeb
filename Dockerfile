@@ -3,8 +3,8 @@
 
 # docker build -t nanjiren01/chatmj-web:0.9.5 ../AIChatWeb
 # docker push nanjiren01/chatmj-web:0.9.5
-# docker tag nanjiren01/chatmj-web:0.9.5 nanjiren01/chatmj-web:pro-latest
-# docker push nanjiren01/chatmj-web:pro-latest
+# docker tag nanjiren01/chatmj-web:0.9.5 nanjiren01/chatmj-web:latest
+# docker push nanjiren01/chatmj-web:latest
 
 FROM node:18-alpine AS builder
 
