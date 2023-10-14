@@ -9,7 +9,7 @@ import BookOpenIcon from "../icons/book-open.svg";
 import NoticeIcon from "../icons/notice.svg";
 // import LoginIcon from "../icons/login.svg";
 // import ChatGptIcon from "../icons/chatgpt.svg";
-import ChatBotIcon from "../icons/ai-chat-bot.png";
+import ChatBotIcon from "../icons/chat-mj-bot.png";
 import AddIcon from "../icons/add.svg";
 import CloseIcon from "../icons/close.svg";
 import MaskIcon from "../icons/app.svg";

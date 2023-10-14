@@ -13,7 +13,7 @@ import { copyToClipboard, downloadAs, useMobileScreen } from "../utils";
 import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
 //import ChatGptIcon from "../icons/chatgpt.png";
-import ChatBotIcon from "../icons/ai-chat-bot.png";
+import ChatBotIcon from "../icons/chat-mj-bot.png";
 import ShareIcon from "../icons/share.svg";
 import BotIcon from "../icons/bot.png";
 
@@ -450,7 +450,7 @@ export function ImagePreviewer(props: {
 
           <div style={{ zIndex: 1 }}>
             <div className={styles["main-title"]}>
-              {websiteConfigStore.title || "AI Chat"}
+              {websiteConfigStore.title || "ChatMJ"}
             </div>
             <div
               className={styles["sub-title"]}

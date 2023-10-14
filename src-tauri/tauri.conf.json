@@ -67,7 +67,7 @@
         "icons/icon.ico"
       ],
       "identifier": "com.nanjiren01.aichat.web",
-      "longDescription": "AIChatWeb is a cross-platform AI Chat client, including Web/Win/Linux/OSX/PWA.",
+      "longDescription": "AIChatWeb is a cross-platform ChatMJ client, including Web/Win/Linux/OSX/PWA.",
       "macOS": {
         "entitlements": null,
         "exceptionDomain": "",

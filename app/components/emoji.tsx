@@ -6,8 +6,8 @@ import EmojiPicker, {
 
 import { ModelType, useWebsiteConfigStore } from "../store";
 
-import BotIcon from "../icons/ai-chat-bot.png";
-import BlackBotIcon from "../icons/ai-chat-bot.png"; // 暂时都一样
+import BotIcon from "../icons/chat-mj-bot.png";
+import BlackBotIcon from "../icons/chat-mj-bot.png"; // 暂时都一样
 import NextImage from "next/image";
 
 export function getEmojiUrl(unified: string, style: EmojiStyle) {

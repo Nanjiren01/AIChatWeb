@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 
 import styles from "./home.module.scss";
 
-import ChatBotIcon from "../icons/ai-chat-bot.png";
+import ChatBotIcon from "../icons/chat-mj-bot.png";
 import LoadingIcon from "../icons/three-dots.svg";
 import NextImage from "next/image";
 
@@ -177,7 +177,7 @@ export function useSwitchTheme() {
   }, [config.theme]);
 
   useEffect(() => {
-    document.title = useWebsiteConfig.title || "AI Chat";
+    document.title = useWebsiteConfig.title || "ChatMJ";
   }, [useWebsiteConfig.title]);
 }
 

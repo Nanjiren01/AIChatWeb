@@ -9,7 +9,7 @@ import WechatIcon from "../icons/wechat.svg";
 import ReturnIcon from "../icons/return.svg";
 import MaxIcon from "../icons/max.svg";
 import MinIcon from "../icons/min.svg";
-import ChatBotIcon from "../icons/ai-chat-bot.png";
+import ChatBotIcon from "../icons/chat-mj-bot.png";
 
 import { SingleInput, List, ListItem, PasswordInput } from "./ui-lib";
 
@@ -210,7 +210,7 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
             <div
               style={{ lineHeight: "100px" }}
               dangerouslySetInnerHTML={{
-                __html: mainTitle || "AI Chat",
+                __html: mainTitle || "ChatMJ",
               }}
               data-tauri-drag-region
             ></div>

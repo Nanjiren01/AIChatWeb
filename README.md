@@ -1,7 +1,7 @@
 <div align="center" style="margin-bottom: 10px;">
 <img src="./docs/images/icon.svg" alt="预览"/>
 
-<h1 align="center">AI Chat Web</h1>
+<h1 align="center">ChatMJ Web</h1>
 <a href="#一键部署">一键部署</a>
 ·
 <a href="https://www.nanjiren.online" target="_blank">官 网</a>
@@ -120,7 +120,7 @@ Based on [ChatGPT-Next-Web](https://github.com/Yidadaa/ChatGPT-Next-Web.git), th
 
 This project depends on the given projects below.
 
-### AI Chat Console(front-end project)
+### ChatMJ Console(front-end project)
 
 https://github.com/Nanjiren01/AIChatConsole
 
@@ -132,7 +132,7 @@ https://github.com/Nanjiren01/AIChatConsole
 
 ![次数变动记录](./docs/images/quota.png)
 
-### AI Chat Admin(back-end project)
+### ChatMJ Admin(back-end project)
 
 https://github.com/Nanjiren01/AIChatAdmin
 

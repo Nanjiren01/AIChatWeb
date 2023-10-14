@@ -4,7 +4,7 @@ import NextImage from "next/image";
 import styles from "./forget-password.module.scss";
 
 import CloseIcon from "../icons/close.svg";
-import ChatBotIcon from "../icons/ai-chat-bot.png";
+import ChatBotIcon from "../icons/chat-mj-bot.png";
 import { SingleInput, Input, List, ListItem, PasswordInput } from "./ui-lib";
 
 import { IconButton } from "./button";
@@ -178,7 +178,7 @@ export function ForgetPassword(props: {
             <div
               style={{ lineHeight: "100px" }}
               dangerouslySetInnerHTML={{
-                __html: mainTitle || "AI Chat",
+                __html: mainTitle || "ChatMJ",
               }}
               data-tauri-drag-region
             ></div>
