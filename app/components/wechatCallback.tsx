@@ -24,13 +24,14 @@ export function WechatCallback() {
   const params = new URLSearchParams(location.search);
   const code = params.get("code") || "";
   const state = params.get("state") || "";
+  const appType = params.get("appType") || "";
 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     authStore
-      .wechatLogin(code, state)
+      .wechatLogin(code, state, appType)
       .then((resp) => {
         console.log("resp", resp);
         if (resp.code === 0) {

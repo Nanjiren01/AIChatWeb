@@ -33,6 +33,7 @@ import {
   useAuthStore,
   BOT_HELLO,
   useWechatConfigStore,
+  useNoticeConfigStore,
 } from "../store";
 
 export function Loading(props: {
@@ -97,9 +98,23 @@ const Pay = dynamic(async () => (await import("./pay")).Pay, {
   loading: () => <Loading noLogo logoLoading />,
 });
 
+const RedeemCode = dynamic(
+  async () => (await import("./redeem-code")).RedeemCode,
+  {
+    loading: () => <Loading noLogo logoLoading />,
+  },
+);
+
 const Balance = dynamic(async () => (await import("./balance")).Balance, {
   loading: () => <Loading noLogo logoLoading />,
 });
+
+const Invitation = dynamic(
+  async () => (await import("./invitation")).Invitation,
+  {
+    loading: () => <Loading noLogo logoLoading />,
+  },
+);
 
 const Order = dynamic(async () => (await import("./order")).Order, {
   loading: () => <Loading noLogo logoLoading />,
@@ -217,6 +232,17 @@ function setFavicon(url: string, mimeType: string) {
   head.appendChild(link);
 }
 
+function sameDate(d1: Date, d2: Date) {
+  if (d1.constructor.name === "String") {
+    d1 = new Date(d1);
+  }
+  return (
+    d1.getDate() === d2.getDate() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getFullYear() === d2.getFullYear()
+  );
+}
+
 function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   const config = useAppConfig();
   const location = useLocation();
@@ -233,7 +259,7 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
     fetchWechatConfig();
   }, [fetchWechatConfig]);
 
-  const { botHello } = useWebsiteConfigStore();
+  const { botHello, icp, hideChatLogWhenNotLogin } = useWebsiteConfigStore();
   useEffect(() => {
     if (botHello) {
       // todo i18n
@@ -242,37 +268,25 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   }, [botHello]);
 
   const [noticeShow, setNoticeShow] = useState(false);
-  const [noticeTitle, setNoticeTitle] = useState("");
-  const [noticeContent, setNoticeContent] = useState("");
+  const noticeStore = useNoticeConfigStore();
   useEffect(() => {
-    const url = "/globalConfig/notice";
-    const BASE_URL = process.env.BASE_URL;
-    const mode = process.env.BUILD_MODE;
-    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
-    fetch(requestUrl, {
-      method: "get",
-    })
-      .then((res) => res.json())
-      .then((res: NoticeConfigResponse) => {
-        console.log("[GlobalConfig] got notice config from server", res);
-        const notice = res.data.noticeContent;
-        if (notice.show) {
-          setNoticeTitle(notice.title);
-          setNoticeContent(notice.content);
-          if (notice.splash) {
-            setNoticeShow(true);
-          }
+    noticeStore.fetchNoticeConfig().then((res: NoticeConfigResponse) => {
+      const notice = res.data.noticeContent;
+      if (notice.show && notice.splash) {
+        const todayShow =
+          noticeStore.notShowToday === null
+            ? true
+            : !sameDate(noticeStore.notShowToday, new Date());
+        if (todayShow) {
+          setNoticeShow(true);
         }
-      })
-      .catch(() => {
-        console.error(
-          "[GlobalConfig] failed to fetch notice config in home.tsx",
-        );
-      })
-      .finally(() => {
-        // fetchState = 2;
-      });
+      }
+    });
   }, []);
+
+  function setNoticeNotShowToday(notShowToday: boolean) {
+    noticeStore.setNotShowToday(notShowToday);
+  }
 
   const logoLoading = props.logoLoading;
   const logoUrl = props.logoUrl || "";
@@ -280,64 +294,119 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
     setFavicon(logoUrl, "");
   }, [logoUrl]);
 
+  const separator =
+    hideChatLogWhenNotLogin &&
+    (
+      [
+        Path.Login,
+        Path.Register,
+        Path.WechatCallback,
+        Path.ForgetPassword,
+      ] as string[]
+    ).includes(location.pathname);
+
   return (
-    <div
-      className={
-        styles.container +
-        ` ${
-          config.tightBorder && !isMobileScreen
-            ? styles["tight-container"]
-            : styles.container
-        } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
-      }
-    >
-      {isAuth ? (
-        <>
-          <AuthPage />
-        </>
-      ) : (
-        <>
-          <SideBar
-            className={isHome ? styles["sidebar-show"] : ""}
-            noticeShow={noticeShow}
-            noticeTitle={noticeTitle}
-            noticeContent={noticeContent}
-            setNoticeShow={setNoticeShow}
-            logoLoading={logoLoading}
-            logoUrl={logoUrl}
-          />
+    <>
+      <div className={(separator ? "separator-page " : "") + "body"}>
+        <div
+          className={
+            styles.container +
+            ` ${
+              config.tightBorder && !isMobileScreen
+                ? styles["tight-container"]
+                : styles.container
+            } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
+          }
+        >
+          {isAuth ? (
+            <>
+              <AuthPage />
+            </>
+          ) : (
+            <>
+              {!separator && (
+                <SideBar
+                  className={isHome ? styles["sidebar-show"] : ""}
+                  noticeShow={noticeShow}
+                  noticeTitle={noticeStore.title}
+                  noticeContent={noticeStore.content}
+                  noticeNotShowToday={noticeStore.notShowToday}
+                  showNotice={() => setNoticeShow(true)}
+                  setNoticeShow={(show: boolean, notShowToday: boolean) => {
+                    setNoticeShow(show);
+                    setNoticeNotShowToday(notShowToday);
+                  }}
+                  logoLoading={logoLoading}
+                  logoUrl={logoUrl}
+                />
+              )}
 
-          <div className={styles["window-content"]} id={SlotID.AppBody}>
-            <Routes>
-              <Route path={Path.Home} element={<Chat />} />
-              <Route path={Path.NewChat} element={<NewChat />} />
-              <Route path={Path.Masks} element={<MaskPage />} />
-              <Route path={Path.Chat} element={<Chat />} />
-              <Route path={Path.Settings} element={<Settings />} />
-              <Route path={Path.Login} element={<Login />} />
-              <Route path={Path.WechatCallback} element={<WechatCallback />} />
+              <div className={styles["window-content"]} id={SlotID.AppBody}>
+                <Routes>
+                  <Route path={Path.Home} element={<Chat />} />
+                  <Route path={Path.NewChat} element={<NewChat />} />
+                  <Route path={Path.Masks} element={<MaskPage />} />
+                  <Route path={Path.Chat} element={<Chat />} />
+                  <Route path={Path.Settings} element={<Settings />} />
+                  <Route
+                    path={Path.Login}
+                    element={
+                      <Login logoLoading={logoLoading} logoUrl={logoUrl} />
+                    }
+                  />
+                  <Route
+                    path={Path.WechatCallback}
+                    element={<WechatCallback />}
+                  />
 
-              <Route path={Path.Register} element={<Register />} />
-              <Route path={Path.ForgetPassword} element={<ForgetPassword />} />
-              <Route path={Path.Profile} element={<Profile />} />
-              <Route path={Path.Pricing} element={<Pricing />} />
-              <Route path={Path.Pay} element={<Pay />} />
-              <Route path={Path.Balance} element={<Balance />} />
-              <Route path={Path.Order} element={<Order />} />
-            </Routes>
-          </div>
-        </>
+                  <Route
+                    path={Path.Register}
+                    element={
+                      <Register logoLoading={logoLoading} logoUrl={logoUrl} />
+                    }
+                  />
+                  <Route
+                    path={Path.ForgetPassword}
+                    element={
+                      <ForgetPassword
+                        logoLoading={logoLoading}
+                        logoUrl={logoUrl}
+                      />
+                    }
+                  />
+                  <Route path={Path.Profile} element={<Profile />} />
+                  <Route path={Path.Pricing} element={<Pricing />} />
+                  <Route path={Path.RedeemCode} element={<RedeemCode />} />
+                  <Route path={Path.Pay} element={<Pay />} />
+                  <Route path={Path.Balance} element={<Balance />} />
+                  <Route path={Path.Invitation} element={<Invitation />} />
+                  <Route path={Path.Order} element={<Order />} />
+                </Routes>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      {!config.tightBorder && !isMobileScreen && (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: icp,
+          }}
+        />
       )}
-    </div>
+    </>
   );
 }
 
+let runAIChatWebInitScript = false;
 export function Home() {
   useSwitchTheme();
 
   const authStore = useAuthStore();
   const [logoLoading, setLogoLoading] = useState(false);
-  const { fetchWebsiteConfig, logoUrl } = useWebsiteConfigStore();
+  const { fetchWebsiteConfig, logoUrl, globalJavaScript, availableModels } =
+    useWebsiteConfigStore();
+
   useEffect(() => {
     fetchWebsiteConfig();
   }, [fetchWebsiteConfig]);
@@ -345,6 +414,25 @@ export function Home() {
   useEffect(() => {
     console.log("[Config] got config from build time", getClientConfig());
   }, []);
+  useEffect(() => {
+    console.log("set default model", availableModels[0]);
+    if (availableModels.length > 0) {
+      useAppConfig.getState().modelConfig.model = availableModels[0].name;
+      useAppConfig.getState().modelConfig.contentType =
+        availableModels[0].contentType;
+    } else {
+      useAppConfig.getState().modelConfig.model = "";
+      useAppConfig.getState().modelConfig.contentType = "Text";
+    }
+  }, [availableModels]);
+  useEffect(() => {
+    if (globalJavaScript) {
+      if (!runAIChatWebInitScript) {
+        eval(globalJavaScript);
+        runAIChatWebInitScript = true;
+      }
+    }
+  }, [globalJavaScript]);
 
   if (!useHasHydrated()) {
     return <Loading noLogo logoLoading={logoLoading} logoUrl={logoUrl} />;

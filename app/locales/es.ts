@@ -178,6 +178,10 @@ const es: PartialLocaleType = {
       Pricing: "购买套餐",
       GoToBalanceList: "更多",
       ConsultAdministrator: "请咨询站长",
+      All: "所有套餐",
+      CreateInviteCode: "生成邀请码",
+      Copy: "复制链接",
+      Redeem: "兑换码",
     },
     BalanceItem: {
       Title: "套餐类型",
@@ -192,6 +196,17 @@ const es: PartialLocaleType = {
     ExpireList: {
       Title: "过期时间",
       SubTitle: "",
+    },
+  },
+  RedeemCodePage: {
+    Title: "兑换码",
+    RedeemCodeInput: {
+      Title: "兑换码",
+      Placeholder: "请输入兑换码",
+    },
+    Actions: {
+      Close: "关闭",
+      Redeem: "开始兑换",
     },
   },
   PricingPage: {

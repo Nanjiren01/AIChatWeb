@@ -1,6 +1,12 @@
 import { getClientConfig } from "../config/client";
 import { ACCESS_CODE_PREFIX } from "../constant";
-import { ChatMessage, ModelType, useAccessStore, useAuthStore } from "../store";
+import {
+  ChatMessage,
+  ModelType,
+  PluginActionModel,
+  useAccessStore,
+  useAuthStore,
+} from "../store";
 import { ChatGPTApi } from "./platforms/openai";
 
 export const ROLES = ["system", "user", "assistant"] as const;
@@ -9,6 +15,8 @@ export type MessageRole = (typeof ROLES)[number];
 export const Models = ["gpt-3.5-turbo", "gpt-4"] as const;
 export type ChatModel = ModelType;
 
+export type ContentType = "Text" | "Image";
+
 export interface RequestMessage {
   role: MessageRole;
   content: string;
@@ -16,6 +24,7 @@ export interface RequestMessage {
 
 export interface LLMConfig {
   model: string;
+  contentType?: ContentType;
   temperature?: number;
   top_p?: number;
   stream?: boolean;
@@ -25,7 +34,14 @@ export interface LLMConfig {
 
 export interface ChatOptions {
   messages: RequestMessage[];
+  userMessage?: ChatMessage;
+  botMessage: ChatMessage;
+  content: string;
+
   config: LLMConfig;
+  plugins: PluginActionModel[];
+  imageMode: string;
+  baseImages: any[];
 
   onUpdate?: (message: string, chunk: string) => void;
   onFinish: (message: string) => void;
@@ -38,9 +54,19 @@ export interface LLMUsage {
   total: number;
 }
 
+export interface ChatSubmitResult {
+  userMessage?: ChatMessage;
+  botMessage: ChatMessage;
+  fetch: boolean;
+}
 export abstract class LLMApi {
-  abstract chat(options: ChatOptions): Promise<void>;
+  abstract chat(options: ChatOptions): Promise<ChatSubmitResult | void>;
   abstract usage(): Promise<LLMUsage>;
+  abstract fetchDrawStatus: (
+    onUpdate: ((message: string, chunk: string) => void) | undefined,
+    onFinish: (message: string) => void,
+    botMessage: ChatMessage,
+  ) => Promise<boolean | void>;
 }
 
 type ProviderName = "openai" | "azure" | "claude" | "palm";
@@ -87,7 +113,7 @@ export class ClientApi {
         {
           from: "human",
           value:
-            "Share from [ChatGPT Next Web]: https://github.com/Yidadaa/ChatGPT-Next-Web",
+            "Share from [AIChatWeb]: https://github.com/Nanjiren01/AIChatWeb",
         },
       ]);
     // 敬告二开开发者们，为了开源大模型的发展，请不要修改上述消息，此消息用于后续数据清洗使用

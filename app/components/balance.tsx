@@ -82,17 +82,17 @@ export function Balance() {
       (pkg.chatCount
         ? `<li>${prefix} <span style="font-size: 18px;">${
             pkg.chatCount === -1 ? "无限" : pkg.chatCount
-          }</span> 次基础聊天（GPT3.5）</li>`
+          }</span> 基础聊天积分</li>`
         : "") +
       (pkg.advancedChatCount
         ? `<li>${prefix} <span style="font-size: 18px;">${
             pkg.advancedChatCount === -1 ? "无限" : pkg.advancedChatCount
-          }</span> 次高级聊天（GPT4）</li>`
+          }</span> 高级聊天积分</li>`
         : "") +
       (pkg.drawCount
         ? `<li>${prefix} <span style="font-size: 18px;">${
             pkg.drawCount === -1 ? "无限" : pkg.drawCount
-          }</span> 次AI绘画</li>`
+          }</span> 绘画积分</li>`
         : "") +
       `<li>到期时间：<span style="font-size: 18px;">${pkg.expireTime}</span></li>` +
       `</ul>`
@@ -210,9 +210,10 @@ export function Balance() {
                 >
                   <div style={{ minWidth: "100px", maxWidth: "200px" }}>
                     <div style={{ margin: "10px 0" }}>
-                      <div
-                        style={{ fontSize: "14px" }}
-                      >{`购买时间：${pkg.createTime}`}</div>
+                      <div style={{ fontSize: "14px" }}>
+                        {(pkg.sourceId === 6 ? "兑换" : "购买") +
+                          `时间：${pkg.createTime}`}
+                      </div>
                     </div>
                   </div>
                 </DangerousListItem>
@@ -251,6 +252,16 @@ export function Balance() {
               type="second"
               onClick={() => {
                 navigate(Path.Order);
+              }}
+            />
+          </ListItem>
+          <ListItem>
+            <IconButton
+              text={Locale.BalancePage.Actions.RedeemCode}
+              block={true}
+              type="second"
+              onClick={() => {
+                navigate(Path.RedeemCode);
               }}
             />
           </ListItem>

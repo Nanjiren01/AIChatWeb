@@ -7,7 +7,9 @@ export interface NoticeStore {
   splash: boolean;
   title: string;
   content: string;
-  fetchNoticeConfig: (token: string) => Promise<any>;
+  notShowToday: Date | null;
+  fetchNoticeConfig: () => Promise<any>;
+  setNotShowToday: (notShowToday: boolean) => void;
 }
 
 export interface NoticeConfig {
@@ -30,17 +32,15 @@ export const useNoticeConfigStore = create<NoticeStore>()(
       splash: false,
       title: "",
       content: "",
+      notShowToday: null,
 
-      async fetchNoticeConfig(token: string) {
+      async fetchNoticeConfig() {
         const url = "/globalConfig/notice";
         const BASE_URL = process.env.BASE_URL;
         const mode = process.env.BUILD_MODE;
         let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
         return fetch(requestUrl, {
           method: "get",
-          headers: {
-            Authorization: "Bearer " + token,
-          },
         })
           .then((res) => res.json())
           .then((res: NoticeConfigResponse) => {
@@ -63,10 +63,25 @@ export const useNoticeConfigStore = create<NoticeStore>()(
             // fetchState = 2;
           });
       },
+      setNotShowToday(notShowToday: boolean) {
+        set(() => ({
+          notShowToday: notShowToday ? new Date() : null,
+        }));
+      },
     }),
     {
       name: StoreKey.NoticeConfig,
-      version: 1,
+      version: 2,
+      migrate(persistedState, version) {
+        const state = persistedState as any;
+        const newState = JSON.parse(JSON.stringify(state)) as NoticeStore;
+
+        if (version < 2) {
+          newState.notShowToday = null;
+        }
+
+        return newState;
+      },
     },
   ),
 );

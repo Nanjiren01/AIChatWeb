@@ -17,7 +17,9 @@ import ReturnIcon from "../icons/return.svg";
 import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
 import PromptIcon from "../icons/prompt.svg";
-import MaskIcon from "../icons/mask.svg";
+import MaskIcon from "../icons/app.svg";
+import CloseIcon from "../icons/close.svg";
+// import InternetIcon from "../icons/internet.svg";
 import MaxIcon from "../icons/max.svg";
 import MinIcon from "../icons/min.svg";
 import ResetIcon from "../icons/reload.svg";
@@ -26,6 +28,7 @@ import SettingsIcon from "../icons/chat-settings.svg";
 import DeleteIcon from "../icons/clear.svg";
 import PinIcon from "../icons/pin.svg";
 import EditIcon from "../icons/rename.svg";
+import MenuIcon from "../icons/boldmenu.svg";
 
 import LightIcon from "../icons/light.svg";
 import DarkIcon from "../icons/dark.svg";
@@ -33,6 +36,14 @@ import AutoIcon from "../icons/auto.svg";
 import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
+import Internet from "../icons/internetsearch.svg";
+import HorizontalIcon from "../icons/horizontal.svg";
+import VerticalIcon from "../icons/vertical.svg";
+import PanLeftIcon from "../icons/pan-left.svg";
+import PanRightIcon from "../icons/pan-right.svg";
+import PanUpIcon from "../icons/pan-up.svg";
+import PanDownIcon from "../icons/pan-down.svg";
+import UploadIcon from "../icons/upload.svg";
 
 import {
   ChatMessage,
@@ -46,6 +57,8 @@ import {
   useAppConfig,
   DEFAULT_TOPIC,
   ModelType,
+  AiPlugin,
+  PluginActionModel,
 } from "../store";
 
 import {
@@ -54,6 +67,8 @@ import {
   selectOrCopy,
   autoGrowTextArea,
   useMobileScreen,
+  getSecondsDiff,
+  fromYYYYMMDD_HHMMSS,
 } from "../utils";
 
 import dynamic from "next/dynamic";
@@ -80,6 +95,8 @@ import { useWebsiteConfigStore } from "../store";
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
 });
+
+//const ChatFetchTaskPool: Record<string, any> = {};
 
 export function SessionConfigModel(props: { onClose: () => void }) {
   const chatStore = useChatStore();
@@ -304,7 +321,9 @@ function ChatAction(props: {
   });
 
   function updateWidth() {
+    console.log("updateWidth", iconRef, textRef);
     if (!iconRef.current || !textRef.current) return;
+    console.log("1");
     const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
     const textWidth = getWidth(textRef.current);
     const iconWidth = getWidth(iconRef.current);
@@ -340,6 +359,63 @@ function ChatAction(props: {
   );
 }
 
+function SwitchChatAction(props: {
+  text: string;
+  icon?: JSX.Element;
+  value?: boolean;
+  onClick: () => void;
+}) {
+  const iconRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState({
+    full: 16,
+    icon: props.icon ? 16 : 0,
+  });
+  const [isClicked, setIsClicked] = useState(false); // 新增state
+
+  function updateWidth() {
+    //console.log("updateWidth", iconRef, textRef);
+    if (!iconRef.current || !textRef.current) return;
+    //console.log("1");
+    const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
+    const textWidth = getWidth(textRef.current);
+    const iconWidth = getWidth(iconRef.current);
+    setWidth({
+      full: textWidth + iconWidth,
+      icon: iconWidth,
+    });
+  }
+
+  return (
+    <div
+      className={`${styles["chat-input-action"]} clickable`}
+      onClick={() => {
+        props.onClick();
+        setIsClicked(!isClicked); // 更新isClicked的状态
+        setTimeout(updateWidth, 1);
+      }}
+      onMouseEnter={updateWidth}
+      onTouchStart={updateWidth}
+      style={
+        {
+          "--icon-width": `${width.icon}px`,
+          "--full-width": `${width.full}px`,
+          backgroundColor: isClicked ? "#dafbe1" : "", // 根据isClicked的状态设置背景颜色
+        } as React.CSSProperties
+      }
+    >
+      {props.icon && (
+        <div ref={iconRef} className={styles["icon"]}>
+          {props.icon}
+        </div>
+      )}
+      <div className={styles["text"]} ref={textRef}>
+        {props.text}
+      </div>
+    </div>
+  );
+}
+
 function useScrollToBottom() {
   // for auto-scroll
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -368,12 +444,19 @@ export function ChatActions(props: {
   showPromptModal: () => void;
   scrollToBottom: () => void;
   showPromptHints: () => void;
+  imageSelected: (img: any) => void;
   hitBottom: boolean;
+  plugins: PluginActionModel[];
+  contentType: string;
+  uploading: boolean;
+  setUploading: React.Dispatch<React.SetStateAction<boolean>>;
+  SetOpenInternet: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
   const chatStore = useChatStore();
-  const { availableModelNames } = useWebsiteConfigStore();
+  const authStore = useAuthStore();
+  const { availableModels } = useWebsiteConfigStore();
 
   // switch themes
   const theme = config.theme;
@@ -391,16 +474,69 @@ export function ChatActions(props: {
 
   // switch model
   const currentModel = chatStore.currentSession().mask.modelConfig.model;
+  const currentContentType =
+    chatStore.currentSession().mask.modelConfig.contentType;
   function nextModel() {
-    const models = availableModelNames;
-    const modelIndex = models.indexOf(currentModel);
+    const models = availableModels;
+    const modelIndex = models.findIndex(
+      (m) => m.name === currentModel && m.contentType === currentContentType,
+    );
     const nextIndex = (modelIndex + 1) % models.length;
     const nextModel = models[nextIndex];
     chatStore.updateCurrentSession((session) => {
-      session.mask.modelConfig.model = nextModel as ModelType;
+      session.mask.modelConfig.model = nextModel.name as ModelType;
+      session.mask.modelConfig.contentType = nextModel.contentType;
       session.mask.syncGlobalConfig = false;
     });
   }
+
+  function selectImage() {
+    document.getElementById("chat-image-file-select-upload")?.click();
+  }
+
+  const uploadFile = (file: any) => {
+    props.setUploading(true);
+    const url = "/file/put";
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    const formData = new FormData();
+    formData.append("usage", "chat");
+    formData.append("file", file);
+    return fetch(requestUrl, {
+      method: "post",
+      headers: {
+        // 'Content-Type': 'multipart/form-data',
+        Authorization: "Bearer " + authStore.token,
+      },
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.code === 413) {
+          showToast(res.cnMessage || res.message, undefined, 5000);
+        }
+        return res;
+      })
+      .finally(() => {
+        console.log("finally");
+        props.setUploading(false);
+      });
+  };
+  const onImageSelected = (e: any) => {
+    const file = e.target.files[0];
+    uploadFile(file).then((res) => {
+      const filename = file.name;
+      const fileEntity = res.data;
+      props.imageSelected({
+        filename,
+        uuid: fileEntity.uuid,
+        url: fileEntity.url,
+        entity: fileEntity,
+      });
+    });
+    e.target.value = null;
+  };
 
   return (
     <div className={styles["chat-input-actions"]}>
@@ -426,37 +562,43 @@ export function ChatActions(props: {
         />
       )}
 
-      <ChatAction
-        onClick={nextTheme}
-        text={Locale.Chat.InputActions.Theme[theme]}
-        icon={
-          <>
-            {theme === Theme.Auto ? (
-              <AutoIcon />
-            ) : theme === Theme.Light ? (
-              <LightIcon />
-            ) : theme === Theme.Dark ? (
-              <DarkIcon />
-            ) : null}
-          </>
-        }
-      />
+      <div className={styles["hide-on-mobile"]}>
+        <ChatAction
+          onClick={nextTheme}
+          text={Locale.Chat.InputActions.Theme[theme]}
+          icon={
+            <>
+              {theme === Theme.Auto ? (
+                <AutoIcon />
+              ) : theme === Theme.Light ? (
+                <LightIcon />
+              ) : theme === Theme.Dark ? (
+                <DarkIcon />
+              ) : null}
+            </>
+          }
+        />
+      </div>
 
-      <ChatAction
-        onClick={props.showPromptHints}
-        text={Locale.Chat.InputActions.Prompt}
-        icon={<PromptIcon />}
-      />
+      <div className={styles["hide-on-mobile"]}>
+        <ChatAction
+          onClick={props.showPromptHints}
+          text={Locale.Chat.InputActions.Prompt}
+          icon={<PromptIcon />}
+        />
+      </div>
 
-      <ChatAction
-        onClick={() => {
-          navigate(Path.Masks);
-        }}
-        text={Locale.Chat.InputActions.Masks}
-        icon={<MaskIcon />}
-      />
+      <div className={styles["hide-on-mobile"]}>
+        <ChatAction
+          onClick={() => {
+            navigate(Path.Masks);
+          }}
+          text={Locale.Chat.InputActions.Masks}
+          icon={<MaskIcon />}
+        />
+      </div>
 
-      <ChatAction
+      <SwitchChatAction
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}
         onClick={() => {
@@ -476,6 +618,41 @@ export function ChatActions(props: {
         text={currentModel}
         icon={<RobotIcon />}
       />
+
+      {props.contentType === "Image" && (
+        <div
+          className={`${styles["chat-input-action"]} clickable`}
+          onClick={selectImage}
+        >
+          <input
+            type="file"
+            accept=".png,.jpg,.webp,.jpeg"
+            id="chat-image-file-select-upload"
+            style={{ display: "none" }}
+            onChange={onImageSelected}
+          />
+          <UploadIcon />
+        </div>
+      )}
+
+      <>
+        {props.plugins.map((model) => {
+          return (
+            <SwitchChatAction
+              key={model.plugin.uuid}
+              onClick={() => {
+                model.value = !model.value;
+                showToast(
+                  (model.value ? "已开启" : "已关闭") + model.plugin.name,
+                );
+              }}
+              text={model.plugin.name}
+              icon={<Internet />}
+              value={model.value}
+            />
+          );
+        })}
+      </>
     </div>
   );
 }
@@ -495,13 +672,15 @@ export function Chat() {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState("");
+  const [useImages, setUseImages] = useState<any[]>([]);
+  const [mjImageMode, setMjImageMode] = useState<string>(""); // 垫图IMAGINE，混图BLEND，识图DESCRIBE
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const websiteConfigStore = useWebsiteConfigStore();
-  const { chatPageSubTitle, logoUrl } = websiteConfigStore;
+  const { chatPageSubTitle, logoUrl, plugins } = websiteConfigStore;
   const navigate = useNavigate();
 
   const authStore = useAuthStore();
@@ -510,6 +689,8 @@ export function Chat() {
     const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 10;
     setHitBottom(isTouchBottom);
   };
+
+  const [uploading, setUploading] = useState(false);
 
   // prompt hints
   const promptStore = usePromptStore();
@@ -577,22 +758,97 @@ export function Chat() {
     }
   };
 
+  const [pluignModels, setPluginModels] = useState<PluginActionModel[]>([]);
+  useEffect(() => {
+    const models = (plugins || []).map((plugin) => {
+      return {
+        plugin: plugin,
+        value: false as boolean,
+      } as PluginActionModel;
+    });
+    setPluginModels(models);
+  }, [plugins]);
+
+  const [ChatFetchTaskPool, setChatFetchTaskPool] = useState(
+    new Map<string, NodeJS.Timeout | null>(),
+  );
+
+  const refreshDrawStatus = (botMessage: ChatMessage) => {
+    if (ChatFetchTaskPool.get(botMessage.attr.taskId)) {
+      return;
+    }
+    ChatFetchTaskPool.set(
+      botMessage.attr.taskId,
+      setTimeout(async () => {
+        const fetch = await chatStore.getDrawTaskProgress(
+          botMessage,
+          websiteConfigStore,
+          authStore,
+        );
+        ChatFetchTaskPool.set(botMessage.attr.taskId, null);
+        if (fetch) {
+          refreshDrawStatus(botMessage);
+        }
+      }, 3000),
+    );
+    setChatFetchTaskPool(ChatFetchTaskPool);
+  };
+
   const doSubmit = (userInput: string) => {
-    if (userInput.trim() === "") return;
+    if (useImages.length > 0) {
+      if (mjImageMode === "IMAGINE") {
+        if (!userInput) {
+          showToast(Locale.Midjourney.NeedInputUseImgPrompt);
+          return;
+        }
+        if (useImages.length > 1) {
+          showToast(Locale.Midjourney.ImagineMaxImg(1));
+          return;
+        }
+      } else if (mjImageMode === "BLEND") {
+        if (useImages.length < 2 || useImages.length > 5) {
+          showToast(Locale.Midjourney.BlendMinImg(2, 5));
+          return;
+        }
+      } else if (mjImageMode === "DESCRIBE") {
+        if (useImages.length > 1) {
+          showToast(Locale.Midjourney.DescribeMaxImg(1));
+          return;
+        }
+      }
+      // setUserInput(userInput = (mjImageMode + "::" + userInput));
+    } else {
+      if (userInput.trim() === "") return;
+    }
     const matchCommand = chatCommands.match(userInput);
     if (matchCommand.matched) {
       setUserInput("");
       setPromptHints([]);
+      setUseImages([]);
+      setMjImageMode("");
       matchCommand.invoke();
       return;
     }
     setIsLoading(true);
     chatStore
-      .onUserInput(userInput, websiteConfigStore, authStore, () =>
-        navigate(Path.Login),
+      .onUserInput(
+        userInput,
+        pluignModels,
+        mjImageMode,
+        useImages,
+        websiteConfigStore,
+        authStore,
+        () => navigate(Path.Login),
       )
-      .then(() => setIsLoading(false));
+      .then((result) => {
+        setIsLoading(false);
+        if (result && result.fetch) {
+          refreshDrawStatus(result.botMessage);
+        }
+      });
     localStorage.setItem(LAST_INPUT_KEY, userInput);
+    setUseImages([]);
+    setMjImageMode("");
     setUserInput("");
     setPromptHints([]);
     if (!isMobileScreen) inputRef.current?.focus();
@@ -616,6 +872,17 @@ export function Chat() {
     }, 30);
   };
 
+  const addBaseImage = (img: any) => {
+    if (useImages.length >= 5) {
+      showToast(Locale.Midjourney.SelectImgMax(5));
+      return;
+    }
+    setUseImages([...useImages, img]);
+    if (!mjImageMode) {
+      setMjImageMode("IMAGINE");
+    }
+  };
+
   // stop response
   const onUserStop = (messageId: number) => {
     ChatControllerPool.stop(sessionIndex, messageId);
@@ -631,7 +898,7 @@ export function Chat() {
             m.streaming = false;
           }
 
-          if (m.content.length === 0) {
+          if (m.content.length === 0 && m.role !== "user") {
             m.isError = true;
             m.content = prettyObject({
               error: true,
@@ -650,6 +917,7 @@ export function Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [openInternet, SetOpenInternet] = useState(false);
   // check if should send message
   const onInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // if ArrowUp and no userInput, fill with last input
@@ -711,12 +979,20 @@ export function Chat() {
     const userIndex = findLastUserIndex(botMessageId);
     if (userIndex === null) return;
 
+    const message = session.messages[userIndex];
+
     setIsLoading(true);
-    const content = session.messages[userIndex].content;
+    const content = message.content;
     deleteMessage(userIndex);
     chatStore
-      .onUserInput(content, websiteConfigStore, authStore, () =>
-        navigate(Path.Login),
+      .onUserInput(
+        content,
+        pluignModels,
+        message.attr?.imageMode ?? "",
+        message.attr?.baseImages || [],
+        websiteConfigStore,
+        authStore,
+        () => navigate(Path.Login),
       )
       .then(() => setIsLoading(false));
     inputRef.current?.focus();
@@ -739,6 +1015,8 @@ export function Chat() {
       },
     });
   };
+
+  const now = new Date();
 
   const context: RenderMessage[] = session.mask.hideContext
     ? []
@@ -765,10 +1043,15 @@ export function Chat() {
       : -1;
 
   // preview messages
+  const lastMessageIsDraw =
+    session.messages.length > 0 &&
+    session.messages[session.messages.length - 1].role === "assistant" &&
+    session.messages[session.messages.length - 1].attr &&
+    session.messages[session.messages.length - 1].attr.contentType === "Image";
   const messages = context
     .concat(session.messages as RenderMessage[])
     .concat(
-      isLoading
+      isLoading && !lastMessageIsDraw
         ? [
             {
               ...createMessage({
@@ -813,6 +1096,42 @@ export function Chat() {
 
   const autoFocus = !isMobileScreen || isChat; // only focus in chat page
   const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // const toggleDropdown = () => {
+  //   // setIsDropdownOpen(!isDropdownOpen);
+  // };
+
+  const handleOutsideClick = (event: any) => {
+    console.log("event", event.target, dropdownRef.current);
+    setIsDropdownOpen(!isDropdownOpen);
+
+    if (
+      dropdownRef.current &&
+      !(dropdownRef.current as HTMLElement).contains(event.target)
+    ) {
+      console.log("not contains");
+      setIsDropdownOpen(false);
+    } else {
+      console.log("contains", isDropdownOpen);
+      setIsDropdownOpen(!isDropdownOpen);
+      setTimeout(() => {
+        console.log("new isDropdownOpen", isDropdownOpen);
+      }, 50);
+    }
+  };
+  useEffect(() => {
+    if (isDropdownOpen) {
+      document.addEventListener("click", handleOutsideClick);
+    } else {
+      document.removeEventListener("click", handleOutsideClick);
+    }
+
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, [isDropdownOpen]);
 
   useCommand({
     fill: setUserInput,
@@ -873,51 +1192,79 @@ export function Chat() {
               : Locale.Chat.SubTitle(session.messages.length)}
           </div>
         </div>
-        <div className="window-actions">
-          {!isMobileScreen && (
-            <div className="window-action-button">
-              <IconButton
-                icon={<RenameIcon />}
-                bordered
-                onClick={renameSession}
-              />
+        <div className={styles["window-actions"]}>
+          {isMobileScreen ? (
+            <div className={styles["window-action-button"]}>
+              <div ref={dropdownRef}>
+                <IconButton
+                  icon={isDropdownOpen ? <CloseIcon /> : <MenuIcon />}
+                  bordered
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                />
+              </div>
+              {isDropdownOpen && (
+                <div className={styles["dropdown-menu"]}>
+                  <IconButton
+                    className={styles["window-action-button"]}
+                    icon={<CartIcon />}
+                    bordered
+                    text="服务订阅"
+                    onClick={() => navigate(Path.Pricing)}
+                  />
+                  <IconButton
+                    className={styles["window-action-button"]}
+                    icon={<UserIcon />}
+                    bordered
+                    text="个人中心"
+                    onClick={() => navigate(Path.Profile)}
+                  />
+                  <IconButton
+                    className={styles["window-action-button"]}
+                    icon={<ExportIcon />}
+                    bordered
+                    text={Locale.Chat.Actions.Export}
+                    title={Locale.Chat.Actions.Export}
+                    onClick={() => {
+                      setShowExport(true);
+                    }}
+                  />
+                </div>
+              )}
             </div>
-          )}
-          <div className="window-action-button">
-            <IconButton
-              icon={<CartIcon />}
-              bordered
-              onClick={() => navigate(Path.Pricing)}
-            />
-          </div>
-          <div className="window-action-button">
-            <IconButton
-              icon={<UserIcon />}
-              bordered
-              onClick={() => navigate(Path.Profile)}
-            />
-          </div>
-          <div className="window-action-button">
-            <IconButton
-              icon={<ExportIcon />}
-              bordered
-              title={Locale.Chat.Actions.Export}
-              onClick={() => {
-                setShowExport(true);
-              }}
-            />
-          </div>
-          {showMaxIcon && (
-            <div className="window-action-button">
-              <IconButton
-                icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
-                bordered
-                onClick={() => {
-                  config.update(
-                    (config) => (config.tightBorder = !config.tightBorder),
-                  );
-                }}
-              />
+          ) : (
+            <div className="window-actions">
+              {!isMobileScreen && (
+                <div className="window-action-button">
+                  <IconButton
+                    icon={<RenameIcon />}
+                    bordered
+                    onClick={renameSession}
+                  />
+                </div>
+              )}
+              <div className="window-action-button">
+                <IconButton
+                  icon={<ExportIcon />}
+                  bordered
+                  title={Locale.Chat.Actions.Export}
+                  onClick={() => {
+                    setShowExport(true);
+                  }}
+                />
+              </div>
+              {showMaxIcon && (
+                <div className="window-action-button">
+                  <IconButton
+                    icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
+                    bordered
+                    onClick={() => {
+                      config.update(
+                        (config) => (config.tightBorder = !config.tightBorder),
+                      );
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -929,6 +1276,11 @@ export function Chat() {
         />
       </div>
 
+      {uploading && (
+        <div className={styles.mask}>
+          <div>{Locale.Midjourney.Uploading}</div>
+        </div>
+      )}
       <div
         className={styles["chat-body"]}
         ref={scrollRef}
@@ -991,22 +1343,233 @@ export function Chat() {
                     </div>
                   )}
                   <div className={styles["chat-message-item"]}>
-                    <Markdown
-                      content={message.content}
-                      loading={
-                        (message.preview || message.content.length === 0) &&
-                        !isUser
-                      }
-                      onContextMenu={(e) => onRightClick(e, message)}
-                      onDoubleClickCapture={() => {
-                        if (!isMobileScreen) return;
-                        setUserInput(message.content);
-                      }}
-                      fontSize={fontSize}
-                      parentRef={scrollRef}
-                      defaultShow={i >= messages.length - 10}
-                    />
-
+                    {(!isUser || message.content.length > 0) && (
+                      <Markdown
+                        content={message.content}
+                        loading={
+                          (message.preview || message.content.length === 0) &&
+                          !isUser
+                        }
+                        onContextMenu={(e) => onRightClick(e, message)}
+                        onDoubleClickCapture={() => {
+                          if (!isMobileScreen) return;
+                          setUserInput(message.content);
+                        }}
+                        fontSize={fontSize}
+                        parentRef={scrollRef}
+                        defaultShow={i >= messages.length - 10}
+                      />
+                    )}
+                    {isUser && message.attr?.imageMode && (
+                      <div>
+                        <div
+                          className={styles["chat-select-images"]}
+                          style={{ marginTop: "10px" }}
+                        >
+                          {message.attr.baseImages.map(
+                            (img: any, index: number) => (
+                              <img
+                                src={img.url}
+                                key={index}
+                                title={img.filename}
+                                alt={img.filename}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => {
+                                  addBaseImage(img);
+                                }}
+                              />
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {!isUser &&
+                      [
+                        "VARIATION",
+                        "IMAGINE",
+                        "BLEND",
+                        "ZOOMOUT",
+                        "PAN",
+                        "SQUARE",
+                        "VARY",
+                      ].includes(message.attr?.action) &&
+                      message.attr?.status === "SUCCESS" && (
+                        <div
+                          className={[
+                            styles["chat-message-mj-actions"],
+                            styles["column-flex"],
+                          ].join(" ")}
+                        >
+                          <div style={{ display: "flex" }}>
+                            {[1, 2, 3, 4].map((index) => {
+                              return (
+                                <button
+                                  key={index}
+                                  onClick={() =>
+                                    doSubmit(
+                                      `UPSCALE::${index}::${message.attr.taskId}`,
+                                    )
+                                  }
+                                  className={`${styles["chat-message-mj-action-btn"]} clickable`}
+                                >
+                                  U{index}
+                                </button>
+                              );
+                            })}
+                            {/* {message.attr?.action === 'PAN' && <button
+                              onClick={() =>
+                                doSubmit(
+                                  `SQUARE::1::${message.attr.taskId}`,
+                                )
+                              }
+                              className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["chat-message-mj-emoji-btn"]}`}
+                            >
+                              <HorizontalIcon />
+                            </button>} */}
+                          </div>
+                          {message.attr?.action !== "PAN" && (
+                            <div style={{ display: "flex" }}>
+                              {[1, 2, 3, 4].map((index) => {
+                                return (
+                                  <button
+                                    key={index}
+                                    onClick={() =>
+                                      doSubmit(
+                                        `VARIATION::${index}::${message.attr.taskId}`,
+                                      )
+                                    }
+                                    className={`${styles["chat-message-mj-action-btn"]} clickable`}
+                                  >
+                                    V{index}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    {!isUser &&
+                      ["UPSCALE"].includes(message.attr?.action) &&
+                      message.attr?.status === "SUCCESS" && (
+                        <div
+                          className={[
+                            styles["chat-message-mj-actions"],
+                            styles["column-flex"],
+                          ].join(" ")}
+                        >
+                          {!message.attr?.direction && (
+                            <div>
+                              {["Strong", "Subtle"].map((strength) => {
+                                return (
+                                  <button
+                                    key={strength}
+                                    onClick={() =>
+                                      doSubmit(
+                                        `VARY::${strength.toLocaleUpperCase()}::${
+                                          message.attr.taskId
+                                        }`,
+                                      )
+                                    }
+                                    className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["vary"]}`}
+                                  >
+                                    Vary ({strength})
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                          <div>
+                            {[1.5, 2].map((index) => {
+                              return (
+                                <button
+                                  key={index}
+                                  onClick={() =>
+                                    doSubmit(
+                                      `ZOOMOUT::${index}::${message.attr.taskId}`,
+                                    )
+                                  }
+                                  className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["zoom-out"]}`}
+                                >
+                                  Z×{index}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <div style={{ display: "flex" }}>
+                            {["⬅️", "➡️", "⬆️", "⬇️"]
+                              .filter((_, index) => {
+                                if (message.attr?.direction === "horizontal") {
+                                  return index <= 1;
+                                } else if (
+                                  message.attr?.direction === "vertical"
+                                ) {
+                                  return index >= 2;
+                                } else {
+                                  return true;
+                                }
+                              })
+                              .map((direction) => {
+                                // ➡️
+                                const str = {
+                                  "⬅️": "LEFT",
+                                  "➡️": "RIGHT",
+                                  "⬆️": "UP",
+                                  "⬇️": "DOWN",
+                                }[direction];
+                                return (
+                                  <button
+                                    key={str}
+                                    onClick={() =>
+                                      doSubmit(
+                                        `PAN::${str}::${message.attr.taskId}`,
+                                      )
+                                    }
+                                    className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["chat-message-mj-emoji-btn"]}`}
+                                  >
+                                    {direction === "⬅️" && <PanLeftIcon />}
+                                    {direction === "➡️" && <PanRightIcon />}
+                                    {direction === "⬆️" && <PanUpIcon />}
+                                    {direction === "⬇️" && <PanDownIcon />}
+                                  </button>
+                                );
+                              })}
+                            {message.attr?.direction && (
+                              <button
+                                onClick={() =>
+                                  doSubmit(`SQUARE::1::${message.attr.taskId}`)
+                                }
+                                className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["chat-message-mj-emoji-btn"]}`}
+                              >
+                                {message.attr?.direction === "vertical" && (
+                                  <HorizontalIcon />
+                                )}
+                                {message.attr?.direction === "horizontal" && (
+                                  <VerticalIcon />
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    {!isUser &&
+                      message.attr?.status !== "SUCCESS" &&
+                      message.attr.taskId &&
+                      !ChatFetchTaskPool.get(message.attr.taskId) &&
+                      message.attr.submitTime &&
+                      getSecondsDiff(
+                        fromYYYYMMDD_HHMMSS(message.attr.submitTime),
+                        now,
+                      ) && (
+                        <div>
+                          <button
+                            onClick={() => refreshDrawStatus(message)}
+                            className={`${styles["chat-message-mj-action-btn"]} clickable`}
+                            style={{ width: "150px" }}
+                          >
+                            {Locale.Midjourney.Refresh}
+                          </button>
+                        </div>
+                      )}
                     {showActions && (
                       <div className={styles["chat-message-actions"]}>
                         <div
@@ -1073,6 +1636,8 @@ export function Chat() {
           showPromptModal={() => setShowPromptModal(true)}
           scrollToBottom={scrollToBottom}
           hitBottom={hitBottom}
+          uploading={uploading}
+          setUploading={setUploading}
           showPromptHints={() => {
             // Click again to close
             if (promptHints.length > 0) {
@@ -1084,12 +1649,75 @@ export function Chat() {
             setUserInput("/");
             onSearch("");
           }}
+          plugins={
+            session.mask?.modelConfig?.contentType !== "Image"
+              ? pluignModels
+              : []
+          }
+          contentType={session.mask?.modelConfig?.contentType}
+          SetOpenInternet={SetOpenInternet}
+          imageSelected={(img: any) => {
+            addBaseImage(img);
+          }}
         />
+        {useImages.length > 0 && (
+          <div className={styles["chat-select-images"]}>
+            {useImages.map((img: any, i) => (
+              <img
+                src={img.url}
+                key={i}
+                onClick={() => {
+                  const newImages = useImages.filter((_, ii) => ii != i);
+                  setUseImages(newImages);
+                  if (newImages.length === 0) {
+                    setMjImageMode("");
+                  }
+                }}
+                title={img.filename}
+                alt={img.filename}
+              />
+            ))}
+            <div style={{ fontSize: "12px", marginBottom: "5px" }}>
+              {[
+                { name: Locale.Midjourney.ModeImagineUseImg, value: "IMAGINE" },
+                { name: Locale.Midjourney.ModeBlend, value: "BLEND" },
+                { name: Locale.Midjourney.ModeDescribe, value: "DESCRIBE" },
+              ].map((item, i) => (
+                <label key={i}>
+                  <input
+                    type="radio"
+                    name="mj-img-mode"
+                    checked={mjImageMode == item.value}
+                    value={item.value}
+                    onChange={(e) => {
+                      setMjImageMode(e.target.value);
+                    }}
+                  />
+                  <span>{item.name}</span>
+                </label>
+              ))}
+            </div>
+            <div style={{ fontSize: "12px" }}>
+              <small>{Locale.Midjourney.HasImgTip}</small>
+            </div>
+          </div>
+        )}
         <div className={styles["chat-input-panel-inner"]}>
           <textarea
             ref={inputRef}
             className={styles["chat-input"]}
-            placeholder={Locale.Chat.Input(submitKey)}
+            placeholder={
+              useImages.length > 0 &&
+              ["BLEND", "DESCRIBE"].includes(mjImageMode)
+                ? Locale.Midjourney.InputDisabled
+                : Locale.Chat.Input(
+                    submitKey,
+                    session.mask?.modelConfig?.contentType === "Image"
+                      ? Locale.Chat.Draw
+                      : Locale.Chat.Send,
+                    session.mask?.modelConfig?.contentType !== "Image",
+                  )
+            }
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}
@@ -1100,10 +1728,18 @@ export function Chat() {
             style={{
               fontSize: config.fontSize,
             }}
+            disabled={
+              useImages.length > 0 &&
+              ["BLEND", "DESCRIBE"].includes(mjImageMode)
+            }
           />
           <IconButton
             icon={<SendWhiteIcon />}
-            text={Locale.Chat.Send}
+            text={
+              session.mask?.modelConfig?.contentType === "Image"
+                ? Locale.Chat.Draw
+                : Locale.Chat.Send
+            }
             className={styles["chat-input-send"]}
             type="primary"
             onClick={() => doSubmit(userInput)}

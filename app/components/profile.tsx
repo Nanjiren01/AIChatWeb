@@ -55,9 +55,9 @@ export function Profile() {
   const { fetchProfile } = profileStore;
   useEffect(() => {
     setLoading(true);
-    fetchProfile(authStore.token)
+    fetchProfile(authStore.token, authStore)
       .then((res) => {
-        if (!res.data || !res.data.id) {
+        if (!res?.data || !res?.data?.id) {
           authStore.logout();
           navigate(Path.Login);
         }
@@ -65,7 +65,7 @@ export function Profile() {
       .finally(() => {
         setLoading(false);
       });
-  }, [fetchProfile, authStore, navigate]);
+  }, [fetchProfile, navigate]);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -90,7 +90,7 @@ export function Profile() {
 
   function getPrefix(balance: Balance) {
     return balance.calcType == "Total"
-      ? "剩余"
+      ? "总额"
       : balance.calcType == "Daily"
       ? Locale.Profile.BalanceItem.CalcTypes.Daily
       : balance.calcType == "Hourly"
@@ -148,6 +148,14 @@ export function Profile() {
             <span>{authStore.username}</span>
           </ListItem>
 
+          {authStore.phone ? (
+            <ListItem title={Locale.Profile.Phone}>
+              <span>{authStore.phone}</span>
+            </ListItem>
+          ) : (
+            <></>
+          )}
+
           {registerType == REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE ? (
             <ListItem title={Locale.Profile.Email}>
               <span>{authStore.email}</span>
@@ -158,15 +166,34 @@ export function Profile() {
         </List>
 
         <List>
+          {profileStore.invitorId ? (
+            <ListItem title={Locale.Profile.Invitor.Title}>
+              <span>#{profileStore.invitorId}</span>
+            </ListItem>
+          ) : (
+            <></>
+          )}
           <ListItem title={Locale.Profile.InviteCode.Title}>
             {authStore.inviteCode ? (
               <>
                 <span>
-                  <span>{authStore.inviteCode}</span>
                   <span
                     className={styles["copy-action"]}
                     onClick={() => {
                       copyToClipboard(authStore.inviteCode);
+                    }}
+                  >
+                    {authStore.inviteCode}
+                  </span>
+                  <span
+                    className={styles["copy-action"]}
+                    onClick={() => {
+                      copyToClipboard(
+                        location.origin +
+                          Path.Register +
+                          "?code=" +
+                          authStore.inviteCode,
+                      );
                     }}
                   >
                     {Locale.Profile.Actions.Copy}
@@ -183,6 +210,13 @@ export function Profile() {
                 }}
               />
             )}
+          </ListItem>
+          <ListItem>
+            <IconButton
+              type="second"
+              text="邀请记录"
+              onClick={() => navigate(Path.Invitation)}
+            />
           </ListItem>
         </List>
 
@@ -297,6 +331,16 @@ export function Profile() {
           ) : (
             <></>
           )}
+
+          <ListItem>
+            <IconButton
+              text={Locale.Profile.Actions.Redeem}
+              type="second"
+              onClick={() => {
+                navigate(Path.RedeemCode);
+              }}
+            />
+          </ListItem>
         </List>
 
         <List>

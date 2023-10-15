@@ -3,14 +3,15 @@ version: '3'
 services:
 
   admin:
-    image: nanjiren01/aichat-admin:latest
+    image: harbor.nanjiren.online:8099/aichat/aichat-admin:latest
     container_name: aichat-admin
     restart: always
     depends_on:
       - db
       - redis
+      - util
     environment:
-      DB_URL: jdbc:mysql://aichat-db:3306/aichat?useSSL=false&serverTimezone=UTC%2B8
+      DB_URL: jdbc:mysql://aichat-db:3306/aichat?useSSL=false
       DB_USERNAME: root
       DB_PASSWORD: 123456
       REDIS_HOST: aichat-redis
@@ -26,11 +27,20 @@ services:
       MAIL_PORT: 25
       MAIL_USERNAME: your-email-username
       MAIL_PASSWORD: your-email-password
+      TZ: Asia/Shanghai
+      LICENSE_SUBJECT: qq@qq.com
+      LICENSE_SK: your-sk-please-get-from-http://console.nanjiren.online
+      UTIL_ENDPOINT: http://aichat-util:7788
+      STORE_TYPE:
+      OSS_ENDPOINT:
+      OSS_BUCKET_NAME:
+      OSS_ACCESS_KEY_ID:
+      OSS_ACCESS_KEY_SECRET:
     ports:
       - "8082:8080"
 
   web:
-    image: nanjiren01/aichat-web:latest
+    image: nanjiren01/aichat-web:pro-latest
     container_name: aichat-web
     restart: always
     depends_on:
@@ -39,15 +49,18 @@ services:
       - "80:3000"
     environment:
       BASE_URL: http://aichat-admin:8080
+      TZ: Asia/Shanghai
 
   console:
-    image: nanjiren01/aichat-console:latest
+    image: nanjiren01/aichat-console:pro-latest
     container_name: aichat-console
     restart: always
     depends_on:
       - admin
     ports:
       - "8080:80"
+    environment:
+      TZ: Asia/Shanghai
 
   db:
     image: nanjiren01/aichat-db:latest
@@ -56,8 +69,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       TZ: Asia/Shanghai
-    ports:
-      - "3310:3306"
+    # ports:
+    #   - "3310:3306"
     volumes:
       - ./mysql_data:/var/lib/mysql
 
@@ -67,3 +80,14 @@ services:
     restart: always
   #    ports:
   #      - "6380:6379"
+
+  util:
+    image: harbor.nanjiren.online:8099/aichat/aichat-util:latest
+    container_name: aichat-util
+    restart: always
+    network_mode: host
+    environment:
+      PORT: 7788
+      TZ: Asia/Shanghai
+#    ports:
+#      - "7788:7788"

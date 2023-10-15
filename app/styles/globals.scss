@@ -90,6 +90,12 @@
     @include dark;
   }
 }
+
+.separator-page {
+  --sidebar-width: 0;
+  --window-content-width: calc(100% - var(--sidebar-width));
+}
+
 html {
   height: var(--full-height);
 
@@ -100,6 +106,13 @@ html {
 body {
   background-color: var(--gray);
   color: var(--black);
+  margin: 0;
+  padding: 0;
+  height: var(--full-height);
+  position: relative;
+}
+
+.body {
   margin: 0;
   padding: 0;
   height: var(--full-height);

@@ -20,7 +20,7 @@ import {
   useProfileStore,
 } from "../store";
 
-import { copyToClipboard } from "../utils";
+import { copyToClipboard, isMobile } from "../utils";
 
 import Locale from "../locales";
 import { Path } from "../constant";
@@ -30,6 +30,7 @@ import { showToast, Popover } from "./ui-lib";
 // import { Avatar, AvatarPicker } from "./emoji";
 import { Package } from "./pricing";
 import { useRouter } from "next/navigation";
+import { isInWechat } from "../utils/wechat";
 
 interface OrderLog {
   time: Date;
@@ -68,6 +69,7 @@ interface Order {
   payTime?: Date;
   payUrl: string;
   payChannel?: string;
+  payAgent: string;
   orderPackages: OrderPackage[];
 }
 interface OrderListResponse {
@@ -106,6 +108,9 @@ export function Order() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const inWechat = isInWechat();
+  const inMobile = isMobile();
+
   function handleClickPay(order: Order) {
     console.log("handleClickPay", order);
     if (order.state !== 5) {
@@ -115,7 +120,23 @@ export function Order() {
     if (order.payChannel === "xunhu") {
       router.push(order.payUrl);
     } else {
-      navigate(Path.Pay + "?uuid=" + order.uuid);
+      if (order.payAgent === "wechat") {
+        if (inWechat) {
+          router.push(order.payUrl);
+        } else {
+          showToast("请在微信中打开并继续支付！");
+        }
+      } else if (order.payAgent === "mobile") {
+        if (!inWechat && inMobile) {
+          router.push(order.payUrl);
+        } else if (inWechat) {
+          showToast("请在微信外部浏览器中打开并继续支付!");
+        } else {
+          showToast("请在手机浏览器中打开并继续支付！");
+        }
+      } else {
+        navigate(Path.Pay + "?uuid=" + order.uuid); // pc
+      }
     }
     // window.open(order.payUrl);
   }
@@ -181,17 +202,17 @@ export function Order() {
       (pkg.chatCount
         ? `<li>${prefix} <span style="font-size: 18px;">${
             pkg.chatCount === -1 ? "无限" : pkg.chatCount
-          }</span> 次基础聊天（GPT3.5）</li>`
+          }</span> 基础聊天积分</li>`
         : "") +
       (pkg.advancedChatCount
         ? `<li>${prefix} <span style="font-size: 18px;">${
             pkg.advancedChatCount === -1 ? "无限" : pkg.advancedChatCount
-          }</span> 次高级聊天（GPT4）</li>`
+          }</span> 高级聊天积分</li>`
         : "") +
       (pkg.drawCount
         ? `<li>${prefix} <span style="font-size: 18px;">${
             pkg.drawCount === -1 ? "无限" : pkg.drawCount
-          }</span> 次AI绘画</li>`
+          }</span> 绘画积分</li>`
         : "") +
       `<li>有效期： <span style="font-size: 18px;">${pkg.days}</span> 天</li>` +
       `</ul>`
@@ -436,6 +457,18 @@ export function Order() {
               }}
             />
           </ListItem>
+
+          <ListItem>
+            <IconButton
+              text={Locale.PricingPage.Actions.RedeemCode}
+              block={true}
+              type="second"
+              onClick={() => {
+                navigate(Path.RedeemCode);
+              }}
+            />
+          </ListItem>
+
           <ListItem>
             <IconButton
               text={Locale.OrderPage.Actions.Profile}

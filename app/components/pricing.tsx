@@ -21,6 +21,8 @@ import { ErrorBoundary } from "./error";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "./ui-lib";
 import { useRouter } from "next/navigation";
+import { isInWechat } from "../utils/wechat";
+import { isMobile } from "../utils";
 
 export interface Package {
   id: number;
@@ -42,6 +44,45 @@ interface PackageResponse {
   code: number;
   message?: string;
   data: Package[];
+}
+
+export function GoToPayModel(props: {
+  title: string;
+  wechatCodeUrl: string;
+  onClose: () => void;
+}) {
+  return (
+    <div className="modal-mask">
+      <Modal title={props.title} onClose={() => props.onClose()} actions={[]}>
+        <div>
+          <div style={{ textAlign: "center" }}>
+            订单已创建，请点击以下按钮前往付款（微信支付）
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <a
+              href="javascript:void(0)"
+              style={{
+                background: "#00C250",
+                fontSize: "12px",
+                color: "#FFFFFF",
+                lineHeight: "32px",
+                fontWeight: 500,
+                display: "inline-block",
+                borderRadius: "4px",
+                width: "160px",
+                marginTop: "20px",
+                textDecoration: "none",
+              }}
+              target="_blank"
+              onClick={() => window.open(props.wechatCodeUrl, "_blank")}
+            >
+              点此付款
+            </a>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
 }
 
 export function Pricing() {
@@ -101,19 +142,19 @@ export function Pricing() {
                 (pkg.chatCount
                   ? `<li>${prefix} <span style="font-size: 18px;">${
                       pkg.chatCount === -1 ? "无限" : pkg.chatCount
-                    }</span> 次基础聊天（GPT3.5）</li>`
+                    }</span> 基础聊天积分</li>`
                   : "") +
                 (pkg.advancedChatCount
                   ? `<li>${prefix} <span style="font-size: 18px;">${
                       pkg.advancedChatCount === -1
                         ? "无限"
                         : pkg.advancedChatCount
-                    }</span> 次高级聊天（GPT4）</li>`
+                    }</span> 高级聊天积分</li>`
                   : "") +
                 (pkg.drawCount
                   ? `<li>${prefix} <span style="font-size: 18px;">${
                       pkg.drawCount === -1 ? "无限" : pkg.drawCount
-                    }</span> 次AI绘画</li>`
+                    }</span> 绘画积分</li>`
                   : "") +
                 `<li>有效期： <span style="font-size: 18px;">${pkg.days}</span> 天</li>` +
                 `</ul>`;
@@ -127,9 +168,13 @@ export function Pricing() {
       });
   }, [authStore.token]);
 
+  const [goToPayModelShow, setGoToPayModelShow] = useState(false);
+  const [wechatCodeUrl, setWechatCodeUrl] = useState("");
   function handleClickBuy(pkg: Package) {
     console.log("buy pkg", pkg);
     setLoading(true);
+    const inWechat = isInWechat();
+    const inMobile = isMobile();
     const url = "/order";
     const BASE_URL = process.env.BASE_URL;
     const mode = process.env.BUILD_MODE;
@@ -144,6 +189,8 @@ export function Pricing() {
       body: JSON.stringify({
         packageUuid: pkg.uuid,
         count: 1,
+        inWechat,
+        inMobile,
       }),
     })
       .then((res) => res.json())
@@ -167,7 +214,20 @@ export function Pricing() {
           if (order.payChannel === "xunhu") {
             router.push(order.payUrl);
           } else {
-            navigate(Path.Pay + "?uuid=" + order.uuid);
+            // lantu
+            if (inWechat || inMobile) {
+              if (inWechat) {
+                // showToast('window.open navigate to ' + order.payUrl)
+                // window.open(order.payUrl, "_blank")
+                // setGoToPayModelShow(true);
+                // setWechatCodeUrl(order.payUrl)
+                router.push(order.payUrl);
+              } else {
+                router.push(order.payUrl);
+              }
+            } else {
+              navigate(Path.Pay + "?uuid=" + order.uuid);
+            }
           }
           //
         } else {
@@ -280,8 +340,26 @@ export function Pricing() {
               }}
             />
           </ListItem>
+          <ListItem>
+            <IconButton
+              text={Locale.PricingPage.Actions.RedeemCode}
+              block={true}
+              type="second"
+              onClick={() => {
+                navigate(Path.RedeemCode);
+              }}
+            />
+          </ListItem>
         </List>
       </div>
+
+      {goToPayModelShow && (
+        <GoToPayModel
+          title={"前往支付"}
+          wechatCodeUrl={wechatCodeUrl}
+          onClose={() => setGoToPayModelShow(false)}
+        />
+      )}
     </ErrorBoundary>
   );
 }

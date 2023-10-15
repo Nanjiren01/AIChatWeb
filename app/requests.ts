@@ -114,6 +114,7 @@ export async function requestRegister(
   captchaId: string,
   captchaInput: string,
   email: string,
+  phone: string,
   code: string,
   inviteCode: string,
   options?: {
@@ -130,6 +131,7 @@ export async function requestRegister(
       captchaId,
       captcha: captchaInput,
       email,
+      phone,
       code,
       inviteCode,
     },
@@ -154,16 +156,34 @@ export async function requestSendEmailCode(
     options,
   );
 }
-
-export function requestWechatLogin(
-  code: string,
-  state: string,
+export async function requestSendPhoneCode(
+  phone: string,
+  resetPassword: boolean,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
 ): Promise<RegisterResult> {
   return request(
-    `/wechat/loginCallback?code=${code}&state=${state}`,
+    "/sendRegisterPhoneCode",
+    "POST",
+    {
+      phone,
+      type: resetPassword ? "resetPassword" : "register",
+    },
+    options,
+  );
+}
+
+export function requestWechatLogin(
+  code: string,
+  state: string,
+  appType: string,
+  options?: {
+    onError: (error: Error, statusCode?: number) => void;
+  },
+): Promise<RegisterResult> {
+  return request(
+    `/wechat/loginCallback?code=${code}&state=${state}&appType=${appType}`,
     "GET",
     null,
     options,

@@ -684,7 +684,7 @@ export function Settings() {
             title={Locale.Settings.Version.Title}
             subTitle={Locale.Settings.Version.SubTitle}
           >
-            <span>v0.5</span>
+            <span>v0.9.5</span>
           </ListItem>
         </List>
 

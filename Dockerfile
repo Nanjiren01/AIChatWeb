@@ -1,68 +1,39 @@
 
-# docker build -t nanjiren01/aichat-web:0.1 .
-# docker push nanjiren01/aichat-web:0.1
-# docker tag nanjiren01/aichat-web:0.1 nanjiren01/aichat-web:latest
-# docker push nanjiren01/aichat-web:latest
-
-# docker build -t nanjiren01/aichat-web:0.2 .
-# docker push nanjiren01/aichat-web:0.2
-# docker tag nanjiren01/aichat-web:0.2 nanjiren01/aichat-web:latest
-# docker push nanjiren01/aichat-web:latest
-
-# docker build -t nanjiren01/aichat-web:0.2.1 .
-# docker push nanjiren01/aichat-web:0.2.1
-# docker tag nanjiren01/aichat-web:0.2.1 nanjiren01/aichat-web:latest
-# docker push nanjiren01/aichat-web:latest
-
-# docker build -t nanjiren01/aichat-web:0.2.2 .
-# docker push nanjiren01/aichat-web:0.2.2
-# docker tag nanjiren01/aichat-web:0.2.2 nanjiren01/aichat-web:latest
-# docker push nanjiren01/aichat-web:latest
-
-# docker build -t nanjiren01/aichat-web:0.2.3 .
-# docker push nanjiren01/aichat-web:0.2.3
-# docker tag nanjiren01/aichat-web:0.2.3 nanjiren01/aichat-web:latest
-# docker push nanjiren01/aichat-web:latest
-
-# docker build -t harbor.nanjiren.online:8099/aichat/aichat-web:0.3 .
-# docker push harbor.nanjiren.online:8099/aichat/aichat-web:0.3
-# docker tag harbor.nanjiren.online:8099/aichat/aichat-web:0.3 harbor.nanjiren.online:8099/aichat/aichat-web:latest
-# docker push harbor.nanjiren.online:8099/aichat/aichat-web:latest
-
-# docker build -t harbor.nanjiren.online:8099/aichat/aichat-web:0.3.1 .
-# docker push harbor.nanjiren.online:8099/aichat/aichat-web:0.3.1
-# docker tag harbor.nanjiren.online:8099/aichat/aichat-web:0.3.1 harbor.nanjiren.online:8099/aichat/aichat-web:latest
-# docker push harbor.nanjiren.online:8099/aichat/aichat-web:latest
-
-# docker build -t harbor.nanjiren.online:8099/aichat/aichat-web:0.3.2 .
-# docker push harbor.nanjiren.online:8099/aichat/aichat-web:0.3.2
-# docker tag harbor.nanjiren.online:8099/aichat/aichat-web:0.3.2 harbor.nanjiren.online:8099/aichat/aichat-web:latest
-# docker push harbor.nanjiren.online:8099/aichat/aichat-web:latest
-
-# docker build -t nanjiren01/aichat-web:0.4 .
-# docker push nanjiren01/aichat-web:0.4
-# docker tag nanjiren01/aichat-web:0.4 nanjiren01/aichat-web:latest
-# docker push nanjiren01/aichat-web:latest
 
 
-# docker build -t harbor.nanjiren.online:8099/aichat/aichat-web:0.5 .
-# docker push harbor.nanjiren.online:8099/aichat/aichat-web:0.5
-# docker tag harbor.nanjiren.online:8099/aichat/aichat-web:0.5 harbor.nanjiren.online:8099/aichat/aichat-web:latest
-# docker push harbor.nanjiren.online:8099/aichat/aichat-web:latest
+# docker build -t nanjiren01/aichat-web:0.9.5 ../AIChatWeb
+# docker push nanjiren01/aichat-web:0.9.5
+# docker tag nanjiren01/aichat-web:0.9.5 nanjiren01/aichat-web:pro-latest
+# docker push nanjiren01/aichat-web:pro-latest
 
-# 需要先在本地执行yarn install && yarn build
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json yarn.lock ./
+
+RUN yarn install
+
+COPY . .
+
+RUN chmod +x /app/node_modules/.bin/next
+RUN chmod +x /app/node_modules/.bin/cross-env
+
+RUN yarn build
+
+# 构建最终容器
 FROM node:18-alpine
 
 WORKDIR /app
 
-COPY ./public ./public
-COPY ./node_modules ./node_modules
-COPY ./.next/standalone ./
-COPY ./.next/static ./.next/static
-COPY ./.next/server ./.next/server
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next/server ./.next/server
 
 ENV BASE_URL=http://aichat-admin:8080
 
 EXPOSE 3000
 
-CMD node /app/server.js;
+CMD node /app/server.js

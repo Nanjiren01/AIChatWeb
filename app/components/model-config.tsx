@@ -12,24 +12,31 @@ export function ModelConfigList(props: {
   modelConfig: ModelConfig;
   updateConfig: (updater: (config: ModelConfig) => void) => void;
 }) {
-  const { availableModelNames } = useWebsiteConfigStore();
+  const { availableModels } = useWebsiteConfigStore();
   return (
     <>
       <ListItem title={Locale.Settings.Model}>
         <Select
-          value={props.modelConfig.model}
+          value={
+            props.modelConfig.model + "\u0000" + props.modelConfig.contentType
+          }
           onChange={(e) => {
-            props.updateConfig(
-              (config) =>
-                (config.model = ModalConfigValidator.model(
-                  e.currentTarget.value,
-                )),
-            );
+            props.updateConfig((config) => {
+              const nameAndType = e.currentTarget.value.split("\u0000");
+              config.model = ModalConfigValidator.model(nameAndType[0]);
+              config.contentType = ModalConfigValidator.modelContentType(
+                nameAndType[1],
+              );
+            });
           }}
         >
-          {availableModelNames.map((v) => (
-            <option value={v} key={v}>
-              {v}
+          {availableModels.map((v) => (
+            <option
+              value={v.name + "\u0000" + v.contentType}
+              key={v.name + "\u0000" + v.contentType}
+            >
+              {v.name}
+              {v.contentType == "Image" ? "(绘画)" : ""}
             </option>
           ))}
         </Select>
