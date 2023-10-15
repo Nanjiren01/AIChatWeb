@@ -347,7 +347,8 @@ export class ChatGPTApi implements LLMApi {
       try {
         let res = null;
         const reqFn = (path: string, method: string, body?: any) => {
-          return fetch("/api/" + path, {
+          const url = this.path(path);
+          return fetch(url, {
             method: method,
             headers: getHeaders(),
             body: JSON.stringify({
@@ -509,7 +510,8 @@ export class ChatGPTApi implements LLMApi {
       return;
     }
 
-    const statusRes = await fetch(`/api/draw/info?uuid=${taskId}`, {
+    const url = this.path(`draw/info?uuid=${taskId}`);
+    const statusRes = await fetch(url, {
       method: "GET",
       headers: getHeaders(),
     });
