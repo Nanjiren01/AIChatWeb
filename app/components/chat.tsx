@@ -531,7 +531,9 @@ export function ChatActions(props: {
       props.imageSelected({
         filename,
         uuid: fileEntity.uuid,
-        url: fileEntity.url,
+        url: fileEntity.url.startsWith("/")
+          ? "/api" + fileEntity.url
+          : fileEntity.url,
         entity: fileEntity,
       });
     });
