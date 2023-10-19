@@ -1555,9 +1555,9 @@ export function Chat() {
                       )}
                     {!isUser &&
                       message.attr?.status !== "SUCCESS" &&
-                      message.attr.taskId &&
-                      !ChatFetchTaskPool.get(message.attr.taskId) &&
-                      message.attr.submitTime &&
+                      message.attr?.taskId &&
+                      !ChatFetchTaskPool.get(message.attr?.taskId) &&
+                      message.attr?.submitTime &&
                       getSecondsDiff(
                         fromYYYYMMDD_HHMMSS(message.attr.submitTime),
                         now,
