@@ -5,7 +5,7 @@
   
 <h1 align="center">AIChat Web</h1>
 
-<div align="center">更新时间：2023-10-07</div>
+<div align="center">更新时间：2023-10-23</div>
 
 **简体中文** | [English](#english)
 
@@ -113,6 +113,7 @@
 | API KEY余额自动查询            |   ✔已完成(v0.4)   |
 | 忘记密码                           |   ✔已完成(v0.4)       |
 | 第三方API状态余额查询                                      |   ✔已完成(v0.6) |
+| 支持国产AI平台（文心一言、通义千问）            |    ✔已完成(v0.8)       |
 | AI绘图功能（Upscale，Variation，ZoomOut）            |    ✔已完成(v0.8)       |
 
 ## 专业版功能
@@ -120,6 +121,7 @@
 | 功能                                                         | 进度     |
 | ------------------------------------------------------------ | -------- |
 | 社区版的全功能 | ✔        |
+| 自定义Logo和网站标题                    | ✔已完成(v0.3)  |
 | 仪表盘                                | ✔已完成(v0.3)  |
 | 对接支付系统            | ✔已接入虎皮椒、蓝兔(v0.3)，其他进行中   |
 | 邮件模板                                | ✔已完成(v0.5)  |
@@ -132,12 +134,15 @@
 | 独立注册登录界面                                | ✔已完成(v0.7)  |
 | key余额协议配置                                | ✔已完成(v0.7)  |
 | 更多UI自定义                                | ✔已完成(v0.7)  |
+| 手机号注册及登录                                | ✔已完成(v0.9)  |
 | 高级绘图功能（Pan，Square，Vary）                                | ✔已完成(v0.9)  |
+| 高级绘图功能（垫图、混图、识图）                                | ✔已完成(v0.9)  |
 | 额度积分制                                | ✔已完成(v0.9)  |
 | 模型倍率                                | ✔已完成(v0.9)  |
 | 全局JS配置项                                | ✔已完成(v0.9)  |
 | 邀请记录                                | ✔已完成(v0.9)  |
 | 注册审核机制                                | ✔已完成(v0.9)  |
+| 对接Azure OpenAI          | 进行中（v0.9.6）   |
 | 消息同步          | 进行中   |
 | 对接发卡平台          | 进行中   |
 | 多模型支持                         | 长期进行 |
@@ -243,7 +248,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 ## AI好望角
 
 加入 **AI好望角-AIChat用户专属社区** 福利：
-- 免费获取AIChat pro版
+- 免费获取AICha版
 - 有可能获得免费定制服务
 - 优秀案例展示（需达到标准）
 - 高级教程（包括HTTPS搭建、域名注册、服务器购买、高级套餐页制作）
@@ -255,7 +260,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 > AI好望角为本项目自建平台，目前仍在筹建中，只能以赞赏形式加入（不支持退款），赞赏后可立即进入AIChat专业版内测群获取专业版专属信息。
 > 新平台筹建完毕后，会将知识星球中的内容迁移至新平台，新用户无需进入星球。
 
-当前加入AI好望角价格仅为**￥288**，随着功能的不断完善，价格逐步提升
+当前加入AI好望角价格仅为**￥358**，随着功能的不断完善，价格逐步提升
 
 <img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI好望角"/>
 
@@ -274,7 +279,7 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 用户：1100+
 
 ### AI佩奇
-网址：[https://candy666.top/](https://candy666.top/)
+网址：[https://new.aigc369.com/](https://new.aigc369.com/)
 用户：~1000
 
 ### AI小老鼠
@@ -524,7 +529,7 @@ Join the **AI Cape of Good Hope - AIChat User Exclusive Community** and enjoy th
 > AI Cape of Good Hope is a self-built platform for this project, which is currently under construction. Joining is only possible through appreciation (no refunds are supported). After showing your appreciation, you can immediately join the AIChat Pro beta group and gain access to exclusive information for the professional version.
 > Once the new platform is ready, the content from the Knowledge Planet will be migrated to the new platform, and new users will not need to join the Planet.
 
-The current price to join AI Cape of Good Hope is only **￥288**. As the functionality continues to improve, the price will gradually increase.
+The current price to join AI Cape of Good Hope is only **￥358**. As the functionality continues to improve, the price will gradually increase.
 
 <img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI Cape of Good Hope"/>
 
@@ -543,7 +548,7 @@ Website: [https://chat.wzunjh.top/](https://chat.wzunjh.top/)
 Users: 1100+
 
 ### AI Peppa
-Website: [https://candy666.top/](https://candy666.top/)
+Website: [https://new.aigc369.com/](https://new.aigc369.com/)
 Users: ~1000
 
 ### AI Little Mouse
