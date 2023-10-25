@@ -12,7 +12,7 @@ import {
   DEFAULT_SYSTEM_TEMPLATE,
   StoreKey,
 } from "../constant";
-import { api, RequestMessage } from "../client/api";
+import { api, ChatSubmitResult, RequestMessage } from "../client/api";
 import { ChatControllerPool } from "../client/controller";
 import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
@@ -103,10 +103,17 @@ interface ChatStore {
   onUserInput: (
     content: string,
     plugins: PluginActionModel[],
+    imageMode: string,
+    baseImages: any[],
     websiteConfigStore: WebsiteConfigStore,
     authStore: AuthStore,
     navigateToLogin: () => void,
-  ) => Promise<void>;
+  ) => Promise<ChatSubmitResult | void>;
+  getDrawTaskProgress: (
+    message: ChatMessage,
+    websiteConfigStore: WebsiteConfigStore,
+    authStore: AuthStore,
+  ) => Promise<boolean | void>;
   summarizeSession: () => void;
   updateStat: (message: ChatMessage) => void;
   updateCurrentSession: (updater: (session: ChatSession) => void) => void;
@@ -298,6 +305,8 @@ export const useChatStore = create<ChatStore>()(
       async onUserInput(
         content,
         plugins,
+        imageMode,
+        baseImages,
         websiteConfigStore,
         authStore,
         navigateToLogin,
@@ -307,13 +316,28 @@ export const useChatStore = create<ChatStore>()(
         const sensitiveWordsTip = websiteConfigStore.sensitiveWordsTip;
         const balanceNotEnough = websiteConfigStore.balanceNotEnough;
 
-        const userContent = fillTemplateWith(content, modelConfig);
-        console.log("[User Input] after template: ", userContent);
+        let userContent: string;
+        if (imageMode && (baseImages?.length ?? 0) > 0) {
+          if (imageMode === "IMAGINE") {
+            userContent = content;
+          } else {
+            // DESCRIBE || BLEND
+            userContent = `${imageMode}`;
+            baseImages.forEach((img: any, index: number) => {
+              userContent += `::[${index + 1}]${img.filename}`;
+            });
+          }
+        } else {
+          userContent = fillTemplateWith(content, modelConfig);
+          console.log("[User Input] after template: ", userContent);
+        }
 
         const userMessage: ChatMessage = createMessage({
           role: "user",
           content: userContent,
         });
+        userMessage.attr.imageMode = imageMode;
+        userMessage.attr.baseImages = baseImages;
 
         const botMessage: ChatMessage = createMessage({
           role: "assistant",
@@ -321,6 +345,7 @@ export const useChatStore = create<ChatStore>()(
           id: userMessage.id! + 1,
           model: modelConfig.model,
         });
+        botMessage.attr.contentType = session.mask?.modelConfig?.contentType;
 
         // get recent messages
         const recentMessages = get().getMessagesWithMemory(websiteConfigStore);
@@ -332,7 +357,7 @@ export const useChatStore = create<ChatStore>()(
         get().updateCurrentSession((session) => {
           const savedUserMessage = {
             ...userMessage,
-            content,
+            content: userContent,
           };
           session.messages = session.messages.concat([
             savedUserMessage,
@@ -341,12 +366,15 @@ export const useChatStore = create<ChatStore>()(
         });
 
         // make request
-        api.llm.chat({
+        return api.llm.chat({
           messages: sendMessages,
+          userMessage: userMessage,
           botMessage: botMessage,
-          content,
+          content: userContent,
           config: { ...modelConfig, stream: true },
           plugins: plugins,
+          imageMode,
+          baseImages,
           onUpdate(message) {
             botMessage.streaming = true;
             if (message) {
@@ -430,6 +458,72 @@ export const useChatStore = create<ChatStore>()(
             );
           },
         });
+      },
+
+      async getDrawTaskProgress(
+        message: ChatMessage,
+        websiteConfigStore: WebsiteConfigStore,
+        authStore: AuthStore,
+      ) {
+        const botMessage = message;
+        const sensitiveWordsTip = websiteConfigStore.sensitiveWordsTip;
+        const balanceNotEnough = websiteConfigStore.balanceNotEnough;
+        return api.llm.fetchDrawStatus(
+          (message) => {
+            botMessage.streaming = true;
+            if (message) {
+              botMessage.content = message;
+            }
+            get().updateCurrentSession((session) => {
+              session.messages = session.messages.concat();
+            });
+          },
+          (message) => {
+            botMessage.streaming = false;
+            //let logout = false;
+            if (message) {
+              try {
+                let jsonContent = JSON.parse(message);
+                if (jsonContent && jsonContent.code === 10302) {
+                  // 敏感词判断
+                  message = sensitiveWordsTip
+                    ? sensitiveWordsTip.replace(
+                        "${question}",
+                        jsonContent.message,
+                      )
+                    : Locale.Chat.SensitiveWordsTip(jsonContent.message);
+                } else if (jsonContent && jsonContent.code === 10401) {
+                  message = balanceNotEnough
+                    ? balanceNotEnough
+                    : Locale.Chat.BalanceNotEnough;
+                } else if (
+                  jsonContent &&
+                  (jsonContent.code === 10001 || jsonContent.code === 10002)
+                ) {
+                  //logout = true;
+                  authStore.removeToken();
+                  message = Locale.Error.Unauthorized;
+                } else if (jsonContent?.code === 10301) {
+                  message = Locale.Chat.TooFrequently;
+                } else {
+                  message = prettyObject(jsonContent);
+                }
+              } catch (e) {
+                // ignore
+              }
+              botMessage.content = message;
+              get().onNewMessage(botMessage);
+            }
+            // ChatControllerPool.remove(
+            //   sessionIndex,
+            //   botMessage.id ?? messageIndex,
+            // );
+            // if (logout) {
+            //   navigateToLogin();
+            // }
+          },
+          botMessage,
+        );
       },
 
       getMemoryPrompt() {
@@ -578,6 +672,8 @@ export const useChatStore = create<ChatStore>()(
             botMessage: topicMessages[topicMessages.length - 1],
             content,
             plugins: [],
+            imageMode: "",
+            baseImages: [],
             config: {
               model: "gpt-3.5-turbo",
             },
@@ -635,6 +731,8 @@ export const useChatStore = create<ChatStore>()(
             botMessage: toBeSummarizedMsgs[toBeSummarizedMsgs.length - 1],
             content,
             plugins: [],
+            imageMode: "",
+            baseImages: [],
             config: { ...modelConfig, stream: true },
             onUpdate(message) {
               session.memoryPrompt = message;

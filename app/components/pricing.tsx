@@ -156,7 +156,9 @@ export function Pricing() {
                       pkg.drawCount === -1 ? "无限" : pkg.drawCount
                     }</span> 绘画积分</li>`
                   : "") +
-                `<li>有效期： <span style="font-size: 18px;">${pkg.days}</span> 天</li>` +
+                `<li>有效期： <span style="font-size: 18px;">${
+                  pkg.days == "-1" ? "无限" : pkg.days
+                }</span> 天</li>` +
                 `</ul>`;
             }
             return pkg;
@@ -172,13 +174,17 @@ export function Pricing() {
   const [wechatCodeUrl, setWechatCodeUrl] = useState("");
   function handleClickBuy(pkg: Package) {
     console.log("buy pkg", pkg);
-    setLoading(true);
     const inWechat = isInWechat();
     const inMobile = isMobile();
     const url = "/order";
     const BASE_URL = process.env.BASE_URL;
     const mode = process.env.BUILD_MODE;
     let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    if (mode === "export") {
+      showToast("App内暂时不支持购买，请前往网页端操作");
+      return;
+    }
+    setLoading(true);
     fetch(requestUrl, {
       method: "post",
       headers: {

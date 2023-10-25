@@ -164,7 +164,9 @@ export function RedeemCode() {
             pkg.drawCount === -1 ? "无限" : pkg.drawCount
           }</span> 绘画积分</li>`
         : "") +
-      `<li>有效期： <span style="font-size: 18px;">${pkg.days}</span> 天</li>` +
+      `<li>有效期： <span style="font-size: 18px;">${
+        pkg.days == "-1" ? "无限" : pkg.days
+      }</span> 天</li>` +
       `</ul>`
     );
   }

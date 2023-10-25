@@ -43,6 +43,7 @@ import PanLeftIcon from "../icons/pan-left.svg";
 import PanRightIcon from "../icons/pan-right.svg";
 import PanUpIcon from "../icons/pan-up.svg";
 import PanDownIcon from "../icons/pan-down.svg";
+import UploadIcon from "../icons/upload.svg";
 
 import {
   ChatMessage,
@@ -66,6 +67,8 @@ import {
   selectOrCopy,
   autoGrowTextArea,
   useMobileScreen,
+  getSecondsDiff,
+  fromYYYYMMDD_HHMMSS,
 } from "../utils";
 
 import dynamic from "next/dynamic";
@@ -92,6 +95,8 @@ import { useWebsiteConfigStore } from "../store";
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
 });
+
+//const ChatFetchTaskPool: Record<string, any> = {};
 
 export function SessionConfigModel(props: { onClose: () => void }) {
   const chatStore = useChatStore();
@@ -439,13 +444,18 @@ export function ChatActions(props: {
   showPromptModal: () => void;
   scrollToBottom: () => void;
   showPromptHints: () => void;
+  imageSelected: (img: any) => void;
   hitBottom: boolean;
   plugins: PluginActionModel[];
+  contentType: string;
+  uploading: boolean;
+  setUploading: React.Dispatch<React.SetStateAction<boolean>>;
   SetOpenInternet: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
   const chatStore = useChatStore();
+  const authStore = useAuthStore();
   const { availableModels } = useWebsiteConfigStore();
 
   // switch themes
@@ -479,6 +489,56 @@ export function ChatActions(props: {
       session.mask.syncGlobalConfig = false;
     });
   }
+
+  function selectImage() {
+    document.getElementById("chat-image-file-select-upload")?.click();
+  }
+
+  const uploadFile = (file: any) => {
+    props.setUploading(true);
+    const url = "/file/put";
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    const formData = new FormData();
+    formData.append("usage", "chat");
+    formData.append("file", file);
+    return fetch(requestUrl, {
+      method: "post",
+      headers: {
+        // 'Content-Type': 'multipart/form-data',
+        Authorization: "Bearer " + authStore.token,
+      },
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.code === 413) {
+          showToast(res.cnMessage || res.message, undefined, 5000);
+        }
+        return res;
+      })
+      .finally(() => {
+        console.log("finally");
+        props.setUploading(false);
+      });
+  };
+  const onImageSelected = (e: any) => {
+    const file = e.target.files[0];
+    uploadFile(file).then((res) => {
+      const filename = file.name;
+      const fileEntity = res.data;
+      props.imageSelected({
+        filename,
+        uuid: fileEntity.uuid,
+        url: fileEntity.url.startsWith("/")
+          ? "/api" + fileEntity.url
+          : fileEntity.url,
+        entity: fileEntity,
+      });
+    });
+    e.target.value = null;
+  };
 
   return (
     <div className={styles["chat-input-actions"]}>
@@ -561,6 +621,22 @@ export function ChatActions(props: {
         icon={<RobotIcon />}
       />
 
+      {props.contentType === "Image" && (
+        <div
+          className={`${styles["chat-input-action"]} clickable`}
+          onClick={selectImage}
+        >
+          <input
+            type="file"
+            accept=".png,.jpg,.webp,.jpeg"
+            id="chat-image-file-select-upload"
+            style={{ display: "none" }}
+            onChange={onImageSelected}
+          />
+          <UploadIcon />
+        </div>
+      )}
+
       <>
         {props.plugins.map((model) => {
           return (
@@ -598,6 +674,8 @@ export function Chat() {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState("");
+  const [useImages, setUseImages] = useState<any[]>([]);
+  const [mjImageMode, setMjImageMode] = useState<string>(""); // 垫图IMAGINE，混图BLEND，识图DESCRIBE
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
@@ -613,6 +691,8 @@ export function Chat() {
     const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 10;
     setHitBottom(isTouchBottom);
   };
+
+  const [uploading, setUploading] = useState(false);
 
   // prompt hints
   const promptStore = usePromptStore();
@@ -691,22 +771,86 @@ export function Chat() {
     setPluginModels(models);
   }, [plugins]);
 
+  const [ChatFetchTaskPool, setChatFetchTaskPool] = useState(
+    new Map<string, NodeJS.Timeout | null>(),
+  );
+
+  const refreshDrawStatus = (botMessage: ChatMessage) => {
+    if (ChatFetchTaskPool.get(botMessage.attr.taskId)) {
+      return;
+    }
+    ChatFetchTaskPool.set(
+      botMessage.attr.taskId,
+      setTimeout(async () => {
+        const fetch = await chatStore.getDrawTaskProgress(
+          botMessage,
+          websiteConfigStore,
+          authStore,
+        );
+        ChatFetchTaskPool.set(botMessage.attr.taskId, null);
+        if (fetch) {
+          refreshDrawStatus(botMessage);
+        }
+      }, 3000),
+    );
+    setChatFetchTaskPool(ChatFetchTaskPool);
+  };
+
   const doSubmit = (userInput: string) => {
-    if (userInput.trim() === "") return;
+    if (useImages.length > 0) {
+      if (mjImageMode === "IMAGINE") {
+        if (!userInput) {
+          showToast(Locale.Midjourney.NeedInputUseImgPrompt);
+          return;
+        }
+        if (useImages.length > 1) {
+          showToast(Locale.Midjourney.ImagineMaxImg(1));
+          return;
+        }
+      } else if (mjImageMode === "BLEND") {
+        if (useImages.length < 2 || useImages.length > 5) {
+          showToast(Locale.Midjourney.BlendMinImg(2, 5));
+          return;
+        }
+      } else if (mjImageMode === "DESCRIBE") {
+        if (useImages.length > 1) {
+          showToast(Locale.Midjourney.DescribeMaxImg(1));
+          return;
+        }
+      }
+      // setUserInput(userInput = (mjImageMode + "::" + userInput));
+    } else {
+      if (userInput.trim() === "") return;
+    }
     const matchCommand = chatCommands.match(userInput);
     if (matchCommand.matched) {
       setUserInput("");
       setPromptHints([]);
+      setUseImages([]);
+      setMjImageMode("");
       matchCommand.invoke();
       return;
     }
     setIsLoading(true);
     chatStore
-      .onUserInput(userInput, pluignModels, websiteConfigStore, authStore, () =>
-        navigate(Path.Login),
+      .onUserInput(
+        userInput,
+        pluignModels,
+        mjImageMode,
+        useImages,
+        websiteConfigStore,
+        authStore,
+        () => navigate(Path.Login),
       )
-      .then(() => setIsLoading(false));
+      .then((result) => {
+        setIsLoading(false);
+        if (result && result.fetch) {
+          refreshDrawStatus(result.botMessage);
+        }
+      });
     localStorage.setItem(LAST_INPUT_KEY, userInput);
+    setUseImages([]);
+    setMjImageMode("");
     setUserInput("");
     setPromptHints([]);
     if (!isMobileScreen) inputRef.current?.focus();
@@ -730,6 +874,17 @@ export function Chat() {
     }, 30);
   };
 
+  const addBaseImage = (img: any) => {
+    if (useImages.length >= 5) {
+      showToast(Locale.Midjourney.SelectImgMax(5));
+      return;
+    }
+    setUseImages([...useImages, img]);
+    if (!mjImageMode) {
+      setMjImageMode("IMAGINE");
+    }
+  };
+
   // stop response
   const onUserStop = (messageId: number) => {
     ChatControllerPool.stop(sessionIndex, messageId);
@@ -745,7 +900,7 @@ export function Chat() {
             m.streaming = false;
           }
 
-          if (m.content.length === 0) {
+          if (m.content.length === 0 && m.role !== "user") {
             m.isError = true;
             m.content = prettyObject({
               error: true,
@@ -826,12 +981,20 @@ export function Chat() {
     const userIndex = findLastUserIndex(botMessageId);
     if (userIndex === null) return;
 
+    const message = session.messages[userIndex];
+
     setIsLoading(true);
-    const content = session.messages[userIndex].content;
+    const content = message.content;
     deleteMessage(userIndex);
     chatStore
-      .onUserInput(content, pluignModels, websiteConfigStore, authStore, () =>
-        navigate(Path.Login),
+      .onUserInput(
+        content,
+        pluignModels,
+        message.attr?.imageMode ?? "",
+        message.attr?.baseImages || [],
+        websiteConfigStore,
+        authStore,
+        () => navigate(Path.Login),
       )
       .then(() => setIsLoading(false));
     inputRef.current?.focus();
@@ -854,6 +1017,8 @@ export function Chat() {
       },
     });
   };
+
+  const now = new Date();
 
   const context: RenderMessage[] = session.mask.hideContext
     ? []
@@ -880,10 +1045,15 @@ export function Chat() {
       : -1;
 
   // preview messages
+  const lastMessageIsDraw =
+    session.messages.length > 0 &&
+    session.messages[session.messages.length - 1].role === "assistant" &&
+    session.messages[session.messages.length - 1].attr &&
+    session.messages[session.messages.length - 1].attr.contentType === "Image";
   const messages = context
     .concat(session.messages as RenderMessage[])
     .concat(
-      isLoading
+      isLoading && !lastMessageIsDraw
         ? [
             {
               ...createMessage({
@@ -934,7 +1104,7 @@ export function Chat() {
   // const toggleDropdown = () => {
   //   // setIsDropdownOpen(!isDropdownOpen);
   // };
-  
+
   const handleOutsideClick = (event: any) => {
     console.log("event", event.target, dropdownRef.current);
     setIsDropdownOpen(!isDropdownOpen);
@@ -959,7 +1129,7 @@ export function Chat() {
     } else {
       document.removeEventListener("click", handleOutsideClick);
     }
-  
+
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
@@ -1108,6 +1278,11 @@ export function Chat() {
         />
       </div>
 
+      {uploading && (
+        <div className={styles.mask}>
+          <div>{Locale.Midjourney.Uploading}</div>
+        </div>
+      )}
       <div
         className={styles["chat-body"]}
         ref={scrollRef}
@@ -1170,25 +1345,51 @@ export function Chat() {
                     </div>
                   )}
                   <div className={styles["chat-message-item"]}>
-                    <Markdown
-                      content={message.content}
-                      loading={
-                        (message.preview || message.content.length === 0) &&
-                        !isUser
-                      }
-                      onContextMenu={(e) => onRightClick(e, message)}
-                      onDoubleClickCapture={() => {
-                        if (!isMobileScreen) return;
-                        setUserInput(message.content);
-                      }}
-                      fontSize={fontSize}
-                      parentRef={scrollRef}
-                      defaultShow={i >= messages.length - 10}
-                    />
+                    {(!isUser || message.content.length > 0) && (
+                      <Markdown
+                        content={message.content}
+                        loading={
+                          (message.preview || message.content.length === 0) &&
+                          !isUser
+                        }
+                        onContextMenu={(e) => onRightClick(e, message)}
+                        onDoubleClickCapture={() => {
+                          if (!isMobileScreen) return;
+                          setUserInput(message.content);
+                        }}
+                        fontSize={fontSize}
+                        parentRef={scrollRef}
+                        defaultShow={i >= messages.length - 10}
+                      />
+                    )}
+                    {isUser && message.attr?.imageMode && (
+                      <div>
+                        <div
+                          className={styles["chat-select-images"]}
+                          style={{ marginTop: "10px" }}
+                        >
+                          {message.attr.baseImages.map(
+                            (img: any, index: number) => (
+                              <img
+                                src={img.url}
+                                key={index}
+                                title={img.filename}
+                                alt={img.filename}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => {
+                                  addBaseImage(img);
+                                }}
+                              />
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    )}
                     {!isUser &&
                       [
                         "VARIATION",
                         "IMAGINE",
+                        "BLEND",
                         "ZOOMOUT",
                         "PAN",
                         "SQUARE",
@@ -1352,6 +1553,25 @@ export function Chat() {
                           </div>
                         </div>
                       )}
+                    {!isUser &&
+                      message.attr?.status !== "SUCCESS" &&
+                      message.attr?.taskId &&
+                      !ChatFetchTaskPool.get(message.attr?.taskId) &&
+                      message.attr?.submitTime &&
+                      getSecondsDiff(
+                        fromYYYYMMDD_HHMMSS(message.attr.submitTime),
+                        now,
+                      ) && (
+                        <div>
+                          <button
+                            onClick={() => refreshDrawStatus(message)}
+                            className={`${styles["chat-message-mj-action-btn"]} clickable`}
+                            style={{ width: "150px" }}
+                          >
+                            {Locale.Midjourney.Refresh}
+                          </button>
+                        </div>
+                      )}
                     {showActions && (
                       <div className={styles["chat-message-actions"]}>
                         <div
@@ -1418,6 +1638,8 @@ export function Chat() {
           showPromptModal={() => setShowPromptModal(true)}
           scrollToBottom={scrollToBottom}
           hitBottom={hitBottom}
+          uploading={uploading}
+          setUploading={setUploading}
           showPromptHints={() => {
             // Click again to close
             if (promptHints.length > 0) {
@@ -1434,19 +1656,70 @@ export function Chat() {
               ? pluignModels
               : []
           }
+          contentType={session.mask?.modelConfig?.contentType}
           SetOpenInternet={SetOpenInternet}
+          imageSelected={(img: any) => {
+            addBaseImage(img);
+          }}
         />
+        {useImages.length > 0 && (
+          <div className={styles["chat-select-images"]}>
+            {useImages.map((img: any, i) => (
+              <img
+                src={img.url}
+                key={i}
+                onClick={() => {
+                  const newImages = useImages.filter((_, ii) => ii != i);
+                  setUseImages(newImages);
+                  if (newImages.length === 0) {
+                    setMjImageMode("");
+                  }
+                }}
+                title={img.filename}
+                alt={img.filename}
+              />
+            ))}
+            <div style={{ fontSize: "12px", marginBottom: "5px" }}>
+              {[
+                { name: Locale.Midjourney.ModeImagineUseImg, value: "IMAGINE" },
+                { name: Locale.Midjourney.ModeBlend, value: "BLEND" },
+                { name: Locale.Midjourney.ModeDescribe, value: "DESCRIBE" },
+              ].map((item, i) => (
+                <label key={i}>
+                  <input
+                    type="radio"
+                    name="mj-img-mode"
+                    checked={mjImageMode == item.value}
+                    value={item.value}
+                    onChange={(e) => {
+                      setMjImageMode(e.target.value);
+                    }}
+                  />
+                  <span>{item.name}</span>
+                </label>
+              ))}
+            </div>
+            <div style={{ fontSize: "12px" }}>
+              <small>{Locale.Midjourney.HasImgTip}</small>
+            </div>
+          </div>
+        )}
         <div className={styles["chat-input-panel-inner"]}>
           <textarea
             ref={inputRef}
             className={styles["chat-input"]}
-            placeholder={Locale.Chat.Input(
-              submitKey,
-              session.mask?.modelConfig?.contentType === "Image"
-                ? Locale.Chat.Draw
-                : Locale.Chat.Send,
-              session.mask?.modelConfig?.contentType !== "Image",
-            )}
+            placeholder={
+              useImages.length > 0 &&
+              ["BLEND", "DESCRIBE"].includes(mjImageMode)
+                ? Locale.Midjourney.InputDisabled
+                : Locale.Chat.Input(
+                    submitKey,
+                    session.mask?.modelConfig?.contentType === "Image"
+                      ? Locale.Chat.Draw
+                      : Locale.Chat.Send,
+                    session.mask?.modelConfig?.contentType !== "Image",
+                  )
+            }
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}
@@ -1457,6 +1730,10 @@ export function Chat() {
             style={{
               fontSize: config.fontSize,
             }}
+            disabled={
+              useImages.length > 0 &&
+              ["BLEND", "DESCRIBE"].includes(mjImageMode)
+            }
           />
           <IconButton
             icon={<SendWhiteIcon />}

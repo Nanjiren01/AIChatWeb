@@ -82,17 +82,23 @@ const en: LocaleType = {
     },
   },
   Midjourney: {
+    Uploading: "Uploading",
     SelectImgMax: (max: number) => `Select up to ${max} images`,
     InputDisabled: "Input is disabled in this mode",
+    NotSupports: "not supports",
     HasImgTip:
       "Tip: In the mask mode, only the first image will be used. In the blend mode, the five selected images will be used in order (click the image to remove it)",
     ModeImagineUseImg: "Mask Mode",
     ModeBlend: "Blend Mode",
     ModeDescribe: "Describe Mode",
     NeedInputUseImgPrompt:
-      'You need to enter content to use the image in the mask mode, please enter the content starting with "/mj"',
+      "You need to enter content to use the image in the mask mode, please input the content",
+    ImagineMaxImg: (max: number) =>
+      `up to ${max} iamges are required in the Mask mode`,
     BlendMinImg: (min: number, max: number) =>
       `At least ${min} images are required in the mixed image mode, and up to ${max} images are required`,
+    DescribeMaxImg: (max: number) =>
+      `up to ${max} iamges are required in the describe mode`,
     TaskErrUnknownType: "Task submission failed: unknown task type",
     TaskErrNotSupportType: (type: string) =>
       `Task submission failed: unsupported task type -> ${type}`,
@@ -110,8 +116,9 @@ const en: LocaleType = {
     TaskStatus: "Task status",
     TaskRemoteSubmit: "Task has been submitted to Midjourney server",
     TaskProgressTip: (progress: number | undefined) =>
-      `Task is running${progress ? `, current progress: ${progress}%` : ""}`,
+      `Drawing${progress ? `, current progress: ${progress}%` : ""}`,
     TaskNotStart: "Task has not started",
+    Refresh: "Refresh",
     Url: "URL",
     SettingProxyCoverTip:
       "The MidjourneyProxy address defined here will override the MIDJOURNEY_PROXY_URL in the environment variables",

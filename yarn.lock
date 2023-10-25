@@ -1126,6 +1126,11 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
+"@misskey-dev/browser-image-resizer@^2.2.1-misskey.10":
+  version "2.2.1-misskey.10"
+  resolved "https://registry.npmmirror.com/@misskey-dev/browser-image-resizer/-/browser-image-resizer-2.2.1-misskey.10.tgz#c0c4fd0ebd426bdf9c0a7d245e68b1b523bffd1a"
+  integrity sha512-Spjiwa8brffhz4FiYrZ8VoPRyPPRzcdaIzLVb8oMnD9YGU3uzcX/CcZ08okFhrUR/N6IlQM86r5dNH/yY5Uyjg==
+
 "@next/env@13.4.6":
   version "13.4.6"
   resolved "https://registry.npmjs.org/@next/env/-/env-13.4.6.tgz"
