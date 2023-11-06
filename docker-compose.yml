@@ -13,7 +13,7 @@ services:
     environment:
       DB_URL: jdbc:mysql://aichat-db:3306/aichat?useSSL=false
       DB_USERNAME: root
-      DB_PASSWORD: 123456
+      DB_PASSWORD: n0Ght7cDun4AItGaichat
       REDIS_HOST: aichat-redis
       REDIS_PORT: 6379
       SUPERADMIN_USERNAME: aichat
@@ -67,7 +67,7 @@ services:
     container_name: aichat-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_ROOT_PASSWORD: n0Ght7cDun4AItGaichat
       TZ: Asia/Shanghai
     # ports:
     #   - "3310:3306"
