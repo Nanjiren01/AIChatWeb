@@ -16,7 +16,7 @@ import dynamic from "next/dynamic";
 import { Path, SlotID } from "../constant";
 import { ErrorBoundary } from "./error";
 
-import { getLang } from "../locales";
+import { getISOLang, getLang } from "../locales";
 
 import {
   HashRouter as Router,
@@ -28,7 +28,8 @@ import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
 import { AuthPage } from "./auth";
 import { getClientConfig } from "../config/client";
-import { useWebsiteConfigStore, BOT_HELLO } from "../store";
+import { api } from "../client/api";
+import { useWebsiteConfigStore, useAccessStore, BOT_HELLO } from "../store";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -138,6 +139,17 @@ export function useSwitchTheme() {
   }, [useWebsiteConfig.title]);
 }
 
+function useHtmlLang() {
+  useEffect(() => {
+    const lang = getISOLang();
+    const htmlLang = document.documentElement.lang;
+
+    if (lang !== htmlLang) {
+      document.documentElement.lang = lang;
+    }
+  }, []);
+}
+
 const useHasHydrated = () => {
   const [hasHydrated, setHasHydrated] = useState<boolean>(false);
 
@@ -157,7 +169,9 @@ const loadAsyncGoogleFont = () => {
   linkEl.rel = "stylesheet";
   linkEl.href =
     googleFontUrl +
-    "/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap";
+    "/css2?family=" +
+    encodeURIComponent("Noto Sans:wght@300;400;700;900") +
+    "&display=swap";
   document.head.appendChild(linkEl);
 };
 
@@ -167,6 +181,8 @@ function Screen() {
   const isHome = location.pathname === Path.Home;
   const isAuth = location.pathname === Path.Auth;
   const isMobileScreen = useMobileScreen();
+  const shouldTightBorder =
+    config.tightBorder && !isMobileScreen && getClientConfig()?.isApp;
 
   useEffect(() => {
     loadAsyncGoogleFont();
@@ -222,11 +238,9 @@ function Screen() {
     <div
       className={
         styles.container +
-        ` ${
-          config.tightBorder && !isMobileScreen
-            ? styles["tight-container"]
-            : styles.container
-        } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
+        ` ${shouldTightBorder ? styles["tight-container"] : styles.container} ${
+          getLang() === "ar" ? styles["rtl-screen"] : ""
+        }`
       }
     >
       {isAuth ? (
@@ -264,8 +278,22 @@ function Screen() {
   );
 }
 
+export function useLoadData() {
+  const config = useAppConfig();
+
+  useEffect(() => {
+    (async () => {
+      const models = await api.llm.models();
+      config.mergeModels(models);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+}
+
 export function Home() {
   useSwitchTheme();
+  useLoadData();
+  useHtmlLang();
 
   const { fetchWebsiteConfig, availableModels } = useWebsiteConfigStore();
   useEffect(() => {
@@ -274,6 +302,7 @@ export function Home() {
 
   useEffect(() => {
     console.log("[Config] got config from build time", getClientConfig());
+    useAccessStore.getState().fetch();
   }, []);
   useEffect(() => {
     console.log("set default model", availableModels[0]);

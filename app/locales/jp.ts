@@ -23,7 +23,12 @@ const jp: PartialLocaleType = {
       Copy: "コピー",
       Stop: "停止",
       Retry: "リトライ",
+      Pin: "ピン",
+      PinToastContent:
+        "コンテキストプロンプトに1つのメッセージをピン留めしました",
+      PinToastAction: "表示",
       Delete: "削除",
+      Edit: "編集",
     },
     Rename: "チャットの名前を変更",
     Typing: "入力中…",
@@ -40,7 +45,7 @@ const jp: PartialLocaleType = {
     Send: "送信",
     Config: {
       Reset: "リセット",
-      SaveAs: "另存为面具",
+      SaveAs: "保存",
     },
   },
   Export: {
@@ -207,7 +212,20 @@ const jp: PartialLocaleType = {
   Settings: {
     Title: "設定",
     SubTitle: "設定オプション",
-
+    Danger: {
+      Reset: {
+        Title: "設定をリセット",
+        SubTitle: "すべての設定項目をデフォルトにリセットします",
+        Action: "今すぐリセットする",
+        Confirm: "すべての設定項目をリセットしてもよろしいですか？",
+      },
+      Clear: {
+        Title: "データを消去",
+        SubTitle: "すべてのチャット履歴と設定を消去します",
+        Action: "今すぐ消去する",
+        Confirm: "すべてのチャット履歴と設定を消去しますか？",
+      },
+    },
     Lang: {
       Name: "Language", // ATTENTION: if you wanna add a new translation, please do not translate this value, leave it as `Language`
       All: "全ての言語",
@@ -217,7 +235,15 @@ const jp: PartialLocaleType = {
       Title: "フォントサイズ",
       SubTitle: "チャット内容のフォントサイズ",
     },
-
+    InjectSystemPrompts: {
+      Title: "システムプロンプトの挿入",
+      SubTitle:
+        "各リクエストのメッセージリストの先頭に、ChatGPTのシステムプロンプトを強制的に追加します",
+    },
+    InputTemplate: {
+      Title: "入力の前処理",
+      SubTitle: "新規入力がこのテンプレートに埋め込まれます",
+    },
     Update: {
       Version: (x: string) => `現在のバージョン：${x}`,
       IsLatest: "最新バージョンです",
@@ -234,8 +260,10 @@ const jp: PartialLocaleType = {
       SubTitle: "プレビューバブルでマークダウンコンテンツをプレビュー",
     },
     Mask: {
-      Title: "キャラクターページ",
-      SubTitle: "新規チャット作成時にキャラクターページを表示する",
+      Splash: {
+        Title: "キャラクターページ",
+        SubTitle: "新規チャット作成時にキャラクターページを表示する",
+      },
     },
     Prompt: {
       Disable: {
@@ -327,6 +355,7 @@ const jp: PartialLocaleType = {
     Add: "追加",
   },
   Plugin: { Name: "プラグイン" },
+  FineTuned: { Sysmessage: "あなたはアシスタントです" },
   Mask: {
     Name: "キャラクタープリセット",
     Page: {
