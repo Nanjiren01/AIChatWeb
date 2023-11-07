@@ -5,7 +5,8 @@
   
 <h1 align="center">AIChat Web</h1>
 
-<div align="center">更新时间：2023-10-23</div>
+<div align="center">更新时间：2023-11-07</div>
+<div>本项目全面支持OpenAI 2023年11月6日放开的模型（gpt-3.5-turbo-1106、gpt-4-1106-preview、gpt-4-vision-preview）</div>
 
 **简体中文** | [English](#english)
 
