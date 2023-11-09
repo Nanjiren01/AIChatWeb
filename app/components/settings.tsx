@@ -797,7 +797,7 @@ export function Settings() {
           </ListItem> */}
         </List>
 
-        <SyncItems />
+        {/* <SyncItems /> */}
 
         {/* <List>
           <ListItem
