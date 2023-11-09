@@ -493,10 +493,7 @@ export function ChatActions(props: {
   const currentContentType =
     chatStore.currentSession().mask.modelConfig.contentType;
   const models = useMemo(
-    () =>
-      availableModels
-        .filter((m) => m.contentType === currentContentType)
-        .map((m) => m.name),
+    () => availableModels.map((m) => m.name),
     [availableModels],
   );
   const [showModelSelector, setShowModelSelector] = useState(false);
