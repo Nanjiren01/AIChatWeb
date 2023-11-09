@@ -345,9 +345,7 @@ function ChatAction(props: {
   });
 
   function updateWidth() {
-    console.log("updateWidth", iconRef, textRef);
     if (!iconRef.current || !textRef.current) return;
-    console.log("1");
     const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
     const textWidth = getWidth(textRef.current);
     const iconWidth = getWidth(iconRef.current);
@@ -1314,17 +1312,18 @@ function _Chat() {
                         </>
                       )}
                     </div>
-                    {showTyping && (
-                      <div className={styles["chat-message-status"]}>
-                        {Locale.Chat.Typing}
-                      </div>
-                    )}
                   </div>
+                  {showTyping && (
+                    <div className={styles["chat-message-status"]}>
+                      {Locale.Chat.Typing}
+                    </div>
+                  )}
                   <div className={styles["chat-message-item"]}>
                     <Markdown
                       content={message.content}
                       loading={
-                        (message.preview || message.content.length === 0) &&
+                        (message.preview || message.streaming) &&
+                        message.content.length === 0 &&
                         !isUser
                       }
                       onContextMenu={(e) => onRightClick(e, message)}
@@ -1334,7 +1333,7 @@ function _Chat() {
                       }}
                       fontSize={fontSize}
                       parentRef={scrollRef}
-                      defaultShow={i >= messages.length - 10}
+                      defaultShow={i >= messages.length - 6}
                     />
                     {!isUser &&
                       ["VARIATION", "IMAGINE", "ZOOMOUT"].includes(
