@@ -10,8 +10,13 @@ import EyeIcon from "../icons/eye.svg";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { Mask, useMaskStore } from "../store/mask";
-import Locale from "../locales";
-import { useAppConfig, useChatStore } from "../store";
+import Locale, { Lang } from "../locales";
+import {
+  ModelConfig,
+  useAppConfig,
+  useChatStore,
+  useWebsiteConfigStore,
+} from "../store";
 import { MaskAvatar } from "./mask";
 import { useCommand } from "../command";
 import { showConfirm } from "./ui-lib";
@@ -88,6 +93,7 @@ export function NewChat() {
 
   const navigate = useNavigate();
   const config = useAppConfig();
+  const assistants = useWebsiteConfigStore().assistants;
 
   const maskRef = useRef<HTMLDivElement>(null);
 
@@ -96,6 +102,18 @@ export function NewChat() {
   const startChat = (mask?: Mask) => {
     setTimeout(() => {
       chatStore.newSession(mask);
+      navigate(Path.Chat);
+    }, 10);
+  };
+
+  const startChatWithAssistant = (uuid: string) => {
+    const assistant = assistants.find((a) => a.uuid === uuid);
+    console.log("assistant", assistant);
+    if (!assistant) {
+      return;
+    }
+    setTimeout(() => {
+      chatStore.newSessionWithAssistant(assistant);
       navigate(Path.Chat);
     }, 10);
   };
@@ -172,6 +190,33 @@ export function NewChat() {
           shadow
           className={styles["skip"]}
         />
+      </div>
+
+      <div className={styles["assistant-container"]} ref={maskRef}>
+        <div className={styles["assistant-row"]}>
+          <div className={styles["assistant-tip"]}>体验全新智能助手 →</div>
+          {assistants
+            .map((assistant) => {
+              return {
+                id: assistant.uuid,
+                createdAt: 0,
+                avatar: "1f430",
+                name: assistant.name,
+                hideContext: true,
+                context: [],
+                modelConfig: {} as ModelConfig,
+                lang: "cn" as Lang,
+                builtin: true,
+              } as Mask;
+            })
+            .map((mask) => (
+              <MaskItem
+                key={mask.id}
+                mask={mask}
+                onClick={() => startChatWithAssistant(mask.id)}
+              />
+            ))}
+        </div>
       </div>
 
       <div className={styles["masks"]} ref={maskRef}>

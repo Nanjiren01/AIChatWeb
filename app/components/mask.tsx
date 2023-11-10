@@ -111,6 +111,7 @@ export function MaskConfig(props: {
             content={
               <AvatarPicker
                 onEmojiClick={(emoji) => {
+                  console.log("emoji", emoji);
                   props.updateMask((mask) => (mask.avatar = emoji));
                   setShowPicker(false);
                 }}

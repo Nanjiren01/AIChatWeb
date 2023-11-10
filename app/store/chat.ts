@@ -16,7 +16,7 @@ import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
-import { AiPlugin, WebsiteConfigStore } from "./website";
+import { AiAssistant, AiPlugin, WebsiteConfigStore } from "./website";
 import { AuthStore } from "./auth";
 
 export type ChatMessage = RequestMessage & {
@@ -57,6 +57,7 @@ export interface ChatSession {
   clearContextIndex?: number;
 
   mask: Mask;
+  assistant?: AiAssistant;
 }
 
 export const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
@@ -232,6 +233,16 @@ export const useChatStore = createPersistStore(
         }));
       },
 
+      newSessionWithAssistant(assistant: AiAssistant) {
+        const session = createEmptySession();
+
+        session.assistant = assistant;
+        set((state) => ({
+          currentSessionIndex: 0,
+          sessions: [session].concat(state.sessions),
+        }));
+      },
+
       nextSession(delta: number) {
         const n = get().sessions.length;
         const limit = (x: number) => (x + n) % n;
@@ -307,10 +318,10 @@ export const useChatStore = createPersistStore(
 
       async onUserInput(
         content: string,
-        plugins,
-        websiteConfigStore,
-        authStore,
-        navigateToLogin,
+        plugins: PluginActionModel[],
+        websiteConfigStore: WebsiteConfigStore,
+        authStore: AuthStore,
+        navigateToLogin: () => void,
       ) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
