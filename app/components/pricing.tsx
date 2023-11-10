@@ -148,6 +148,7 @@ export function Pricing() {
             <a
               href="javascript:void(0)"
               onClick={() => {
+                authStore.logout();
                 navigate(Path.Login);
               }}
             >

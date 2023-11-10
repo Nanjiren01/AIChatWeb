@@ -243,6 +243,7 @@ export function ForgetPassword() {
               text={Locale.RegisterPage.GoToLogin}
               type="second"
               onClick={() => {
+                authStore.logout();
                 navigate(Path.Login);
               }}
             />

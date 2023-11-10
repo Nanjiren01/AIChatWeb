@@ -787,8 +787,15 @@ function _Chat() {
     }
     setIsLoading(true);
     chatStore
-      .onUserInput(userInput, pluignModels, websiteConfigStore, authStore, () =>
-        navigate(Path.Login),
+      .onUserInput(
+        userInput,
+        pluignModels,
+        websiteConfigStore,
+        authStore,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
       )
       .then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
@@ -945,7 +952,10 @@ function _Chat() {
         pluignModels,
         websiteConfigStore,
         authStore,
-        () => navigate(Path.Login),
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
       )
       .then(() => setIsLoading(false));
     inputRef.current?.focus();
@@ -975,6 +985,7 @@ function _Chat() {
   ) {
     const copiedHello = Object.assign({}, BOT_HELLO);
     if (!authStore.token) {
+      authStore.logout();
       navigate(Path.Login);
       copiedHello.content = Locale.Error.Unauthorized;
     }
@@ -1140,6 +1151,7 @@ function _Chat() {
 
   useEffect(() => {
     if (!authStore.token) {
+      //authStore.logout();
       //navigate(Path.Login)
       return;
     }

@@ -59,6 +59,7 @@ export function Balance() {
   useEffect(() => {
     if (profileStore.id === 0) {
       console.log("profileStore.id", profileStore.id);
+      authStore.logout();
       navigate(Path.Login);
     }
   }, [profileStore, navigate]);
