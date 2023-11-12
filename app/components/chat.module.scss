@@ -554,6 +554,20 @@
   bottom: 32px;
 }
 
+.top-box {
+  position: absolute;
+  top: 76.5px;
+  left: calc(50% - 50px);
+  width: 100px;
+  border: rgba(0, 0, 0, 0.1) 1px solid;
+  border-top: none;
+  text-align: center;
+  cursor: pointer;
+  z-index: 1;
+  font-size: 12px;
+  line-height: 20px;
+}
+
 @media only screen and (max-width: 600px) {
   .chat-input {
     font-size: 16px;

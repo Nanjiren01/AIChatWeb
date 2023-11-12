@@ -1257,6 +1257,9 @@ function _Chat() {
           setShowModal={setShowPromptModal}
         />
       </div>
+      {session.assistant && (
+        <div className={styles["top-box"]}>{session.assistant?.name}</div>
+      )}
 
       <div
         className={styles["chat-body"]}
