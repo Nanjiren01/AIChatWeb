@@ -19,12 +19,18 @@ import { estimateTokenLength } from "../utils/token";
 import { AiPlugin, WebsiteConfigStore } from "./website";
 import { AuthStore } from "./auth";
 
+export interface ChatToolMessage {
+  toolName: string;
+  toolInput?: string;
+}
+
 export type ChatMessage = RequestMessage & {
   date: string;
   streaming?: boolean;
   isError?: boolean;
   id?: number;
   model?: ModelType;
+  toolMessages?: ChatToolMessage[];
   attr?: any;
 };
 
@@ -34,6 +40,7 @@ export function createMessage(override: Partial<ChatMessage>): ChatMessage {
     date: new Date().toLocaleString(),
     role: "user",
     content: "",
+    toolMessages: [] as ChatToolMessage[],
     attr: {},
     ...override,
   };
@@ -63,6 +70,7 @@ export const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
 export const BOT_HELLO: ChatMessage = createMessage({
   role: "assistant",
   content: Locale.Store.BotHello,
+  toolMessages: [] as ChatToolMessage[],
 });
 
 function createEmptySession(): ChatSession {
@@ -344,6 +352,7 @@ export const useChatStore = create<ChatStore>()(
           streaming: true,
           id: userMessage.id! + 1,
           model: modelConfig.model,
+          toolMessages: [] as ChatToolMessage[],
         });
         botMessage.attr.contentType = session.mask?.modelConfig?.contentType;
 
@@ -379,6 +388,18 @@ export const useChatStore = create<ChatStore>()(
             botMessage.streaming = true;
             if (message) {
               botMessage.content = message;
+            }
+            get().updateCurrentSession((session) => {
+              session.messages = session.messages.concat();
+            });
+          },
+          onToolUpdate(toolName, toolInput) {
+            botMessage.streaming = true;
+            if (toolName && toolInput) {
+              botMessage.toolMessages!.push({
+                toolName,
+                toolInput,
+              });
             }
             get().updateCurrentSession((session) => {
               session.messages = session.messages.concat();

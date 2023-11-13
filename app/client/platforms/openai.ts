@@ -87,6 +87,11 @@ export class ChatGPTApi implements LLMApi {
           value: p.value,
         };
       }),
+      // top_p: modelConfig.top_p,
+      // baseUrl: useAccessStore.getState().openaiUrl,
+      // maxIterations: options.agentConfig.maxIterations,
+      // returnIntermediateSteps: options.agentConfig.returnIntermediateSteps,
+      // useTools: options.agentConfig.useTools,
     };
 
     console.log("[Request] openai payload: ", requestPayload);
@@ -171,6 +176,7 @@ export class ChatGPTApi implements LLMApi {
             }
           },
           onmessage(msg) {
+            console.log("msg", msg);
             if (msg.data === "[DONE]" || finished) {
               return finish();
             }
@@ -180,10 +186,24 @@ export class ChatGPTApi implements LLMApi {
             }
             try {
               const json = JSON.parse(text);
-              const delta = json.choices?.at(0)?.delta.content;
-              if (delta) {
-                responseText += delta;
-                options.onUpdate?.(responseText, delta);
+              if (json && json.isToolMessage) {
+                if (!json.isSuccess) {
+                  console.error("[Request]", msg.data);
+                  responseText = msg.data;
+                  throw Error(json.message);
+                }
+                options.onToolUpdate?.(json.toolName!, json.message);
+                return;
+              }
+              if (json.choices) {
+                const delta = json.choices?.at(0)?.delta.content;
+                if (delta) {
+                  responseText += delta;
+                  options.onUpdate?.(responseText, delta);
+                }
+              } else {
+                responseText += json.message;
+                options.onUpdate?.(responseText, json.message);
               }
             } catch (e) {
               console.error("[Request] parse error", text, msg);

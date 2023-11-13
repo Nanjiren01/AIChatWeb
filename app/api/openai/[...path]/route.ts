@@ -6,6 +6,8 @@ import { requestOpenai } from "../../common";
 
 const ALLOWD_PATH = new Set(Object.values(OpenaiPath));
 
+import { handle as langchainHandle } from "./langchain";
+
 async function handle(
   req: NextRequest,
   { params }: { params: { path: string[] } },
@@ -39,7 +41,8 @@ async function handle(
   // }
 
   try {
-    return await requestOpenai(req);
+    return await langchainHandle(req);
+    // return await requestOpenai(req);
   } catch (e) {
     console.error("[OpenAI] ", e);
     return NextResponse.json(prettyObject(e));

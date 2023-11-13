@@ -44,6 +44,7 @@ import PanRightIcon from "../icons/pan-right.svg";
 import PanUpIcon from "../icons/pan-up.svg";
 import PanDownIcon from "../icons/pan-down.svg";
 import UploadIcon from "../icons/upload.svg";
+import CheckmarkIcon from "../icons/checkmark.svg";
 
 import {
   ChatMessage,
@@ -1339,6 +1340,27 @@ export function Chat() {
                       <MaskAvatar mask={session.mask} logoUrl={logoUrl} />
                     )}
                   </div>
+                  {!isUser &&
+                    message.toolMessages &&
+                    message.toolMessages.map((tool, index) => (
+                      <div
+                        className={styles["chat-message-tools-status"]}
+                        key={index}
+                      >
+                        <div className={styles["chat-message-tools-name"]}>
+                          <CheckmarkIcon
+                            className={styles["chat-message-checkmark"]}
+                          />
+                          {tool.toolName}:
+                          <code
+                            className={styles["chat-message-tools-details"]}
+                          >
+                            {tool.toolInput}
+                          </code>
+                        </div>
+                      </div>
+                    ))}
+
                   {showTyping && (
                     <div className={styles["chat-message-status"]}>
                       {Locale.Chat.Typing}
