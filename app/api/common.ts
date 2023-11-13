@@ -6,6 +6,22 @@ const PROTOCOL = process.env.PROTOCOL ?? DEFAULT_PROTOCOL;
 const BASE_URL = process.env.BASE_URL ?? OPENAI_URL;
 const DISABLE_GPT4 = !!process.env.DISABLE_GPT4;
 
+export function getBaseUrl(req: NextRequest) {
+  const openaiPath = `${req.nextUrl.pathname}${req.nextUrl.search}`.replaceAll(
+    "/api/",
+    "",
+  );
+  let baseUrl = BASE_URL;
+
+  if (!baseUrl.startsWith("http")) {
+    baseUrl = `${PROTOCOL}://${baseUrl}`;
+  }
+
+  console.log("[Proxy] ", openaiPath);
+  console.log("[Base Url]", baseUrl);
+  return baseUrl;
+}
+
 export async function requestOpenai(req: NextRequest) {
   const controller = new AbortController();
   const authValue = req.headers.get("Authorization") ?? "";

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSideConfig } from "@/app/config/server";
-import { auth } from "../../../auth";
+// import { getServerSideConfig } from "@/app/config/server";
+// import { auth } from "../../../auth";
 
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { BaseCallbackHandler } from "langchain/callbacks";
@@ -8,23 +8,24 @@ import { BaseCallbackHandler } from "langchain/callbacks";
 import { AIMessage, HumanMessage, SystemMessage } from "langchain/schema";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
-import { ACCESS_CODE_PREFIX } from "@/app/constant";
+// import { ACCESS_CODE_PREFIX } from "@/app/constant";
 import { OpenAI } from "langchain/llms/openai";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 
 import * as langchainTools from "langchain/tools";
-import { HttpGetTool } from "@/app/api/langchain-tools/http_get";
+// import { HttpGetTool } from "@/app/api/langchain-tools/http_get";
 import { DuckDuckGo } from "@/app/api/langchain-tools/duckduckgo_search";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import { Calculator } from "langchain/tools/calculator";
 import { DynamicTool, Tool } from "langchain/tools";
-import { DallEAPIWrapper } from "@/app/api/langchain-tools/dalle_image_generator";
+// import { DallEAPIWrapper } from "@/app/api/langchain-tools/dalle_image_generator";
 import { BaiduSearch } from "@/app/api/langchain-tools/baidu_search";
 import { GoogleSearch } from "@/app/api/langchain-tools/google_search";
 import { StableDiffusionWrapper } from "@/app/api/langchain-tools/stable_diffusion_image_generator";
 import { ArxivAPIWrapper } from "@/app/api/langchain-tools/arxiv";
+import { getBaseUrl } from "../../common";
 
-const serverConfig = getServerSideConfig();
+// const serverConfig = getServerSideConfig();
 
 interface RequestMessage {
   role: string;
@@ -57,46 +58,40 @@ interface ToolInput {
   input: string;
 }
 
-async function handle(req: NextRequest) {
-  if (req.method === "OPTIONS") {
-    return NextResponse.json({ body: "OK" }, { status: 200 });
-  }
+export async function handle(req: NextRequest) {
+  // if (req.method === "OPTIONS") {
+  //   return NextResponse.json({ body: "OK" }, { status: 200 });
+  // }
   try {
-    const authResult = auth(req);
-    if (authResult.error) {
-      return NextResponse.json(authResult, {
-        status: 401,
-      });
-    }
-
     const encoder = new TextEncoder();
     const transformStream = new TransformStream();
     const writer = transformStream.writable.getWriter();
     const reqBody: RequestBody = await req.json();
     const authToken = req.headers.get("Authorization") ?? "";
     const token = authToken.trim().replaceAll("Bearer ", "").trim();
-    const isOpenAiKey = !token.startsWith(ACCESS_CODE_PREFIX);
+    // const isOpenAiKey = !token.startsWith(ACCESS_CODE_PREFIX);
     let useTools = reqBody.useTools ?? [];
-    let apiKey = serverConfig.apiKey;
-    if (isOpenAiKey && token) {
-      apiKey = token;
-    }
+    let apiKey = token; // serverConfig.apiKey;
+    // if (isOpenAiKey && token) {
+    //   apiKey = token;
+    // }
 
     // support base url
-    let baseUrl = "https://api.openai.com/v1";
-    if (serverConfig.baseUrl) baseUrl = serverConfig.baseUrl;
-    if (
-      reqBody.baseUrl?.startsWith("http://") ||
-      reqBody.baseUrl?.startsWith("https://")
-    )
-      baseUrl = reqBody.baseUrl;
-    if (!baseUrl.endsWith("/v1"))
-      baseUrl = baseUrl.endsWith("/") ? `${baseUrl}v1` : `${baseUrl}/v1`;
+    let baseUrl = getBaseUrl(req); // "https://api.openai.com/v1";
+    // if (serverConfig.baseUrl) baseUrl = serverConfig.baseUrl;
+    // if (
+    //   reqBody.baseUrl?.startsWith("http://") ||
+    //   reqBody.baseUrl?.startsWith("https://")
+    // )
+    //   baseUrl = reqBody.baseUrl;
+    // if (!baseUrl.endsWith("/v1"))
+    //   baseUrl = baseUrl.endsWith("/") ? `${baseUrl}v1` : `${baseUrl}/v1`;
+    baseUrl += "/openai/v1";
     console.log("[baseUrl]", baseUrl);
 
     const handler = BaseCallbackHandler.fromMethods({
       async handleLLMNewToken(token: string) {
-        // console.log("[Token]", token);
+        console.log("[Token]", token);
         if (token) {
           var response = new ResponseBody();
           response.message = token;
@@ -106,8 +101,20 @@ async function handle(req: NextRequest) {
           );
         }
       },
-      async handleChainError(err, runId, parentRunId, tags) {
-        console.log("[handleChainError]", err, "writer error");
+      async handleChainError(
+        err: any,
+        runId: any,
+        parentRunId: any,
+        tags: any,
+      ) {
+        console.log(
+          "[handleChainError]",
+          err,
+          "writer error",
+          runId,
+          parentRunId,
+          tags,
+        );
         var response = new ResponseBody();
         response.isSuccess = false;
         response.message = err;
@@ -117,12 +124,18 @@ async function handle(req: NextRequest) {
         );
         await writer.close();
       },
-      async handleChainEnd(outputs, runId, parentRunId, tags) {
-        console.log("[handleChainEnd]");
+      async handleChainEnd(
+        outputs: any,
+        runId: any,
+        parentRunId: any,
+        tags: any,
+      ) {
+        console.log("[handleChainEnd]", outputs, runId, parentRunId, tags);
         await writer.ready;
         await writer.close();
       },
       async handleLLMEnd() {
+        console.log("[handleLLMEnd]");
         // await writer.ready;
         // await writer.close();
       },
@@ -137,16 +150,17 @@ async function handle(req: NextRequest) {
         );
         await writer.close();
       },
-      handleLLMStart(llm, _prompts: string[]) {
-        // console.log("handleLLMStart: I'm the second handler!!", { llm });
+      handleLLMStart(llm: any, _prompts: string[]) {
+        console.log("handleLLMStart: I'm the second handler!!", { llm });
       },
-      handleChainStart(chain) {
-        // console.log("handleChainStart: I'm the second handler!!", { chain });
+      handleChainStart(chain: any) {
+        console.log("handleChainStart: I'm the second handler!!", { chain });
       },
-      async handleAgentAction(action) {
+      async handleAgentAction(action: any) {
         try {
           console.log("[handleAgentAction]", action.tool);
           if (!reqBody.returnIntermediateSteps) return;
+          console.log("[handleAgentAction] input: ", action.toolInput);
           var response = new ResponseBody();
           response.isToolMessage = true;
           response.message = JSON.stringify(action.toolInput);
@@ -167,14 +181,19 @@ async function handle(req: NextRequest) {
           await writer.close();
         }
       },
-      handleToolStart(tool, input) {
-        console.log("[handleToolStart]", { tool });
+      handleToolStart(tool: any, input: any) {
+        console.log("[handleToolStart]", { tool, input });
       },
-      async handleToolEnd(output, runId, parentRunId, tags) {
+      async handleToolEnd(
+        output: any,
+        runId: any,
+        parentRunId: any,
+        tags: any,
+      ) {
         console.log("[handleToolEnd]", { output, runId, parentRunId, tags });
       },
-      handleAgentEnd(action, runId, parentRunId, tags) {
-        console.log("[handleAgentEnd]");
+      handleAgentEnd(action: any, runId: any, parentRunId: any, tags: any) {
+        console.log("[handleAgentEnd]", { action, runId, parentRunId, tags });
       },
     });
 
@@ -199,16 +218,16 @@ async function handle(req: NextRequest) {
         func: async (input: string) => bingSearchTool.call(input),
       });
     }
-    if (process.env.SERPAPI_API_KEY) {
-      let serpAPITool = new langchainTools["SerpAPI"](
-        process.env.SERPAPI_API_KEY,
-      );
-      searchTool = new DynamicTool({
-        name: "google_search",
-        description: serpAPITool.description,
-        func: async (input: string) => serpAPITool.call(input),
-      });
-    }
+    // if (process.env.SERPAPI_API_KEY) {
+    // let serpAPITool = new langchainTools["SerpAPI"](
+    //   "fc5a25b8dc5e0a5b3d42c2fac00d2f15c6900ef024654c74a92a8cb4693cf778", // process.env.SERPAPI_API_KEY,
+    // );
+    // searchTool = new DynamicTool({
+    //   name: "google_search",
+    //   description: serpAPITool.description,
+    //   func: async (input: string) => serpAPITool.call(input),
+    // });
+    // }
 
     const model = new OpenAI(
       {
@@ -231,39 +250,42 @@ async function handle(req: NextRequest) {
     ];
     const webBrowserTool = new WebBrowser({ model, embeddings });
     const calculatorTool = new Calculator();
-    const dallEAPITool = new DallEAPIWrapper(
-      apiKey,
-      baseUrl,
-      async (data: string) => {
-        var response = new ResponseBody();
-        response.message = data;
-        await writer.ready;
-        await writer.write(
-          encoder.encode(`data: ${JSON.stringify(response)}\n\n`),
-        );
-      },
-    );
-    dallEAPITool.returnDirect = true;
-    const stableDiffusionTool = new StableDiffusionWrapper();
-    const arxivAPITool = new ArxivAPIWrapper();
-    if (useTools.includes("web-search")) tools.push(searchTool);
-    if (useTools.includes(webBrowserTool.name)) tools.push(webBrowserTool);
-    if (useTools.includes(calculatorTool.name)) tools.push(calculatorTool);
-    if (useTools.includes(dallEAPITool.name)) tools.push(dallEAPITool);
-    if (useTools.includes(stableDiffusionTool.name))
-      tools.push(stableDiffusionTool);
-    if (useTools.includes(arxivAPITool.name)) tools.push(arxivAPITool);
+    // const dallEAPITool = new DallEAPIWrapper(
+    //   apiKey,
+    //   baseUrl,
+    //   async (data: string) => {
+    //     var response = new ResponseBody();
+    //     response.message = data;
+    //     await writer.ready;
+    //     await writer.write(
+    //       encoder.encode(`data: ${JSON.stringify(response)}\n\n`),
+    //     );
+    //   },
+    // );
+    // dallEAPITool.returnDirect = true;
+    // const stableDiffusionTool = new StableDiffusionWrapper();
+    // const arxivAPITool = new ArxivAPIWrapper();
+    // if (useTools.includes("web-search")) tools.push(searchTool);
+    // tools.push(searchTool);
+    // if (useTools.includes(webBrowserTool.name)) tools.push(webBrowserTool);
+    // tools.push(webBrowserTool);
+    // if (useTools.includes(calculatorTool.name)) tools.push(calculatorTool);
+    tools.push(calculatorTool);
+    // if (useTools.includes(dallEAPITool.name)) tools.push(dallEAPITool);
+    // if (useTools.includes(stableDiffusionTool.name))
+    // tools.push(stableDiffusionTool);
+    // if (useTools.includes(arxivAPITool.name)) tools.push(arxivAPITool);
 
-    useTools.forEach((toolName) => {
-      if (toolName) {
-        var tool = langchainTools[
-          toolName as keyof typeof langchainTools
-        ] as any;
-        if (tool) {
-          tools.push(new tool());
-        }
-      }
-    });
+    // useTools.forEach((toolName) => {
+    //   if (toolName) {
+    //     var tool = langchainTools[
+    //       toolName as keyof typeof langchainTools
+    //     ] as any;
+    //     if (tool) {
+    //       tools.push(new tool());
+    //     }
+    //   }
+    // });
 
     const pastMessages = new Array();
 

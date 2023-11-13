@@ -41,6 +41,7 @@ export interface ChatOptions {
   plugins: PluginActionModel[];
 
   onUpdate?: (message: string, chunk: string) => void;
+  onToolUpdate?: (toolName: string, toolInput: string) => void;
   onFinish: (message: string) => void;
   onError?: (err: Error) => void;
   onController?: (controller: AbortController) => void;
