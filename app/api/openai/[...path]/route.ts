@@ -41,8 +41,12 @@ async function handle(
   // }
 
   try {
-    return await langchainHandle(req);
-    // return await requestOpenai(req);
+    const reqBody = await req.json();
+    if (reqBody.plugins && reqBody.plugins.length > 0) {
+      return await langchainHandle(req, reqBody);
+    } else {
+      return await requestOpenai(req);
+    }
   } catch (e) {
     console.error("[OpenAI] ", e);
     return NextResponse.json(prettyObject(e));
