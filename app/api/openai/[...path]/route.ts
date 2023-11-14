@@ -49,7 +49,7 @@ async function handle(
     ) {
       return await langchainHandle(req, reqBody);
     } else {
-      return await requestOpenai(req);
+      return await requestOpenai(req, reqBody);
     }
   } catch (e) {
     console.error("[OpenAI] ", e);
