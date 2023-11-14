@@ -1,6 +1,6 @@
 import { StructuredTool } from "langchain/tools";
 import { z } from "zod";
-import S3FileStorage from "../../utils/r2_file_storage";
+// import S3FileStorage from "../../utils/r2_file_storage";
 
 export class DallEAPIWrapper extends StructuredTool {
   name = "dalle_image_generator";
@@ -28,7 +28,7 @@ export class DallEAPIWrapper extends StructuredTool {
     const response = await fetch(url);
     const content = await response.arrayBuffer();
     const buffer = Buffer.from(content);
-    return await S3FileStorage.put(`${Date.now()}.png`, buffer);
+    //return await S3FileStorage.put(`${Date.now()}.png`, buffer);
   }
 
   schema = z.object({
