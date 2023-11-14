@@ -24,6 +24,7 @@ import { GoogleSearch } from "@/app/api/langchain-tools/google_search";
 import { StableDiffusionWrapper } from "@/app/api/langchain-tools/stable_diffusion_image_generator";
 import { ArxivAPIWrapper } from "@/app/api/langchain-tools/arxiv";
 import { getBaseUrl } from "../../common";
+import { type AgentAction } from "langchain/schema";
 
 // const serverConfig = getServerSideConfig();
 
@@ -58,7 +59,7 @@ interface ToolInput {
   input: string;
 }
 
-export async function handle(req: NextRequest) {
+export async function handle(req: NextRequest, reqBody: RequestBody) {
   // if (req.method === "OPTIONS") {
   //   return NextResponse.json({ body: "OK" }, { status: 200 });
   // }
@@ -66,11 +67,10 @@ export async function handle(req: NextRequest) {
     const encoder = new TextEncoder();
     const transformStream = new TransformStream();
     const writer = transformStream.writable.getWriter();
-    const reqBody: RequestBody = await req.json();
     const authToken = req.headers.get("Authorization") ?? "";
     const token = authToken.trim().replaceAll("Bearer ", "").trim();
     // const isOpenAiKey = !token.startsWith(ACCESS_CODE_PREFIX);
-    let useTools = reqBody.useTools ?? [];
+    // let useTools = reqBody.useTools ?? []; // 由于目前只有1个插件，所以只要开启了插件，那么默认就有联网功能
     let apiKey = token; // serverConfig.apiKey;
     // if (isOpenAiKey && token) {
     //   apiKey = token;
@@ -156,10 +156,21 @@ export async function handle(req: NextRequest) {
       handleChainStart(chain: any) {
         console.log("handleChainStart: I'm the second handler!!", { chain });
       },
-      async handleAgentAction(action: any) {
+      async handleAgentAction(
+        action: AgentAction,
+        runId: string,
+        parentRunId?: string,
+        tags?: string[],
+      ) {
         try {
-          console.log("[handleAgentAction]", action.tool);
-          if (!reqBody.returnIntermediateSteps) return;
+          console.log(
+            "[handleAgentAction]",
+            action.tool,
+            runId,
+            parentRunId,
+            tags,
+          );
+          // if (!reqBody.returnIntermediateSteps) return;
           console.log("[handleAgentAction] input: ", action.toolInput);
           var response = new ResponseBody();
           response.isToolMessage = true;
@@ -197,17 +208,17 @@ export async function handle(req: NextRequest) {
       },
     });
 
-    let searchTool: Tool = new DuckDuckGo();
-    if (process.env.CHOOSE_SEARCH_ENGINE) {
-      switch (process.env.CHOOSE_SEARCH_ENGINE) {
-        case "google":
-          searchTool = new GoogleSearch();
-          break;
-        case "baidu":
-          searchTool = new BaiduSearch();
-          break;
-      }
-    }
+    let searchTool: Tool = new GoogleSearch();
+    // if (process.env.CHOOSE_SEARCH_ENGINE) {
+    //   switch (process.env.CHOOSE_SEARCH_ENGINE) {
+    //     case "google":
+    //       searchTool = new GoogleSearch();
+    //       break;
+    //     case "baidu":
+    //       searchTool = new BaiduSearch();
+    //       break;
+    //   }
+    // }
     if (process.env.BING_SEARCH_API_KEY) {
       let bingSearchTool = new langchainTools["BingSerpAPI"](
         process.env.BING_SEARCH_API_KEY,
@@ -229,26 +240,26 @@ export async function handle(req: NextRequest) {
     // });
     // }
 
-    const model = new OpenAI(
-      {
-        temperature: 0,
-        modelName: reqBody.model,
-        openAIApiKey: apiKey,
-      },
-      { basePath: baseUrl },
-    );
-    const embeddings = new OpenAIEmbeddings(
-      {
-        openAIApiKey: apiKey,
-      },
-      { basePath: baseUrl },
-    );
+    // const model = new OpenAI(
+    //   {
+    //     temperature: 0,
+    //     modelName: reqBody.model,
+    //     openAIApiKey: apiKey,
+    //   },
+    //   { basePath: baseUrl },
+    // );
+    // const embeddings = new OpenAIEmbeddings(
+    //   {
+    //     openAIApiKey: apiKey,
+    //   },
+    //   { basePath: baseUrl },
+    // );
 
     const tools = [
       // new RequestsGetTool(),
       // new RequestsPostTool(),
     ];
-    const webBrowserTool = new WebBrowser({ model, embeddings });
+    // const webBrowserTool = new WebBrowser({ model, embeddings });
     const calculatorTool = new Calculator();
     // const dallEAPITool = new DallEAPIWrapper(
     //   apiKey,
@@ -266,7 +277,7 @@ export async function handle(req: NextRequest) {
     // const stableDiffusionTool = new StableDiffusionWrapper();
     // const arxivAPITool = new ArxivAPIWrapper();
     // if (useTools.includes("web-search")) tools.push(searchTool);
-    // tools.push(searchTool);
+    tools.push(searchTool);
     // if (useTools.includes(webBrowserTool.name)) tools.push(webBrowserTool);
     // tools.push(webBrowserTool);
     // if (useTools.includes(calculatorTool.name)) tools.push(calculatorTool);
@@ -322,8 +333,8 @@ export async function handle(req: NextRequest) {
     );
     const executor = await initializeAgentExecutorWithOptions(tools, llm, {
       agentType: "openai-functions",
-      returnIntermediateSteps: reqBody.returnIntermediateSteps,
-      maxIterations: reqBody.maxIterations,
+      returnIntermediateSteps: true, // reqBody.returnIntermediateSteps,
+      maxIterations: 10, // reqBody.maxIterations,
       memory: memory,
     });
 
