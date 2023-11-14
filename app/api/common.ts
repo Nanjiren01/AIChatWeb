@@ -22,7 +22,7 @@ export function getBaseUrl(req: NextRequest) {
   return baseUrl;
 }
 
-export async function requestOpenai(req: NextRequest) {
+export async function requestOpenai(req: NextRequest, reqBody: any) {
   const controller = new AbortController();
   const authValue = req.headers.get("Authorization") ?? "";
   const openaiPath = `${req.nextUrl.pathname}${req.nextUrl.search}`.replaceAll(
@@ -58,7 +58,7 @@ export async function requestOpenai(req: NextRequest) {
     },
     cache: "no-store",
     method: req.method,
-    body: req.body,
+    body: JSON.stringify(reqBody),
     // @ts-ignore
     duplex: "half",
     signal: controller.signal,
