@@ -42,7 +42,11 @@ async function handle(
 
   try {
     const reqBody = await req.json();
-    if (reqBody.plugins && reqBody.plugins.length > 0) {
+    if (
+      reqBody.plugins &&
+      reqBody.plugins.length > 0 &&
+      reqBody.plugins[0].value
+    ) {
       return await langchainHandle(req, reqBody);
     } else {
       return await requestOpenai(req);
