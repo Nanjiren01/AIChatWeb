@@ -110,6 +110,7 @@ interface ChatStore {
   onNewMessage: (message: ChatMessage) => void;
   onUserInput: (
     content: string,
+    openPlugin: boolean,
     plugins: PluginActionModel[],
     websiteConfigStore: WebsiteConfigStore,
     authStore: AuthStore,
@@ -305,6 +306,7 @@ export const useChatStore = create<ChatStore>()(
 
       async onUserInput(
         content,
+        openPlugin: boolean,
         plugins,
         websiteConfigStore,
         authStore,
@@ -355,7 +357,7 @@ export const useChatStore = create<ChatStore>()(
           botMessage: botMessage,
           content,
           config: { ...modelConfig, stream: true },
-          plugins: plugins,
+          plugins: plugins.map((p) => ({ ...p, value: openPlugin })),
           onUpdate(message) {
             botMessage.streaming = true;
             if (message) {

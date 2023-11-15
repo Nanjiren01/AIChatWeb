@@ -426,6 +426,7 @@ export function ChatActions(props: {
   showPromptHints: () => void;
   hitBottom: boolean;
   plugins: PluginActionModel[];
+  openInternet: boolean;
   SetOpenInternet: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const config = useAppConfig();
@@ -540,23 +541,14 @@ export function ChatActions(props: {
         icon={<RobotIcon />}
       />
 
-      <>
-        {props.plugins.map((model) => {
-          return (
-            <SwitchChatAction
-              key={model.plugin.uuid}
-              onClick={() => {
-                model.value = !model.value;
-                showToast(
-                  (model.value ? "已开启" : "已关闭") + model.plugin.name,
-                );
-              }}
-              text={model.plugin.name}
-              value={model.value}
-            />
-          );
-        })}
-      </>
+      <SwitchChatAction
+        onClick={() => {
+          props.SetOpenInternet(!props.openInternet);
+          showToast((!props.openInternet ? "已开启" : "已关闭") + "插件");
+        }}
+        text={"插件"}
+        value={props.openInternet}
+      />
     </div>
   );
 }
@@ -680,8 +672,13 @@ export function Chat() {
     }
     setIsLoading(true);
     chatStore
-      .onUserInput(userInput, pluignModels, websiteConfigStore, authStore, () =>
-        navigate(Path.Login),
+      .onUserInput(
+        userInput,
+        openInternet,
+        pluignModels,
+        websiteConfigStore,
+        authStore,
+        () => navigate(Path.Login),
       )
       .then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
@@ -808,8 +805,13 @@ export function Chat() {
     const content = session.messages[userIndex].content;
     deleteMessage(userIndex);
     chatStore
-      .onUserInput(content, pluignModels, websiteConfigStore, authStore, () =>
-        navigate(Path.Login),
+      .onUserInput(
+        content,
+        openInternet,
+        pluignModels,
+        websiteConfigStore,
+        authStore,
+        () => navigate(Path.Login),
       )
       .then(() => setIsLoading(false));
     inputRef.current?.focus();
@@ -1277,6 +1279,7 @@ export function Chat() {
               ? pluignModels
               : []
           }
+          openInternet={openInternet}
           SetOpenInternet={SetOpenInternet}
         />
         <div className={styles["chat-input-panel-inner"]}>
