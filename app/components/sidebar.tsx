@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 
 import styles from "./home.module.scss";
 
@@ -12,6 +12,7 @@ import NoticeIcon from "../icons/notice.svg";
 import ChatBotIcon from "../icons/ai-chat-bot.png";
 import AddIcon from "../icons/add.svg";
 import CloseIcon from "../icons/close.svg";
+import DeleteIcon from "../icons/delete.svg";
 import MaskIcon from "../icons/app.svg";
 import PluginIcon from "../icons/plugin.svg";
 import DragIcon from "../icons/drag.svg";
@@ -36,7 +37,7 @@ import {
 } from "../constant";
 
 import { Link, useNavigate } from "react-router-dom";
-import { useMobileScreen } from "../utils";
+import { isIOS, useMobileScreen } from "../utils";
 import dynamic from "next/dynamic";
 import { showConfirm, showToast } from "./ui-lib";
 
@@ -239,6 +240,11 @@ export function SideBar(props: {
   const { onDragStart, shouldNarrow } = useDragSideBar();
   const navigate = useNavigate();
   const config = useAppConfig();
+  const isMobileScreen = useMobileScreen();
+  const isIOSMobile = useMemo(
+    () => isIOS() && isMobileScreen,
+    [isMobileScreen],
+  );
 
   useHotKey();
 
@@ -253,6 +259,10 @@ export function SideBar(props: {
       className={`${styles.sidebar} ${props.className} ${
         shouldNarrow && styles["narrow-sidebar"]
       }`}
+      style={{
+        // #3016 disable transition on ios mobile screen
+        transition: isMobileScreen && isIOSMobile ? "none" : undefined,
+      }}
     >
       <div className={styles["sidebar-header"]} data-tauri-drag-region>
         <div
@@ -312,7 +322,7 @@ export function SideBar(props: {
         <div className={styles["sidebar-actions"]}>
           <div className={styles["sidebar-action"] + " " + styles.mobile}>
             <IconButton
-              icon={<CloseIcon />}
+              icon={<DeleteIcon />}
               onClick={async () => {
                 if (await showConfirm(Locale.Home.DeleteChat)) {
                   chatStore.deleteSession(chatStore.currentSessionIndex);

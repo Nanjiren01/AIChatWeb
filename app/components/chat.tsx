@@ -92,11 +92,10 @@ import {
   showPrompt,
   showToast,
 } from "./ui-lib";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   CHAT_PAGE_SIZE,
   LAST_INPUT_KEY,
-  MAX_RENDER_MSG_COUNT,
   Path,
   REQUEST_TIMEOUT_MS,
   UNFINISHED_INPUT,
@@ -108,6 +107,7 @@ import { ChatCommandPrefix, useChatCommand, useCommand } from "../command";
 import { prettyObject } from "../utils/format";
 import { ExportMessageModal } from "./exporter";
 import { getClientConfig } from "../config/client";
+import { useAllModels } from "../utils/hooks";
 import { useWebsiteConfigStore } from "../store";
 
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
@@ -166,6 +166,7 @@ export function SessionConfigModel(props: { onClose: () => void }) {
           extraListItems={
             session.mask.modelConfig.sendMemory ? (
               <ListItem
+                className="copyable"
                 title={`${Locale.Memory.Title} (${session.lastSummarizeIndex} of ${session.messages.length})`}
                 subTitle={session.memoryPrompt || Locale.Memory.EmptyContent}
               ></ListItem>
@@ -1312,14 +1313,17 @@ function _Chat() {
       doSubmit(text);
     },
     code: (text) => {
+      if (accessStore.disableFastLink) return;
       console.log("[Command] got code from url: ", text);
       showConfirm(Locale.URLCommand.Code + `code = ${text}`).then((res) => {
         if (res) {
-          accessStore.updateCode(text);
+          accessStore.update((access) => (access.accessCode = text));
         }
       });
     },
     settings: (text) => {
+      if (accessStore.disableFastLink) return;
+
       try {
         const payload = JSON.parse(text) as {
           key?: string;
@@ -1335,10 +1339,12 @@ function _Chat() {
           ).then((res) => {
             if (!res) return;
             if (payload.key) {
-              accessStore.updateToken(payload.key);
+              accessStore.update(
+                (access) => (access.openaiApiKey = payload.key!),
+              );
             }
             if (payload.url) {
-              accessStore.updateOpenAiUrl(payload.url);
+              accessStore.update((access) => (access.openaiUrl = payload.url!));
             }
           });
         }

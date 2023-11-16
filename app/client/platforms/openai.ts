@@ -1,8 +1,10 @@
 import {
+  ApiPath,
   DEFAULT_API_HOST,
   DEFAULT_MODELS,
   OpenaiPath,
   REQUEST_TIMEOUT_MS,
+  ServiceProvider,
 } from "@/app/constant";
 import {
   ChatMessage,
@@ -27,6 +29,7 @@ import {
 import { toYYYYMMDD_HHMMSS } from "@/app/utils";
 // import { prettyObject } from "@/app/utils/format";
 import { getClientConfig } from "@/app/config/client";
+import { makeAzurePath } from "@/app/azure";
 
 export interface OpenAIListModelResponse {
   object: string;
@@ -102,6 +105,8 @@ export class ChatGPTApi implements LLMApi {
         };
       }),
       top_p: modelConfig.top_p,
+      // max_tokens: Math.max(modelConfig.max_tokens, 1024),
+      // Please do not ask me why not send max_tokens, no reason, this param is just shit, I dont want to explain anymore.
       // baseUrl: useAccessStore.getState().openaiUrl,
       // maxIterations: options.agentConfig.maxIterations,
       // returnIntermediateSteps: options.agentConfig.returnIntermediateSteps,
@@ -210,7 +215,15 @@ export class ChatGPTApi implements LLMApi {
                 return;
               }
               if (json.choices) {
-                const delta = json.choices?.at(0)?.delta.content;
+                const delta = (
+                  json as {
+                    choices: Array<{
+                      delta: {
+                        content: string;
+                      };
+                    }>;
+                  }
+                ).choices?.at(0)?.delta.content;
                 if (delta) {
                   responseText += delta;
                   options.onUpdate?.(responseText, delta);
@@ -220,7 +233,7 @@ export class ChatGPTApi implements LLMApi {
                 options.onUpdate?.(responseText, json.message);
               }
             } catch (e) {
-              console.error("[Request] parse error", text, msg);
+              console.error("[Request] parse error", text);
             }
           },
           onclose() {

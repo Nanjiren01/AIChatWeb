@@ -378,3 +378,7 @@ pre {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.copyable {
+  user-select: text;
+}

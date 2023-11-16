@@ -51,7 +51,7 @@ export const DEFAULT_CONFIG = {
     contentType: "Text" as ModelContentType,
     temperature: 0.5,
     top_p: 1,
-    max_tokens: 2000,
+    max_tokens: 4000,
     presence_penalty: 0,
     frequency_penalty: 0,
     sendMemory: true,
@@ -87,7 +87,7 @@ export const ModalConfigValidator = {
     return x as ModelContentType;
   },
   max_tokens(x: number) {
-    return limitNumber(x, 0, 100000, 2000);
+    return limitNumber(x, 0, 512000, 1024);
   },
   presence_penalty(x: number) {
     return limitNumber(x, -2, 2, 0);
@@ -133,13 +133,7 @@ export const useAppConfig = createPersistStore(
       }));
     },
 
-    allModels() {
-      const customModels = get()
-        .customModels.split(",")
-        .filter((v) => !!v && v.length > 0)
-        .map((m) => ({ name: m, available: true }));
-      return get().models.concat(customModels);
-    },
+    allModels() {},
   }),
   {
     name: StoreKey.Config,

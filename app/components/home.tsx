@@ -265,7 +265,7 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   const isAuth = location.pathname === Path.Auth;
   const isMobileScreen = useMobileScreen();
   const shouldTightBorder =
-    config.tightBorder && !isMobileScreen && getClientConfig()?.isApp;
+    getClientConfig()?.isApp || (config.tightBorder && !isMobileScreen);
 
   useEffect(() => {
     loadAsyncGoogleFont();
