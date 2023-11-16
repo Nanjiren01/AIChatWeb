@@ -360,9 +360,7 @@ function ChatAction(props: {
   });
 
   function updateWidth() {
-    console.log("updateWidth", iconRef, textRef);
     if (!iconRef.current || !textRef.current) return;
-    console.log("1");
     const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
     const textWidth = getWidth(textRef.current);
     const iconWidth = getWidth(iconRef.current);
@@ -413,9 +411,7 @@ function SwitchChatAction(props: {
   const [isClicked, setIsClicked] = useState(false); // 新增state
 
   function updateWidth() {
-    //console.log("updateWidth", iconRef, textRef);
     if (!iconRef.current || !textRef.current) return;
-    //console.log("1");
     const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
     const textWidth = getWidth(textRef.current);
     const iconWidth = getWidth(iconRef.current);
@@ -523,14 +519,11 @@ export function ChatActions(props: {
     chatStore.currentSession().mask.modelConfig.contentType;
   const models = useMemo(
     () =>
-      config
-        .allModels()
-        .filter(
-          (m) =>
-            m.available &&
-            (currentContentType === "Text"
-              ? m.contentType === "Text" || !m.contentType
-              : m.contentType === currentContentType),
+      availableModels
+        .filter((m) =>
+          currentContentType === "Text"
+            ? m.contentType === "Text" || !m.contentType
+            : m.contentType === currentContentType,
         )
         .map((m) => m.name),
     [config, currentContentType],
@@ -807,7 +800,7 @@ function _Chat() {
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const websiteConfigStore = useWebsiteConfigStore();
-  const { chatPageSubTitle, logoUrl, plugins } = websiteConfigStore;
+  const { chatPageSubTitle, plugins } = websiteConfigStore;
   const navigate = useNavigate();
 
   const authStore = useAuthStore();
