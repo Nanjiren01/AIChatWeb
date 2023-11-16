@@ -65,7 +65,7 @@ export function Profile() {
       .finally(() => {
         setLoading(false);
       });
-  }, [fetchProfile, navigate]);
+  }, [fetchProfile, navigate, authStore]);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 

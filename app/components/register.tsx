@@ -543,6 +543,7 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
               text={Locale.RegisterPage.GoToLogin}
               type="second"
               onClick={() => {
+                authStore.logout();
                 navigate(Path.Login);
               }}
             />

@@ -67,9 +67,10 @@ export function Invitation() {
   useEffect(() => {
     if (profileStore.id === 0) {
       console.log("profileStore.id", profileStore.id);
+      authStore.logout();
       navigate(Path.Login);
     }
-  }, [profileStore, navigate]);
+  }, [profileStore, navigate, authStore]);
 
   const [invitationList, setInvitationList] = useState<Invitation[]>([]);
   const [errorMessage, setErrorMessage] = useState("");

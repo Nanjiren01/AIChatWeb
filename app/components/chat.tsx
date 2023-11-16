@@ -954,7 +954,10 @@ function _Chat() {
         useImages,
         websiteConfigStore,
         authStore,
-        () => navigate(Path.Login),
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
       )
       .then((result) => {
         setIsLoading(false);
@@ -1132,7 +1135,10 @@ function _Chat() {
         message.attr?.baseImages || [],
         websiteConfigStore,
         authStore,
-        () => navigate(Path.Login),
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
       )
       .then(() => setIsLoading(false));
     inputRef.current?.focus();
@@ -1165,6 +1171,7 @@ function _Chat() {
   ) {
     const copiedHello = Object.assign({}, BOT_HELLO);
     if (!authStore.token) {
+      authStore.logout();
       navigate(Path.Login);
       copiedHello.content = Locale.Error.Unauthorized;
     }
@@ -1376,6 +1383,7 @@ function _Chat() {
 
   useEffect(() => {
     if (!authStore.token) {
+      // authStore.logout();
       //navigate(Path.Login)
       return;
     }
