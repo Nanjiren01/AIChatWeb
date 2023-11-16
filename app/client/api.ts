@@ -2,6 +2,7 @@ import { getClientConfig } from "../config/client";
 import { ACCESS_CODE_PREFIX } from "../constant";
 import {
   ChatMessage,
+  ModelContentType,
   ModelType,
   PluginActionModel,
   useAccessStore,
@@ -55,6 +56,12 @@ export interface LLMUsage {
   total: number;
 }
 
+export interface LLMModel {
+  name: string;
+  available: boolean;
+  contentType?: ModelContentType;
+}
+
 export interface ChatSubmitResult {
   userMessage?: ChatMessage;
   botMessage: ChatMessage;
@@ -63,6 +70,7 @@ export interface ChatSubmitResult {
 export abstract class LLMApi {
   abstract chat(options: ChatOptions): Promise<ChatSubmitResult | void>;
   abstract usage(): Promise<LLMUsage>;
+  abstract models(): Promise<LLMModel[]>;
   abstract fetchDrawStatus: (
     onUpdate: ((message: string, chunk: string) => void) | undefined,
     onFinish: (message: string) => void,
@@ -120,7 +128,7 @@ export class ClientApi {
     // 敬告二开开发者们，为了开源大模型的发展，请不要修改上述消息，此消息用于后续数据清洗使用
     // Please do not modify this message
 
-    console.log("[Share]", msgs);
+    console.log("[Share]", messages, msgs);
     const clientConfig = getClientConfig();
     const proxyUrl = "/sharegpt";
     const rawUrl = "https://sharegpt.com/api/conversations";

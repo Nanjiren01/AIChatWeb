@@ -1,5 +1,6 @@
 import {
   DEFAULT_API_HOST,
+  DEFAULT_MODELS,
   OpenaiPath,
   REQUEST_TIMEOUT_MS,
 } from "@/app/constant";
@@ -15,6 +16,7 @@ import {
   ChatSubmitResult,
   getHeaders,
   LLMApi,
+  LLMModel,
   LLMUsage,
 } from "../api";
 import Locale from "../../locales";
@@ -24,8 +26,20 @@ import {
 } from "@fortaine/fetch-event-source";
 import { toYYYYMMDD_HHMMSS } from "@/app/utils";
 // import { prettyObject } from "@/app/utils/format";
+import { getClientConfig } from "@/app/config/client";
+
+export interface OpenAIListModelResponse {
+  object: string;
+  data: Array<{
+    id: string;
+    object: string;
+    root: string;
+  }>;
+}
 
 export class ChatGPTApi implements LLMApi {
+  private disableListModels = true;
+
   path(path: string): string {
     const BASE_URL = process.env.BASE_URL;
     const mode = process.env.BUILD_MODE;
@@ -87,7 +101,7 @@ export class ChatGPTApi implements LLMApi {
           value: p.value,
         };
       }),
-      // top_p: modelConfig.top_p,
+      top_p: modelConfig.top_p,
       // baseUrl: useAccessStore.getState().openaiUrl,
       // maxIterations: options.agentConfig.maxIterations,
       // returnIntermediateSteps: options.agentConfig.returnIntermediateSteps,
@@ -227,7 +241,7 @@ export class ChatGPTApi implements LLMApi {
         options.onFinish(message);
       }
     } catch (e) {
-      console.log("[Request] failed to make a chat reqeust", e);
+      console.log("[Request] failed to make a chat request", e);
       options.onError?.(e as Error);
     }
   }
@@ -295,6 +309,32 @@ export class ChatGPTApi implements LLMApi {
       used: response.total_usage,
       total: total.hard_limit_usd,
     } as LLMUsage;
+  }
+
+  async models(): Promise<LLMModel[]> {
+    if (this.disableListModels) {
+      return DEFAULT_MODELS.slice();
+    }
+
+    const res = await fetch(this.path(OpenaiPath.ListModelPath), {
+      method: "GET",
+      headers: {
+        ...getHeaders(),
+      },
+    });
+
+    const resJson = (await res.json()) as OpenAIListModelResponse;
+    const chatModels = resJson.data?.filter((m) => m.id.startsWith("gpt-"));
+    console.log("[Models]", chatModels);
+
+    if (!chatModels) {
+      return [];
+    }
+
+    return chatModels.map((m) => ({
+      name: m.id,
+      available: true,
+    }));
   }
   async handleDraw(options: ChatOptions, modelConfig: any): Promise<boolean> {
     options.onUpdate?.("请稍候……", "");
