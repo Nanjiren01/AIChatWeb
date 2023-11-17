@@ -114,8 +114,6 @@ const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
 });
 
-//const ChatFetchTaskPool: Record<string, any> = {};
-
 export function SessionConfigModel(props: { onClose: () => void }) {
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
@@ -1552,38 +1550,40 @@ function _Chat() {
                 }
               >
                 <div className={styles["chat-message-container"]}>
-                  <div className={styles["chat-message-avatar"]}>
-                    <div className={styles["chat-message-edit"]}>
-                      <IconButton
-                        icon={<EditIcon />}
-                        onClick={async () => {
-                          const newMessage = await showPrompt(
-                            Locale.Chat.Actions.Edit,
-                            message.content,
-                            10,
-                          );
-                          chatStore.updateCurrentSession((session) => {
-                            const m = session.mask.context
-                              .concat(session.messages)
-                              .find((m) => m.id === message.id);
-                            if (m) {
-                              m.content = newMessage;
-                            }
-                          });
-                        }}
-                      ></IconButton>
+                  <div className={styles["chat-message-header"]}>
+                    <div className={styles["chat-message-avatar"]}>
+                      <div className={styles["chat-message-edit"]}>
+                        <IconButton
+                          icon={<EditIcon />}
+                          onClick={async () => {
+                            const newMessage = await showPrompt(
+                              Locale.Chat.Actions.Edit,
+                              message.content,
+                              10,
+                            );
+                            chatStore.updateCurrentSession((session) => {
+                              const m = session.mask.context
+                                .concat(session.messages)
+                                .find((m) => m.id === message.id);
+                              if (m) {
+                                m.content = newMessage;
+                              }
+                            });
+                          }}
+                        ></IconButton>
+                      </div>
+                      {isUser ? (
+                        <Avatar avatar={config.avatar} />
+                      ) : (
+                        <>
+                          {["system"].includes(message.role) ? (
+                            <Avatar avatar="2699-fe0f" />
+                          ) : (
+                            <MaskAvatar mask={session.mask} />
+                          )}
+                        </>
+                      )}
                     </div>
-                    {isUser ? (
-                      <Avatar avatar={config.avatar} />
-                    ) : (
-                      <>
-                        {["system"].includes(message.role) ? (
-                          <Avatar avatar="2699-fe0f" />
-                        ) : (
-                          <MaskAvatar mask={session.mask} />
-                        )}
-                      </>
-                    )}
                   </div>
                   {!isUser &&
                     message.toolMessages &&
@@ -1626,7 +1626,7 @@ function _Chat() {
                         }}
                         fontSize={fontSize}
                         parentRef={scrollRef}
-                        defaultShow={i >= messages.length - 10}
+                        defaultShow={i >= messages.length - 6}
                       />
                     )}
                     {isUser && message.attr?.imageMode && (
@@ -1685,16 +1685,6 @@ function _Chat() {
                                 </button>
                               );
                             })}
-                            {/* {message.attr?.action === 'PAN' && <button
-                              onClick={() =>
-                                doSubmit(
-                                  `SQUARE::1::${message.attr.taskId}`,
-                                )
-                              }
-                              className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["chat-message-mj-emoji-btn"]}`}
-                            >
-                              <HorizontalIcon />
-                            </button>} */}
                           </div>
                           {message.attr?.action !== "PAN" && (
                             <div style={{ display: "flex" }}>
@@ -1839,6 +1829,7 @@ function _Chat() {
                           </button>
                         </div>
                       )}
+
                     {showActions && (
                       <div className={styles["chat-message-actions"]}>
                         <div className={styles["chat-input-actions"]}>

@@ -68,7 +68,7 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
     const transformStream = new TransformStream();
     const writer = transformStream.writable.getWriter();
     const authToken = req.headers.get("Authorization") ?? "";
-    const token = authToken.trim().replaceAll("Bearer ", "").trim();
+    const token = authToken.trim().replace("Bearer ", "").trim();
     // const isOpenAiKey = !token.startsWith(ACCESS_CODE_PREFIX);
     // let useTools = reqBody.useTools ?? []; // 由于目前只有1个插件，所以只要开启了插件，那么默认就有联网功能
     let apiKey = token; // serverConfig.apiKey;
