@@ -65,7 +65,7 @@ export function Profile() {
       .finally(() => {
         setLoading(false);
       });
-  }, [fetchProfile, navigate, authStore]);
+  }, [fetchProfile, navigate]);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -92,12 +92,12 @@ export function Profile() {
     return balance.calcType == "Total"
       ? "总额"
       : balance.calcType == "Daily"
-      ? Locale.Profile.BalanceItem.CalcTypes.Daily
-      : balance.calcType == "Hourly"
-      ? Locale.Profile.BalanceItem.CalcTypes.Hourly
-      : balance.calcType == "ThreeHourly"
-      ? Locale.Profile.BalanceItem.CalcTypes.ThreeHourly
-      : "";
+        ? Locale.Profile.BalanceItem.CalcTypes.Daily
+        : balance.calcType == "Hourly"
+          ? Locale.Profile.BalanceItem.CalcTypes.Hourly
+          : balance.calcType == "ThreeHourly"
+            ? Locale.Profile.BalanceItem.CalcTypes.ThreeHourly
+            : "";
   }
 
   return (
@@ -235,8 +235,8 @@ export function Profile() {
               {loading
                 ? "加载中"
                 : profileStore.balances && profileStore.balances.length === 0
-                ? "您尚未购买任何套餐"
-                : ""}
+                  ? "您尚未购买任何套餐"
+                  : ""}
             </div>
           ) : (
             <></>

@@ -28,6 +28,8 @@ import { type AgentAction } from "langchain/schema";
 
 // const serverConfig = getServerSideConfig();
 
+const SECRET = process.env.SECRET || "";
+
 interface RequestMessage {
   role: string;
   content: string;
@@ -78,6 +80,23 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
 
     // support base url
     let baseUrl = getBaseUrl(req); // "https://api.openai.com/v1";
+    const pluginsResp = await fetch(
+      baseUrl + "/plugins?secret=" + encodeURI(SECRET),
+      {
+        headers: {
+          Authorization: authToken,
+        },
+      },
+    );
+    const pluginsJson = await pluginsResp.json();
+    const plugins = pluginsJson?.data || [];
+    // console.log('plugins', plugins)
+    const serachPlugin = plugins.filter(
+      (p: any) => p.uuid === "594a90be-0f21-4f72-9a22-4403e5028f81",
+    )[0];
+    if (serachPlugin) {
+      serachPlugin.config = JSON.parse(serachPlugin.config || "{}") || {};
+    }
     // if (serverConfig.baseUrl) baseUrl = serverConfig.baseUrl;
     // if (
     //   reqBody.baseUrl?.startsWith("http://") ||
@@ -209,36 +228,39 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
     });
 
     let searchTool: Tool = new GoogleSearch();
-    // if (process.env.CHOOSE_SEARCH_ENGINE) {
-    //   switch (process.env.CHOOSE_SEARCH_ENGINE) {
-    //     case "google":
-    //       searchTool = new GoogleSearch();
-    //       break;
-    //     case "baidu":
-    //       searchTool = new BaiduSearch();
-    //       break;
-    //   }
-    // }
-    if (process.env.BING_SEARCH_API_KEY) {
+    const searchEngine = serachPlugin.config?.searchEngine;
+    if (["google", "baidu"].includes(searchEngine)) {
+      switch (searchEngine) {
+        case "google":
+          searchTool = new GoogleSearch();
+          console.log("now using google search engine");
+          break;
+        case "baidu":
+          searchTool = new BaiduSearch();
+          console.log("now using baidu search engine");
+          break;
+      }
+    } else if (searchEngine === "bing") {
       let bingSearchTool = new langchainTools["BingSerpAPI"](
-        process.env.BING_SEARCH_API_KEY,
+        serachPlugin.config?.bingApiKey,
       );
       searchTool = new DynamicTool({
         name: "bing_search",
         description: bingSearchTool.description,
         func: async (input: string) => bingSearchTool.call(input),
       });
+      console.log("now using bing search engine");
+    } else if (searchEngine === "serpapi") {
+      let serpAPITool = new langchainTools["SerpAPI"](
+        serachPlugin.config?.serpApiKey,
+      );
+      searchTool = new DynamicTool({
+        name: "google_search",
+        description: serpAPITool.description,
+        func: async (input: string) => serpAPITool.call(input),
+      });
+      console.log("now using serpapi");
     }
-    // if (process.env.SERPAPI_API_KEY) {
-    // let serpAPITool = new langchainTools["SerpAPI"](
-    //   "fc5a25b8dc5e0a5b3d42c2fac00d2f15c6900ef024654c74a92a8cb4693cf778", // process.env.SERPAPI_API_KEY,
-    // );
-    // searchTool = new DynamicTool({
-    //   name: "google_search",
-    //   description: serpAPITool.description,
-    //   func: async (input: string) => serpAPITool.call(input),
-    // });
-    // }
 
     // const model = new OpenAI(
     //   {
