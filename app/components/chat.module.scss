@@ -325,7 +325,7 @@
   }
 }
 
-.chat-message {
+.chat-message, .chat-message-user {
   display: flex;
   flex-direction: row;
 
@@ -570,8 +570,9 @@
 .chat-message-user > .chat-message-container > .chat-message-item {
   background-color: var(--second);
 
+  transition: all ease-in-out 2s;
   &:hover {
-    min-width: 0;
+    min-width: 200px;
   }
 }
 
