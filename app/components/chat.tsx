@@ -108,6 +108,7 @@ import { prettyObject } from "../utils/format";
 import { ExportMessageModal } from "./exporter";
 import { getClientConfig } from "../config/client";
 import { useWebsiteConfigStore } from "../store";
+import { nanoid } from "nanoid";
 
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
@@ -1143,7 +1144,10 @@ function _Chat() {
 
   const onPinMessage = (message: ChatMessage) => {
     chatStore.updateCurrentSession((session) =>
-      session.mask.context.push(message),
+      session.mask.context.push({
+        ...message,
+        id: nanoid(),
+      }),
     );
 
     showToast(Locale.Chat.Actions.PinToastContent, {
