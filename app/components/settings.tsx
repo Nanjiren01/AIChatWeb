@@ -1076,7 +1076,7 @@ export function Settings() {
           ) : null
         </List> */}
 
-        <List>
+        {/* <List>
           <ListItem
             title={Locale.Settings.Access.CustomModel.Title}
             subTitle={Locale.Settings.Access.CustomModel.SubTitle}
@@ -1092,7 +1092,7 @@ export function Settings() {
               }
             ></input>
           </ListItem>
-        </List>
+        </List> */}
 
         <List>
           <ModelConfigList
