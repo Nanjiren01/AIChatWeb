@@ -43,10 +43,10 @@ export const createEmptyMask = () =>
     lang: getLang(),
     builtin: false,
     createdAt: Date.now(),
-  } as Mask);
+  }) as Mask;
 
 export interface RemoteMask {
-  id: number;
+  id: number | string;
   name: string;
   avatar: string;
   lang: Lang;
@@ -85,7 +85,7 @@ export const useMaskStore = createPersistStore(
 
       return masks[id];
     },
-    updateMask(id: string, updater: (mask: Mask) => void) {
+    updateMask(id: string | number, updater: (mask: Mask) => void) {
       const masks = get().masks;
       const mask = masks[id];
       if (!mask) return;
@@ -95,14 +95,14 @@ export const useMaskStore = createPersistStore(
       set(() => ({ masks }));
       get().markUpdate();
     },
-    delete(id: string) {
+    delete(id: string | number) {
       const masks = get().masks;
       delete masks[id];
       set(() => ({ masks }));
       get().markUpdate();
     },
 
-    get(id?: string) {
+    get(id?: string | number) {
       return get().masks[id ?? 1145141919810];
     },
     async fetch() {
@@ -172,7 +172,7 @@ export const useMaskStore = createPersistStore(
               ...config.modelConfig,
               ...m.modelConfig,
             },
-          } as Mask),
+          }) as Mask,
       );
       return userMasks.concat(buildinMasks);
     },

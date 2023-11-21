@@ -432,7 +432,9 @@ export function MaskPage() {
 
   // };
 
-  const [editingMaskId, setEditingMaskId] = useState<string | undefined>();
+  const [editingMaskId, setEditingMaskId] = useState<
+    string | number | undefined
+  >();
   const editingMask =
     maskStore.get(editingMaskId) ??
     BUILTIN_MASK_STORE.get(editingMaskId) ??
