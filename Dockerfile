@@ -1,9 +1,9 @@
 
 
 
-# docker build -t nanjiren01/aichat-web:0.9.6 ../AIChatWeb
-# docker push nanjiren01/aichat-web:0.9.6
-# docker tag nanjiren01/aichat-web:0.9.6 nanjiren01/aichat-web:pro-latest
+# docker build -t nanjiren01/aichat-web:0.11 ../AIChatWeb
+# docker push nanjiren01/aichat-web:0.11
+# docker tag nanjiren01/aichat-web:0.11 nanjiren01/aichat-web:pro-latest
 # docker push nanjiren01/aichat-web:pro-latest
 
 FROM node:18-alpine AS builder
@@ -33,6 +33,7 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/.next/server ./.next/server
 
 ENV BASE_URL=http://aichat-admin:8080
+ENV SECRET=123456
 
 EXPOSE 3000
 
