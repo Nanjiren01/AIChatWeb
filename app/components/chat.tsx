@@ -1160,9 +1160,9 @@ function _Chat() {
 
   const now = new Date();
 
-  const context: RenderMessage[] = useMemo(() => {
+  const context: RenderMessage[] = (() => {
     return session.mask.hideContext ? [] : session.mask.context.slice();
-  }, [session.mask.context, session.mask.hideContext]);
+  })();
 
   const accessStore = useAccessStore();
 
