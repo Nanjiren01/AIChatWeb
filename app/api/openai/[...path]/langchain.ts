@@ -228,7 +228,7 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
     });
 
     let searchTool: Tool = new GoogleSearch();
-    const searchEngine = serachPlugin.config?.searchEngine;
+    const searchEngine = serachPlugin?.config?.searchEngine || "google";
     if (["google", "baidu"].includes(searchEngine)) {
       switch (searchEngine) {
         case "google":
