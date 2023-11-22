@@ -36,6 +36,7 @@ services:
       OSS_BUCKET_NAME:
       OSS_ACCESS_KEY_ID:
       OSS_ACCESS_KEY_SECRET:
+      WEB_SECRET: aichatwebsecret
     ports:
       - "8082:8080"
 
@@ -50,6 +51,7 @@ services:
     environment:
       BASE_URL: http://aichat-admin:8080
       TZ: Asia/Shanghai
+      SECRET: aichatwebsecret
 
   console:
     image: nanjiren01/aichat-console:pro-latest
