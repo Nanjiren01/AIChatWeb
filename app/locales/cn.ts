@@ -331,6 +331,7 @@ const cn = {
       Close: "关闭",
       Pricing: "购买套餐",
       Order: "订单中心",
+      BalanceLog: "额度变动记录",
       GoToBalanceList: "更多",
       ConsultAdministrator: "请咨询站长",
       All: "所有套餐",
@@ -399,6 +400,7 @@ const cn = {
       Refresh: "刷新",
       Refreshing: "刷新中……",
       RedeemCode: "兑换码",
+      BalanceLog: "额度变动记录",
     },
   },
   InvitationPage: {
@@ -410,6 +412,18 @@ const cn = {
       Profile: "个人中心",
       Refresh: "刷新",
       Refreshing: "刷新中……",
+    },
+  },
+  BalanceLogPage: {
+    Title: "额度变动记录",
+    NoBalance: "暂无记录",
+    Loading: "请稍候……",
+    Actions: {
+      Close: "关闭",
+      Profile: "个人中心",
+      Refresh: "刷新",
+      Refreshing: "刷新中……",
+      Balance: "所有套餐",
     },
   },
   OrderPage: {

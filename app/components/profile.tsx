@@ -333,13 +333,23 @@ export function Profile() {
           )}
 
           <ListItem>
-            <IconButton
-              text={Locale.Profile.Actions.Redeem}
-              type="second"
-              onClick={() => {
-                navigate(Path.RedeemCode);
-              }}
-            />
+            <div style={{ display: "flex" }}>
+              <IconButton
+                text={Locale.Profile.Actions.BalanceLog}
+                type="second"
+                style={{ marginRight: "10px" }}
+                onClick={() => {
+                  navigate(Path.BalanceLog);
+                }}
+              />
+              <IconButton
+                text={Locale.Profile.Actions.Redeem}
+                type="second"
+                onClick={() => {
+                  navigate(Path.RedeemCode);
+                }}
+              />
+            </div>
           </ListItem>
         </List>
 
