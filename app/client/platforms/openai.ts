@@ -105,6 +105,7 @@ export class ChatGPTApi implements LLMApi {
         };
       }),
       top_p: modelConfig.top_p,
+      maskId: options.mask?.id,
       // max_tokens: Math.max(modelConfig.max_tokens, 1024),
       // Please do not ask me why not send max_tokens, no reason, this param is just shit, I dont want to explain anymore.
       // baseUrl: useAccessStore.getState().openaiUrl,
@@ -195,7 +196,7 @@ export class ChatGPTApi implements LLMApi {
             }
           },
           onmessage(msg) {
-            console.log("msg", msg);
+            // console.log("msg", msg);
             if (msg.data === "[DONE]" || finished) {
               return finish();
             }
@@ -613,32 +614,32 @@ export class ChatGPTApi implements LLMApi {
               botMessage.attr.targetUuid +
               ")"
             : statusResJson.data.type === "variation"
-            ? "(VARIATION::" +
-              botMessage.attr.targetIndex +
-              "::" +
-              botMessage.attr.targetUuid +
-              ")"
-            : statusResJson.data.type === "zoomOut"
-            ? "(ZOOMOUT::" +
-              botMessage.attr.zoomRatio +
-              "::" +
-              botMessage.attr.targetUuid +
-              ")"
-            : statusResJson.data.type === "pan"
-            ? "(PAN::" +
-              botMessage.attr.panDirection.toLocaleUpperCase() +
-              "::" +
-              botMessage.attr.targetUuid +
-              ")"
-            : statusResJson.data.type === "square"
-            ? "(SQUARE::1::" + botMessage.attr.targetUuid + ")"
-            : statusResJson.data.type === "vary"
-            ? "(VARY::" +
-              botMessage.attr.strength.toLocaleUpperCase() +
-              "::" +
-              botMessage.attr.targetUuid +
-              ")"
-            : ""),
+              ? "(VARIATION::" +
+                botMessage.attr.targetIndex +
+                "::" +
+                botMessage.attr.targetUuid +
+                ")"
+              : statusResJson.data.type === "zoomOut"
+                ? "(ZOOMOUT::" +
+                  botMessage.attr.zoomRatio +
+                  "::" +
+                  botMessage.attr.targetUuid +
+                  ")"
+                : statusResJson.data.type === "pan"
+                  ? "(PAN::" +
+                    botMessage.attr.panDirection.toLocaleUpperCase() +
+                    "::" +
+                    botMessage.attr.targetUuid +
+                    ")"
+                  : statusResJson.data.type === "square"
+                    ? "(SQUARE::1::" + botMessage.attr.targetUuid + ")"
+                    : statusResJson.data.type === "vary"
+                      ? "(VARY::" +
+                        botMessage.attr.strength.toLocaleUpperCase() +
+                        "::" +
+                        botMessage.attr.targetUuid +
+                        ")"
+                      : ""),
         taskId,
       );
       const state = statusResJson?.data?.state;

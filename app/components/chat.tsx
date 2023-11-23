@@ -952,6 +952,7 @@ function _Chat() {
         useImages,
         websiteConfigStore,
         authStore,
+        session.mask,
         () => {
           authStore.logout();
           navigate(Path.Login);
@@ -1133,6 +1134,7 @@ function _Chat() {
         message.attr?.baseImages || [],
         websiteConfigStore,
         authStore,
+        session.mask,
         () => {
           authStore.logout();
           navigate(Path.Login);

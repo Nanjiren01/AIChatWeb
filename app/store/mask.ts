@@ -105,9 +105,16 @@ export const useMaskStore = createPersistStore(
     get(id?: string | number) {
       return get().masks[id ?? 1145141919810];
     },
-    async fetch() {
-      return fetch("/api/mask/normal", {
+    async fetch(token: string) {
+      const url = "/mask/normal";
+      const BASE_URL = process.env.BASE_URL;
+      const mode = process.env.BUILD_MODE;
+      let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+      return fetch(requestUrl, {
         method: "get",
+        headers: {
+          Authorization: "Bearer " + token,
+        },
       })
         .then((res) => res.json())
         .then((resp: RemoteMaskListResponse) => {

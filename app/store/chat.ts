@@ -290,6 +290,7 @@ export const useChatStore = createPersistStore(
         baseImages: any[],
         websiteConfigStore: WebsiteConfigStore,
         authStore: AuthStore,
+        mask: Mask,
         navigateToLogin: () => void,
       ) {
         const session = get().currentSession();
@@ -353,6 +354,7 @@ export const useChatStore = createPersistStore(
           content: userContent,
           config: { ...modelConfig, stream: true },
           plugins: plugins,
+          mask,
           imageMode,
           baseImages,
           onUpdate(message) {
@@ -662,6 +664,7 @@ export const useChatStore = createPersistStore(
             botMessage: topicMessages[topicMessages.length - 1],
             content,
             plugins: [],
+            mask: null,
             imageMode: "",
             baseImages: [],
             config: {
@@ -723,6 +726,7 @@ export const useChatStore = createPersistStore(
             botMessage: toBeSummarizedMsgs[toBeSummarizedMsgs.length - 1],
             content,
             plugins: [],
+            mask: null,
             imageMode: "",
             baseImages: [],
             config: {

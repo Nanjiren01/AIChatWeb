@@ -24,6 +24,7 @@ import {
   createMessage,
   ModelConfig,
   useAppConfig,
+  useAuthStore,
   useChatStore,
 } from "../store";
 import { ROLES } from "../client/api";
@@ -391,6 +392,7 @@ export function MaskPage() {
 
   const maskStore = useMaskStore();
   const chatStore = useChatStore();
+  const authStore = useAuthStore();
 
   const [filterLang, setFilterLang] = useState<Lang>();
 
@@ -399,14 +401,14 @@ export function MaskPage() {
   //   .getAll()
   //   .filter((m) => !filterLang || m.lang === filterLang);
   useEffect(() => {
-    maskStore.fetch().then((remoteMasks) => {
+    maskStore.fetch(authStore.token).then((remoteMasks) => {
       if (remoteMasks.length === 0) {
         setAllMasks(maskStore.getAll());
       } else {
         setAllMasks(remoteMasks);
       }
     });
-  }, [maskStore]);
+  }, [maskStore, authStore.token]);
 
   const [searchMasks, setSearchMasks] = useState<RemoteMask[]>([]);
   const [searchText, setSearchText] = useState("");

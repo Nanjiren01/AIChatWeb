@@ -8,6 +8,7 @@ import {
   useAccessStore,
   useAuthStore,
 } from "../store";
+import { Mask } from "../store/mask";
 import { ChatGPTApi } from "./platforms/openai";
 
 export const ROLES = ["system", "user", "assistant"] as const;
@@ -41,6 +42,7 @@ export interface ChatOptions {
 
   config: LLMConfig;
   plugins: PluginActionModel[];
+  mask: Mask | null;
   imageMode: string;
   baseImages: any[];
 
