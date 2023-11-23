@@ -199,7 +199,7 @@ export function BalanceLog() {
           <></>
         )}
         {balanceLogList.length ? (
-          <div style={{ maxWidth: "400px", margin: "0 auto 20px" }}>
+          <div style={{ margin: "0 auto 20px" }}>
             <List>
               {balanceLogList.map((invitation) => {
                 const typeName =
@@ -239,6 +239,9 @@ export function BalanceLog() {
                 );
               })}
             </List>
+            <div style={{ fontSize: "14px", textAlign: "center" }}>
+              仅展示最近30天的最近50条记录
+            </div>
           </div>
         ) : (
           <></>
