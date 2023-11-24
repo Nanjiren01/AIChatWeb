@@ -105,7 +105,7 @@ export class ChatGPTApi implements LLMApi {
         };
       }),
       top_p: modelConfig.top_p,
-      maskId: options.mask?.id,
+      maskId: options.mask && options.mask.builtin ? options.mask.id : null,
       // max_tokens: Math.max(modelConfig.max_tokens, 1024),
       // Please do not ask me why not send max_tokens, no reason, this param is just shit, I dont want to explain anymore.
       // baseUrl: useAccessStore.getState().openaiUrl,
