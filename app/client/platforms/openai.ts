@@ -40,6 +40,13 @@ export interface OpenAIListModelResponse {
   }>;
 }
 
+interface ComplexContentItem {
+  type: string;
+  text?: string;
+  image_url?: string;
+  imageUuid?: string;
+}
+
 export class ChatGPTApi implements LLMApi {
   private disableListModels = true;
 
@@ -61,10 +68,34 @@ export class ChatGPTApi implements LLMApi {
 
   async chat(options: ChatOptions) {
     const plugins = options.plugins;
-    const messages = options.messages.map((v) => ({
-      role: v.role,
-      content: v.content,
-    }));
+    const isMessageStructComplex =
+      options.mask?.modelConfig?.messageStruct === "complex";
+    const messages = options.messages.map((message) => {
+      if (!isMessageStructComplex) {
+        return {
+          role: message.role,
+          content: message.content,
+        };
+      }
+      const content = [
+        {
+          type: "text",
+          text: message.content,
+        },
+      ] as ComplexContentItem[];
+      if (options.baseImages?.length > 0) {
+        options.baseImages.forEach((img) => {
+          content.push({
+            type: "imageUuid",
+            imageUuid: img.uuid,
+          });
+        });
+      }
+      return {
+        role: message.role,
+        content,
+      };
+    });
 
     const modelConfig = {
       ...useAppConfig.getState().modelConfig,
@@ -352,7 +383,7 @@ export class ChatGPTApi implements LLMApi {
   }
   async handleDraw(options: ChatOptions, modelConfig: any): Promise<boolean> {
     options.onUpdate?.("请稍候……", "");
-    const userMessage = options.userMessage;
+    // const userMessage = options.userMessage;
     const botMessage = options.botMessage;
     const content = options.content;
     const startFn = async (): Promise<boolean> => {

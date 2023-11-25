@@ -63,6 +63,9 @@ import {
   ModelType,
   AiPlugin,
   PluginActionModel,
+  SimpleModel,
+  ModelMessageStruct,
+  ModelContentType,
 } from "../store";
 
 import {
@@ -487,7 +490,8 @@ export function ChatActions(props: {
   imageSelected: (img: any) => void;
   hitBottom: boolean;
   plugins: PluginActionModel[];
-  contentType: string;
+  contentType: ModelContentType;
+  messageStruct: ModelMessageStruct;
   uploading: boolean;
   setUploading: React.Dispatch<React.SetStateAction<boolean>>;
   SetOpenInternet: React.Dispatch<React.SetStateAction<boolean>>;
@@ -513,20 +517,23 @@ export function ChatActions(props: {
   const stopAll = () => ChatControllerPool.stopAll();
 
   // switch model
-  const currentModel = chatStore.currentSession().mask.modelConfig.model;
-  const currentContentType =
-    chatStore.currentSession().mask.modelConfig.contentType;
-  const models = useMemo(
-    () =>
-      availableModels
-        .filter((m) =>
-          currentContentType === "Text"
-            ? m.contentType === "Text" || !m.contentType
-            : m.contentType === currentContentType,
-        )
-        .map((m) => m.name),
-    [config, currentContentType],
-  );
+  const currentModel = {
+    name: chatStore.currentSession().mask.modelConfig.model,
+    contentType: chatStore.currentSession().mask.modelConfig.contentType,
+    messageStruct: chatStore.currentSession().mask.modelConfig.messageStruct,
+  } as SimpleModel;
+  // const currentContentType =
+  //   chatStore.currentSession().mask.modelConfig.contentType;
+  // const models = useMemo(
+  //   () =>
+  //     availableModels
+  //       // .filter((m) =>
+  //       //   currentContentType === "Text"
+  //       //     ? m.contentType === "Text" || !m.contentType
+  //       //     : m.contentType === currentContentType,
+  //       // ),
+  //   [config, currentContentType],
+  // );
   const [showModelSelector, setShowModelSelector] = useState(false);
 
   function selectImage() {
@@ -656,30 +663,32 @@ export function ChatActions(props: {
 
       <ChatAction
         onClick={() => setShowModelSelector(true)}
-        text={currentModel}
+        text={currentModel.name}
         icon={<RobotIcon />}
       />
 
       {showModelSelector && (
         <Selector
           defaultSelectedValue={currentModel}
-          items={models.map((m) => ({
-            title: m,
+          items={availableModels.map((m) => ({
+            title: m.name,
             value: m,
           }))}
           onClose={() => setShowModelSelector(false)}
           onSelection={(s) => {
             if (s.length === 0) return;
             chatStore.updateCurrentSession((session) => {
-              session.mask.modelConfig.model = s[0] as ModelType;
+              session.mask.modelConfig.model = s[0].name;
+              session.mask.modelConfig.contentType = s[0].contentType;
+              session.mask.modelConfig.messageStruct = s[0].messageStruct;
               session.mask.syncGlobalConfig = false;
             });
-            showToast(s[0]);
+            showToast(s[0].name);
           }}
         />
       )}
 
-      {props.contentType === "Image" && (
+      {(props.contentType === "Image" || props.messageStruct === "complex") && (
         <div
           className={`${styles["chat-input-action"]} clickable`}
           onClick={selectImage}
@@ -1130,8 +1139,8 @@ function _Chat() {
       .onUserInput(
         content,
         pluignModels,
-        message.attr?.imageMode ?? "",
-        message.attr?.baseImages || [],
+        userMessage.attr?.imageMode ?? "",
+        userMessage.attr?.baseImages || [],
         websiteConfigStore,
         authStore,
         session.mask,
@@ -1909,11 +1918,13 @@ function _Chat() {
             onSearch("");
           }}
           plugins={
-            session.mask?.modelConfig?.contentType !== "Image"
+            session.mask?.modelConfig?.contentType !== "Image" &&
+            session.mask?.modelConfig?.messageStruct !== "complex"
               ? pluignModels
               : []
           }
           contentType={session.mask?.modelConfig?.contentType}
+          messageStruct={session.mask?.modelConfig?.messageStruct}
           SetOpenInternet={SetOpenInternet}
           imageSelected={(img: any) => {
             addBaseImage(img);
@@ -1936,29 +1947,36 @@ function _Chat() {
                 alt={img.filename}
               />
             ))}
-            <div style={{ fontSize: "12px", marginBottom: "5px" }}>
-              {[
-                { name: Locale.Midjourney.ModeImagineUseImg, value: "IMAGINE" },
-                { name: Locale.Midjourney.ModeBlend, value: "BLEND" },
-                { name: Locale.Midjourney.ModeDescribe, value: "DESCRIBE" },
-              ].map((item, i) => (
-                <label key={i}>
-                  <input
-                    type="radio"
-                    name="mj-img-mode"
-                    checked={mjImageMode == item.value}
-                    value={item.value}
-                    onChange={(e) => {
-                      setMjImageMode(e.target.value);
-                    }}
-                  />
-                  <span>{item.name}</span>
-                </label>
-              ))}
-            </div>
-            <div style={{ fontSize: "12px" }}>
-              <small>{Locale.Midjourney.HasImgTip}</small>
-            </div>
+            {session.mask?.modelConfig?.contentType === "Image" && (
+              <>
+                <div style={{ fontSize: "12px", marginBottom: "5px" }}>
+                  {[
+                    {
+                      name: Locale.Midjourney.ModeImagineUseImg,
+                      value: "IMAGINE",
+                    },
+                    { name: Locale.Midjourney.ModeBlend, value: "BLEND" },
+                    { name: Locale.Midjourney.ModeDescribe, value: "DESCRIBE" },
+                  ].map((item, i) => (
+                    <label key={i}>
+                      <input
+                        type="radio"
+                        name="mj-img-mode"
+                        checked={mjImageMode == item.value}
+                        value={item.value}
+                        onChange={(e) => {
+                          setMjImageMode(e.target.value);
+                        }}
+                      />
+                      <span>{item.name}</span>
+                    </label>
+                  ))}
+                </div>
+                <div style={{ fontSize: "12px" }}>
+                  <small>{Locale.Midjourney.HasImgTip}</small>
+                </div>
+              </>
+            )}
           </div>
         )}
         <div className={styles["chat-input-panel-inner"]}>

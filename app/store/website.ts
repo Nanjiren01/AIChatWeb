@@ -13,9 +13,11 @@ export interface AiPlugin {
 }
 
 export type ModelContentType = "Text" | "Image";
+export type ModelMessageStruct = "normal" | "complex";
 export interface SimpleModel {
   name: string;
   contentType: ModelContentType;
+  messageStruct: ModelMessageStruct;
 }
 
 export interface WebsiteConfigStore {
