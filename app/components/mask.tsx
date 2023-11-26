@@ -149,6 +149,12 @@ export function MaskConfig(props: {
           ></input>
         </ListItem>
         <ListItem
+          title={Locale.Mask.Config.Description.title}
+          subTitle={Locale.Mask.Config.Description.SubTitle}
+        >
+          <span>{props.mask.description}</span>
+        </ListItem>
+        <ListItem
           title={Locale.Mask.Config.HideContext.Title}
           subTitle={Locale.Mask.Config.HideContext.SubTitle}
         >
@@ -564,7 +570,7 @@ export function MaskPage() {
                     color: "var(--black)",
                   }}
                 >
-                  暂无面具
+                  暂无应用
                 </div>
               </div>
             )}
@@ -577,9 +583,10 @@ export function MaskPage() {
                   <div className={styles["mask-title"]}>
                     <div className={styles["mask-name"]}>{m.name}</div>
                     <div className={styles["mask-info"] + " one-line"}>
-                      {`${Locale.Mask.Item.Info(m.context?.length || 0)} / ${
-                        ALL_LANG_OPTIONS[m.lang]
-                      } / ${m.modelConfig?.model}`}
+                      {m.description ||
+                        `${Locale.Mask.Item.Info(m.context?.length || 0)} / ${
+                          ALL_LANG_OPTIONS[m.lang]
+                        } / ${m.modelConfig?.model}`}
                     </div>
                   </div>
                 </div>

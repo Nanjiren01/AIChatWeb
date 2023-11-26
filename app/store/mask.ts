@@ -11,6 +11,7 @@ export type Mask = {
   createdAt: number;
   avatar: string;
   name: string;
+  description?: string;
   hideContext?: boolean;
   context: ChatMessage[];
   syncGlobalConfig?: boolean;
@@ -48,6 +49,7 @@ export const createEmptyMask = () =>
 export interface RemoteMask {
   id: number | string;
   name: string;
+  description?: string;
   avatar: string;
   lang: Lang;
   state?: number;
@@ -145,6 +147,7 @@ export const useMaskStore = createPersistStore(
             const remoteMask: RemoteMask = {
               id: mask.id,
               name: mask.name,
+              description: mask.description,
               avatar: mask.avatar,
               lang: mask.lang,
               builtin: true,

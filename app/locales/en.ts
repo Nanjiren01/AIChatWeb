@@ -743,6 +743,10 @@ const en: LocaleType = {
     Config: {
       Avatar: "Bot Avatar",
       Name: "Bot Name",
+      Description: {
+        title: "Bot Description",
+        SubTitle: "",
+      },
       Sync: {
         Title: "Use Global Config",
         SubTitle: "Use global config in this chat",
