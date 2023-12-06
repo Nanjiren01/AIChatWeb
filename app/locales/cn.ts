@@ -101,6 +101,7 @@ const cn = {
     ModeDescribe: "识图（图生文）模式",
     NeedInputUseImgPrompt: "垫图模式下需要输入内容才能使用图片，请输入内容",
     ImagineMaxImg: (max: number) => `垫图（图生图）模式下至多 ${max} 张图片`,
+    gpt4vMaxImg: (max: number) => `该模式下至多 ${max} 张图片`,
     BlendMinImg: (min: number, max: number) =>
       `混图模式下至少需要 ${min} 张图片，至多 ${max} 张图片`,
     DescribeMaxImg: (max: number) => `识图（图生文）模式下至多 ${max} 张图片`,

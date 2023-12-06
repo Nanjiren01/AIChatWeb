@@ -117,6 +117,8 @@ const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
 });
 
+const MAX_IMAGE_SIZE = 5;
+
 export function SessionConfigModel(props: { onClose: () => void }) {
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
@@ -488,6 +490,7 @@ export function ChatActions(props: {
   scrollToBottom: () => void;
   showPromptHints: () => void;
   imageSelected: (img: any) => void;
+  beforeSelectImages: () => boolean;
   hitBottom: boolean;
   plugins: PluginActionModel[];
   contentType: ModelContentType;
@@ -537,6 +540,9 @@ export function ChatActions(props: {
   const [showModelSelector, setShowModelSelector] = useState(false);
 
   function selectImage() {
+    if (!props.beforeSelectImages()) {
+      return;
+    }
     document.getElementById("chat-image-file-select-upload")?.click();
   }
 
@@ -572,6 +578,10 @@ export function ChatActions(props: {
   const onImageSelected = (e: any) => {
     const file = e.target.files[0];
     uploadFile(file).then((res) => {
+      if (res.code !== 0) {
+        showToast(res.cnMessage || res.message, undefined, 5000);
+        return;
+      }
       const filename = file.name;
       const fileEntity = res.data;
       props.imageSelected({
@@ -919,23 +929,30 @@ function _Chat() {
 
   const doSubmit = (userInput: string) => {
     if (useImages.length > 0) {
-      if (mjImageMode === "IMAGINE") {
-        if (!userInput) {
-          showToast(Locale.Midjourney.NeedInputUseImgPrompt);
-          return;
+      if (session.mask?.modelConfig?.contentType === "Image") {
+        if (mjImageMode === "IMAGINE") {
+          if (!userInput) {
+            showToast(Locale.Midjourney.NeedInputUseImgPrompt);
+            return;
+          }
+          if (useImages.length > 1) {
+            showToast(Locale.Midjourney.ImagineMaxImg(1));
+            return;
+          }
+        } else if (mjImageMode === "BLEND") {
+          if (useImages.length < 2 || useImages.length > MAX_IMAGE_SIZE) {
+            showToast(Locale.Midjourney.BlendMinImg(2, MAX_IMAGE_SIZE));
+            return;
+          }
+        } else if (mjImageMode === "DESCRIBE") {
+          if (useImages.length > 1) {
+            showToast(Locale.Midjourney.DescribeMaxImg(1));
+            return;
+          }
         }
-        if (useImages.length > 1) {
-          showToast(Locale.Midjourney.ImagineMaxImg(1));
-          return;
-        }
-      } else if (mjImageMode === "BLEND") {
-        if (useImages.length < 2 || useImages.length > 5) {
-          showToast(Locale.Midjourney.BlendMinImg(2, 5));
-          return;
-        }
-      } else if (mjImageMode === "DESCRIBE") {
-        if (useImages.length > 1) {
-          showToast(Locale.Midjourney.DescribeMaxImg(1));
+      } else if (session.mask?.modelConfig?.messageStruct === "complex") {
+        if (useImages.length > MAX_IMAGE_SIZE) {
+          showToast(Locale.Midjourney.gpt4vMaxImg(MAX_IMAGE_SIZE));
           return;
         }
       }
@@ -1000,8 +1017,8 @@ function _Chat() {
   };
 
   const addBaseImage = (img: any) => {
-    if (useImages.length >= 5) {
-      showToast(Locale.Midjourney.SelectImgMax(5));
+    if (useImages.length >= MAX_IMAGE_SIZE) {
+      showToast(Locale.Midjourney.SelectImgMax(MAX_IMAGE_SIZE));
       return;
     }
     setUseImages([...useImages, img]);
@@ -1928,6 +1945,13 @@ function _Chat() {
           SetOpenInternet={SetOpenInternet}
           imageSelected={(img: any) => {
             addBaseImage(img);
+          }}
+          beforeSelectImages={() => {
+            const ok = useImages.length < MAX_IMAGE_SIZE;
+            if (!ok) {
+              showToast(Locale.Midjourney.SelectImgMax(MAX_IMAGE_SIZE));
+            }
+            return ok;
           }}
         />
         {useImages.length > 0 && (
