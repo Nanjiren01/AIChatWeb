@@ -736,10 +736,18 @@ export function ChatActions(props: {
   );
 }
 
-export function EditMessageModal(props: { onClose: () => void }) {
+export function EditMessageModal(props: {
+  onClose: () => void;
+  updateTopic: (topic: string) => Promise<boolean>;
+  updateMessages: (messages: ChatMessage[]) => Promise<boolean>;
+}) {
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
   const [messages, setMessages] = useState(session.messages.slice());
+  const [topic, setTopic] = useState("");
+  useEffect(() => {
+    setTopic(session.topic);
+  }, [session]);
 
   return (
     <div className="modal-mask">
@@ -760,11 +768,14 @@ export function EditMessageModal(props: { onClose: () => void }) {
             text={Locale.UI.Confirm}
             icon={<ConfirmIcon />}
             key="ok"
-            onClick={() => {
-              chatStore.updateCurrentSession(
-                (session) => (session.messages = messages),
-              );
-              props.onClose();
+            onClick={async () => {
+              const topicResult = await props.updateTopic(topic);
+              if (topicResult) {
+                const result = await props.updateMessages(messages);
+                if (result) {
+                  props.onClose();
+                }
+              }
             }}
           />,
         ]}
@@ -776,11 +787,12 @@ export function EditMessageModal(props: { onClose: () => void }) {
           >
             <input
               type="text"
-              value={session.topic}
-              onInput={(e) =>
-                chatStore.updateCurrentSession(
-                  (session) => (session.topic = e.currentTarget.value),
-                )
+              value={topic}
+              onChange={(e) =>
+                // chatStore.updateCurrentSession(
+                //   (session) => (session.topic = e.currentTarget.value),
+                // )
+                setTopic(e.currentTarget.value)
               }
             ></input>
           </ListItem>
@@ -860,7 +872,11 @@ function _Chat() {
 
   // chat commands shortcuts
   const chatCommands = useChatCommand({
-    new: () => chatStore.newSession(),
+    new: (token: string) =>
+      chatStore.newSession(token, () => {
+        authStore.logout();
+        navigate(Path.Login);
+      }),
     newm: () => navigate(Path.NewChat),
     prev: () => chatStore.nextSession(-1),
     next: () => chatStore.nextSession(1),
@@ -868,7 +884,15 @@ function _Chat() {
       chatStore.updateCurrentSession(
         (session) => (session.clearContextIndex = session.messages.length),
       ),
-    del: () => chatStore.deleteSession(chatStore.currentSessionIndex),
+    del: () =>
+      chatStore.deleteSession(
+        chatStore.currentSessionIndex,
+        authStore.token,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
+      ),
   });
 
   // only search prompts when user input is short
@@ -972,6 +996,7 @@ function _Chat() {
     setIsLoading(true);
     chatStore
       .onUserInput(
+        session,
         userInput,
         pluignModels,
         mjImageMode,
@@ -979,6 +1004,8 @@ function _Chat() {
         websiteConfigStore,
         authStore,
         session.mask,
+        false,
+        authStore.token,
         () => {
           authStore.logout();
           navigate(Path.Login);
@@ -1090,15 +1117,15 @@ function _Chat() {
     }
   };
 
-  const deleteMessage = (msgId?: string) => {
-    chatStore.updateCurrentSession(
-      (session) =>
-        (session.messages = session.messages.filter((m) => m.id !== msgId)),
-    );
+  const deleteMessage = (message?: ChatMessage) => {
+    if (!message) {
+      return;
+    }
+    chatStore.deleteMessageInCurrentSession(message, authStore.token);
   };
 
-  const onDelete = (msgId: string) => {
-    deleteMessage(msgId);
+  const onDelete = (message: ChatMessage) => {
+    deleteMessage(message);
   };
 
   const onResend = (message: ChatMessage) => {
@@ -1146,14 +1173,15 @@ function _Chat() {
     }
 
     // delete the original messages
-    deleteMessage(userMessage.id);
-    deleteMessage(botMessage?.id);
+    deleteMessage(userMessage);
+    deleteMessage(botMessage);
 
     // resend the message
     setIsLoading(true);
     const content = userMessage.content;
     chatStore
       .onUserInput(
+        session,
         content,
         pluignModels,
         userMessage.attr?.imageMode ?? "",
@@ -1161,6 +1189,8 @@ function _Chat() {
         websiteConfigStore,
         authStore,
         session.mask,
+        true,
+        authStore.token,
         () => {
           authStore.logout();
           navigate(Path.Login);
@@ -1171,12 +1201,15 @@ function _Chat() {
   };
 
   const onPinMessage = (message: ChatMessage) => {
-    chatStore.updateCurrentSession((session) =>
-      session.mask.context.push({
+    chatStore.updateCurrentSession((session) => {
+      // todo
+      const copy = {
         ...message,
         id: nanoid(),
-      }),
-    );
+      };
+      delete copy.uuid;
+      session.mask.context.push(copy);
+    });
 
     showToast(Locale.Chat.Actions.PinToastContent, {
       text: Locale.Chat.Actions.PinToastAction,
@@ -1592,14 +1625,16 @@ function _Chat() {
                               message.content,
                               10,
                             );
-                            chatStore.updateCurrentSession((session) => {
-                              const m = session.mask.context
-                                .concat(session.messages)
-                                .find((m) => m.id === message.id);
-                              if (m) {
-                                m.content = newMessage;
-                              }
-                            });
+
+                            message.content = newMessage;
+                            chatStore.updateCurrentSessionMessageContent(
+                              message,
+                              authStore.token,
+                              () => {
+                                authStore.logout();
+                                navigate(Path.Login);
+                              },
+                            );
                           }}
                         ></IconButton>
                       </div>
@@ -1881,7 +1916,7 @@ function _Chat() {
                               <ChatAction
                                 text={Locale.Chat.Actions.Delete}
                                 icon={<DeleteIcon />}
-                                onClick={() => onDelete(message.id ?? i)}
+                                onClick={() => onDelete(message)}
                               />
 
                               <ChatAction
@@ -2056,6 +2091,26 @@ function _Chat() {
         <EditMessageModal
           onClose={() => {
             setIsEditingMessage(false);
+          }}
+          updateTopic={(topic) => {
+            return chatStore.updateCurrentSessionTopic(
+              topic,
+              authStore.token,
+              () => {
+                authStore.logout();
+                navigate(Path.Login);
+              },
+            );
+          }}
+          updateMessages={(messages) => {
+            return chatStore.updateCurrentSessionMessages(
+              messages,
+              authStore.token,
+              () => {
+                authStore.logout();
+                navigate(Path.Login);
+              },
+            );
           }}
         />
       )}

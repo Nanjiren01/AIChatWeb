@@ -595,9 +595,18 @@ export function MaskPage() {
                     icon={<AddIcon />}
                     text={Locale.Mask.Item.Chat}
                     type="second"
-                    onClick={() => {
-                      chatStore.newSession(m as Mask);
-                      navigate(Path.Chat);
+                    onClick={async () => {
+                      const result = await chatStore.newSession(
+                        authStore.token,
+                        () => {
+                          authStore.logout();
+                          navigate(Path.Login);
+                        },
+                        m as Mask,
+                      );
+                      if (result) {
+                        navigate(Path.Chat);
+                      }
                     }}
                   />
                   {m.builtin ? (

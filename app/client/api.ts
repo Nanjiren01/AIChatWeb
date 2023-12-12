@@ -20,6 +20,7 @@ export type ChatModel = ModelType;
 export type ContentType = "Text" | "Image";
 
 export interface RequestMessage {
+  id?: string;
   role: MessageRole;
   content: string;
 }
@@ -35,6 +36,7 @@ export interface LLMConfig {
 }
 
 export interface ChatOptions {
+  sessionUuid?: string;
   messages: RequestMessage[];
   userMessage?: ChatMessage;
   botMessage: ChatMessage;
@@ -43,6 +45,7 @@ export interface ChatOptions {
   config: LLMConfig;
   plugins: PluginActionModel[];
   mask: Mask | null;
+  resend: boolean;
   imageMode: string;
   baseImages: any[];
 

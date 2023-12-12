@@ -3,7 +3,7 @@ import { trimTopic } from "../utils";
 import Locale, { getLang } from "../locales";
 import { showToast } from "../components/ui-lib";
 import { ModelConfig, ModelType, useAppConfig } from "./config";
-import { createEmptyMask, Mask } from "./mask";
+import { createEmptyMask, Mask, RemoteMask } from "./mask";
 import {
   DEFAULT_INPUT_TEMPLATE,
   DEFAULT_SYSTEM_TEMPLATE,
@@ -18,7 +18,7 @@ import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
 import { AiPlugin, WebsiteConfigStore } from "./website";
-import { AuthStore } from "./auth";
+import { AuthStore, useAuthStore } from "./auth";
 
 export interface ChatToolMessage {
   toolName: string;
@@ -26,6 +26,7 @@ export interface ChatToolMessage {
 }
 
 export type ChatMessage = RequestMessage & {
+  uuid?: string;
   date: string;
   streaming?: boolean;
   isError?: boolean;
@@ -34,6 +35,34 @@ export type ChatMessage = RequestMessage & {
   toolMessages?: ChatToolMessage[];
   attr?: any;
 };
+
+export interface MessageEntity {
+  uuid: string;
+  id: string;
+  role: string;
+  content: string;
+  contentStruct: string;
+  date: string;
+  state: number;
+  order: number;
+}
+
+export interface SessionEntity {
+  uuid: string;
+  userId: number;
+  id: string;
+  topic: string;
+  messageStruct: string;
+  lastSummarizeIndex: number;
+  lastUpdate: number;
+  mask: RemoteMask;
+  stat: ChatStat;
+}
+
+import { Response } from "../api/common";
+export type SessionCreateResponse = Response<SessionEntity>;
+
+type SessionMessageQueryResponse = Response<any>;
 
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
   return {
@@ -54,6 +83,7 @@ export interface ChatStat {
 }
 
 export interface ChatSession {
+  uuid?: string;
   id: string;
   topic: string;
 
@@ -187,7 +217,12 @@ export const useChatStore = createPersistStore(
         });
       },
 
-      newSession(mask?: Mask) {
+      newSession(
+        token: string,
+        logout: () => void,
+        mask?: Mask,
+        callback?: (session: ChatSession) => void,
+      ) {
         const session = createEmptySession();
 
         if (mask) {
@@ -202,12 +237,56 @@ export const useChatStore = createPersistStore(
             },
           };
           session.topic = mask.name;
+        } else {
+          session.topic = "新的聊天";
         }
 
-        set((state) => ({
-          currentSessionIndex: 0,
-          sessions: [session].concat(state.sessions),
-        }));
+        const url = "/session";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+        return fetch(requestUrl, {
+          method: "post",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({
+            id: session.id,
+            topic: session.topic,
+            lastUpdate: session.lastUpdate,
+            lastSummarizeIndex: session.lastSummarizeIndex,
+            maskJson: JSON.stringify(session.mask),
+            statJson: JSON.stringify(session.stat),
+          }),
+        })
+          .then((res) => res.json())
+          .then((res: SessionCreateResponse) => {
+            console.log("[SessionEntity] create session", res);
+            if (res.code !== 0) {
+              if (Math.floor(res.code / 100) === 100) {
+                logout();
+              }
+              showToast(res.message);
+              return false;
+            }
+            const sessionEntity = res.data;
+            session.uuid = sessionEntity.uuid;
+
+            if (callback) {
+              callback(session);
+            } else {
+              set((state) => ({
+                currentSessionIndex: 0,
+                sessions: [session].concat(state.sessions),
+              }));
+            }
+
+            return session;
+          })
+          .catch((e) => {
+            console.error("[SessionEntity] failed to create session", e);
+            return false;
+          });
       },
 
       nextSession(delta: number) {
@@ -217,47 +296,92 @@ export const useChatStore = createPersistStore(
         get().selectSession(limit(i + delta));
       },
 
-      deleteSession(index: number) {
+      async deleteSession(index: number, token: string, logout: () => void) {
         const deletingLastSession = get().sessions.length === 1;
         const deletedSession = get().sessions.at(index);
 
         if (!deletedSession) return;
 
-        const sessions = get().sessions.slice();
-        sessions.splice(index, 1);
-
-        const currentIndex = get().currentSessionIndex;
-        let nextIndex = Math.min(
-          currentIndex - Number(index < currentIndex),
-          sessions.length - 1,
-        );
-
-        if (deletingLastSession) {
-          nextIndex = 0;
-          sessions.push(createEmptySession());
-        }
-
-        // for undo delete action
-        const restoreState = {
-          currentSessionIndex: get().currentSessionIndex,
-          sessions: get().sessions.slice(),
+        const deleteRemoteSession = (session: ChatSession) => {
+          const url = "/session/" + session.uuid;
+          const BASE_URL = process.env.BASE_URL;
+          const mode = process.env.BUILD_MODE;
+          let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+          return fetch(requestUrl, {
+            method: "delete",
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+          })
+            .then((res) => res.json())
+            .then((res: Response<any>) => {
+              console.log("[deleteRemoteSession] get messages", res);
+              if (res.code !== 0) {
+                showToast(res.message);
+                return false;
+              }
+              return res;
+            })
+            .catch((e) => {
+              console.error("[deleteRemoteSession] failed to get messages", e);
+              return false;
+            });
         };
 
-        set(() => ({
-          currentSessionIndex: nextIndex,
-          sessions,
-        }));
+        const deleteLocalSession = async () => {
+          const sessions = get().sessions.slice();
+          sessions.splice(index, 1);
 
-        showToast(
-          Locale.Home.DeleteToast,
-          {
-            text: Locale.Home.Revert,
-            onClick() {
-              set(() => restoreState);
+          const currentIndex = get().currentSessionIndex;
+          let nextIndex = Math.min(
+            currentIndex - Number(index < currentIndex),
+            sessions.length - 1,
+          );
+
+          if (deletingLastSession) {
+            nextIndex = 0;
+            const result = await this.newSession(
+              token,
+              logout,
+              undefined,
+              (session) => {},
+            );
+            if (result === false) {
+              return false;
+            }
+            sessions.push(result as ChatSession);
+          }
+
+          // for undo delete action
+          const restoreState = {
+            currentSessionIndex: get().currentSessionIndex,
+            sessions: get().sessions.slice(),
+          };
+
+          set(() => ({
+            currentSessionIndex: nextIndex,
+            sessions,
+          }));
+          showToast(
+            Locale.Home.DeleteToast,
+            {
+              text: Locale.Home.Revert,
+              onClick() {
+                set(() => restoreState);
+              },
             },
-          },
-          5000,
-        );
+            5000,
+          );
+        };
+
+        if (deletedSession.uuid) {
+          const result = await deleteRemoteSession(deletedSession);
+          if (result) {
+            await deleteLocalSession();
+          }
+        } else {
+          await deleteLocalSession();
+        }
       },
 
       currentSession() {
@@ -284,6 +408,7 @@ export const useChatStore = createPersistStore(
       },
 
       async onUserInput(
+        session: ChatSession,
         content: string,
         plugins: PluginActionModel[],
         imageMode: string,
@@ -291,9 +416,11 @@ export const useChatStore = createPersistStore(
         websiteConfigStore: WebsiteConfigStore,
         authStore: AuthStore,
         mask: Mask,
+        resend: boolean,
+        token: string,
         navigateToLogin: () => void,
       ) {
-        const session = get().currentSession();
+        // const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
         const sensitiveWordsTip = websiteConfigStore.sensitiveWordsTip;
         const balanceNotEnough = websiteConfigStore.balanceNotEnough;
@@ -346,8 +473,11 @@ export const useChatStore = createPersistStore(
           ]);
         });
 
+        const fetchServerMessageId = this.fetchServerMessageId;
+
         // make request
         return api.llm.chat({
+          sessionUuid: session.uuid, // 携带上session uuuid，系统才会云同步
           messages: sendMessages,
           userMessage: userMessage,
           botMessage: botMessage,
@@ -355,9 +485,11 @@ export const useChatStore = createPersistStore(
           config: { ...modelConfig, stream: true },
           plugins: plugins,
           mask,
+          resend,
           imageMode,
           baseImages,
           onUpdate(message) {
+            console.log("onUpdate", message);
             botMessage.streaming = true;
             if (message) {
               botMessage.content = message;
@@ -379,6 +511,7 @@ export const useChatStore = createPersistStore(
             });
           },
           onFinish(message) {
+            console.log("onFinish", message);
             botMessage.streaming = false;
             let logout = false;
             if (message) {
@@ -412,6 +545,15 @@ export const useChatStore = createPersistStore(
                 // ignore
               }
               botMessage.content = message;
+              if (session.uuid) {
+                setTimeout(() => {
+                  fetchServerMessageId(
+                    session,
+                    [userMessage, botMessage],
+                    token,
+                  );
+                }, 2000);
+              }
               get().onNewMessage(botMessage);
             }
             ChatControllerPool.remove(session.id, botMessage.id);
@@ -449,6 +591,50 @@ export const useChatStore = createPersistStore(
             );
           },
         });
+      },
+
+      fetchServerMessageId(
+        session: ChatSession,
+        messages: ChatMessage[],
+        token: string,
+      ) {
+        const url = "/session/message/query";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+        return fetch(requestUrl, {
+          method: "post",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({
+            ids: session.messages.filter((m) => !m.uuid).map((m) => m.id),
+          }),
+        })
+          .then((res) => res.json())
+          .then((res: SessionMessageQueryResponse) => {
+            console.log("[fetchServerMessageId] get messages", res);
+            if (res.code !== 0) {
+              showToast(res.message);
+              return false;
+            }
+            const map = res.data;
+            for (let id in map) {
+              const msg = map[id];
+              const message = session.messages.find((m) => m.id === id);
+              if (message) {
+                message.uuid = msg.uuid;
+                console.log("set message uuid=" + msg.uuid);
+              }
+            }
+            get().updateCurrentSession((session) => {
+              session.messages = session.messages.concat();
+            });
+            return res;
+          })
+          .catch((e) => {
+            console.error("[fetchServerMessageId] failed to get messages", e);
+          });
       },
 
       async getDrawTaskProgress(
@@ -665,6 +851,7 @@ export const useChatStore = createPersistStore(
             content,
             plugins: [],
             mask: null,
+            resend: false,
             imageMode: "",
             baseImages: [],
             config: {
@@ -727,6 +914,7 @@ export const useChatStore = createPersistStore(
             content,
             plugins: [],
             mask: null,
+            resend: false,
             imageMode: "",
             baseImages: [],
             config: {
@@ -753,6 +941,248 @@ export const useChatStore = createPersistStore(
           session.stat.charCount += message.content.length;
           // TODO: should update chat count and word count
         });
+      },
+
+      deleteMessageInCurrentSession(message: ChatMessage, token: string) {
+        if (!message.uuid) {
+          this.updateCurrentSession((session) => {
+            session.messages = session.messages.filter(
+              (m) => m.id !== message.id,
+            );
+          });
+          return true;
+        }
+        // const sessions = get().sessions;
+        // const index = get().currentSessionIndex;
+        // const session = sessions[index]
+
+        const url = "/session/message/" + message.uuid;
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+        return fetch(requestUrl, {
+          method: "delete",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        })
+          .then((res) => res.json())
+          .then((res: Response<any>) => {
+            console.log("[SessionEntity] delete session message", res);
+            if (res.code !== 0) {
+              showToast(res.message);
+              return false;
+            }
+            this.updateCurrentSession((session) => {
+              session.messages = session.messages.filter(
+                (m) => m.id !== message.id,
+              );
+            });
+          })
+          .catch((e) => {
+            console.error(
+              "[SessionEntity] failed to delete session message",
+              e,
+            );
+          });
+      },
+
+      updateCurrentSessionTopic(
+        topic: string,
+        token: string,
+        logout: () => void,
+      ) {
+        const sessions = get().sessions;
+        const index = get().currentSessionIndex;
+        const session = sessions[index];
+
+        if (!session.uuid) {
+          console.log(
+            "session.uuid is empty, just change local topic",
+            session,
+          );
+          session.topic = topic;
+          set(() => ({ sessions }));
+          return Promise.resolve(true);
+        }
+
+        const url = "/session";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+        return fetch(requestUrl, {
+          method: "put",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({
+            uuid: session.uuid,
+            topic: topic,
+          }),
+        })
+          .then((res) => res.json())
+          .then((res: Response<any>) => {
+            console.log("[SessionEntity] update session topic", res);
+            if (res.code !== 0) {
+              showToast(res.message);
+              return false;
+            }
+            session.topic = topic;
+            set(() => ({ sessions }));
+            return true;
+          })
+          .catch((e) => {
+            console.error("[SessionEntity] failed to update session topic", e);
+            return false;
+          });
+      },
+
+      // 仅更新某个message的content字段，可能是面具中的
+      updateCurrentSessionMessageContent(
+        message: ChatMessage,
+        token: string,
+        logout: () => void,
+      ) {
+        const sessions = get().sessions;
+        const index = get().currentSessionIndex;
+        const session = sessions[index];
+        let msg = session.mask.context.find((m) => m.id === message.id);
+
+        if (msg) {
+          // 面具中的
+          if (!session.uuid) {
+            msg.content = message.content;
+            set(() => ({ sessions }));
+            return Promise.resolve(true);
+          }
+          // todo 更新服务器的面具
+        }
+
+        msg = session.messages.find((m) => m.id === message.id);
+        if (!msg) {
+          console.warn("can not find the msg by id", message.id);
+          return Promise.resolve(true);
+        }
+
+        if (!session.uuid) {
+          msg.content = message.content;
+          set(() => ({ sessions }));
+          return Promise.resolve(true);
+        }
+        const url = "/session/message";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+        return fetch(requestUrl, {
+          method: "put",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({
+            sessionUuid: session.uuid,
+            messages: [
+              {
+                uuid: msg.uuid,
+                // role: msg.role,
+                content: message.content,
+              },
+            ],
+          }),
+        })
+          .then((res) => res.json())
+          .then((res: Response<any>) => {
+            console.log("[SessionEntity] update session message", res);
+            if (res.code !== 0) {
+              showToast(res.message);
+              return false;
+            }
+            // console.log(JSON.stringify(session))
+            msg!.content = message.content;
+            set(() => ({ sessions }));
+            return true;
+          })
+          .catch((e) => {
+            console.error(
+              "[SessionEntity] failed to update session message",
+              e,
+            );
+            return false;
+          });
+        // chatStore.updateCurrentSession((session) => {
+        //   const m = session.mask.context
+        //     .concat(session.messages)
+        //     .find((m) => m.id === message.id);
+        //   if (m) {
+        //     m.content = newMessage;
+        //   }
+        // });
+      },
+
+      // 全量更新，messages不是面具中的
+      updateCurrentSessionMessages(
+        messages: ChatMessage[],
+        token: string,
+        logout: () => void,
+      ) {
+        const sessions = get().sessions;
+        const index = get().currentSessionIndex;
+        const session = sessions[index];
+
+        if (!session.uuid) {
+          console.log(
+            "session.uuid is empty, just change local messages",
+            session,
+          );
+          session.messages = messages;
+          set(() => ({ sessions }));
+          return Promise.resolve(true);
+        }
+
+        const hasUuidMessages = messages
+          .filter((m) => m.uuid)
+          .map((m) => {
+            // 面具也可以编辑，面具上下文不包含uuid
+            return {
+              uuid: m.uuid,
+              role: m.role,
+              content: m.content,
+            };
+          });
+        if (hasUuidMessages.length === 0) {
+          return Promise.resolve(true);
+        }
+        const url = "/session/message";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+        return fetch(requestUrl, {
+          method: "put",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({
+            sessionUuid: session.uuid,
+            messages: hasUuidMessages,
+          }),
+        })
+          .then((res) => res.json())
+          .then((res: Response<any>) => {
+            console.log("[SessionEntity] update session messages", res);
+            if (res.code !== 0) {
+              showToast(res.message);
+              return false;
+            }
+            session.messages = messages;
+            set(() => ({ sessions }));
+            return true;
+          })
+          .catch((e) => {
+            console.error(
+              "[SessionEntity] failed to update session messages",
+              e,
+            );
+            return false;
+          });
       },
 
       updateCurrentSession(updater: (session: ChatSession) => void) {

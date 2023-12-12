@@ -143,9 +143,18 @@ export function NewChat() {
   const { state } = useLocation();
 
   const startChat = (mask?: Mask | RemoteMask) => {
-    setTimeout(() => {
-      chatStore.newSession(mask as Mask);
-      navigate(Path.Chat);
+    setTimeout(async () => {
+      const result = await chatStore.newSession(
+        authStore.token,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
+        mask as Mask,
+      );
+      if (result) {
+        navigate(Path.Chat);
+      }
     }, 10);
   };
 

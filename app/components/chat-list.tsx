@@ -9,7 +9,7 @@ import {
   OnDragEndResponder,
 } from "@hello-pangea/dnd";
 
-import { useChatStore } from "../store";
+import { useAuthStore, useChatStore } from "../store";
 
 import Locale from "../locales";
 import { Link, useNavigate } from "react-router-dom";
@@ -104,6 +104,7 @@ export function ChatList(props: { narrow?: boolean }) {
       state.moveSession,
     ],
   );
+  const authStore = useAuthStore();
   const chatStore = useChatStore();
   const navigate = useNavigate();
   const isMobileScreen = useMobileScreen();
@@ -151,7 +152,10 @@ export function ChatList(props: { narrow?: boolean }) {
                     (!props.narrow && !isMobileScreen) ||
                     (await showConfirm(Locale.Home.DeleteChat))
                   ) {
-                    chatStore.deleteSession(i);
+                    chatStore.deleteSession(i, authStore.token, () => {
+                      authStore.logout();
+                      navigate(Path.Login);
+                    });
                   }
                 }}
                 narrow={props.narrow}

@@ -70,9 +70,14 @@ export class ChatGPTApi implements LLMApi {
     const plugins = options.plugins;
     const isMessageStructComplex =
       options.mask?.modelConfig?.messageStruct === "complex";
-    const messages = options.messages.map((message) => {
+    const messages = (
+      options.sessionUuid && options.userMessage
+        ? [options.userMessage]
+        : options.messages
+    ).map((message) => {
       if (!isMessageStructComplex) {
         return {
+          id: message.id,
           role: message.role,
           content: message.content,
         };
@@ -92,6 +97,7 @@ export class ChatGPTApi implements LLMApi {
         });
       }
       return {
+        id: message.id,
         role: message.role,
         content,
       };
@@ -120,6 +126,8 @@ export class ChatGPTApi implements LLMApi {
     }
 
     const requestPayload = {
+      sessionUuid: options.sessionUuid,
+      resend: options.resend,
       messages,
       stream: options.config.stream,
       model: modelConfig.model,
@@ -137,6 +145,7 @@ export class ChatGPTApi implements LLMApi {
       }),
       top_p: modelConfig.top_p,
       maskId: options.mask && options.mask.builtin ? options.mask.id : null,
+      assistantMessageId: options.botMessage?.id,
       // max_tokens: Math.max(modelConfig.max_tokens, 1024),
       // Please do not ask me why not send max_tokens, no reason, this param is just shit, I dont want to explain anymore.
       // baseUrl: useAccessStore.getState().openaiUrl,
@@ -383,7 +392,6 @@ export class ChatGPTApi implements LLMApi {
   }
   async handleDraw(options: ChatOptions, modelConfig: any): Promise<boolean> {
     options.onUpdate?.("请稍候……", "");
-    // const userMessage = options.userMessage;
     const botMessage = options.botMessage;
     const content = options.content;
     const startFn = async (): Promise<boolean> => {

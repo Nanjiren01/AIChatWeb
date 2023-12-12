@@ -235,6 +235,7 @@ export function SideBar(props: {
   logoUrl?: string;
 }) {
   const chatStore = useChatStore();
+  const authStore = useAuthStore();
 
   // drag side bar
   const { onDragStart, shouldNarrow } = useDragSideBar();
@@ -325,7 +326,14 @@ export function SideBar(props: {
               icon={<DeleteIcon />}
               onClick={async () => {
                 if (await showConfirm(Locale.Home.DeleteChat)) {
-                  chatStore.deleteSession(chatStore.currentSessionIndex);
+                  chatStore.deleteSession(
+                    chatStore.currentSessionIndex,
+                    authStore.token,
+                    () => {
+                      authStore.logout();
+                      navigate(Path.Login);
+                    },
+                  );
                 }
               }}
             />
@@ -362,10 +370,18 @@ export function SideBar(props: {
           <IconButton
             icon={<AddIcon />}
             text={shouldNarrow ? undefined : Locale.Home.NewChat}
-            onClick={() => {
+            onClick={async () => {
               if (config.dontShowMaskSplashScreen) {
-                chatStore.newSession();
-                navigate(Path.Chat);
+                const result = await chatStore.newSession(
+                  authStore.token,
+                  () => {
+                    authStore.logout();
+                    navigate(Path.Login);
+                  },
+                );
+                if (result) {
+                  navigate(Path.Chat);
+                }
               } else {
                 navigate(Path.NewChat);
               }
