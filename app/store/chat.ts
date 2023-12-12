@@ -1138,19 +1138,6 @@ export const useChatStore = createPersistStore(
           return Promise.resolve(true);
         }
 
-        const hasUuidMessages = messages
-          .filter((m) => m.uuid)
-          .map((m) => {
-            // 面具也可以编辑，面具上下文不包含uuid
-            return {
-              uuid: m.uuid,
-              role: m.role,
-              content: m.content,
-            };
-          });
-        if (hasUuidMessages.length === 0) {
-          return Promise.resolve(true);
-        }
         const url = "/session/message";
         const BASE_URL = process.env.BASE_URL;
         const mode = process.env.BUILD_MODE;
@@ -1162,7 +1149,15 @@ export const useChatStore = createPersistStore(
           },
           body: JSON.stringify({
             sessionUuid: session.uuid,
-            messages: hasUuidMessages,
+            all: true,
+            messages: messages.map((m) => {
+              return {
+                uuid: m.uuid,
+                id: m.id,
+                role: m.role,
+                content: m.content,
+              };
+            }),
           }),
         })
           .then((res) => res.json())
@@ -1172,6 +1167,15 @@ export const useChatStore = createPersistStore(
               showToast(res.message);
               return false;
             }
+            messages.forEach((message) => {
+              if (message.uuid) {
+                return;
+              }
+              const msg = res.data.find((m: any) => m.id === message.id);
+              if (msg) {
+                message.uuid = msg.uuid;
+              }
+            });
             session.messages = messages;
             set(() => ({ sessions }));
             return true;

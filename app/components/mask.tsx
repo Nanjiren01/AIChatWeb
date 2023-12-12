@@ -350,6 +350,7 @@ export function ContextPrompts(props: {
                               createMessage({
                                 role: "user",
                                 content: "",
+                                id: nanoid(),
                                 date: new Date().toLocaleString(),
                               }),
                               i + 1,
