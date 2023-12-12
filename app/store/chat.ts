@@ -1189,6 +1189,67 @@ export const useChatStore = createPersistStore(
           });
       },
 
+      updateCurrentSessionClearContextIndex(token: string, logout: () => void) {
+        const sessions = get().sessions;
+        const index = get().currentSessionIndex;
+        const session = sessions[index];
+
+        const newValue =
+          session.clearContextIndex === session.messages.length
+            ? -1
+            : session.messages.length;
+
+        if (!session.uuid) {
+          this.updateCurrentSession((session) => {
+            if (newValue === -1) {
+              session.clearContextIndex = undefined;
+            } else {
+              session.clearContextIndex = newValue;
+              session.memoryPrompt = ""; // will clear memory
+            }
+          });
+          return Promise.resolve(true);
+        }
+
+        const url = "/session";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+        return fetch(requestUrl, {
+          method: "put",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({
+            uuid: session.uuid,
+            clearContextIndex: newValue,
+          }),
+        })
+          .then((res) => res.json())
+          .then((res: Response<any>) => {
+            console.log("[SessionEntity] update session messages", res);
+            if (res.code !== 0) {
+              showToast(res.message);
+              return false;
+            }
+            if (newValue === -1) {
+              session.clearContextIndex = undefined;
+            } else {
+              session.clearContextIndex = newValue;
+              session.memoryPrompt = ""; // will clear memory
+            }
+            set(() => ({ sessions }));
+            return true;
+          })
+          .catch((e) => {
+            console.error(
+              "[SessionEntity] failed to update session messages",
+              e,
+            );
+            return false;
+          });
+      },
+
       updateCurrentSession(updater: (session: ChatSession) => void) {
         const sessions = get().sessions;
         const index = get().currentSessionIndex;

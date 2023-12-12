@@ -332,16 +332,22 @@ export function PromptHints(props: {
 }
 
 function ClearContextDivider() {
+  const authStore = useAuthStore();
+  const navigate = useNavigate();
   const chatStore = useChatStore();
 
   return (
     <div
       className={styles["clear-context"]}
-      onClick={() =>
-        chatStore.updateCurrentSession(
-          (session) => (session.clearContextIndex = undefined),
-        )
-      }
+      onClick={() => {
+        chatStore.updateCurrentSessionClearContextIndex(authStore.token, () => {
+          authStore.logout();
+          navigate(Path.Login);
+        });
+        // chatStore.updateCurrentSession(
+        //   (session) => (session.clearContextIndex = undefined),
+        // )
+      }}
     >
       <div className={styles["clear-context-tips"]}>{Locale.Context.Clear}</div>
       <div className={styles["clear-context-revert-btn"]}>
@@ -660,14 +666,13 @@ export function ChatActions(props: {
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}
         onClick={() => {
-          chatStore.updateCurrentSession((session) => {
-            if (session.clearContextIndex === session.messages.length) {
-              session.clearContextIndex = undefined;
-            } else {
-              session.clearContextIndex = session.messages.length;
-              session.memoryPrompt = ""; // will clear memory
-            }
-          });
+          chatStore.updateCurrentSessionClearContextIndex(
+            authStore.token,
+            () => {
+              authStore.logout();
+              navigate(Path.Login);
+            },
+          );
         }}
       />
 
