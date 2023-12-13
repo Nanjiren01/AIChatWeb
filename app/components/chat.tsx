@@ -66,6 +66,7 @@ import {
   SimpleModel,
   ModelMessageStruct,
   ModelContentType,
+  ChatSession,
 } from "../store";
 
 import {
@@ -105,7 +106,7 @@ import {
 } from "../constant";
 import { Avatar } from "./emoji";
 import { ContextPrompts, MaskAvatar, MaskConfig } from "./mask";
-import { useMaskStore } from "../store/mask";
+import { Mask, useMaskStore } from "../store/mask";
 import { ChatCommandPrefix, useChatCommand, useCommand } from "../command";
 import { prettyObject } from "../utils/format";
 import { ExportMessageModal } from "./exporter";
@@ -119,17 +120,36 @@ const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
 
 const MAX_IMAGE_SIZE = 5;
 
-export function SessionConfigModel(props: { onClose: () => void }) {
+export function SessionConfigModel(props: {
+  session: ChatSession;
+  onClose: () => void;
+}) {
   const chatStore = useChatStore();
-  const session = chatStore.currentSession();
+  //const session = chatStore.currentSession();
   const maskStore = useMaskStore();
+  const authStore = useAuthStore();
   const navigate = useNavigate();
+
+  console.log("props.session.mask", props.session.mask);
+  const [mask, setMask] = useState(
+    JSON.parse(JSON.stringify(props.session.mask)) as Mask,
+  );
+  const [changed, setChanged] = useState(false);
 
   return (
     <div className="modal-mask">
       <Modal
         title={Locale.Context.Edit}
-        onClose={() => props.onClose()}
+        onClose={async () => {
+          console.log("changed", changed);
+          if (changed) {
+            if (await showConfirm(Locale.Memory.CloseConfirm)) {
+              props.onClose();
+            }
+          } else {
+            props.onClose();
+          }
+        }}
         actions={[
           <IconButton
             key="reset"
@@ -138,8 +158,13 @@ export function SessionConfigModel(props: { onClose: () => void }) {
             text={Locale.Chat.Config.Reset}
             onClick={async () => {
               if (await showConfirm(Locale.Memory.ResetConfirm)) {
-                chatStore.updateCurrentSession(
-                  (session) => (session.memoryPrompt = ""),
+                chatStore.updateCurrentSessionMemoryPrompt(
+                  "",
+                  authStore.token,
+                  () => {
+                    authStore.logout();
+                    navigate(Path.Login);
+                  },
                 );
               }
             }}
@@ -152,26 +177,52 @@ export function SessionConfigModel(props: { onClose: () => void }) {
             onClick={() => {
               navigate(Path.Masks);
               setTimeout(() => {
-                maskStore.create(session.mask);
+                maskStore.create(props.session.mask);
               }, 500);
+            }}
+          />,
+          <IconButton
+            key="confirm"
+            icon={<CopyIcon />}
+            bordered
+            type="primary"
+            text={Locale.Chat.Config.Confirm}
+            onClick={async () => {
+              // console.log('confirm', mask)
+              const result = await chatStore.updateCurrentSessionMask(
+                mask,
+                authStore.token,
+                () => {
+                  authStore.logout();
+                  navigate(Path.Login);
+                },
+              );
+              if (result) {
+                props.onClose();
+              }
             }}
           />,
         ]}
       >
         <MaskConfig
-          mask={session.mask}
+          mask={mask}
           updateMask={(updater) => {
-            const mask = { ...session.mask };
+            // const mask = { ...session.mask };
             updater(mask);
-            chatStore.updateCurrentSession((session) => (session.mask = mask));
+            setMask({ ...mask });
+            console.log("update mask, set changed=true", mask);
+            setChanged(true);
+            // chatStore.updateCurrentSession((session) => (session.mask = mask));
           }}
           shouldSyncFromGlobal
           extraListItems={
-            session.mask.modelConfig.sendMemory ? (
+            props.session.mask.modelConfig.sendMemory ? (
               <ListItem
                 className="copyable"
-                title={`${Locale.Memory.Title} (${session.lastSummarizeIndex} of ${session.messages.length})`}
-                subTitle={session.memoryPrompt || Locale.Memory.EmptyContent}
+                title={`${Locale.Memory.Title} (${props.session.lastSummarizeIndex} of ${props.session.messages.length})`}
+                subTitle={
+                  props.session.memoryPrompt || Locale.Memory.EmptyContent
+                }
               ></ListItem>
             ) : (
               <></>
@@ -207,7 +258,10 @@ function PromptToast(props: {
         </div>
       )}
       {props.showModal && (
-        <SessionConfigModel onClose={() => props.setShowModal(false)} />
+        <SessionConfigModel
+          session={session}
+          onClose={() => props.setShowModal(false)}
+        />
       )}
     </div>
   );
@@ -690,15 +744,24 @@ export function ChatActions(props: {
             value: m,
           }))}
           onClose={() => setShowModelSelector(false)}
-          onSelection={(s) => {
+          onSelection={async (s) => {
             if (s.length === 0) return;
-            chatStore.updateCurrentSession((session) => {
-              session.mask.modelConfig.model = s[0].name;
-              session.mask.modelConfig.contentType = s[0].contentType;
-              session.mask.modelConfig.messageStruct = s[0].messageStruct;
-              session.mask.syncGlobalConfig = false;
-            });
-            showToast(s[0].name);
+            const result = await chatStore.updateCurrentSessionMaskByUpdater(
+              (mask) => {
+                mask.modelConfig.model = s[0].name;
+                mask.modelConfig.contentType = s[0].contentType;
+                mask.modelConfig.messageStruct = s[0].messageStruct;
+                mask.syncGlobalConfig = false;
+              },
+              authStore.token,
+              () => {
+                authStore.logout();
+                navigate(Path.Login);
+              },
+            );
+            if (result) {
+              showToast(s[0].name);
+            }
           }}
         />
       )}
@@ -947,6 +1010,10 @@ function _Chat() {
           botMessage,
           websiteConfigStore,
           authStore,
+          () => {
+            authStore.logout();
+            navigate(Path.Login);
+          },
         );
         ChatFetchTaskPool.set(botMessage.attr.taskId, null);
         if (fetch) {

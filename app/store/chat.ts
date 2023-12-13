@@ -403,13 +403,61 @@ export const useChatStore = createPersistStore(
         return session;
       },
 
-      onNewMessage(message: ChatMessage) {
-        get().updateCurrentSession((session) => {
-          session.messages = session.messages.concat();
-          session.lastUpdate = Date.now();
-        });
-        get().updateStat(message);
-        get().summarizeSession();
+      // onUpdateMessage
+      async onNewMessage(
+        message: ChatMessage,
+        token: string,
+        logout: () => void,
+      ) {
+        const sessions = get().sessions;
+        const index = get().currentSessionIndex;
+        const session = sessions[index];
+
+        session.messages = session.messages.concat();
+        session.lastUpdate = Date.now();
+        session.stat.charCount += message.content.length;
+
+        //console.log('session uuid', session.uuid, ',', session)
+        if (!session.uuid) {
+          set(() => ({ sessions }));
+          get().summarizeSession(token, logout);
+          return;
+        }
+
+        const result = await (async () => {
+          const url = "/session";
+          const BASE_URL = process.env.BASE_URL;
+          const mode = process.env.BUILD_MODE;
+          let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+          return fetch(requestUrl, {
+            method: "put",
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+              uuid: session.uuid,
+              lastUpdate: session.lastUpdate,
+              statJson: JSON.stringify(session.stat),
+            }),
+          })
+            .then((res) => res.json())
+            .then((res: Response<any>) => {
+              console.log("[SessionEntity] update session stat", res);
+              if (res.code !== 0) {
+                showToast(res.message);
+                return false;
+              }
+              set(() => ({ sessions }));
+              return true;
+            })
+            .catch((e) => {
+              console.error("[SessionEntity] failed to update session stat", e);
+              return false;
+            });
+        })();
+        if (result) {
+          get().summarizeSession(token, logout);
+        }
       },
 
       async onUserInput(
@@ -494,7 +542,7 @@ export const useChatStore = createPersistStore(
           imageMode,
           baseImages,
           onUpdate(message) {
-            console.log("onUpdate", message);
+            // console.log("onUpdate", message);
             botMessage.streaming = true;
             if (message) {
               botMessage.content = message;
@@ -516,7 +564,7 @@ export const useChatStore = createPersistStore(
             });
           },
           onFinish(message) {
-            console.log("onFinish", message);
+            // console.log("onFinish", message);
             botMessage.streaming = false;
             let logout = false;
             if (message) {
@@ -559,7 +607,7 @@ export const useChatStore = createPersistStore(
                   );
                 }, 2000);
               }
-              get().onNewMessage(botMessage);
+              get().onNewMessage(botMessage, token, navigateToLogin);
             }
             ChatControllerPool.remove(session.id, botMessage.id);
             if (logout) {
@@ -646,6 +694,7 @@ export const useChatStore = createPersistStore(
         message: ChatMessage,
         websiteConfigStore: WebsiteConfigStore,
         authStore: AuthStore,
+        logout: () => void,
       ) {
         const botMessage = message;
         const sensitiveWordsTip = websiteConfigStore.sensitiveWordsTip;
@@ -694,7 +743,7 @@ export const useChatStore = createPersistStore(
                 // ignore
               }
               botMessage.content = message;
-              get().onNewMessage(botMessage);
+              get().onNewMessage(botMessage, authStore.token, logout);
             }
             // ChatControllerPool.remove(
             //   sessionIndex,
@@ -826,7 +875,7 @@ export const useChatStore = createPersistStore(
         });
       },
 
-      summarizeSession() {
+      summarizeSession(token: string, logout: () => void) {
         const config = useAppConfig.getState();
         const session = get().currentSession();
         if (session.mask.modelConfig?.contentType !== "Text") {
@@ -863,11 +912,10 @@ export const useChatStore = createPersistStore(
               model: getSummarizeModel(session.mask.modelConfig.model),
             },
             onFinish(message) {
-              get().updateCurrentSession(
-                (session) =>
-                  (session.topic =
-                    message.length > 0 ? trimTopic(message) : DEFAULT_TOPIC),
-              );
+              if (message.length > 0) {
+                const topic = trimTopic(message);
+                get().updateCurrentSessionTopic(topic, token, logout);
+              }
             },
           });
         }
@@ -941,12 +989,12 @@ export const useChatStore = createPersistStore(
         }
       },
 
-      updateStat(message: ChatMessage) {
-        get().updateCurrentSession((session) => {
-          session.stat.charCount += message.content.length;
-          // TODO: should update chat count and word count
-        });
-      },
+      // updateStat(message: ChatMessage) {
+      //   get().updateCurrentSession((session) => {
+      //     session.stat.charCount += message.content.length;
+      //     // TODO: should update chat count and word count
+      //   });
+      // },
 
       deleteMessageInCurrentSession(message: ChatMessage, token: string) {
         if (!message.uuid) {
@@ -1251,6 +1299,108 @@ export const useChatStore = createPersistStore(
               "[SessionEntity] failed to update session messages",
               e,
             );
+            return false;
+          });
+      },
+
+      async updateCurrentSessionMaskByUpdater(
+        updater: (mask: Mask) => void,
+        token: string,
+        logout: () => void,
+      ) {
+        const sessions = get().sessions;
+        const index = get().currentSessionIndex;
+        const session = sessions[index];
+
+        updater(session.mask);
+
+        return await this.updateCurrentSessionMask(session.mask, token, logout);
+      },
+
+      updateCurrentSessionMask(mask: Mask, token: string, logout: () => void) {
+        const sessions = get().sessions;
+        const index = get().currentSessionIndex;
+        const session = sessions[index];
+
+        if (!session.uuid) {
+          session.mask = mask;
+          set(() => ({ sessions }));
+          return Promise.resolve(true);
+        }
+
+        const url = "/session";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+        return fetch(requestUrl, {
+          method: "put",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({
+            uuid: session.uuid,
+            maskJson: JSON.stringify(mask),
+          }),
+        })
+          .then((res) => res.json())
+          .then((res: Response<any>) => {
+            console.log("[SessionEntity] update session mask", res);
+            if (res.code !== 0) {
+              showToast(res.message);
+              return false;
+            }
+            session.mask = mask;
+            set(() => ({ sessions }));
+            return true;
+          })
+          .catch((e) => {
+            console.error("[SessionEntity] failed to update session mask", e);
+            return false;
+          });
+      },
+
+      updateCurrentSessionMemoryPrompt(
+        memoryPrompt: string,
+        token: string,
+        logout: () => void,
+      ) {
+        const sessions = get().sessions;
+        const index = get().currentSessionIndex;
+        const session = sessions[index];
+
+        if (!session.uuid) {
+          session.memoryPrompt = memoryPrompt;
+          set(() => ({ sessions }));
+          return Promise.resolve(true);
+        }
+
+        const url = "/session";
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+        return fetch(requestUrl, {
+          method: "put",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({
+            uuid: session.uuid,
+            memoryPrompt,
+          }),
+        })
+          .then((res) => res.json())
+          .then((res: Response<any>) => {
+            console.log("[SessionEntity] update session mask", res);
+            if (res.code !== 0) {
+              showToast(res.message);
+              return false;
+            }
+            session.memoryPrompt = memoryPrompt;
+            set(() => ({ sessions }));
+            return true;
+          })
+          .catch((e) => {
+            console.error("[SessionEntity] failed to update session mask", e);
             return false;
           });
       },

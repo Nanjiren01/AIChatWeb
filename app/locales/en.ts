@@ -91,6 +91,7 @@ const en: LocaleType = {
     Config: {
       Reset: "Reset to Default",
       SaveAs: "Save as Mask",
+      Confirm: "Confirm",
     },
     IsContext: "Contextual Prompt",
   },
@@ -179,6 +180,8 @@ const en: LocaleType = {
     Reset: "Reset Session",
     ResetConfirm:
       "Resetting will clear the current conversation history and historical memory. Are you sure you want to reset?",
+    CloseConfirm:
+      "You have changed some items. Are you sure quit without saving?",
   },
   Home: {
     NewChat: "New Chat",

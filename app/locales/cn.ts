@@ -86,6 +86,7 @@ const cn = {
     Config: {
       Reset: "清除记忆",
       SaveAs: "存为应用",
+      Confirm: "确定",
     },
     IsContext: "预设提示词",
   },
@@ -169,6 +170,7 @@ const cn = {
     Copy: "复制摘要",
     Reset: "[unused]",
     ResetConfirm: "确认清空历史摘要？",
+    CloseConfirm: "您已修改部分配置项，确定不保存直接退出？",
   },
   Home: {
     NewChat: "新的聊天",
@@ -675,7 +677,7 @@ const cn = {
     Prompt: {
       History: (content: string) => "这是历史聊天总结作为前情提要：" + content,
       Topic:
-        "使用四到五个字直接返回这句话的简要主题，不要解释、不要标点、不要语气词、不要多余文本，如果没有主题，请直接返回“闲聊”",
+        "使用四到五个字直接返回这句话的简要主题，不要解释、不要标点、不要换行、不要语气词、不要多余文本，如果没有主题，请直接返回“闲聊”",
       Summarize:
         "简要总结一下对话内容，用作后续的上下文提示 prompt，控制在 200 字以内",
     },
