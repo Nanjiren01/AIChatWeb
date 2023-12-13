@@ -243,6 +243,18 @@ export function fromYYYYMMDD_HHMMSS(dateString: string): Date {
   return new Date(year, month, day, hours, minutes, seconds);
 }
 
+export function fromYYYYMMDD_HHMMSS2(dateString: string): Date {
+  const parts = dateString.split(/[-/ :]/);
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  const hours = parseInt(parts[3], 10);
+  const minutes = parseInt(parts[4], 10);
+  const seconds = parseInt(parts[5], 10);
+
+  return new Date(year, month, day, hours, minutes, seconds);
+}
+
 export function getSecondsDiff(date1: Date, date2: Date) {
   const diff = Math.abs(date1.getTime() - date2.getTime());
   return Math.floor(diff / 1000);

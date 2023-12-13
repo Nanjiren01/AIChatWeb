@@ -1,4 +1,9 @@
-import { trimTopic } from "../utils";
+import {
+  fromYYYYMMDD_HHMMSS,
+  fromYYYYMMDD_HHMMSS2,
+  toYYYYMMDD_HHMMSS,
+  trimTopic,
+} from "../utils";
 
 import Locale, { getLang } from "../locales";
 import { showToast } from "../components/ui-lib";
@@ -1255,6 +1260,130 @@ export const useChatStore = createPersistStore(
         const index = get().currentSessionIndex;
         updater(sessions[index]);
         set(() => ({ sessions }));
+      },
+
+      async syncSessions(token: string) {
+        const sessions = get().sessions;
+        const noUuidSessions = sessions.filter((s) => !s.uuid);
+        if (noUuidSessions.length) {
+          // 将本地会话内容上传
+          const syncResult = await (async () => {
+            const url = "/session/sync";
+            const BASE_URL = process.env.BASE_URL;
+            const mode = process.env.BUILD_MODE;
+            let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+            return fetch(requestUrl, {
+              method: "post",
+              headers: {
+                Authorization: "Bearer " + token,
+              },
+              body: JSON.stringify({
+                sessions: noUuidSessions.map((session) => {
+                  return {
+                    id: session.id,
+                    topic: session.topic,
+                    lastUpdate: session.lastUpdate,
+                    lastSummarizeIndex: session.lastSummarizeIndex,
+                    maskJson: JSON.stringify(session.mask),
+                    statJson: JSON.stringify(session.stat),
+                    messageStruct: null, // session.messageStruct
+                    clearContextIndex: session.clearContextIndex,
+                    memoryPrompt: session.memoryPrompt,
+                    messageList: session.messages.map((message) => {
+                      const msg: any = { ...message };
+                      msg.date = toYYYYMMDD_HHMMSS(
+                        fromYYYYMMDD_HHMMSS2(msg.date),
+                      );
+                      msg.attrJson = msg.attr ? JSON.stringify(msg.attr) : null;
+                      delete msg.toolMessages;
+                      delete msg.streaming;
+                      delete msg.attr;
+                      return msg;
+                    }),
+                  };
+                }),
+              }),
+            })
+              .then((res) => res.json())
+              .then((res: Response<any>) => {
+                console.log("[SessionEntity] get sessions", res);
+                if (res.code !== 0) {
+                  showToast(res.message);
+                  return false;
+                }
+                return true;
+              })
+              .catch((e) => {
+                console.error(
+                  "[SessionEntity] failed to update session messages",
+                  e,
+                );
+                return false;
+              });
+          })();
+          if (!syncResult) {
+            return false;
+          }
+        }
+        const result = await (async () => {
+          const url = "/session/my";
+          const BASE_URL = process.env.BASE_URL;
+          const mode = process.env.BUILD_MODE;
+          let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+          return fetch(requestUrl, {
+            method: "post",
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+              page: 1,
+              size: 100,
+            }),
+          })
+            .then((res) => res.json())
+            .then((res: Response<any>) => {
+              console.log("[SessionEntity] get sessions", res);
+              if (res.code !== 0) {
+                showToast(res.message);
+                return false;
+              }
+              const ss = res.data.list.map((msg: any) => {
+                return {
+                  uuid: msg.uuid,
+                  id: msg.id,
+                  lastSummarizeIndex: msg.lastSummarizeIndex,
+                  lastUpdate: msg.lastUpdate,
+                  mask: msg.mask ? msg.mask : createEmptyMask(),
+                  memoryPrompt: msg.memoryPrompt ? msg.memoryPrompt : "",
+                  messages: msg.messageList.map((item: any) => {
+                    item = { ...item };
+                    if (!item.attr) {
+                      item.attr = {};
+                    }
+                    return item;
+                  }),
+                  stat: msg.stat
+                    ? msg.stat
+                    : {
+                        tokenCount: 0,
+                        wordCount: 0,
+                        charCount: 0,
+                      },
+                  topic: msg.topic,
+                };
+              });
+              set(() => ({ sessions: ss }));
+              return true;
+            })
+            .catch((e) => {
+              console.error(
+                "[SessionEntity] failed to update session messages",
+                e,
+              );
+              return false;
+            });
+        })();
+        return result;
       },
 
       clearAllData() {
