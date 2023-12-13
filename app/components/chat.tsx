@@ -627,6 +627,11 @@ export function ChatActions(props: {
       .then((res) => {
         if (res.code === 413) {
           showToast(res.cnMessage || res.message, undefined, 5000);
+          if (Math.floor(res.code / 100) === 100) {
+            // 100XX
+            authStore.logout();
+            navigate(Path.Login);
+          }
         }
         return res;
       })
@@ -640,6 +645,11 @@ export function ChatActions(props: {
     uploadFile(file).then((res) => {
       if (res.code !== 0) {
         showToast(res.cnMessage || res.message, undefined, 5000);
+        if (Math.floor(res.code / 100) === 100) {
+          // 100XX
+          authStore.logout();
+          navigate(Path.Login);
+        }
         return;
       }
       const filename = file.name;
