@@ -1417,7 +1417,7 @@ export const useChatStore = createPersistStore(
         const noUuidSessions = sessions.filter((s) => !s.uuid);
         if (noUuidSessions.length) {
           // 将本地会话内容上传
-          const syncResult = await (async () => {
+          const sync = async (sessions: ChatSession[]) => {
             const url = "/session/sync";
             const BASE_URL = process.env.BASE_URL;
             const mode = process.env.BUILD_MODE;
@@ -1428,7 +1428,7 @@ export const useChatStore = createPersistStore(
                 Authorization: "Bearer " + token,
               },
               body: JSON.stringify({
-                sessions: noUuidSessions.map((session) => {
+                sessions: sessions.map((session) => {
                   return {
                     id: session.id,
                     topic: session.topic,
@@ -1470,9 +1470,24 @@ export const useChatStore = createPersistStore(
                 );
                 return false;
               });
-          })();
-          if (!syncResult) {
-            return false;
+          };
+          const sessions: ChatSession[] = [];
+          for (let i = 0; i < noUuidSessions.length; i++) {
+            const session = noUuidSessions[i];
+            sessions.push(session);
+            if (sessions.length === 50) {
+              const syncResult = await sync(sessions);
+              if (!syncResult) {
+                return false;
+              }
+              sessions.splice(0, sessions.length);
+            }
+          }
+          if (sessions.length) {
+            const syncResult = await sync(sessions);
+            if (!syncResult) {
+              return false;
+            }
           }
         }
         const result = await (async () => {
