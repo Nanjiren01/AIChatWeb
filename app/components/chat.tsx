@@ -748,19 +748,21 @@ export function ChatActions(props: {
 
       {showModelSelector && (
         <Selector
-          defaultSelectedValue={currentModel}
+          defaultSelectedValue={currentModel.name}
           items={availableModels.map((m) => ({
             title: m.name,
-            value: m,
+            value: m.name,
           }))}
           onClose={() => setShowModelSelector(false)}
           onSelection={async (s) => {
             if (s.length === 0) return;
+            const selectedModel = availableModels.find((m) => m.name === s[0]);
+            if (!selectedModel) return;
             const result = await chatStore.updateCurrentSessionMaskByUpdater(
               (mask) => {
-                mask.modelConfig.model = s[0].name;
-                mask.modelConfig.contentType = s[0].contentType;
-                mask.modelConfig.messageStruct = s[0].messageStruct;
+                mask.modelConfig.model = selectedModel.name;
+                mask.modelConfig.contentType = selectedModel.contentType;
+                mask.modelConfig.messageStruct = selectedModel.messageStruct;
                 mask.syncGlobalConfig = false;
               },
               authStore.token,
@@ -770,7 +772,7 @@ export function ChatActions(props: {
               },
             );
             if (result) {
-              showToast(s[0].name);
+              showToast(selectedModel.name);
             }
           }}
         />
