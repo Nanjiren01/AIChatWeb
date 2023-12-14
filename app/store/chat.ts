@@ -660,7 +660,7 @@ export const useChatStore = createPersistStore(
         messages: ChatMessage[],
         token: string,
       ) {
-        const url = "/session/message/query";
+        const url = "/session/message/sync";
         const BASE_URL = process.env.BASE_URL;
         const mode = process.env.BUILD_MODE;
         let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
@@ -670,7 +670,10 @@ export const useChatStore = createPersistStore(
             Authorization: "Bearer " + token,
           },
           body: JSON.stringify({
-            ids: session.messages.filter((m) => !m.uuid).map((m) => m.id),
+            sessionUuid: session.uuid,
+            messages: messages.map((m) => {
+              return get().localMessageToServerMessage(m);
+            }),
           }),
         })
           .then((res) => res.json())
@@ -680,15 +683,16 @@ export const useChatStore = createPersistStore(
               showToast(res.message);
               return false;
             }
-            const map = res.data;
-            for (let id in map) {
-              const msg = map[id];
-              const message = session.messages.find((m) => m.id === id);
+            const messageList = res.data;
+            messageList.forEach((msg: any) => {
+              // 注意此处，一定要从session.messages里面找，而不是传入的参数messages里面找，
+              // 因为messages中的元素可能不在session.messages中
+              const message = session.messages.find((m) => m.id === msg.id);
               if (message) {
                 message.uuid = msg.uuid;
                 console.log("set message uuid=" + msg.uuid);
               }
-            }
+            });
             get().updateLocalCurrentSession((session) => {
               session.messages = session.messages.concat();
             });
@@ -1497,6 +1501,19 @@ export const useChatStore = createPersistStore(
         set(() => ({ sessions }));
       },
 
+      localMessageToServerMessage(message: ChatMessage) {
+        const msg: any = { ...message };
+        msg.date = toYYYYMMDD_HHMMSS(fromYYYYMMDD_HHMMSS2(msg.date));
+        msg.attrJson = msg.attr ? JSON.stringify(msg.attr) : null;
+        msg.toolMessagesJson = msg.toolMessages
+          ? JSON.stringify(msg.toolMessages)
+          : null;
+        delete msg.toolMessages;
+        delete msg.streaming;
+        delete msg.attr;
+        return msg;
+      },
+
       async syncSessions(token: string) {
         const sessions = get().sessions;
         const noUuidSessions = sessions.filter((s) => !s.uuid);
@@ -1525,15 +1542,7 @@ export const useChatStore = createPersistStore(
                     clearContextIndex: session.clearContextIndex,
                     memoryPrompt: session.memoryPrompt,
                     messageList: session.messages.map((message) => {
-                      const msg: any = { ...message };
-                      msg.date = toYYYYMMDD_HHMMSS(
-                        fromYYYYMMDD_HHMMSS2(msg.date),
-                      );
-                      msg.attrJson = msg.attr ? JSON.stringify(msg.attr) : null;
-                      delete msg.toolMessages;
-                      delete msg.streaming;
-                      delete msg.attr;
-                      return msg;
+                      return get().localMessageToServerMessage(message);
                     }),
                   };
                 }),
