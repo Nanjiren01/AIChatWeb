@@ -880,7 +880,7 @@ export function EditMessageModal(props: {
           updateContext={(updater) => {
             const newMessages = messages.slice();
             updater(newMessages);
-            console.log("newMessages", newMessages);
+            //console.log("newMessages", newMessages);
             setMessages(newMessages);
           }}
         />
