@@ -669,21 +669,23 @@ export function ChatActions(props: {
 
       {showModelSelector && (
         <Selector
-          defaultSelectedValue={currentModel}
+          defaultSelectedValue={currentModel.name}
           items={availableModels.map((m) => ({
             title: m.name,
-            value: m,
+            value: m.name,
           }))}
           onClose={() => setShowModelSelector(false)}
           onSelection={(s) => {
             if (s.length === 0) return;
+            const selectedModel = availableModels.find(m => m.name === s[0]);
+            if (!selectedModel) return;
             chatStore.updateCurrentSession((session) => {
-              session.mask.modelConfig.model = s[0].name;
-              session.mask.modelConfig.contentType = s[0].contentType;
-              session.mask.modelConfig.messageStruct = s[0].messageStruct;
+              session.mask.modelConfig.model = selectedModel.name;
+              session.mask.modelConfig.contentType = selectedModel.contentType;
+              session.mask.modelConfig.messageStruct = selectedModel.messageStruct;
               session.mask.syncGlobalConfig = false;
             });
-            showToast(s[0].name);
+            showToast(selectedModel.name);
           }}
         />
       )}
