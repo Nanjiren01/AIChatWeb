@@ -959,10 +959,20 @@ function _Chat() {
     newm: () => navigate(Path.NewChat),
     prev: () => chatStore.nextSession(-1),
     next: () => chatStore.nextSession(1),
-    clear: () =>
-      chatStore.updateCurrentSession(
-        (session) => (session.clearContextIndex = session.messages.length),
-      ),
+    clear: () => {
+      chatStore.setCurrentSessionClearContextIndex(
+        session,
+        session.messages.length,
+        authStore.token,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
+      );
+      // chatStore.updateCurrentSession(
+      //   (session) => (session.clearContextIndex = session.messages.length),
+      // )
+    },
     del: () =>
       chatStore.deleteSession(
         chatStore.currentSessionIndex,
@@ -1009,7 +1019,7 @@ function _Chat() {
     new Map<string, NodeJS.Timeout | null>(),
   );
 
-  const refreshDrawStatus = (botMessage: ChatMessage) => {
+  const refreshDrawStatus = (session: ChatSession, botMessage: ChatMessage) => {
     if (ChatFetchTaskPool.get(botMessage.attr.taskId)) {
       return;
     }
@@ -1017,6 +1027,7 @@ function _Chat() {
       botMessage.attr.taskId,
       setTimeout(async () => {
         const fetch = await chatStore.getDrawTaskProgress(
+          session,
           botMessage,
           websiteConfigStore,
           authStore,
@@ -1027,7 +1038,7 @@ function _Chat() {
         );
         ChatFetchTaskPool.set(botMessage.attr.taskId, null);
         if (fetch) {
-          refreshDrawStatus(botMessage);
+          refreshDrawStatus(session, botMessage);
         }
       }, 3000),
     );
@@ -1097,7 +1108,7 @@ function _Chat() {
       .then((result) => {
         setIsLoading(false);
         if (result && result.fetch) {
-          refreshDrawStatus(result.botMessage);
+          refreshDrawStatus(session, result.botMessage);
         }
       });
     localStorage.setItem(LAST_INPUT_KEY, userInput);
@@ -1143,31 +1154,56 @@ function _Chat() {
   };
 
   useEffect(() => {
-    chatStore.updateCurrentSession((session) => {
-      const stopTiming = Date.now() - REQUEST_TIMEOUT_MS;
-      session.messages.forEach((m) => {
-        // check if should stop all stale messages
-        if (m.isError || new Date(m.date).getTime() < stopTiming) {
-          if (m.streaming) {
-            m.streaming = false;
-          }
+    chatStore.updateCurrentSessionMessagesByUpdater(
+      (session) => {
+        let messageChanged = false;
+        const changedMessages = [] as ChatMessage[];
+        const stopTiming = Date.now() - REQUEST_TIMEOUT_MS;
+        session.messages.forEach((m) => {
+          // check if should stop all stale messages
+          if (m.isError || new Date(m.date).getTime() < stopTiming) {
+            if (m.streaming) {
+              m.streaming = false;
+              messageChanged = true;
+            }
 
-          if (m.content.length === 0 && m.role !== "user") {
-            m.isError = true;
-            m.content = prettyObject({
-              error: true,
-              message: "empty response",
-            });
+            if (m.content.length === 0 && m.role !== "user") {
+              m.isError = true;
+              m.content = prettyObject({
+                error: true,
+                message: "empty response",
+              });
+              messageChanged = true;
+            }
+            if (messageChanged) {
+              changedMessages.push(m);
+            }
           }
-        }
-      });
-
-      // auto sync mask config from global config
-      if (session.mask.syncGlobalConfig) {
-        console.log("[Mask] syncing from global, name = ", session.mask.name);
-        session.mask.modelConfig = { ...config.modelConfig };
-      }
-    });
+        });
+        return {
+          messageChanged,
+          messages: changedMessages,
+        };
+      },
+      authStore.token,
+      () => {
+        authStore.logout();
+        navigate(Path.Login);
+      },
+    );
+    if (session.mask.syncGlobalConfig) {
+      chatStore.updateCurrentSessionMaskByUpdater(
+        (mask) => {
+          console.log("[Mask] syncing from global, name = ", session.mask.name);
+          session.mask.modelConfig = { ...config.modelConfig };
+        },
+        authStore.token,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
+      );
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1284,15 +1320,22 @@ function _Chat() {
   };
 
   const onPinMessage = (message: ChatMessage) => {
-    chatStore.updateCurrentSession((session) => {
-      // todo
-      const copy = {
-        ...message,
-        id: nanoid(),
-      };
-      delete copy.uuid;
-      session.mask.context.push(copy);
-    });
+    chatStore.updateCurrentSessionMaskByUpdater(
+      (mask) => {
+        // todo
+        const copy = {
+          ...message,
+          id: nanoid(),
+        };
+        delete copy.uuid;
+        mask.context.push(copy);
+      },
+      authStore.token,
+      () => {
+        authStore.logout();
+        navigate(Path.Login);
+      },
+    );
 
     showToast(Locale.Chat.Actions.PinToastContent, {
       text: Locale.Chat.Actions.PinToastAction,
@@ -1970,7 +2013,7 @@ function _Chat() {
                       ) && (
                         <div>
                           <button
-                            onClick={() => refreshDrawStatus(message)}
+                            onClick={() => refreshDrawStatus(session, message)}
                             className={`${styles["chat-message-mj-action-btn"]} clickable`}
                             style={{ width: "150px" }}
                           >

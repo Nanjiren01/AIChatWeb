@@ -184,12 +184,12 @@ export const useChatStore = createPersistStore(
     }
 
     const methods = {
-      clearSessions() {
-        set(() => ({
-          sessions: [createEmptySession()],
-          currentSessionIndex: 0,
-        }));
-      },
+      // clearSessions() {
+      //   set(() => ({
+      //     sessions: [createEmptySession()],
+      //     currentSessionIndex: 0,
+      //   }));
+      // },
 
       selectSession(index: number) {
         set({
@@ -197,32 +197,33 @@ export const useChatStore = createPersistStore(
         });
       },
 
-      moveSession(from: number, to: number) {
-        set((state) => {
-          const { sessions, currentSessionIndex: oldIndex } = state;
+      // moveSession(from: number, to: number) {
+      //   set((state) => {
+      //     const { sessions, currentSessionIndex: oldIndex } = state;
 
-          // move the session
-          const newSessions = [...sessions];
-          const session = newSessions[from];
-          newSessions.splice(from, 1);
-          newSessions.splice(to, 0, session);
+      //     // move the session
+      //     const newSessions = [...sessions];
+      //     const session = newSessions[from];
+      //     newSessions.splice(from, 1);
+      //     newSessions.splice(to, 0, session);
 
-          // modify current session id
-          let newIndex = oldIndex === from ? to : oldIndex;
-          if (oldIndex > from && oldIndex <= to) {
-            newIndex -= 1;
-          } else if (oldIndex < from && oldIndex >= to) {
-            newIndex += 1;
-          }
+      //     // modify current session id
+      //     let newIndex = oldIndex === from ? to : oldIndex;
+      //     if (oldIndex > from && oldIndex <= to) {
+      //       newIndex -= 1;
+      //     } else if (oldIndex < from && oldIndex >= to) {
+      //       newIndex += 1;
+      //     }
 
-          return {
-            currentSessionIndex: newIndex,
-            sessions: newSessions,
-          };
-        });
-      },
+      //     return {
+      //       currentSessionIndex: newIndex,
+      //       sessions: newSessions,
+      //     };
+      //   });
+      // },
 
-      newSession(
+      // 从0.11开始所有session都记录到服务器中
+      async newSession(
         token: string,
         logout: () => void,
         mask?: Mask,
@@ -403,7 +404,7 @@ export const useChatStore = createPersistStore(
         return session;
       },
 
-      // onUpdateMessage
+      // onUpdateMessage，更新消息lastUpdate，stat，该方法用于对话结束之后
       async onNewMessage(
         message: ChatMessage,
         token: string,
@@ -515,7 +516,8 @@ export const useChatStore = createPersistStore(
         const messageIndex = get().currentSession().messages.length + 1;
 
         // save user's and bot's message
-        get().updateCurrentSession((session) => {
+        // 暂时只更新
+        get().updateLocalCurrentSession((session) => {
           const savedUserMessage = {
             ...userMessage,
             content: userContent,
@@ -525,8 +527,6 @@ export const useChatStore = createPersistStore(
             botMessage,
           ]);
         });
-
-        const fetchServerMessageId = this.fetchServerMessageId;
 
         // make request
         return api.llm.chat({
@@ -547,7 +547,7 @@ export const useChatStore = createPersistStore(
             if (message) {
               botMessage.content = message;
             }
-            get().updateCurrentSession((session) => {
+            get().updateLocalCurrentSession((session) => {
               session.messages = session.messages.concat();
             });
           },
@@ -559,7 +559,8 @@ export const useChatStore = createPersistStore(
                 toolInput,
               });
             }
-            get().updateCurrentSession((session) => {
+            get().updateLocalCurrentSession((session) => {
+              // todo
               session.messages = session.messages.concat();
             });
           },
@@ -598,16 +599,16 @@ export const useChatStore = createPersistStore(
                 // ignore
               }
               botMessage.content = message;
+              get().onNewMessage(botMessage, token, navigateToLogin);
               if (session.uuid) {
                 setTimeout(() => {
-                  fetchServerMessageId(
+                  get().fetchServerMessageId(
                     session,
                     [userMessage, botMessage],
                     token,
                   );
                 }, 2000);
               }
-              get().onNewMessage(botMessage, token, navigateToLogin);
             }
             ChatControllerPool.remove(session.id, botMessage.id);
             if (logout) {
@@ -625,9 +626,17 @@ export const useChatStore = createPersistStore(
             botMessage.streaming = false;
             userMessage.isError = !isAborted;
             botMessage.isError = !isAborted;
-            get().updateCurrentSession((session) => {
-              session.messages = session.messages.concat();
-            });
+            get().updateCurrentSessionMessagesByUpdater(
+              (session) => {
+                // session.messages = session.messages.concat();
+                return {
+                  messageChanged: true,
+                  messages: [botMessage, userMessage],
+                };
+              },
+              token,
+              navigateToLogin,
+            );
             ChatControllerPool.remove(
               session.id,
               botMessage.id ?? messageIndex,
@@ -646,7 +655,7 @@ export const useChatStore = createPersistStore(
         });
       },
 
-      fetchServerMessageId(
+      async fetchServerMessageId(
         session: ChatSession,
         messages: ChatMessage[],
         token: string,
@@ -680,7 +689,7 @@ export const useChatStore = createPersistStore(
                 console.log("set message uuid=" + msg.uuid);
               }
             }
-            get().updateCurrentSession((session) => {
+            get().updateLocalCurrentSession((session) => {
               session.messages = session.messages.concat();
             });
             return res;
@@ -691,6 +700,7 @@ export const useChatStore = createPersistStore(
       },
 
       async getDrawTaskProgress(
+        session: ChatSession,
         message: ChatMessage,
         websiteConfigStore: WebsiteConfigStore,
         authStore: AuthStore,
@@ -702,12 +712,15 @@ export const useChatStore = createPersistStore(
         return api.llm.fetchDrawStatus(
           (message) => {
             botMessage.streaming = true;
+            const oldContent = botMessage.content;
             if (message) {
               botMessage.content = message;
             }
-            get().updateCurrentSession((session) => {
-              session.messages = session.messages.concat();
-            });
+            if (oldContent != botMessage.content) {
+              get().updateLocalCurrentSession((session) => {
+                session.messages = session.messages.concat();
+              });
+            }
           },
           (message) => {
             botMessage.streaming = false;
@@ -744,6 +757,15 @@ export const useChatStore = createPersistStore(
               }
               botMessage.content = message;
               get().onNewMessage(botMessage, authStore.token, logout);
+              if (session.uuid) {
+                setTimeout(() => {
+                  get().fetchServerMessageId(
+                    session,
+                    [botMessage],
+                    authStore.token,
+                  );
+                }, 2000);
+              }
             }
             // ChatControllerPool.remove(
             //   sessionIndex,
@@ -856,24 +878,24 @@ export const useChatStore = createPersistStore(
         return recentMessages;
       },
 
-      updateMessage(
-        sessionIndex: number,
-        messageIndex: number,
-        updater: (message?: ChatMessage) => void,
-      ) {
-        const sessions = get().sessions;
-        const session = sessions.at(sessionIndex);
-        const messages = session?.messages;
-        updater(messages?.at(messageIndex));
-        set(() => ({ sessions }));
-      },
+      // updateMessage(
+      //   sessionIndex: number,
+      //   messageIndex: number,
+      //   updater: (message?: ChatMessage) => void,
+      // ) {
+      //   const sessions = get().sessions;
+      //   const session = sessions.at(sessionIndex);
+      //   const messages = session?.messages;
+      //   updater(messages?.at(messageIndex));
+      //   set(() => ({ sessions }));
+      // },
 
-      resetSession() {
-        get().updateCurrentSession((session) => {
-          session.messages = [];
-          session.memoryPrompt = "";
-        });
-      },
+      // resetSession() {
+      //   this.updateCurrentSession((session) => {
+      //     session.messages = [];
+      //     session.memoryPrompt = "";
+      //   });
+      // },
 
       summarizeSession(token: string, logout: () => void) {
         const config = useAppConfig.getState();
@@ -998,7 +1020,7 @@ export const useChatStore = createPersistStore(
 
       deleteMessageInCurrentSession(message: ChatMessage, token: string) {
         if (!message.uuid) {
-          this.updateCurrentSession((session) => {
+          this.updateLocalCurrentSession((session) => {
             session.messages = session.messages.filter(
               (m) => m.id !== message.id,
             );
@@ -1026,7 +1048,7 @@ export const useChatStore = createPersistStore(
               showToast(res.message);
               return false;
             }
-            this.updateCurrentSession((session) => {
+            this.updateLocalCurrentSession((session) => {
               session.messages = session.messages.filter(
                 (m) => m.id !== message.id,
               );
@@ -1040,7 +1062,7 @@ export const useChatStore = createPersistStore(
           });
       },
 
-      updateCurrentSessionTopic(
+      async updateCurrentSessionTopic(
         topic: string,
         token: string,
         logout: () => void,
@@ -1090,8 +1112,8 @@ export const useChatStore = createPersistStore(
           });
       },
 
-      // 仅更新某个message的content字段，可能是面具中的
-      updateCurrentSessionMessageContent(
+      // 仅更新某个message的content字段和isError字段，可能是面具中的
+      async updateCurrentSessionMessageContent(
         message: ChatMessage,
         token: string,
         logout: () => void,
@@ -1118,6 +1140,7 @@ export const useChatStore = createPersistStore(
         }
 
         if (!session.uuid) {
+          msg.isError = message.isError;
           msg.content = message.content;
           set(() => ({ sessions }));
           return Promise.resolve(true);
@@ -1137,6 +1160,7 @@ export const useChatStore = createPersistStore(
               {
                 uuid: msg.uuid,
                 // role: msg.role,
+                isError: message.isError,
                 content: message.content,
               },
             ],
@@ -1150,6 +1174,7 @@ export const useChatStore = createPersistStore(
               return false;
             }
             // console.log(JSON.stringify(session))
+            msg!.isError = message.isError;
             msg!.content = message.content;
             set(() => ({ sessions }));
             return true;
@@ -1172,7 +1197,7 @@ export const useChatStore = createPersistStore(
       },
 
       // 全量更新，messages不是面具中的
-      updateCurrentSessionMessages(
+      async updateCurrentSessionMessages(
         messages: ChatMessage[],
         token: string,
         logout: () => void,
@@ -1242,7 +1267,10 @@ export const useChatStore = createPersistStore(
           });
       },
 
-      updateCurrentSessionClearContextIndex(token: string, logout: () => void) {
+      async updateCurrentSessionClearContextIndex(
+        token: string,
+        logout: () => void,
+      ) {
         const sessions = get().sessions;
         const index = get().currentSessionIndex;
         const session = sessions[index];
@@ -1251,9 +1279,23 @@ export const useChatStore = createPersistStore(
           session.clearContextIndex === session.messages.length
             ? -1
             : session.messages.length;
+        return await this.setCurrentSessionClearContextIndex(
+          session,
+          newValue,
+          token,
+          logout,
+        );
+      },
+      async setCurrentSessionClearContextIndex(
+        session: ChatSession,
+        newValue: number,
+        token: string,
+        logout: () => void,
+      ) {
+        const sessions = get().sessions;
 
         if (!session.uuid) {
-          this.updateCurrentSession((session) => {
+          this.updateLocalCurrentSession((session) => {
             if (newValue === -1) {
               session.clearContextIndex = undefined;
             } else {
@@ -1276,6 +1318,7 @@ export const useChatStore = createPersistStore(
           body: JSON.stringify({
             uuid: session.uuid,
             clearContextIndex: newValue,
+            memoryPrompt: "",
           }),
         })
           .then((res) => res.json())
@@ -1317,7 +1360,11 @@ export const useChatStore = createPersistStore(
         return await this.updateCurrentSessionMask(session.mask, token, logout);
       },
 
-      updateCurrentSessionMask(mask: Mask, token: string, logout: () => void) {
+      async updateCurrentSessionMask(
+        mask: Mask,
+        token: string,
+        logout: () => void,
+      ) {
         const sessions = get().sessions;
         const index = get().currentSessionIndex;
         const session = sessions[index];
@@ -1359,7 +1406,7 @@ export const useChatStore = createPersistStore(
           });
       },
 
-      updateCurrentSessionMemoryPrompt(
+      async updateCurrentSessionMemoryPrompt(
         memoryPrompt: string,
         token: string,
         logout: () => void,
@@ -1405,7 +1452,45 @@ export const useChatStore = createPersistStore(
           });
       },
 
-      updateCurrentSession(updater: (session: ChatSession) => void) {
+      // 当消息内容有更新时，发生错误时，使用此方法更新message
+      async updateCurrentSessionMessagesByUpdater(
+        updater: (session: ChatSession) => {
+          messageChanged: boolean;
+          messages?: ChatMessage[];
+        },
+        token: string,
+        logout: () => void,
+      ) {
+        const sessions = get().sessions;
+        const index = get().currentSessionIndex;
+        const session = sessions[index];
+        const changed = updater(session);
+        if (!changed.messageChanged) {
+          return;
+        }
+        if (!session.uuid) {
+          set(() => ({ sessions }));
+          return;
+        }
+
+        let result = true;
+        if (
+          changed.messageChanged &&
+          changed.messages &&
+          changed.messages.length
+        ) {
+          changed.messages.forEach(async (message) => {
+            result &&= await this.updateCurrentSessionMessageContent(
+              message,
+              token,
+              logout,
+            );
+          });
+        }
+        return result;
+      },
+
+      updateLocalCurrentSession(updater: (session: ChatSession) => void) {
         const sessions = get().sessions;
         const index = get().currentSessionIndex;
         updater(sessions[index]);
