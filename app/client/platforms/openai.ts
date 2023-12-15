@@ -423,7 +423,7 @@ export class ChatGPTApi implements LLMApi {
         return false;
       }
       botMessage.attr.action = action;
-      let actionIndex: any = null;
+      let actionIndex: number | null = null;
       let actionDirection: string | null = null;
       let actionStrength: string | null = null;
       let actionUseTaskId: any = null;

@@ -1169,7 +1169,7 @@ function _Chat() {
               messageChanged = true;
             }
 
-            if (m.content.length === 0 && m.role !== "user") {
+            if ((m.content ?? "").length === 0 && m.role !== "user") {
               m.isError = true;
               m.content = prettyObject({
                 error: true,
@@ -1728,7 +1728,7 @@ function _Chat() {
           const isContext = i < context.length;
           const showActions =
             i > 0 &&
-            !(message.preview || message.content.length === 0) &&
+            !(message.preview || (message.content ?? "").length === 0) &&
             !isContext;
           const showTyping = message.preview || message.streaming;
 
@@ -1806,11 +1806,12 @@ function _Chat() {
                     </div>
                   )}
                   <div className={styles["chat-message-item"]}>
-                    {(!isUser || message.content.length > 0) && (
+                    {(!isUser || (message.content ?? "").length > 0) && (
                       <Markdown
                         content={message.content}
                         loading={
-                          (message.preview || message.content.length === 0) &&
+                          (message.preview ||
+                            (message.content ?? "").length === 0) &&
                           !isUser
                         }
                         onContextMenu={(e) => onRightClick(e, message)}
