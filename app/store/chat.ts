@@ -674,6 +674,13 @@ export const useChatStore = createPersistStore(
             messages: messages.map((m) => {
               return get().localMessageToServerMessage(m);
             }),
+            noUuidMessageIds: session.messages
+              .filter(
+                (msg) =>
+                  !msg.uuid &&
+                  -1 === messages.findIndex((m) => m.id === msg.id),
+              ) // 本次会话中没有uuid的那些messages并且又不在messages中的
+              .map((m) => m.id),
           }),
         })
           .then((res) => res.json())
