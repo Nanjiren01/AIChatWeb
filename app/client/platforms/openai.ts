@@ -71,7 +71,7 @@ export class ChatGPTApi implements LLMApi {
     const isMessageStructComplex =
       options.mask?.modelConfig?.messageStruct === "complex";
     const messages = (
-      options.sessionUuid && options.userMessage
+      options.sessionUuid && options.userMessage // 如果是服务器同步会话，那么仅发送最近一条用户的message
         ? [options.userMessage]
         : options.messages
     ).map((message) => {
@@ -144,8 +144,8 @@ export class ChatGPTApi implements LLMApi {
         };
       }),
       top_p: modelConfig.top_p,
-      maskId: options.mask && options.mask.builtin ? options.mask.id : null,
-      assistantMessageId: options.botMessage?.id,
+      maskId: options.mask && options.mask.builtin ? options.mask.id : null, // 如果是内置的，那么传递mask id，以便服务器填充mask的私有上下文
+      assistantMessageId: options.botMessage?.id, // 同时告诉服务器bot message id，以便后续sync messages找到对应的条目
       // max_tokens: Math.max(modelConfig.max_tokens, 1024),
       // Please do not ask me why not send max_tokens, no reason, this param is just shit, I dont want to explain anymore.
       // baseUrl: useAccessStore.getState().openaiUrl,
@@ -157,7 +157,7 @@ export class ChatGPTApi implements LLMApi {
     console.log("[Request] openai payload: ", requestPayload);
 
     const shouldStream = !!options.config.stream;
-    console.log("shouldStream", shouldStream);
+    // console.log("shouldStream", shouldStream);
     const controller = new AbortController();
     options.onController?.(controller);
 
