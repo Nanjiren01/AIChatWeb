@@ -161,7 +161,7 @@ export const useMaskStore = createPersistStore(
             };
             return remoteMask;
           });
-          console.log("remoteMasks", remoteMasks);
+          // console.log("remoteMasks", remoteMasks);
           return remoteMasks;
         });
     },

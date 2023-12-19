@@ -911,7 +911,7 @@ function _Chat() {
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const websiteConfigStore = useWebsiteConfigStore();
-  const { chatPageSubTitle, plugins } = websiteConfigStore;
+  const { chatPageSubTitle, logoUrl, plugins } = websiteConfigStore;
   const navigate = useNavigate();
 
   const authStore = useAuthStore();
@@ -1767,13 +1767,13 @@ function _Chat() {
                         ></IconButton>
                       </div>
                       {isUser ? (
-                        <Avatar avatar={config.avatar} />
+                        <Avatar avatar={config.avatar} logoUrl={logoUrl} />
                       ) : (
                         <>
                           {["system"].includes(message.role) ? (
-                            <Avatar avatar="2699-fe0f" />
+                            <Avatar avatar="2699-fe0f" logoUrl={logoUrl} />
                           ) : (
-                            <MaskAvatar mask={session.mask} />
+                            <MaskAvatar mask={session.mask} logoUrl={logoUrl} />
                           )}
                         </>
                       )}

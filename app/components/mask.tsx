@@ -448,7 +448,7 @@ export function MaskPage() {
     maskStore.get(editingMaskId) ??
     BUILTIN_MASK_STORE.get(editingMaskId) ??
     allMasks.filter((m) => m.id == editingMaskId)[0];
-  console.log("editingMask", editingMask, BUILTIN_MASK_STORE);
+  // console.log("editingMask", editingMask, BUILTIN_MASK_STORE);
   const closeMaskModal = () => setEditingMaskId(undefined);
 
   const downloadAll = () => {

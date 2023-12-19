@@ -39,6 +39,7 @@
     .mask-item {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       padding: 20px;
       border: var(--border-in-light);
       animation: slide-in ease 0.3s;
@@ -75,6 +76,8 @@
           }
           .mask-info {
             font-size: 12px;
+            word-wrap: break-word;
+            white-space: inherit;
           }
         }
       }
@@ -83,6 +86,7 @@
         display: flex;
         flex-wrap: nowrap;
         transition: all ease 0.3s;
+        max-height: 38px;
       }
 
       @media screen and (max-width: 600px) {
