@@ -144,7 +144,16 @@ export class ChatGPTApi implements LLMApi {
         };
       }),
       top_p: modelConfig.top_p,
-      maskId: options.mask && options.mask.builtin ? options.mask.id : null, // 如果是内置的，那么传递mask id，以便服务器填充mask的私有上下文
+      mask: !options.mask
+        ? null
+        : options.sessionUuid
+          ? {
+              // 传递mask上下文
+              id: options.mask.id,
+              builtin: options.mask.builtin ? 1 : 0,
+              context: options.mask.context,
+            }
+          : null, // 没有session uuid的情况下messages中已经包含了mask上下文，所以无需传递
       assistantMessageId: options.botMessage?.id, // 同时告诉服务器bot message id，以便后续sync messages找到对应的条目
       // max_tokens: Math.max(modelConfig.max_tokens, 1024),
       // Please do not ask me why not send max_tokens, no reason, this param is just shit, I dont want to explain anymore.

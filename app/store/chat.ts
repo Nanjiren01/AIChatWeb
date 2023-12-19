@@ -592,6 +592,10 @@ export const useChatStore = createPersistStore(
                   message = Locale.Error.Unauthorized;
                 } else if (jsonContent?.code === 10301) {
                   message = Locale.Chat.TooFrequently;
+                } else if (jsonContent?.from === "aichat") {
+                  message = jsonContent.cnMessage || jsonContent.message;
+                  message +=
+                    "\n原始错误信息如下：\n" + prettyObject(jsonContent);
                 } else {
                   message = prettyObject(jsonContent);
                 }
@@ -854,8 +858,8 @@ export const useChatStore = createPersistStore(
 
         // lets concat send messages, including 4 parts:
         // 0. system prompt: to get close to OpenAI Web ChatGPT
-        // 1. long term memory: summarized memory messages
-        // 2. pre-defined in-context prompts
+        // 1. pre-defined in-context prompts
+        // 2. long term memory: summarized memory messages
         // 3. short term memory: latest n messages
         // 4. newest input message
         const memoryStartIndex = shouldSendLongTermMemory
@@ -881,8 +885,8 @@ export const useChatStore = createPersistStore(
         // concat all messages
         const recentMessages = [
           ...systemPrompts,
-          ...longTermMemoryPrompts,
           ...contextPrompts,
+          ...longTermMemoryPrompts,
           ...reversedRecentMessages.reverse(),
         ];
 
@@ -962,9 +966,9 @@ export const useChatStore = createPersistStore(
           .filter((msg) => !msg.isError)
           .slice(summarizeIndex);
 
-        const historyMsgLength = countMessages(toBeSummarizedMsgs);
+        const historyMsgTokenCount = countMessages(toBeSummarizedMsgs);
 
-        if (historyMsgLength > modelConfig?.max_tokens ?? 4000) {
+        if (historyMsgTokenCount > modelConfig?.max_tokens ?? 4000) {
           const n = toBeSummarizedMsgs.length;
           toBeSummarizedMsgs = toBeSummarizedMsgs.slice(
             Math.max(0, n - modelConfig.historyMessageCount),
@@ -979,12 +983,12 @@ export const useChatStore = createPersistStore(
         console.log(
           "[Chat History] ",
           toBeSummarizedMsgs,
-          historyMsgLength,
+          historyMsgTokenCount,
           modelConfig.compressMessageLengthThreshold,
         );
 
         if (
-          historyMsgLength > modelConfig.compressMessageLengthThreshold &&
+          historyMsgTokenCount > modelConfig.compressMessageLengthThreshold &&
           modelConfig.sendMemory
         ) {
           const content = Locale.Store.Prompt.Summarize;
@@ -1013,7 +1017,12 @@ export const useChatStore = createPersistStore(
             },
             onFinish(message) {
               console.log("[Memory] ", message);
-              session.lastSummarizeIndex = lastSummarizeIndex;
+              get().updateCurrentSessionMemoryPrompt(
+                message,
+                lastSummarizeIndex,
+                token,
+                logout,
+              );
             },
             onError(err) {
               console.error("[Summarize] ", err);
@@ -1417,8 +1426,18 @@ export const useChatStore = createPersistStore(
           });
       },
 
+      async clearCurrentSessionMemoryPrompt(token: string, logout: () => void) {
+        return await this.updateCurrentSessionMemoryPrompt(
+          "",
+          -1,
+          token,
+          logout,
+        );
+      },
+
       async updateCurrentSessionMemoryPrompt(
         memoryPrompt: string,
+        lastSummarizeIndex: number,
         token: string,
         logout: () => void,
       ) {
@@ -1428,6 +1447,7 @@ export const useChatStore = createPersistStore(
 
         if (!session.uuid) {
           session.memoryPrompt = memoryPrompt;
+          session.lastSummarizeIndex = lastSummarizeIndex;
           set(() => ({ sessions }));
           return Promise.resolve(true);
         }
@@ -1444,21 +1464,23 @@ export const useChatStore = createPersistStore(
           body: JSON.stringify({
             uuid: session.uuid,
             memoryPrompt,
+            lastSummarizeIndex,
           }),
         })
           .then((res) => res.json())
           .then((res: Response<any>) => {
-            console.log("[SessionEntity] update session mask", res);
+            console.log("[SessionEntity] update session memory", res);
             if (res.code !== 0) {
               showToast(res.message);
               return false;
             }
             session.memoryPrompt = memoryPrompt;
+            session.lastSummarizeIndex = lastSummarizeIndex;
             set(() => ({ sessions }));
             return true;
           })
           .catch((e) => {
-            console.error("[SessionEntity] failed to update session mask", e);
+            console.error("[SessionEntity] failed to update session memory", e);
             return false;
           });
       },

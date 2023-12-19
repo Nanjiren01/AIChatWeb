@@ -158,8 +158,7 @@ export function SessionConfigModel(props: {
             text={Locale.Chat.Config.Reset}
             onClick={async () => {
               if (await showConfirm(Locale.Memory.ResetConfirm)) {
-                chatStore.updateCurrentSessionMemoryPrompt(
-                  "",
+                chatStore.clearCurrentSessionMemoryPrompt(
                   authStore.token,
                   () => {
                     authStore.logout();
