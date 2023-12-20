@@ -18,6 +18,7 @@ export interface SimpleModel {
   name: string;
   contentType: ModelContentType;
   messageStruct: ModelMessageStruct;
+  summarizeModel: string | null;
 }
 
 export interface WebsiteConfigStore {

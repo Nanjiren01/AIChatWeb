@@ -127,10 +127,10 @@ function createEmptySession(): ChatSession {
   };
 }
 
-function getSummarizeModel(currentModel: string) {
-  // if it is using gpt-* models, force to use 3.5 to summarize
-  return currentModel.startsWith("gpt") ? SUMMARIZE_MODEL : currentModel;
-}
+// function getSummarizeModel(currentModel: string) {
+//   // if it is using gpt-* models, force to use 3.5 to summarize
+//   return currentModel.startsWith("gpt") ? SUMMARIZE_MODEL : currentModel;
+// }
 
 export interface PluginActionModel {
   plugin: AiPlugin;
@@ -406,6 +406,7 @@ export const useChatStore = createPersistStore(
 
       // onUpdateMessage，更新消息lastUpdate，stat，该方法用于对话结束之后
       async onNewMessage(
+        websiteConfigStore: WebsiteConfigStore,
         message: ChatMessage,
         token: string,
         logout: () => void,
@@ -421,7 +422,7 @@ export const useChatStore = createPersistStore(
         //console.log('session uuid', session.uuid, ',', session)
         if (!session.uuid) {
           set(() => ({ sessions }));
-          get().summarizeSession(token, logout);
+          get().summarizeSession(websiteConfigStore, token, logout);
           return;
         }
 
@@ -457,7 +458,7 @@ export const useChatStore = createPersistStore(
             });
         })();
         if (result) {
-          get().summarizeSession(token, logout);
+          get().summarizeSession(websiteConfigStore, token, logout);
         }
       },
 
@@ -603,7 +604,12 @@ export const useChatStore = createPersistStore(
                 // ignore
               }
               botMessage.content = message;
-              get().onNewMessage(botMessage, token, navigateToLogin);
+              get().onNewMessage(
+                websiteConfigStore,
+                botMessage,
+                token,
+                navigateToLogin,
+              );
               if (session.uuid) {
                 setTimeout(() => {
                   get().fetchServerMessageId(
@@ -771,7 +777,12 @@ export const useChatStore = createPersistStore(
                 // ignore
               }
               botMessage.content = message;
-              get().onNewMessage(botMessage, authStore.token, logout);
+              get().onNewMessage(
+                websiteConfigStore,
+                botMessage,
+                authStore.token,
+                logout,
+              );
               if (session.uuid) {
                 setTimeout(() => {
                   get().fetchServerMessageId(
@@ -912,10 +923,21 @@ export const useChatStore = createPersistStore(
       //   });
       // },
 
-      summarizeSession(token: string, logout: () => void) {
+      summarizeSession(
+        websiteConfigStore: WebsiteConfigStore,
+        token: string,
+        logout: () => void,
+      ) {
         const config = useAppConfig.getState();
         const session = get().currentSession();
         if (session.mask.modelConfig?.contentType !== "Text") {
+          return;
+        }
+
+        const availableModel = (websiteConfigStore.availableModels || []).find(
+          (m) => m.name === session.mask.modelConfig.model,
+        );
+        if (!availableModel || !availableModel.summarizeModel) {
           return;
         }
 
@@ -946,7 +968,7 @@ export const useChatStore = createPersistStore(
             imageMode: "",
             baseImages: [],
             config: {
-              model: getSummarizeModel(session.mask.modelConfig.model),
+              model: availableModel.summarizeModel, // getSummarizeModel(session.mask.modelConfig.model),
             },
             onFinish(message) {
               if (message.length > 0) {
@@ -1010,7 +1032,7 @@ export const useChatStore = createPersistStore(
             config: {
               ...modelConfig,
               stream: true,
-              model: getSummarizeModel(session.mask.modelConfig.model),
+              model: availableModel.summarizeModel, // getSummarizeModel(session.mask.modelConfig.model),
             },
             onUpdate(message) {
               session.memoryPrompt = message;

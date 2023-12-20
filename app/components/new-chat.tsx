@@ -142,8 +142,11 @@ export function NewChat() {
 
   const { state } = useLocation();
 
+  const [starting, setStarting] = useState(false);
+
   const startChat = (mask?: Mask | RemoteMask) => {
     setTimeout(async () => {
+      setStarting(true);
       const result = await chatStore.newSession(
         authStore.token,
         () => {
@@ -152,6 +155,7 @@ export function NewChat() {
         },
         mask as Mask,
       );
+      setStarting(false);
       if (result) {
         navigate(Path.Chat);
       }
@@ -218,6 +222,7 @@ export function NewChat() {
           text={Locale.NewChat.More}
           onClick={() => navigate(Path.Masks)}
           icon={<EyeIcon />}
+          disabled={starting}
           bordered
           shadow
         />
@@ -227,6 +232,7 @@ export function NewChat() {
           onClick={() => startChat()}
           icon={<LightningIcon />}
           type="primary"
+          disabled={starting}
           shadow
           className={styles["skip"]}
         />

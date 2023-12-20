@@ -9,7 +9,7 @@ import {
   OnDragEndResponder,
 } from "@hello-pangea/dnd";
 
-import { useAuthStore, useChatStore } from "../store";
+import { useAuthStore, useChatStore, useWebsiteConfigStore } from "../store";
 
 import Locale from "../locales";
 import { Link, useNavigate } from "react-router-dom";
@@ -31,6 +31,7 @@ export function ChatItem(props: {
   index: number;
   narrow?: boolean;
   mask: Mask;
+  logoUrl?: string;
 }) {
   return (
     <div
@@ -43,7 +44,7 @@ export function ChatItem(props: {
       {props.narrow ? (
         <div className={styles["chat-item-narrow"]}>
           <div className={styles["chat-item-avatar"] + " no-dark"}>
-            <MaskAvatar mask={props.mask} />
+            <MaskAvatar mask={props.mask} logoUrl={props.logoUrl} />
           </div>
           <div className={styles["chat-item-narrow-count"]}>{props.count}</div>
         </div>
@@ -84,6 +85,7 @@ export function ChatList(props: { narrow?: boolean }) {
   const chatStore = useChatStore();
   const navigate = useNavigate();
   const isMobileScreen = useMobileScreen();
+  const { logoUrl } = useWebsiteConfigStore();
 
   // const onDragEnd: OnDragEndResponder = (result) => {
   //   const { destination, source } = result;
@@ -112,6 +114,7 @@ export function ChatList(props: { narrow?: boolean }) {
           id={item.id}
           index={i}
           selected={i === selectedIndex}
+          logoUrl={logoUrl}
           onClick={() => {
             navigate(Path.Chat);
             selectSession(i);

@@ -634,6 +634,10 @@ export function ChatActions(props: {
         }
         return res;
       })
+      .catch((e) => {
+        console.error(e);
+        showToast("上传失败！" + e);
+      })
       .finally(() => {
         console.log("finally");
         props.setUploading(false);
