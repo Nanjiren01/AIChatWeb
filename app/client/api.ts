@@ -83,26 +83,26 @@ export abstract class LLMApi {
   ) => Promise<boolean | void>;
 }
 
-type ProviderName = "openai" | "azure" | "claude" | "palm";
+// type ProviderName = "openai" | "azure" | "claude" | "palm";
 
-interface Model {
-  name: string;
-  provider: ProviderName;
-  ctxlen: number;
-}
+// interface Model {
+//   name: string;
+//   provider: ProviderName;
+//   ctxlen: number;
+// }
 
-interface ChatProvider {
-  name: ProviderName;
-  apiConfig: {
-    baseUrl: string;
-    apiKey: string;
-    summaryModel: Model;
-  };
-  models: Model[];
+// interface ChatProvider {
+//   name: ProviderName;
+//   apiConfig: {
+//     baseUrl: string;
+//     apiKey: string;
+//     summaryModel: Model;
+//   };
+//   models: Model[];
 
-  chat: () => void;
-  usage: () => void;
-}
+//   chat: () => void;
+//   usage: () => void;
+// }
 
 export class ClientApi {
   public llm: LLMApi;

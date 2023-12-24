@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 // import { getServerSideConfig } from "@/app/config/server";
 // import { auth } from "../../../auth";
 
-import { ChatOpenAI } from "langchain/chat_models/openai";
 import { BaseCallbackHandler } from "langchain/callbacks";
 
 import { AIMessage, HumanMessage, SystemMessage } from "langchain/schema";
@@ -25,6 +24,7 @@ import { StableDiffusionWrapper } from "@/app/api/langchain-tools/stable_diffusi
 import { ArxivAPIWrapper } from "@/app/api/langchain-tools/arxiv";
 import { getBaseUrl } from "../../common";
 import { type AgentAction } from "langchain/schema";
+import { AIChatOpenAI, AIChatResponseError } from "./aichat";
 
 // const serverConfig = getServerSideConfig();
 
@@ -134,14 +134,25 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
           parentRunId,
           tags,
         );
-        var response = new ResponseBody();
-        response.isSuccess = false;
-        response.message = err;
-        await writer.ready;
-        await writer.write(
-          encoder.encode(`data: ${JSON.stringify(response)}\n\n`),
-        );
-        await writer.close();
+        const response =
+          err instanceof AIChatResponseError
+            ? { ...err.getResponse(), isSuccess: false }
+            : {
+                isSuccess: false,
+                message: "" + err,
+              };
+        try {
+          await writer.ready;
+          await writer.write(
+            encoder.encode(`data: ${JSON.stringify(response)}\n\n`),
+          );
+          await writer.close();
+        } catch (e) {
+          console.error(
+            "error when wait writer ready or write in handleChainError",
+            e,
+          );
+        }
       },
       async handleChainEnd(
         outputs: any,
@@ -153,16 +164,25 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
         await writer.ready;
         await writer.close();
       },
-      async handleLLMEnd() {
-        console.log("[handleLLMEnd]");
+      async handleLLMEnd(
+        output,
+        runId: string,
+        parentRunId?: string,
+        tags?: string[],
+      ) {
+        console.log("[handleLLMEnd]", output, runId, parentRunId, tags);
         // await writer.ready;
         // await writer.close();
       },
-      async handleLLMError(e: Error) {
-        console.log("[handleLLMError]", e, "writer error");
-        var response = new ResponseBody();
-        response.isSuccess = false;
-        response.message = e.message;
+      async handleLLMError(err: Error) {
+        console.log("[handleLLMError]", err, "writer error");
+        const response =
+          err instanceof AIChatResponseError
+            ? { ...err.getResponse(), isSuccess: false }
+            : {
+                isSuccess: false,
+                message: "" + err,
+              };
         await writer.ready;
         await writer.write(
           encoder.encode(`data: ${JSON.stringify(response)}\n\n`),
@@ -341,7 +361,7 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
       chatHistory: new ChatMessageHistory(pastMessages),
     });
 
-    const llm = new ChatOpenAI(
+    const llm = new AIChatOpenAI(
       {
         modelName: reqBody.model,
         openAIApiKey: apiKey,

@@ -279,7 +279,11 @@ export class ChatGPTApi implements LLMApi {
                   options.onUpdate?.(responseText, delta);
                 }
               } else {
-                responseText += json.message;
+                if (json.from === "aichat") {
+                  responseText += text;
+                } else {
+                  responseText += json.message;
+                }
                 options.onUpdate?.(responseText, json.message);
               }
             } catch (e) {
