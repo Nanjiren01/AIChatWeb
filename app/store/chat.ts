@@ -1449,7 +1449,7 @@ export const useChatStore = createPersistStore(
       },
 
       async updateCurrentSessionMaskByUpdater(
-        updater: (mask: Mask) => void,
+        updater: (mask: Mask) => boolean | void,
         token: string,
         logout: () => void,
       ) {
@@ -1457,7 +1457,10 @@ export const useChatStore = createPersistStore(
         const index = get().currentSessionIndex;
         const session = sessions[index];
 
-        updater(session.mask);
+        const result = updater(session.mask);
+        if (result === false) {
+          return Promise.resolve(true);
+        }
 
         return await this.updateCurrentSessionMask(session.mask, token, logout);
       },

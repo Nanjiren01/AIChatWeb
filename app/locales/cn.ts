@@ -171,6 +171,7 @@ const cn = {
     Reset: "[unused]",
     ResetConfirm: "确认清空历史摘要？",
     CloseConfirm: "您已修改部分配置项，确定不保存直接退出？",
+    ConfirmText: "不保存直接退出",
   },
   Home: {
     NewChat: "新的聊天",

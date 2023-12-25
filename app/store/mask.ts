@@ -144,6 +144,9 @@ export const useMaskStore = createPersistStore(
               modelConfig = {};
             }
             modelConfig.template = "{{input}}";
+            if (!modelConfig.pluginUuids) {
+              modelConfig.pluginUuids = [] as string[];
+            }
             const remoteMask: RemoteMask = {
               id: mask.id,
               name: mask.name,

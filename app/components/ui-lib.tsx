@@ -349,6 +349,15 @@ export function Select(
 }
 
 export function showConfirm(content: any) {
+  return showPowerfulConfirm({
+    content,
+  });
+}
+
+export function showPowerfulConfirm(props: {
+  content: any;
+  confirmText?: string;
+}) {
   const div = document.createElement("div");
   div.className = "modal-mask";
   document.body.appendChild(div);
@@ -378,7 +387,7 @@ export function showConfirm(content: any) {
           ></IconButton>,
           <IconButton
             key="confirm"
-            text={Locale.UI.Confirm}
+            text={props.confirmText ?? Locale.UI.Confirm}
             type="primary"
             onClick={() => {
               resolve(true);
@@ -393,7 +402,7 @@ export function showConfirm(content: any) {
         ]}
         onClose={closeModal}
       >
-        {content}
+        {props.content}
       </Modal>,
     );
   });

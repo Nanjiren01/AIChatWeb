@@ -182,6 +182,7 @@ const en: LocaleType = {
       "Resetting will clear the current conversation history and historical memory. Are you sure you want to reset?",
     CloseConfirm:
       "You have changed some items. Are you sure quit without saving?",
+    ConfirmText: "Exit without saving",
   },
   Home: {
     NewChat: "New Chat",

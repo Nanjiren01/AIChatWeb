@@ -96,6 +96,7 @@ import {
   Modal,
   Selector,
   showConfirm,
+  showPowerfulConfirm,
   showPrompt,
   showToast,
 } from "./ui-lib";
@@ -146,7 +147,12 @@ export function SessionConfigModel(props: {
         onClose={async () => {
           console.log("changed", changed);
           if (changed) {
-            if (await showConfirm(Locale.Memory.CloseConfirm)) {
+            if (
+              await showPowerfulConfirm({
+                content: Locale.Memory.CloseConfirm,
+                confirmText: Locale.Memory.ConfirmText,
+              })
+            ) {
               props.onClose();
             }
           } else {
@@ -474,7 +480,7 @@ function SwitchChatAction(props: {
     full: 16,
     icon: props.icon ? 16 : 0,
   });
-  const [isClicked, setIsClicked] = useState(false); // 新增state
+  const [isClicked, setIsClicked] = useState(props.value ?? false); // 新增state
 
   function updateWidth() {
     if (!iconRef.current || !textRef.current) return;
@@ -555,11 +561,11 @@ export function ChatActions(props: {
   beforeSelectImages: () => boolean;
   hitBottom: boolean;
   plugins: PluginActionModel[];
+  togglePlugin: (plugin: PluginActionModel) => Promise<boolean>;
   contentType: ModelContentType;
   messageStruct: ModelMessageStruct;
   uploading: boolean;
   setUploading: React.Dispatch<React.SetStateAction<boolean>>;
-  SetOpenInternet: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
@@ -805,11 +811,14 @@ export function ChatActions(props: {
           return (
             <SwitchChatAction
               key={model.plugin.uuid}
-              onClick={() => {
-                model.value = !model.value;
-                showToast(
-                  (model.value ? "已开启" : "已关闭") + model.plugin.name,
-                );
+              onClick={async () => {
+                const result = await props.togglePlugin(model);
+                console.log("togglePlugin result", result);
+                if (result) {
+                  showToast(
+                    (model.value ? "已开启" : "已关闭") + model.plugin.name,
+                  );
+                }
               }}
               text={model.plugin.name}
               icon={<Internet />}
@@ -1012,17 +1021,6 @@ function _Chat() {
     }
   };
 
-  const [pluignModels, setPluginModels] = useState<PluginActionModel[]>([]);
-  useEffect(() => {
-    const models = (plugins || []).map((plugin) => {
-      return {
-        plugin: plugin,
-        value: false as boolean,
-      } as PluginActionModel;
-    });
-    setPluginModels(models);
-  }, [plugins]);
-
   const [ChatFetchTaskPool, setChatFetchTaskPool] = useState(
     new Map<string, NodeJS.Timeout | null>(),
   );
@@ -1202,6 +1200,12 @@ function _Chat() {
     if (session.mask.syncGlobalConfig) {
       chatStore.updateCurrentSessionMaskByUpdater(
         (mask) => {
+          const v1 = JSON.stringify(config.modelConfig);
+          const v2 = JSON.stringify(session.mask.modelConfig);
+          if (v1 === v2) {
+            console.log("[Mask] same with global, not sync", session.mask.name);
+            return false;
+          }
           console.log("[Mask] syncing from global, name = ", session.mask.name);
           session.mask.modelConfig = { ...config.modelConfig };
         },
@@ -1215,7 +1219,19 @@ function _Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [openInternet, SetOpenInternet] = useState(false);
+  const [pluignModels, setPluginModels] = useState<PluginActionModel[]>([]);
+  useEffect(() => {
+    const pluginUuids = session.mask.modelConfig.pluginUuids || [];
+    const models = (plugins || []).map((plugin) => {
+      return {
+        plugin: plugin,
+        value: pluginUuids.includes(plugin.uuid),
+      } as PluginActionModel;
+    });
+    // console.log('plugins', models)
+    setPluginModels(models);
+  }, [plugins, session]);
+
   // check if should send message
   const onInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // if ArrowUp and no userInput, fill with last input
@@ -2110,9 +2126,36 @@ function _Chat() {
               ? pluignModels
               : []
           }
+          togglePlugin={async (plugin: PluginActionModel) => {
+            const value = !plugin.value;
+            return await chatStore.updateCurrentSessionMaskByUpdater(
+              (mask) => {
+                let pluginUuids = mask.modelConfig.pluginUuids || [];
+                if (value) {
+                  pluginUuids = [
+                    ...new Set([...pluginUuids, plugin.plugin.uuid]),
+                  ];
+                } else {
+                  const index = pluginUuids.findIndex(
+                    (u) => u === plugin.plugin.uuid,
+                  );
+                  if (index >= 0) {
+                    pluginUuids.splice(index, 1);
+                  }
+                }
+                mask.modelConfig.pluginUuids = pluginUuids;
+                mask.syncGlobalConfig = false;
+                return true;
+              },
+              authStore.token,
+              () => {
+                authStore.logout();
+                navigate(Path.Login);
+              },
+            );
+          }}
           contentType={session.mask?.modelConfig?.contentType}
           messageStruct={session.mask?.modelConfig?.messageStruct}
-          SetOpenInternet={SetOpenInternet}
           imageSelected={(img: BaseImageItem) => {
             addBaseImage(img);
           }}
