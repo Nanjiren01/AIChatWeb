@@ -2,6 +2,8 @@ import { getClientConfig } from "../config/client";
 import { ACCESS_CODE_PREFIX, Azure, ServiceProvider } from "../constant";
 import {
   ChatMessage,
+  ImageMode,
+  MessageAction,
   ModelContentType,
   ModelType,
   PluginActionModel,
@@ -46,7 +48,7 @@ export interface ChatOptions {
   plugins: PluginActionModel[];
   mask: Mask | null;
   resend: boolean;
-  imageMode: string;
+  imageMode: ImageMode;
   baseImages: any[];
 
   onUpdate?: (message: string, chunk: string) => void;

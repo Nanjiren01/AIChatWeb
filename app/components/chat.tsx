@@ -67,6 +67,9 @@ import {
   ModelMessageStruct,
   ModelContentType,
   ChatSession,
+  BaseImageItem,
+  FileEntity,
+  ImageMode,
 } from "../store";
 
 import {
@@ -548,7 +551,7 @@ export function ChatActions(props: {
   showPromptModal: () => void;
   scrollToBottom: () => void;
   showPromptHints: () => void;
-  imageSelected: (img: any) => void;
+  imageSelected: (img: BaseImageItem) => void;
   beforeSelectImages: () => boolean;
   hitBottom: boolean;
   plugins: PluginActionModel[];
@@ -656,7 +659,7 @@ export function ChatActions(props: {
         return;
       }
       const filename = file.name;
-      const fileEntity = res.data;
+      const fileEntity = res.data as FileEntity;
       props.imageSelected({
         filename,
         uuid: fileEntity.uuid,
@@ -906,8 +909,8 @@ function _Chat() {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState("");
-  const [useImages, setUseImages] = useState<any[]>([]);
-  const [mjImageMode, setMjImageMode] = useState<string>(""); // 垫图IMAGINE，混图BLEND，识图DESCRIBE
+  const [useImages, setUseImages] = useState<BaseImageItem[]>([]);
+  const [mjImageMode, setMjImageMode] = useState<ImageMode>(""); // 垫图IMAGINE，混图BLEND，识图DESCRIBE
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const { scrollRef, setAutoScroll, scrollDomToBottom } = useScrollToBottom();
@@ -1142,7 +1145,7 @@ function _Chat() {
     }, 30);
   };
 
-  const addBaseImage = (img: any) => {
+  const addBaseImage = (img: BaseImageItem) => {
     if (useImages.length >= MAX_IMAGE_SIZE) {
       showToast(Locale.Midjourney.SelectImgMax(MAX_IMAGE_SIZE));
       return;
@@ -1834,7 +1837,7 @@ function _Chat() {
                           style={{ marginTop: "10px" }}
                         >
                           {message.attr.baseImages.map(
-                            (img: any, index: number) => (
+                            (img: BaseImageItem, index: number) => (
                               <img
                                 src={img.url}
                                 key={index}
@@ -2110,7 +2113,7 @@ function _Chat() {
           contentType={session.mask?.modelConfig?.contentType}
           messageStruct={session.mask?.modelConfig?.messageStruct}
           SetOpenInternet={SetOpenInternet}
-          imageSelected={(img: any) => {
+          imageSelected={(img: BaseImageItem) => {
             addBaseImage(img);
           }}
           beforeSelectImages={() => {
@@ -2156,7 +2159,7 @@ function _Chat() {
                         checked={mjImageMode == item.value}
                         value={item.value}
                         onChange={(e) => {
-                          setMjImageMode(e.target.value);
+                          setMjImageMode(e.target.value as ImageMode);
                         }}
                       />
                       <span>{item.name}</span>

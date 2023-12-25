@@ -7,7 +7,11 @@ import {
   ServiceProvider,
 } from "@/app/constant";
 import {
+  AttrDirection,
   ChatMessage,
+  MessageAction,
+  PanDirection,
+  TargetIndex,
   useAccessStore,
   useAppConfig,
   useChatStore,
@@ -435,12 +439,12 @@ export class ChatGPTApi implements LLMApi {
         options.onFinish(Locale.Midjourney.TaskErrUnknownType);
         return false;
       }
-      botMessage.attr.action = action;
+      botMessage.attr.action = action as MessageAction;
       let actionIndex: number | null = null;
       let actionDirection: string | null = null;
       let actionStrength: string | null = null;
-      let actionUseTaskId: any = null;
-      let zoomRatio: any = null;
+      let actionUseTaskId: string | null = null;
+      let zoomRatio: string | null = null;
       if (action === "VARIATION" || action == "UPSCALE" || action == "REROLL") {
         actionIndex = parseInt(
           prompt.substring(firstSplitIndex + 2, firstSplitIndex + 3),
@@ -510,8 +514,8 @@ export class ChatGPTApi implements LLMApi {
               targetIndex: actionIndex,
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.targetIndex = actionIndex;
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.targetIndex = actionIndex! as TargetIndex;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           case "VARIATION": {
@@ -519,8 +523,8 @@ export class ChatGPTApi implements LLMApi {
               targetIndex: actionIndex,
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.targetIndex = actionIndex;
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.targetIndex = actionIndex! as TargetIndex;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           case "REROLL": {
@@ -535,8 +539,8 @@ export class ChatGPTApi implements LLMApi {
               zoomRatio: zoomRatio,
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.zoomRatio = zoomRatio;
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.zoomRatio = zoomRatio!;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           case "PAN": {
@@ -544,15 +548,15 @@ export class ChatGPTApi implements LLMApi {
               panDirection: actionDirection,
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.panDirection = actionDirection;
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.panDirection = actionDirection! as PanDirection;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           case "SQUARE": {
             res = await reqFn("draw/square", "POST", {
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           case "VARY": {
@@ -560,8 +564,8 @@ export class ChatGPTApi implements LLMApi {
               strength: actionStrength,
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.strength = actionStrength;
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.strength = actionStrength!;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           default:
@@ -714,7 +718,8 @@ export class ChatGPTApi implements LLMApi {
           botMessage.attr.prompt = prompt;
           botMessage.attr.status = "SUCCESS";
           botMessage.attr.finished = true;
-          botMessage.attr.direction = statusResJson.data.direction;
+          botMessage.attr.direction = statusResJson.data
+            .direction as AttrDirection;
           onFinish(entireContent);
           break;
         }

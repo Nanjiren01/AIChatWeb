@@ -22,12 +22,72 @@ import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
-import { AiPlugin, WebsiteConfigStore } from "./website";
+import { AiPlugin, ModelContentType, WebsiteConfigStore } from "./website";
 import { AuthStore, useAuthStore } from "./auth";
 
 export interface ChatToolMessage {
   toolName: string;
   toolInput?: string;
+}
+
+export interface FileEntity {
+  id: number;
+  uuid: string;
+  url: string;
+}
+
+export interface BaseImageItem {
+  entity: FileEntity;
+  filename: string;
+  url: string;
+  uuid: string;
+}
+
+export type AttrDirection = "horizontal" | "vertical";
+export type MessageStatus =
+  | "NOT_START"
+  | "SUBMITTED"
+  | "IN_PROGRESS"
+  | "SUCCESS"
+  | "FAILURE";
+export type PanDirection = "left" | "right" | "up" | "down";
+export type TargetIndex = 1 | 2 | 3 | 4;
+export type MessageAction =
+  | "UPSCALE"
+  | "VARIATION"
+  | "IMAGINE"
+  | "DESCRIBE"
+  | "BLEND"
+  | "REROLL"
+  | "ZOOMOUT"
+  | "PAN"
+  | "SQUARE"
+  | "VARY"
+  | "DESCRIBE"
+  | "BLEND";
+export type Include<T, U> = T extends U ? T : never;
+export type ImageMode =
+  | Include<MessageAction, "IMAGINE" | "BLEND" | "DESCRIBE">
+  | "";
+
+export interface Attr {
+  imageMode: ImageMode;
+  baseImages: BaseImageItem[];
+  contentType: ModelContentType;
+  action: MessageAction;
+  prompt: string;
+  targetIndex: TargetIndex;
+  targetUuid: string;
+  zoomRatio: string;
+  panDirection: PanDirection;
+  strength: string;
+  code: number;
+  taskId: string;
+  status: MessageStatus;
+  submitTime: string;
+  imgUrl: string;
+  finished: boolean;
+  direction: AttrDirection;
 }
 
 export type ChatMessage = RequestMessage & {
@@ -38,7 +98,7 @@ export type ChatMessage = RequestMessage & {
   id: string;
   model?: ModelType;
   toolMessages?: ChatToolMessage[];
-  attr?: any;
+  attr: Attr;
 };
 
 export interface MessageEntity {
@@ -76,7 +136,7 @@ export function createMessage(override: Partial<ChatMessage>): ChatMessage {
     role: "user",
     content: "",
     toolMessages: [] as ChatToolMessage[],
-    attr: {},
+    attr: {} as Attr,
     ...override,
   };
 }
@@ -466,8 +526,8 @@ export const useChatStore = createPersistStore(
         session: ChatSession,
         content: string,
         plugins: PluginActionModel[],
-        imageMode: string,
-        baseImages: any[],
+        imageMode: ImageMode,
+        baseImages: BaseImageItem[],
         websiteConfigStore: WebsiteConfigStore,
         authStore: AuthStore,
         mask: Mask,
