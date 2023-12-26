@@ -238,9 +238,16 @@ export function MessageExporter() {
   );
 }
 
+export interface SimpleChatMessage {
+  id: string;
+  role: string;
+  content: string;
+  date: string;
+}
+
 export function RenderExport(props: {
   messages: ChatMessage[];
-  onRender: (messages: ChatMessage[]) => void;
+  onRender: (messages: SimpleChatMessage[]) => void;
 }) {
   const domRef = useRef<HTMLDivElement>(null);
 
@@ -292,7 +299,7 @@ export function PreviewActions(props: {
   const [loading, setLoading] = useState(false);
   const [shouldExport, setShouldExport] = useState(false);
 
-  const onRenderMsgs = (msgs: ChatMessage[]) => {
+  const onRenderMsgs = (msgs: SimpleChatMessage[]) => {
     setShouldExport(false);
 
     api

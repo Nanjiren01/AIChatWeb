@@ -1,3 +1,4 @@
+import { SimpleChatMessage } from "../components/exporter";
 import { getClientConfig } from "../config/client";
 import { ACCESS_CODE_PREFIX, Azure, ServiceProvider } from "../constant";
 import {
@@ -119,7 +120,7 @@ export class ClientApi {
 
   masks() {}
 
-  async share(messages: ChatMessage[], avatarUrl: string | null = null) {
+  async share(messages: SimpleChatMessage[], avatarUrl: string | null = null) {
     const msgs = messages
       .map((m) => ({
         from: m.role === "user" ? "human" : "gpt",
