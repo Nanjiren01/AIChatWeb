@@ -218,7 +218,11 @@ export function Pricing() {
           // window.open(log.message?.url, "_blank");
           console.log("router.push", order.payUrl);
           if (order.payChannel === "xunhu") {
-            router.push(order.payUrl);
+            if (inMobile) {
+              router.push(order.payUrl);
+            } else {
+              navigate(Path.Pay + "?uuid=" + order.uuid);
+            }
           } else {
             // lantu
             if (inWechat || inMobile) {
