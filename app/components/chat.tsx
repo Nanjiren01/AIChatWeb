@@ -561,7 +561,9 @@ export function ChatActions(props: {
   beforeSelectImages: () => boolean;
   hitBottom: boolean;
   plugins: PluginActionModel[];
-  togglePlugin: (plugin: PluginActionModel) => Promise<boolean>;
+  togglePlugin: (
+    plugin: PluginActionModel,
+  ) => Promise<{ result: boolean; value: boolean }>;
   contentType: ModelContentType;
   messageStruct: ModelMessageStruct;
   uploading: boolean;
@@ -812,12 +814,15 @@ export function ChatActions(props: {
             <SwitchChatAction
               key={model.plugin.uuid}
               onClick={async () => {
-                const result = await props.togglePlugin(model);
-                console.log("togglePlugin result", result);
+                const { result, value } = await props.togglePlugin(model);
+                console.log(
+                  "toggle plugin result",
+                  model.plugin.name,
+                  result,
+                  value,
+                );
                 if (result) {
-                  showToast(
-                    (model.value ? "已开启" : "已关闭") + model.plugin.name,
-                  );
+                  showToast((value ? "已开启" : "已关闭") + model.plugin.name);
                 }
               }}
               text={model.plugin.name}
@@ -1283,7 +1288,7 @@ function _Chat() {
     });
     // console.log('plugins', models)
     setPluginModels(models);
-  }, [plugins, session]);
+  }, []);
 
   // check if should send message
   const onInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -2201,7 +2206,7 @@ function _Chat() {
           }
           togglePlugin={async (plugin: PluginActionModel) => {
             const value = !plugin.value;
-            return await chatStore.updateCurrentSessionMaskByUpdater(
+            const result = await chatStore.updateCurrentSessionMaskByUpdater(
               (mask) => {
                 let pluginUuids = mask.modelConfig.pluginUuids || [];
                 if (value) {
@@ -2226,6 +2231,10 @@ function _Chat() {
                 navigate(Path.Login);
               },
             );
+            if (result) {
+              plugin.value = value;
+            }
+            return { result, value: plugin.value };
           }}
           contentType={session.mask?.modelConfig?.contentType}
           messageStruct={session.mask?.modelConfig?.messageStruct}
