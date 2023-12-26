@@ -232,7 +232,7 @@ export type ToastProps = {
   content: string;
   action?: {
     text: string;
-    onClick: () => void;
+    onClick?: () => void;
   };
   onClose?: () => void;
 };

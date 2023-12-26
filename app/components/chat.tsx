@@ -1159,64 +1159,117 @@ function _Chat() {
     ChatControllerPool.stop(session.id, messageId);
   };
 
-  useEffect(() => {
-    chatStore.updateCurrentSessionMessagesByUpdater(
-      (session) => {
-        let messageChanged = false;
-        const changedMessages = [] as ChatMessage[];
-        const stopTiming = Date.now() - REQUEST_TIMEOUT_MS;
-        session.messages.forEach((m) => {
-          // check if should stop all stale messages
-          if (m.isError || new Date(m.date).getTime() < stopTiming) {
-            if (m.streaming) {
-              m.streaming = false;
-              messageChanged = true;
-            }
+  const [sessionLoading, setSessionLoading] = useState(false);
+  const [isSessionLoadingError, setIsSessionLoadingError] = useState(false);
+  const [sessionLoadingError, setSessionLoadingError] = useState(null);
 
-            if ((m.content ?? "").length === 0 && m.role !== "user") {
-              m.isError = true;
-              m.content = prettyObject({
-                error: true,
-                message: "empty response",
-              });
-              messageChanged = true;
+  const reloadSession = () => {
+    setSessionLoading(true);
+    console.log("session loading = true");
+    chatStore
+      .refreshSession(session, authStore.token)
+      .then(async ({ ok, resp, error }) => {
+        if (error) {
+          setIsSessionLoadingError(true);
+          setSessionLoadingError(error);
+          showToast(Locale.Chat.SessionLoadingError(error));
+          return;
+        }
+        setIsSessionLoadingError(false);
+        setSessionLoadingError(null);
+        if (!ok) {
+          if (resp && resp.code === 12302) {
+            // 会话已删除
+            if (await showConfirm(Locale.Chat.DeleteDeletedSessionConfirm)) {
+              chatStore.deleteLocalSession(
+                session,
+                authStore.token,
+                () => {
+                  authStore.logout();
+                  navigate(Path.Login);
+                },
+                true,
+              );
             }
-            if (messageChanged) {
-              changedMessages.push(m);
-            }
+            return;
+          } else {
+            console.warn("refresh error");
           }
-        });
-        return {
-          messageChanged,
-          messages: changedMessages,
-        };
-      },
-      authStore.token,
-      () => {
-        authStore.logout();
-        navigate(Path.Login);
-      },
-    );
-    if (session.mask.syncGlobalConfig) {
-      chatStore.updateCurrentSessionMaskByUpdater(
-        (mask) => {
-          const v1 = JSON.stringify(config.modelConfig);
-          const v2 = JSON.stringify(session.mask.modelConfig);
-          if (v1 === v2) {
-            console.log("[Mask] same with global, not sync", session.mask.name);
-            return false;
-          }
-          console.log("[Mask] syncing from global, name = ", session.mask.name);
-          session.mask.modelConfig = { ...config.modelConfig };
-        },
-        authStore.token,
-        () => {
-          authStore.logout();
-          navigate(Path.Login);
-        },
-      );
-    }
+          return;
+        }
+        // 更新本地message，如果还在等待输出，那么置为error
+        await chatStore.updateCurrentSessionMessagesByUpdater(
+          (session) => {
+            let messageChanged = false;
+            const changedMessages = [] as ChatMessage[];
+            const stopTiming = Date.now() - REQUEST_TIMEOUT_MS;
+            session.messages.forEach((m) => {
+              // check if should stop all stale messages
+              if (m.isError || new Date(m.date).getTime() < stopTiming) {
+                if (m.streaming) {
+                  m.streaming = false;
+                  messageChanged = true;
+                }
+
+                if ((m.content ?? "").length === 0 && m.role !== "user") {
+                  m.isError = true;
+                  m.content = prettyObject({
+                    error: true,
+                    message: "empty response",
+                  });
+                  messageChanged = true;
+                }
+                if (messageChanged) {
+                  changedMessages.push(m);
+                }
+              }
+            });
+            return {
+              messageChanged,
+              messages: changedMessages,
+            };
+          },
+          authStore.token,
+          () => {
+            authStore.logout();
+            navigate(Path.Login);
+          },
+        );
+        if (session.mask.syncGlobalConfig) {
+          await chatStore.updateCurrentSessionMaskByUpdater(
+            (mask) => {
+              const v1 = JSON.stringify(config.modelConfig);
+              const v2 = JSON.stringify(session.mask.modelConfig);
+              if (v1 === v2) {
+                console.log(
+                  "[Mask] same with global, not sync",
+                  session.mask.name,
+                );
+                return false;
+              }
+              console.log(
+                "[Mask] syncing from global, name = ",
+                session.mask.name,
+              );
+              session.mask.modelConfig = { ...config.modelConfig };
+            },
+            authStore.token,
+            () => {
+              authStore.logout();
+              navigate(Path.Login);
+            },
+          );
+        }
+      })
+      .finally(() => {
+        console.log("session loading = false");
+        setSessionLoading(false);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  };
+
+  useEffect(() => {
+    reloadSession();
   }, []);
 
   const [pluignModels, setPluginModels] = useState<PluginActionModel[]>([]);
@@ -1730,11 +1783,31 @@ function _Chat() {
         />
       </div>
 
-      {uploading && (
+      {(uploading || sessionLoading) && (
         <div className={styles.mask}>
-          <div>{Locale.Midjourney.Uploading}</div>
+          <div>
+            {uploading
+              ? Locale.Midjourney.Uploading
+              : Locale.Chat.SessionLoading}
+          </div>
         </div>
       )}
+
+      {isSessionLoadingError && (
+        <div className={styles.mask + " " + styles["chat-mask"]}>
+          <div>{Locale.Chat.SessionLoadingError(sessionLoadingError)}</div>
+          <div style={{ marginTop: "10px" }}>
+            <IconButton
+              text={Locale.Chat.ReloadSesison}
+              disabled={sessionLoading}
+              onClick={() => {
+                reloadSession();
+              }}
+            ></IconButton>
+          </div>
+        </div>
+      )}
+
       <div
         className={styles["chat-body"]}
         ref={scrollRef}

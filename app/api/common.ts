@@ -53,9 +53,12 @@ export async function requestOpenai(req: NextRequest, reqBody: any) {
   console.log("[Base Url]", baseUrl);
   console.log("[Org ID]", serverConfig.openaiOrgId);
 
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, 10 * 60 * 1000);
+  const timeoutId = setTimeout(
+    () => {
+      controller.abort();
+    },
+    10 * 60 * 1000,
+  );
 
   if (serverConfig.isAzure) {
     if (!serverConfig.azureApiVersion) {
@@ -118,9 +121,12 @@ export async function request(req: NextRequest) {
     "",
   );
 
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, 10 * 60 * 1000);
+  const timeoutId = setTimeout(
+    () => {
+      controller.abort();
+    },
+    10 * 60 * 1000,
+  );
 
   try {
     console.log(`url = ${baseUrl}/${uri}`);
@@ -167,6 +173,8 @@ export interface Response<T> {
   code: number;
 
   message: string;
+
+  cnMessage?: string;
 
   data: T;
 }

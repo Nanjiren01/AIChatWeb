@@ -362,13 +362,73 @@ export const useChatStore = createPersistStore(
         get().selectSession(limit(i + delta));
       },
 
+      // 删除本地会话
+      // deleteLocalSession() {
+      // },
+      async deleteLocalSession(
+        session: ChatSession,
+        token: string,
+        logout: () => void,
+        restorable: boolean,
+      ) {
+        const deletingLastSession = get().sessions.length === 1;
+        const sessions = get().sessions.slice();
+        const index = sessions.findIndex((s) => s.id === session.id);
+        sessions.splice(index, 1);
+
+        const currentIndex = get().currentSessionIndex;
+        let nextIndex = Math.min(
+          currentIndex - Number(index < currentIndex),
+          sessions.length - 1,
+        );
+
+        if (deletingLastSession) {
+          nextIndex = 0;
+          const result = await this.newSession(
+            token,
+            logout,
+            undefined,
+            (session) => {},
+          );
+          if (result === false) {
+            return false;
+          }
+          sessions.push(result as ChatSession);
+        }
+
+        // for undo delete action
+        const restoreState = {
+          currentSessionIndex: get().currentSessionIndex,
+          sessions: get().sessions.slice(),
+        };
+
+        set(() => ({
+          currentSessionIndex: nextIndex,
+          sessions,
+        }));
+        if (restorable) {
+          showToast(
+            Locale.Home.DeleteToast,
+            {
+              text: Locale.Home.Revert,
+              onClick() {
+                set(() => restoreState);
+              },
+            },
+            5000,
+          );
+        } else {
+          showToast(Locale.Home.DeleteToast);
+        }
+      },
+
       async deleteSession(index: number, token: string, logout: () => void) {
         const deletingLastSession = get().sessions.length === 1;
         const deletedSession = get().sessions.at(index);
 
         if (!deletedSession) return;
 
-        const deleteRemoteSession = (session: ChatSession) => {
+        const deleteRemoteSession = async (session: ChatSession) => {
           const url = "/session/" + session.uuid;
           const BASE_URL = process.env.BASE_URL;
           const mode = process.env.BUILD_MODE;
@@ -386,7 +446,7 @@ export const useChatStore = createPersistStore(
                 showToast(res.message);
                 return false;
               }
-              return res;
+              return true;
             })
             .catch((e) => {
               console.error("[deleteRemoteSession] failed to get messages", e);
@@ -394,59 +454,13 @@ export const useChatStore = createPersistStore(
             });
         };
 
-        const deleteLocalSession = async () => {
-          const sessions = get().sessions.slice();
-          sessions.splice(index, 1);
-
-          const currentIndex = get().currentSessionIndex;
-          let nextIndex = Math.min(
-            currentIndex - Number(index < currentIndex),
-            sessions.length - 1,
-          );
-
-          if (deletingLastSession) {
-            nextIndex = 0;
-            const result = await this.newSession(
-              token,
-              logout,
-              undefined,
-              (session) => {},
-            );
-            if (result === false) {
-              return false;
-            }
-            sessions.push(result as ChatSession);
-          }
-
-          // for undo delete action
-          const restoreState = {
-            currentSessionIndex: get().currentSessionIndex,
-            sessions: get().sessions.slice(),
-          };
-
-          set(() => ({
-            currentSessionIndex: nextIndex,
-            sessions,
-          }));
-          showToast(
-            Locale.Home.DeleteToast,
-            {
-              text: Locale.Home.Revert,
-              onClick() {
-                set(() => restoreState);
-              },
-            },
-            5000,
-          );
-        };
-
         if (deletedSession.uuid) {
           const result = await deleteRemoteSession(deletedSession);
           if (result) {
-            await deleteLocalSession();
+            await this.deleteLocalSession(deletedSession, token, logout, false);
           }
         } else {
-          await deleteLocalSession();
+          await this.deleteLocalSession(deletedSession, token, logout, false);
         }
       },
 
@@ -1608,6 +1622,50 @@ export const useChatStore = createPersistStore(
         return result;
       },
 
+      async refreshSession(session: ChatSession, token: string) {
+        if (!session.uuid) {
+          return Promise.resolve({ ok: true, resp: null, error: null });
+        }
+        const remoteSessionToLocalSession = this.remoteSessionToLocalSession;
+
+        const url = "/session/" + session.uuid;
+        const BASE_URL = process.env.BASE_URL;
+        const mode = process.env.BUILD_MODE;
+        let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+        return fetch(requestUrl, {
+          method: "get",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        })
+          .then((res) => res.json())
+          .then((res: Response<any>) => {
+            console.log("[SessionEntity] refresh session", res);
+            if (res.code !== 0) {
+              // todo 当前对话已删除
+              showToast(res.cnMessage || res.message);
+              return { ok: false, resp: res, error: null };
+            }
+
+            const newSession = remoteSessionToLocalSession(res.data);
+            console.log("newSession=", newSession);
+            session.lastSummarizeIndex = newSession.lastSummarizeIndex;
+            session.lastUpdate = newSession.lastUpdate;
+            session.mask = newSession.mask;
+            session.memoryPrompt = newSession.memoryPrompt;
+            session.messages = newSession.messages;
+            session.stat = newSession.stat;
+            session.topic = newSession.topic;
+            const sessions = get().sessions;
+            set(() => ({ sessions: sessions }));
+            return { ok: true, resp: res, error: null };
+          })
+          .catch((e) => {
+            console.error("[SessionEntity] failed to refresh session", e);
+            return { ok: false, resp: null, error: e };
+          });
+      },
+
       updateLocalCurrentSession(updater: (session: ChatSession) => void) {
         const sessions = get().sessions;
         const index = get().currentSessionIndex;
@@ -1626,6 +1684,32 @@ export const useChatStore = createPersistStore(
         delete msg.streaming;
         delete msg.attr;
         return msg;
+      },
+
+      remoteSessionToLocalSession(msg: any) {
+        return {
+          uuid: msg.uuid,
+          id: msg.id,
+          lastSummarizeIndex: msg.lastSummarizeIndex,
+          lastUpdate: msg.lastUpdate,
+          mask: msg.mask ? msg.mask : createEmptyMask(),
+          memoryPrompt: msg.memoryPrompt ? msg.memoryPrompt : "",
+          messages: msg.messageList.map((item: any) => {
+            item = { ...item };
+            if (!item.attr) {
+              item.attr = {};
+            }
+            return item;
+          }),
+          stat: msg.stat
+            ? msg.stat
+            : {
+                tokenCount: 0,
+                wordCount: 0,
+                charCount: 0,
+              },
+          topic: msg.topic,
+        };
       },
 
       async syncSessions(token: string) {
@@ -1698,6 +1782,8 @@ export const useChatStore = createPersistStore(
             }
           }
         }
+
+        const remoteSessionToLocalSession = this.remoteSessionToLocalSession;
         const result = await (async () => {
           const url = "/session/my";
           const BASE_URL = process.env.BASE_URL;
@@ -1720,32 +1806,10 @@ export const useChatStore = createPersistStore(
                 showToast(res.message);
                 return false;
               }
-              const ss = res.data.list.map((msg: any) => {
-                return {
-                  uuid: msg.uuid,
-                  id: msg.id,
-                  lastSummarizeIndex: msg.lastSummarizeIndex,
-                  lastUpdate: msg.lastUpdate,
-                  mask: msg.mask ? msg.mask : createEmptyMask(),
-                  memoryPrompt: msg.memoryPrompt ? msg.memoryPrompt : "",
-                  messages: msg.messageList.map((item: any) => {
-                    item = { ...item };
-                    if (!item.attr) {
-                      item.attr = {};
-                    }
-                    return item;
-                  }),
-                  stat: msg.stat
-                    ? msg.stat
-                    : {
-                        tokenCount: 0,
-                        wordCount: 0,
-                        charCount: 0,
-                      },
-                  topic: msg.topic,
-                };
+              const sessions = res.data.list.map((msg: any) => {
+                return remoteSessionToLocalSession(msg);
               });
-              set(() => ({ sessions: ss }));
+              set(() => ({ sessions: sessions }));
               return true;
             })
             .catch((e) => {

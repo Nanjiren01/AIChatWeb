@@ -94,6 +94,11 @@ const en: LocaleType = {
       Confirm: "Confirm",
     },
     IsContext: "Contextual Prompt",
+    SessionLoading: "session loading...",
+    SessionLoadingError: (err: any) => "Loading session failed: " + err,
+    ReloadSesison: "Reload Session",
+    DeleteDeletedSessionConfirm:
+      "This session has been deleted by other client. Do you want to delete it from local storage?",
   },
   Midjourney: {
     Uploading: "Uploading",

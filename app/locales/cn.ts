@@ -89,6 +89,10 @@ const cn = {
       Confirm: "确定",
     },
     IsContext: "预设提示词",
+    SessionLoading: "加载会话……",
+    SessionLoadingError: (err: any) => "加载会话失败：" + err,
+    ReloadSesison: "重新加载",
+    DeleteDeletedSessionConfirm: "该会话已在其他客户端删除，确定删除本地会话？",
   },
   Midjourney: {
     Uploading: "上传中……",
