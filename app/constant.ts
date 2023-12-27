@@ -173,3 +173,12 @@ export const DEFAULT_MODELS = [
 
 export const CHAT_PAGE_SIZE = 15;
 export const MAX_RENDER_MSG_COUNT = 45;
+
+export const SPEED_MAP = {
+  turbo: "极速",
+  fast: "快速",
+  relax: "慢速",
+  mixed: "自动",
+};
+
+export type SPEED_MAP_KEY = keyof typeof SPEED_MAP;

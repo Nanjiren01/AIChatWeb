@@ -411,6 +411,7 @@ export class ChatGPTApi implements LLMApi {
     options.onUpdate?.("请稍候……", "");
     const botMessage = options.botMessage;
     const content = options.content;
+    const mask = options.mask;
     const startFn = async (): Promise<boolean> => {
       const prompt = content; // .substring(3).trim();
       let action: string = "IMAGINE";
@@ -484,6 +485,7 @@ export class ChatGPTApi implements LLMApi {
             body: JSON.stringify({
               ...body,
               model: modelConfig.model,
+              processMode: mask?.modelConfig.processMode,
             }),
           });
         };

@@ -5,6 +5,7 @@ import {
   DEFAULT_INPUT_TEMPLATE,
   DEFAULT_MODELS,
   DEFAULT_SIDEBAR_WIDTH,
+  SPEED_MAP_KEY,
   StoreKey,
 } from "../constant";
 import { ModelContentType, ModelMessageStruct } from "./website";
@@ -61,6 +62,8 @@ export const DEFAULT_CONFIG = {
     enableInjectSystemPrompts: true,
     template: DEFAULT_INPUT_TEMPLATE,
     pluginUuids: [] as string[],
+    processModes: [] as SPEED_MAP_KEY[],
+    processMode: null as SPEED_MAP_KEY | null,
   },
 };
 

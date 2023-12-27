@@ -10,6 +10,7 @@ import React, {
 
 import SendWhiteIcon from "../icons/send-white.svg";
 import BrainIcon from "../icons/brain.svg";
+import PollIcon from "../icons/poll.svg";
 import RenameIcon from "../icons/rename.svg";
 import UserIcon from "../icons/user.svg";
 import CartIcon from "../icons/cart-outline.svg";
@@ -106,6 +107,8 @@ import {
   LAST_INPUT_KEY,
   Path,
   REQUEST_TIMEOUT_MS,
+  SPEED_MAP,
+  SPEED_MAP_KEY,
   UNFINISHED_INPUT,
 } from "../constant";
 import { Avatar } from "./emoji";
@@ -419,109 +422,144 @@ function ClearContextDivider() {
   );
 }
 
-function ChatAction(props: {
-  text: string;
-  icon: JSX.Element;
-  onClick: () => void;
-}) {
-  const iconRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState({
-    full: 16,
-    icon: 16,
-  });
-
-  function updateWidth() {
-    if (!iconRef.current || !textRef.current) return;
-    const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
-    const textWidth = getWidth(textRef.current);
-    const iconWidth = getWidth(iconRef.current);
-    setWidth({
-      full: textWidth + iconWidth,
-      icon: iconWidth,
+const ChatAction = React.forwardRef(
+  (
+    props: {
+      text: string;
+      icon: JSX.Element;
+      alwaysShowText?: boolean;
+      onClick: () => void;
+    },
+    ref,
+  ) => {
+    const iconRef = useRef<HTMLDivElement>(null);
+    const textRef = useRef<HTMLDivElement>(null);
+    const [width, setWidth] = useState({
+      full: 16,
+      icon: 16,
     });
-  }
 
-  return (
-    <div
-      className={`${styles["chat-input-action"]} clickable`}
-      onClick={() => {
-        props.onClick();
+    function updateWidth() {
+      if (!iconRef.current || !textRef.current) return;
+      const getWidth = (dom: HTMLDivElement) =>
+        dom.getBoundingClientRect().width;
+      const textWidth = getWidth(textRef.current);
+      const iconWidth = getWidth(iconRef.current);
+      const newWidth = {
+        full: textWidth + iconWidth,
+        icon: iconWidth,
+      };
+      setWidth(newWidth);
+    }
+    useEffect(() => {
+      if (props.alwaysShowText) {
         setTimeout(updateWidth, 1);
-      }}
-      onMouseEnter={updateWidth}
-      onTouchStart={updateWidth}
-      style={
-        {
-          "--icon-width": `${width.icon}px`,
-          "--full-width": `${width.full}px`,
-        } as React.CSSProperties
       }
-    >
-      <div ref={iconRef} className={styles["icon"]}>
-        {props.icon}
-      </div>
-      <div className={styles["text"]} ref={textRef}>
-        {props.text}
-      </div>
-    </div>
-  );
-}
+    }, []);
 
-function SwitchChatAction(props: {
-  text: string;
-  icon?: JSX.Element;
-  value?: boolean;
-  onClick: () => void;
-}) {
-  const iconRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState({
-    full: 16,
-    icon: props.icon ? 16 : 0,
-  });
-  const [isClicked, setIsClicked] = useState(props.value ?? false); // 新增state
+    React.useImperativeHandle(ref, () => ({
+      updateWidth,
+    }));
 
-  function updateWidth() {
-    if (!iconRef.current || !textRef.current) return;
-    const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
-    const textWidth = getWidth(textRef.current);
-    const iconWidth = getWidth(iconRef.current);
-    setWidth({
-      full: textWidth + iconWidth,
-      icon: iconWidth,
-    });
-  }
-
-  return (
-    <div
-      className={`${styles["chat-input-action"]} clickable`}
-      onClick={() => {
-        props.onClick();
-        setIsClicked(!isClicked); // 更新isClicked的状态
-        setTimeout(updateWidth, 1);
-      }}
-      onMouseEnter={updateWidth}
-      onTouchStart={updateWidth}
-      style={
-        {
-          "--icon-width": `${width.icon}px`,
-          "--full-width": `${width.full}px`,
-          backgroundColor: isClicked ? "#dafbe1" : "", // 根据isClicked的状态设置背景颜色
-        } as React.CSSProperties
-      }
-    >
-      {props.icon && (
+    return (
+      <div
+        className={`${styles["chat-input-action"]} clickable ${
+          props.alwaysShowText ? styles["hover"] : ""
+        }`}
+        onClick={() => {
+          props.onClick();
+          setTimeout(updateWidth, 1);
+        }}
+        onMouseEnter={updateWidth}
+        onTouchStart={updateWidth}
+        style={
+          {
+            "--icon-width": `${width.icon}px`,
+            "--full-width": `${width.full}px`,
+          } as React.CSSProperties
+        }
+      >
         <div ref={iconRef} className={styles["icon"]}>
           {props.icon}
         </div>
-      )}
-      <div className={styles["text"]} ref={textRef}>
-        {props.text}
+        <div ref={textRef} className={styles["text"]}>
+          {props.text}
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  },
+);
+ChatAction.displayName = "ChatAction";
+
+const SwitchChatAction = React.forwardRef(
+  (
+    props: {
+      text: string;
+      icon?: JSX.Element;
+      value?: boolean;
+      alwaysShowText?: boolean;
+      onClick: () => void;
+    },
+    ref,
+  ) => {
+    const iconRef = useRef<HTMLDivElement>(null);
+    const textRef = useRef<HTMLDivElement>(null);
+    const [width, setWidth] = useState({
+      full: 16,
+      icon: props.icon ? 16 : 0,
+    });
+    const [isClicked, setIsClicked] = useState(props.value ?? false); // 新增state
+
+    function updateWidth() {
+      if (!iconRef.current || !textRef.current) return;
+      const getWidth = (dom: HTMLDivElement) =>
+        dom.getBoundingClientRect().width;
+      const textWidth = getWidth(textRef.current);
+      const iconWidth = getWidth(iconRef.current);
+      setWidth({
+        full: textWidth + iconWidth,
+        icon: iconWidth,
+      });
+    }
+    useEffect(() => {
+      if (props.alwaysShowText) {
+        setTimeout(updateWidth, 1);
+      }
+    }, []);
+
+    return (
+      <div
+        className={`${styles["chat-input-action"]} clickable ${
+          props.alwaysShowText ? styles["hover"] : ""
+        }`}
+        onClick={() => {
+          props.onClick();
+          setIsClicked(!isClicked); // 更新isClicked的状态
+          setTimeout(updateWidth, 1);
+        }}
+        onMouseEnter={updateWidth}
+        onTouchStart={updateWidth}
+        style={
+          {
+            "--icon-width": `${width.icon}px`,
+            "--full-width": `${width.full}px`,
+            backgroundColor: isClicked ? "#dafbe1" : "", // 根据isClicked的状态设置背景颜色
+          } as React.CSSProperties
+        }
+      >
+        {props.icon && (
+          <div ref={iconRef} className={styles["icon"]}>
+            {props.icon}
+          </div>
+        )}
+        <div className={styles["text"]} ref={textRef}>
+          {props.text}
+        </div>
+      </div>
+    );
+  },
+);
+SwitchChatAction.displayName = "SwitchChatAction";
 
 function useScrollToBottom() {
   // for auto-scroll
@@ -566,6 +604,9 @@ export function ChatActions(props: {
   ) => Promise<{ result: boolean; value: boolean }>;
   contentType: ModelContentType;
   messageStruct: ModelMessageStruct;
+  processModes: SPEED_MAP_KEY[];
+  selectedProcessMode: SPEED_MAP_KEY | null;
+  toggleProcessMode: (processMode: SPEED_MAP_KEY) => void;
   uploading: boolean;
   setUploading: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -594,19 +635,10 @@ export function ChatActions(props: {
     name: chatStore.currentSession().mask.modelConfig.model,
     contentType: chatStore.currentSession().mask.modelConfig.contentType,
     messageStruct: chatStore.currentSession().mask.modelConfig.messageStruct,
+    processModes: chatStore.currentSession().mask.modelConfig.processModes,
+    processMode: chatStore.currentSession().mask.modelConfig.processMode,
   } as SimpleModel;
-  // const currentContentType =
-  //   chatStore.currentSession().mask.modelConfig.contentType;
-  // const models = useMemo(
-  //   () =>
-  //     availableModels
-  //       // .filter((m) =>
-  //       //   currentContentType === "Text"
-  //       //     ? m.contentType === "Text" || !m.contentType
-  //       //     : m.contentType === currentContentType,
-  //       // ),
-  //   [config, currentContentType],
-  // );
+
   const [showModelSelector, setShowModelSelector] = useState(false);
 
   function selectImage() {
@@ -679,6 +711,8 @@ export function ChatActions(props: {
     });
     e.target.value = null;
   };
+
+  const modelSelectorRef = useRef(null);
 
   return (
     <div className={styles["chat-input-actions"]}>
@@ -755,8 +789,10 @@ export function ChatActions(props: {
       />
 
       <ChatAction
+        ref={modelSelectorRef}
         onClick={() => setShowModelSelector(true)}
         text={currentModel.name}
+        alwaysShowText={true}
         icon={<RobotIcon />}
       />
 
@@ -777,6 +813,21 @@ export function ChatActions(props: {
                 mask.modelConfig.model = selectedModel.name;
                 mask.modelConfig.contentType = selectedModel.contentType;
                 mask.modelConfig.messageStruct = selectedModel.messageStruct;
+                mask.modelConfig.processModes = selectedModel.processModes;
+                if (selectedModel.processModes.length) {
+                  if (
+                    selectedModel.processModes.includes(
+                      "mixed" as SPEED_MAP_KEY,
+                    )
+                  ) {
+                    mask.modelConfig.processMode = "mixed" as SPEED_MAP_KEY;
+                  } else {
+                    mask.modelConfig.processMode =
+                      selectedModel.processModes[0];
+                  }
+                } else {
+                  mask.modelConfig.processMode = null;
+                }
                 mask.syncGlobalConfig = false;
               },
               authStore.token,
@@ -787,6 +838,10 @@ export function ChatActions(props: {
             );
             if (result) {
               showToast(selectedModel.name);
+              if (modelSelectorRef.current) {
+                // @ts-ignore
+                modelSelectorRef.current.updateWidth();
+              }
             }
           }}
         />
@@ -813,6 +868,7 @@ export function ChatActions(props: {
           return (
             <SwitchChatAction
               key={model.plugin.uuid}
+              alwaysShowText={true}
               onClick={async () => {
                 const { result, value } = await props.togglePlugin(model);
                 console.log(
@@ -831,6 +887,27 @@ export function ChatActions(props: {
             />
           );
         })}
+      </>
+
+      <>
+        {props.processModes?.length > 0 && (
+          <ChatAction
+            onClick={() => {
+              let index = props.processModes.indexOf(
+                props.selectedProcessMode as SPEED_MAP_KEY,
+              );
+              if (index >= 0) {
+                index = (index + 1) % props.processModes.length;
+              } else {
+                index = 0;
+              }
+              props.toggleProcessMode(props.processModes[index]);
+            }}
+            text={SPEED_MAP[props.selectedProcessMode as SPEED_MAP_KEY]}
+            alwaysShowText={true}
+            icon={<PollIcon />}
+          />
+        )}
       </>
     </div>
   );
@@ -2235,6 +2312,26 @@ function _Chat() {
               plugin.value = value;
             }
             return { result, value: plugin.value };
+          }}
+          processModes={session.mask?.modelConfig?.processModes ?? []}
+          selectedProcessMode={session.mask?.modelConfig?.processMode}
+          toggleProcessMode={async (processMode: SPEED_MAP_KEY) => {
+            const result = await chatStore.updateCurrentSessionMaskByUpdater(
+              (mask) => {
+                mask.modelConfig.processMode = processMode;
+                mask.syncGlobalConfig = false;
+                return true;
+              },
+              authStore.token,
+              () => {
+                authStore.logout();
+                navigate(Path.Login);
+              },
+            );
+            if (result) {
+              session.mask.modelConfig.processMode = processMode;
+            }
+            return { result, value: processMode };
           }}
           contentType={session.mask?.modelConfig?.contentType}
           messageStruct={session.mask?.modelConfig?.messageStruct}
