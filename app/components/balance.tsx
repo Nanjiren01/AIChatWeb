@@ -59,9 +59,10 @@ export function Balance() {
   useEffect(() => {
     if (profileStore.id === 0) {
       console.log("profileStore.id", profileStore.id);
+      authStore.logout();
       navigate(Path.Login);
     }
-  }, [profileStore, navigate]);
+  }, [profileStore, navigate, authStore]);
 
   function getSubTitle(pkg: Balance) {
     const prefix = {
@@ -71,7 +72,8 @@ export function Balance() {
       4: "每3小时",
     }[pkg.calcTypeId];
     return (
-      `<ul style="margin-top: 5px;padding-inline-start: 10px; color: ${
+      `<div>#${pkg.id}</div>
+      <ul style="margin-top: 5px;padding-inline-start: 10px; color: ${
         pkg.expired ? "var(--disabled)" : ""
       }">` +
       (pkg.tokens
@@ -170,9 +172,19 @@ export function Balance() {
                 : Locale.BalancePage.Actions.Refresh
             }
             type="second"
+            style={{ marginRight: "10px" }}
             disabled={loading}
             onClick={() => {
               reloadBalanceList(authStore.token);
+            }}
+          />
+
+          <IconButton
+            text={Locale.BalancePage.Actions.BalanceLog}
+            type="second"
+            disabled={loading}
+            onClick={() => {
+              navigate(Path.BalanceLog);
             }}
           />
         </div>
@@ -192,8 +204,8 @@ export function Balance() {
               {errorMessage
                 ? errorMessage
                 : loading
-                ? Locale.BalancePage.Loading
-                : Locale.BalancePage.NoBalance}
+                  ? Locale.BalancePage.Loading
+                  : Locale.BalancePage.NoBalance}
             </div>
           </List>
         ) : (

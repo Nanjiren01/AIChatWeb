@@ -1,9 +1,9 @@
 
 
 
-# docker build -t nanjiren01/chatmj-web:0.9.6 ../AIChatWeb
-# docker push nanjiren01/chatmj-web:0.9.6
-# docker tag nanjiren01/chatmj-web:0.9.6 nanjiren01/chatmj-web:latest
+# docker build -t nanjiren01/chatmj-web:0.11 ../AIChatWeb
+# docker push nanjiren01/chatmj-web:0.11
+# docker tag nanjiren01/chatmj-web:0.11 nanjiren01/chatmj-web:latest
 # docker push nanjiren01/chatmj-web:latest
 
 FROM node:18-alpine
@@ -17,6 +17,7 @@ COPY ./.next/static ./.next/static
 COPY ./.next/server ./.next/server
 
 ENV BASE_URL=http://aichat-admin:8080
+ENV SECRET=123456
 
 EXPOSE 3000
 

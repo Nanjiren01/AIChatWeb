@@ -1,10 +1,17 @@
 import {
+  ApiPath,
   DEFAULT_API_HOST,
+  DEFAULT_MODELS,
   OpenaiPath,
   REQUEST_TIMEOUT_MS,
+  ServiceProvider,
 } from "@/app/constant";
 import {
+  AttrDirection,
   ChatMessage,
+  MessageAction,
+  PanDirection,
+  TargetIndex,
   useAccessStore,
   useAppConfig,
   useChatStore,
@@ -15,6 +22,7 @@ import {
   ChatSubmitResult,
   getHeaders,
   LLMApi,
+  LLMModel,
   LLMUsage,
 } from "../api";
 import Locale from "../../locales";
@@ -24,8 +32,28 @@ import {
 } from "@fortaine/fetch-event-source";
 import { toYYYYMMDD_HHMMSS } from "@/app/utils";
 // import { prettyObject } from "@/app/utils/format";
+import { getClientConfig } from "@/app/config/client";
+import { makeAzurePath } from "@/app/azure";
+
+export interface OpenAIListModelResponse {
+  object: string;
+  data: Array<{
+    id: string;
+    object: string;
+    root: string;
+  }>;
+}
+
+interface ComplexContentItem {
+  type: string;
+  text?: string;
+  image_url?: string;
+  imageUuid?: string;
+}
 
 export class ChatGPTApi implements LLMApi {
+  private disableListModels = true;
+
   path(path: string): string {
     const BASE_URL = process.env.BASE_URL;
     const mode = process.env.BUILD_MODE;
@@ -44,10 +72,40 @@ export class ChatGPTApi implements LLMApi {
 
   async chat(options: ChatOptions) {
     const plugins = options.plugins;
-    const messages = options.messages.map((v) => ({
-      role: v.role,
-      content: v.content,
-    }));
+    const isMessageStructComplex =
+      options.mask?.modelConfig?.messageStruct === "complex";
+    const messages = (
+      options.sessionUuid && options.userMessage // 如果是服务器同步会话，那么仅发送最近一条用户的message
+        ? [options.userMessage]
+        : options.messages
+    ).map((message) => {
+      if (!isMessageStructComplex) {
+        return {
+          id: message.id,
+          role: message.role,
+          content: message.content,
+        };
+      }
+      const content = [
+        {
+          type: "text",
+          text: message.content,
+        },
+      ] as ComplexContentItem[];
+      if (options.baseImages?.length > 0) {
+        options.baseImages.forEach((img) => {
+          content.push({
+            type: "imageUuid",
+            imageUuid: img.uuid,
+          });
+        });
+      }
+      return {
+        id: message.id,
+        role: message.role,
+        content,
+      };
+    });
 
     const modelConfig = {
       ...useAppConfig.getState().modelConfig,
@@ -72,6 +130,8 @@ export class ChatGPTApi implements LLMApi {
     }
 
     const requestPayload = {
+      sessionUuid: options.sessionUuid,
+      resend: options.resend,
       messages,
       stream: options.config.stream,
       model: modelConfig.model,
@@ -87,12 +147,30 @@ export class ChatGPTApi implements LLMApi {
           value: p.value,
         };
       }),
+      top_p: modelConfig.top_p,
+      mask: !options.mask
+        ? null
+        : options.sessionUuid
+          ? {
+              // 传递mask上下文
+              id: options.mask.id,
+              builtin: options.mask.builtin ? 1 : 0,
+              context: options.mask.context,
+            }
+          : null, // 没有session uuid的情况下messages中已经包含了mask上下文，所以无需传递
+      assistantMessageId: options.botMessage?.id, // 同时告诉服务器bot message id，以便后续sync messages找到对应的条目
+      // max_tokens: Math.max(modelConfig.max_tokens, 1024),
+      // Please do not ask me why not send max_tokens, no reason, this param is just shit, I dont want to explain anymore.
+      // baseUrl: useAccessStore.getState().openaiUrl,
+      // maxIterations: options.agentConfig.maxIterations,
+      // returnIntermediateSteps: options.agentConfig.returnIntermediateSteps,
+      // useTools: options.agentConfig.useTools,
     };
 
     console.log("[Request] openai payload: ", requestPayload);
 
     const shouldStream = !!options.config.stream;
-    console.log("shouldStream", shouldStream);
+    // console.log("shouldStream", shouldStream);
     const controller = new AbortController();
     options.onController?.(controller);
 
@@ -171,6 +249,7 @@ export class ChatGPTApi implements LLMApi {
             }
           },
           onmessage(msg) {
+            // console.log("msg", msg);
             if (msg.data === "[DONE]" || finished) {
               return finish();
             }
@@ -180,13 +259,39 @@ export class ChatGPTApi implements LLMApi {
             }
             try {
               const json = JSON.parse(text);
-              const delta = json.choices?.at(0)?.delta.content;
-              if (delta) {
-                responseText += delta;
-                options.onUpdate?.(responseText, delta);
+              if (json && json.isToolMessage) {
+                if (!json.isSuccess) {
+                  console.error("[Request]", msg.data);
+                  responseText = msg.data;
+                  throw Error(json.message);
+                }
+                options.onToolUpdate?.(json.toolName!, json.message);
+                return;
+              }
+              if (json.choices) {
+                const delta = (
+                  json as {
+                    choices: Array<{
+                      delta: {
+                        content: string;
+                      };
+                    }>;
+                  }
+                ).choices?.at(0)?.delta.content;
+                if (delta) {
+                  responseText += delta;
+                  options.onUpdate?.(responseText, delta);
+                }
+              } else {
+                if (json.from === "aichat") {
+                  responseText += text;
+                } else {
+                  responseText += json.message;
+                }
+                options.onUpdate?.(responseText, json.message);
               }
             } catch (e) {
-              console.error("[Request] parse error", text, msg);
+              console.error("[Request] parse error", text);
             }
           },
           onclose() {
@@ -207,7 +312,7 @@ export class ChatGPTApi implements LLMApi {
         options.onFinish(message);
       }
     } catch (e) {
-      console.log("[Request] failed to make a chat reqeust", e);
+      console.log("[Request] failed to make a chat request", e);
       options.onError?.(e as Error);
     }
   }
@@ -276,11 +381,37 @@ export class ChatGPTApi implements LLMApi {
       total: total.hard_limit_usd,
     } as LLMUsage;
   }
+
+  async models(): Promise<LLMModel[]> {
+    if (this.disableListModels) {
+      return DEFAULT_MODELS.slice();
+    }
+
+    const res = await fetch(this.path(OpenaiPath.ListModelPath), {
+      method: "GET",
+      headers: {
+        ...getHeaders(),
+      },
+    });
+
+    const resJson = (await res.json()) as OpenAIListModelResponse;
+    const chatModels = resJson.data?.filter((m) => m.id.startsWith("gpt-"));
+    console.log("[Models]", chatModels);
+
+    if (!chatModels) {
+      return [];
+    }
+
+    return chatModels.map((m) => ({
+      name: m.id,
+      available: true,
+    }));
+  }
   async handleDraw(options: ChatOptions, modelConfig: any): Promise<boolean> {
     options.onUpdate?.("请稍候……", "");
-    const userMessage = options.userMessage;
     const botMessage = options.botMessage;
     const content = options.content;
+    const mask = options.mask;
     const startFn = async (): Promise<boolean> => {
       const prompt = content; // .substring(3).trim();
       let action: string = "IMAGINE";
@@ -309,12 +440,12 @@ export class ChatGPTApi implements LLMApi {
         options.onFinish(Locale.Midjourney.TaskErrUnknownType);
         return false;
       }
-      botMessage.attr.action = action;
-      let actionIndex: any = null;
+      botMessage.attr.action = action as MessageAction;
+      let actionIndex: number | null = null;
       let actionDirection: string | null = null;
       let actionStrength: string | null = null;
-      let actionUseTaskId: any = null;
-      let zoomRatio: any = null;
+      let actionUseTaskId: string | null = null;
+      let zoomRatio: string | null = null;
       if (action === "VARIATION" || action == "UPSCALE" || action == "REROLL") {
         actionIndex = parseInt(
           prompt.substring(firstSplitIndex + 2, firstSplitIndex + 3),
@@ -354,6 +485,7 @@ export class ChatGPTApi implements LLMApi {
             body: JSON.stringify({
               ...body,
               model: modelConfig.model,
+              processMode: mask?.modelConfig.processMode,
             }),
           });
         };
@@ -384,8 +516,8 @@ export class ChatGPTApi implements LLMApi {
               targetIndex: actionIndex,
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.targetIndex = actionIndex;
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.targetIndex = actionIndex! as TargetIndex;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           case "VARIATION": {
@@ -393,8 +525,8 @@ export class ChatGPTApi implements LLMApi {
               targetIndex: actionIndex,
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.targetIndex = actionIndex;
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.targetIndex = actionIndex! as TargetIndex;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           case "REROLL": {
@@ -409,8 +541,8 @@ export class ChatGPTApi implements LLMApi {
               zoomRatio: zoomRatio,
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.zoomRatio = zoomRatio;
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.zoomRatio = zoomRatio!;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           case "PAN": {
@@ -418,15 +550,15 @@ export class ChatGPTApi implements LLMApi {
               panDirection: actionDirection,
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.panDirection = actionDirection;
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.panDirection = actionDirection! as PanDirection;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           case "SQUARE": {
             res = await reqFn("draw/square", "POST", {
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           case "VARY": {
@@ -434,8 +566,8 @@ export class ChatGPTApi implements LLMApi {
               strength: actionStrength,
               targetUuid: actionUseTaskId,
             });
-            botMessage.attr.strength = actionStrength;
-            botMessage.attr.targetUuid = actionUseTaskId;
+            botMessage.attr.strength = actionStrength!;
+            botMessage.attr.targetUuid = actionUseTaskId!;
             break;
           }
           default:
@@ -540,32 +672,32 @@ export class ChatGPTApi implements LLMApi {
               botMessage.attr.targetUuid +
               ")"
             : statusResJson.data.type === "variation"
-            ? "(VARIATION::" +
-              botMessage.attr.targetIndex +
-              "::" +
-              botMessage.attr.targetUuid +
-              ")"
-            : statusResJson.data.type === "zoomOut"
-            ? "(ZOOMOUT::" +
-              botMessage.attr.zoomRatio +
-              "::" +
-              botMessage.attr.targetUuid +
-              ")"
-            : statusResJson.data.type === "pan"
-            ? "(PAN::" +
-              botMessage.attr.panDirection.toLocaleUpperCase() +
-              "::" +
-              botMessage.attr.targetUuid +
-              ")"
-            : statusResJson.data.type === "square"
-            ? "(SQUARE::1::" + botMessage.attr.targetUuid + ")"
-            : statusResJson.data.type === "vary"
-            ? "(VARY::" +
-              botMessage.attr.strength.toLocaleUpperCase() +
-              "::" +
-              botMessage.attr.targetUuid +
-              ")"
-            : ""),
+              ? "(VARIATION::" +
+                botMessage.attr.targetIndex +
+                "::" +
+                botMessage.attr.targetUuid +
+                ")"
+              : statusResJson.data.type === "zoomOut"
+                ? "(ZOOMOUT::" +
+                  botMessage.attr.zoomRatio +
+                  "::" +
+                  botMessage.attr.targetUuid +
+                  ")"
+                : statusResJson.data.type === "pan"
+                  ? "(PAN::" +
+                    botMessage.attr.panDirection.toLocaleUpperCase() +
+                    "::" +
+                    botMessage.attr.targetUuid +
+                    ")"
+                  : statusResJson.data.type === "square"
+                    ? "(SQUARE::1::" + botMessage.attr.targetUuid + ")"
+                    : statusResJson.data.type === "vary"
+                      ? "(VARY::" +
+                        botMessage.attr.strength.toLocaleUpperCase() +
+                        "::" +
+                        botMessage.attr.targetUuid +
+                        ")"
+                      : ""),
         taskId,
       );
       const state = statusResJson?.data?.state;
@@ -588,7 +720,8 @@ export class ChatGPTApi implements LLMApi {
           botMessage.attr.prompt = prompt;
           botMessage.attr.status = "SUCCESS";
           botMessage.attr.finished = true;
-          botMessage.attr.direction = statusResJson.data.direction;
+          botMessage.attr.direction = statusResJson.data
+            .direction as AttrDirection;
           onFinish(entireContent);
           break;
         }

@@ -48,10 +48,11 @@
     padding: 4px 10px;
     animation: slide-in ease 0.3s;
     box-shadow: var(--card-shadow);
-    transition: all ease 0.3s;
+    transition: width ease 0.3s;
     align-items: center;
     height: 16px;
     width: var(--icon-width);
+    overflow: hidden;
 
     &:not(:last-child) {
       margin-right: 5px;
@@ -63,15 +64,17 @@
       opacity: 0;
       transform: translateX(-5px);
       transition: all ease 0.3s;
-      transition-delay: 0.1s;
       pointer-events: none;
     }
 
     &.hover,
     &:hover {
+      --delay: 0.5s;
       width: var(--full-width);
+      transition-delay: var(--delay);
 
       .text {
+        transition-delay: var(--delay);
         opacity: 1;
         transform: translate(0);
       }
@@ -143,11 +146,41 @@
 }
 
 .context-prompt {
+  .context-prompt-insert {
+    display: flex;
+    justify-content: center;
+    padding: 4px;
+    opacity: 0.2;
+    transition: all ease 0.3s;
+    background-color: rgba(0, 0, 0, 0);
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+
+    &:hover {
+      opacity: 1;
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
+
   .context-prompt-row {
     display: flex;
     justify-content: center;
     width: 100%;
-    margin-bottom: 10px;
+
+    &:hover {
+      .context-drag {
+        opacity: 1;
+      }
+    }
+
+    .context-drag {
+      display: flex;
+      align-items: center;
+      opacity: 0.5;
+      transition: all ease 0.3s;
+    }
 
     .context-role {
       margin-right: 10px;
@@ -170,7 +203,9 @@
 }
 
 .mask {
-  position: absolute;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0,0,0, .65);
@@ -178,6 +213,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.chat-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
 }
 
 .memory-prompt {
@@ -271,6 +315,7 @@
 .chat-body {
   flex: 1;
   overflow: auto;
+  overflow-x: hidden;
   padding: 20px;
   padding-bottom: 40px;
   position: relative;
@@ -291,7 +336,7 @@
   }
 }
 
-.chat-message {
+.chat-message, .chat-message-user {
   display: flex;
   flex-direction: row;
 
@@ -305,6 +350,9 @@
       transform: translateY(0px);
       max-width: 100%;
       height: 40px;
+      //
+      //pointer-events: all;
+      //transform: scale(1) translateY(0);
     }
 
     .chat-message-action-date {
@@ -316,6 +364,34 @@
 .chat-message-user {
   display: flex;
   flex-direction: row-reverse;
+
+  .chat-message-header {
+    flex-direction: row-reverse;
+  }
+}
+
+.chat-message-header {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+
+  .chat-message-actions {
+    display: flex;
+    box-sizing: border-box;
+    font-size: 12px;
+    align-items: flex-end;
+    justify-content: space-between;
+    transition: all ease 0.3s;
+    transform: scale(0.9) translateY(5px);
+    margin: 0 10px;
+    opacity: 0;
+    pointer-events: none;
+
+    .chat-input-actions {
+      display: flex;
+      flex-wrap: nowrap;
+    }
+  }
 }
 
 .chat-message-container {
@@ -328,6 +404,12 @@
     .chat-message-edit {
       opacity: 0.9;
     }
+
+    .chat-message-actions {
+      opacity: 1;
+      pointer-events: all;
+      transform: scale(1) translateY(0);
+    }
   }
 }
 
@@ -336,7 +418,6 @@
 }
 
 .chat-message-avatar {
-  margin-top: 20px;
   position: relative;
 
   .chat-message-edit {
@@ -354,6 +435,45 @@
       padding: 7px;
     }
   }
+  /* Specific styles for iOS devices */
+  @media screen and (max-device-width: 812px) and (-webkit-min-device-pixel-ratio: 2) {
+    @supports (-webkit-touch-callout: none) {
+      .chat-message-edit {
+        top: -8%;
+      }
+    }
+  }
+}
+
+.chat-message-checkmark {
+  display: inline-block;
+  margin-right: 5px;
+  height: 12px;
+  width: 12px;
+  color: #13a10e;
+  fill: #13a10e;
+  user-select: none;
+  backface-visibility: hidden;
+  transform: translateZ(0px);
+}
+
+.chat-message-tools-status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+.chat-message-tools-name {
+  color: #aaa;
+}
+
+.chat-message-tools-details {
+  margin-left: 5px;
+  font-weight: bold;
+  color: #999;
 }
 
 .chat-message-status {
@@ -461,8 +581,9 @@
 .chat-message-user > .chat-message-container > .chat-message-item {
   background-color: var(--second);
 
+  transition: all ease-in-out 2s;
   &:hover {
-    min-width: 0;
+    min-width: 200px;
   }
 }
 

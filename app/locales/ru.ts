@@ -5,7 +5,7 @@ const ru: PartialLocaleType = {
   WIP: "Скоро...",
   Error: {
     Unauthorized:
-      "Несанкционированный доступ. Пожалуйста, введите код доступа на странице настроек.",
+      "Несанкционированный доступ. Пожалуйста, введите код доступа на [странице](/#/auth) настроек.",
   },
   Sidebar: {
     Title: "公告",
@@ -76,6 +76,11 @@ const ru: PartialLocaleType = {
       Title: "Размер шрифта",
       SubTitle: "Настроить размер шрифта контента чата",
     },
+    InjectSystemPrompts: {
+      Title: "Вставить системные подсказки",
+      SubTitle:
+        "Принудительно добавить симулированную системную подсказку ChatGPT в начало списка сообщений для каждого запроса",
+    },
     Update: {
       Version: (x: string) => `Версия: ${x}`,
       IsLatest: "Последняя версия",
@@ -92,8 +97,10 @@ const ru: PartialLocaleType = {
       SubTitle: "Предварительный просмотр markdown в пузыре",
     },
     Mask: {
-      Title: "Экран заставки маски",
-      SubTitle: "Показывать экран заставки маски перед началом нового чата",
+      Splash: {
+        Title: "Экран заставки маски",
+        SubTitle: "Показывать экран заставки маски перед началом нового чата",
+      },
     },
     Prompt: {
       Disable: {
@@ -123,11 +130,7 @@ const ru: PartialLocaleType = {
       SubTitle:
         "Будет сжимать, если длина несжатых сообщений превышает указанное значение",
     },
-    Token: {
-      Title: "API ключ",
-      SubTitle: "Используйте свой ключ, чтобы игнорировать лимит доступа",
-      Placeholder: "API ключ OpenAI",
-    },
+
     Usage: {
       Title: "Баланс аккаунта",
       SubTitle(used: any, total: any) {
@@ -137,11 +140,7 @@ const ru: PartialLocaleType = {
       Check: "Проверить",
       NoAccess: "Введите API ключ, чтобы проверить баланс",
     },
-    AccessCode: {
-      Title: "Код доступа",
-      SubTitle: "Контроль доступа включен",
-      Placeholder: "Требуется код доступа",
-    },
+
     Model: "Модель",
     Temperature: {
       Title: "Температура",
@@ -188,6 +187,9 @@ const ru: PartialLocaleType = {
   },
   Plugin: {
     Name: "Плагин",
+  },
+  FineTuned: {
+    Sysmessage: "Вы - ассистент, который",
   },
   Mask: {
     Name: "Маска",

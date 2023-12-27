@@ -50,6 +50,7 @@ export function Pay() {
         setOrder(order);
         setLastOrderState(order.state);
         if (order.state === 5) {
+          // STATE_REMOTE_CREATED
           setQrCode(order.payUrl);
           setPaying(true);
         } else {
@@ -159,20 +160,20 @@ export function Pay() {
             {order.state === 0
               ? "未提交"
               : order.state === 5
-              ? order.payUrl
-                ? "待支付"
-                : "已超时"
-              : order.state === 6
-              ? "提交失败"
-              : order.state === 10
-              ? "已支付"
-              : order.state === 12
-              ? "支付失败"
-              : order.state === 20
-              ? "已取消"
-              : order.state === 30
-              ? "已删除"
-              : ""}
+                ? order.payUrl
+                  ? "待支付"
+                  : "已超时"
+                : order.state === 6
+                  ? "提交失败"
+                  : order.state === 10
+                    ? "已支付"
+                    : order.state === 12
+                      ? "支付失败"
+                      : order.state === 20
+                        ? "已取消"
+                        : order.state === 30
+                          ? "已删除"
+                          : ""}
           </div>
         )}
 

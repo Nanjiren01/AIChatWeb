@@ -5,7 +5,7 @@ const it: PartialLocaleType = {
   WIP: "Work in progress...",
   Error: {
     Unauthorized:
-      "Accesso non autorizzato, inserire il codice di accesso nella pagina delle impostazioni.",
+      "Accesso non autorizzato, inserire il codice di accesso nella [pagina](/#/auth) delle impostazioni.",
   },
   Sidebar: {
     Title: "公告",
@@ -217,6 +217,11 @@ const it: PartialLocaleType = {
       Title: "Dimensione carattere",
       SubTitle: "Regolare la dimensione dei caratteri del contenuto della chat",
     },
+    InjectSystemPrompts: {
+      Title: "Inserisci Prompts di Sistema",
+      SubTitle:
+        "Aggiungi forzatamente un prompt di sistema simulato di ChatGPT all'inizio della lista dei messaggi per ogni richiesta",
+    },
     Update: {
       Version: (x: string) => `Versione: ${x}`,
       IsLatest: "Ultima versione",
@@ -233,8 +238,10 @@ const it: PartialLocaleType = {
       SubTitle: "Preview markdown in bubble",
     },
     Mask: {
-      Title: "Mask Splash Screen",
-      SubTitle: "Show a mask splash screen before starting new chat",
+      Splash: {
+        Title: "Mask Splash Screen",
+        SubTitle: "Show a mask splash screen before starting new chat",
+      },
     },
     Prompt: {
       Disable: {
@@ -263,12 +270,7 @@ const it: PartialLocaleType = {
       SubTitle:
         "Comprimerà se la lunghezza dei messaggi non compressi supera il valore",
     },
-    Token: {
-      Title: "API Key",
-      SubTitle:
-        "Utilizzare la chiave per ignorare il limite del codice di accesso",
-      Placeholder: "OpenAI API Key",
-    },
+
     Usage: {
       Title: "Bilancio Account",
       SubTitle(used: any, total: any) {
@@ -278,11 +280,7 @@ const it: PartialLocaleType = {
       Check: "Controlla ancora",
       NoAccess: "Inserire la chiave API per controllare il saldo",
     },
-    AccessCode: {
-      Title: "Codice d'accesso",
-      SubTitle: "Controllo d'accesso abilitato",
-      Placeholder: "Inserisci il codice d'accesso",
-    },
+
     Model: "Modello GPT",
     Temperature: {
       Title: "Temperature",
@@ -329,6 +327,9 @@ const it: PartialLocaleType = {
   },
   Plugin: {
     Name: "Plugin",
+  },
+  FineTuned: {
+    Sysmessage: "Sei un assistente che",
   },
   Mask: {
     Name: "Mask",

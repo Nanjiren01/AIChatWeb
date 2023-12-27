@@ -180,6 +180,7 @@ export function Order() {
   useEffect(() => {
     if (!authStore.token) {
       console.log("autoStore.token is empty, navigate to login page");
+      authStore.logout();
       navigate(Path.Login);
     }
   }, [authStore, navigate]);
@@ -341,8 +342,8 @@ export function Order() {
               {errorMessage
                 ? errorMessage
                 : loading
-                ? Locale.OrderPage.Loading
-                : Locale.OrderPage.NoOrder}
+                  ? Locale.OrderPage.Loading
+                  : Locale.OrderPage.NoOrder}
             </div>
           </List>
         ) : (

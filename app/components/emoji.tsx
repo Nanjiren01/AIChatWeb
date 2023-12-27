@@ -11,7 +11,7 @@ import BlackBotIcon from "../icons/chat-mj-bot.png"; // 暂时都一样
 import NextImage from "next/image";
 
 export function getEmojiUrl(unified: string, style: EmojiStyle) {
-  return `https://cdn.staticfile.org/emoji-datasource-apple/14.0.0/img/${style}/64/${unified}.png`;
+  return `/emoji-date-apple-img-64-15.0.1/${unified}.png`; // /${style}/64
 }
 
 export function AvatarPicker(props: {

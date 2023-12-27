@@ -5,7 +5,8 @@ import type { PartialLocaleType } from "./index";
 const ko: PartialLocaleType = {
   WIP: "곧 출시 예정...",
   Error: {
-    Unauthorized: "권한이 없습니다. 설정 페이지에서 액세스 코드를 입력하세요.",
+    Unauthorized:
+      "권한이 없습니다. 설정 페이지에서 액세스 코드를 [입력하세요](/#/auth).",
   },
   Sidebar: {
     Title: "公告",
@@ -76,6 +77,11 @@ const ko: PartialLocaleType = {
       Title: "글꼴 크기",
       SubTitle: "채팅 내용의 글꼴 크기 조정",
     },
+    InjectSystemPrompts: {
+      Title: "시스템 프롬프트 주입",
+      SubTitle:
+        "각 요청의 메시지 목록의 시작에 ChatGPT 시스템 프롬프트를 강제로 추가합니다",
+    },
     Update: {
       Version: (x: string) => `버전: ${x}`,
       IsLatest: "최신 버전",
@@ -92,8 +98,10 @@ const ko: PartialLocaleType = {
       SubTitle: "버블에서 마크다운 미리 보기",
     },
     Mask: {
-      Title: "마스크 시작 화면",
-      SubTitle: "새로운 채팅 시작 전에 마스크 시작 화면 표시",
+      Splash: {
+        Title: "마스크 시작 화면",
+        SubTitle: "새로운 채팅 시작 전에 마스크 시작 화면 표시",
+      },
     },
     Prompt: {
       Disable: {
@@ -121,11 +129,7 @@ const ko: PartialLocaleType = {
       Title: "기록 압축 임계값",
       SubTitle: "미압축 메시지 길이가 임계값을 초과하면 압축됨",
     },
-    Token: {
-      Title: "API 키",
-      SubTitle: "액세스 코드 제한을 무시하기 위해 키 사용",
-      Placeholder: "OpenAI API 키",
-    },
+
     Usage: {
       Title: "계정 잔액",
       SubTitle(used: any, total: any) {
@@ -135,11 +139,7 @@ const ko: PartialLocaleType = {
       Check: "확인",
       NoAccess: "잔액 확인을 위해 API 키를 입력하세요.",
     },
-    AccessCode: {
-      Title: "액세스 코드",
-      SubTitle: "액세스 제어가 활성화됨",
-      Placeholder: "액세스 코드 입력",
-    },
+
     Model: "모델",
     Temperature: {
       Title: "온도 (temperature)",
@@ -182,6 +182,9 @@ const ko: PartialLocaleType = {
   },
   Plugin: {
     Name: "플러그인",
+  },
+  FineTuned: {
+    Sysmessage: "당신은 어시스턴트입니다",
   },
   Mask: {
     Name: "마스크",

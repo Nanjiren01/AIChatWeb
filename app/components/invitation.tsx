@@ -67,9 +67,10 @@ export function Invitation() {
   useEffect(() => {
     if (profileStore.id === 0) {
       console.log("profileStore.id", profileStore.id);
+      authStore.logout();
       navigate(Path.Login);
     }
-  }, [profileStore, navigate]);
+  }, [profileStore, navigate, authStore]);
 
   const [invitationList, setInvitationList] = useState<Invitation[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
@@ -176,8 +177,8 @@ export function Invitation() {
               {errorMessage
                 ? errorMessage
                 : loading
-                ? Locale.InvitationPage.Loading
-                : Locale.InvitationPage.NoInvitation}
+                  ? Locale.InvitationPage.Loading
+                  : Locale.InvitationPage.NoInvitation}
             </div>
             <div
               style={{
