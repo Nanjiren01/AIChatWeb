@@ -105,7 +105,7 @@ EOT
           # Log in to the AIChat Pro private repository
           echo ""
           echo "正在登录到AIChat专业版的Docker私有仓库..."
-          if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD http://harbor.nanjiren.online:8099; then
+          if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD https://harbor.nanjiren.online:8099; then
             break
           else
             echo "AIChat专业版私有库登录失败，请重新输入您的账户和密码。"
@@ -298,13 +298,13 @@ EOT
       fi
     
       # Check if /etc/docker/daemon.json exists and modify it
-      if [ -e /etc/docker/daemon.json ]; then
-        echo "daemon.json已存在，将进行更新..."
-        jq '.["insecure-registries"] += ["harbor.nanjiren.online:8099"]' /etc/docker/daemon.json > /tmp/daemon.json && mv /tmp/daemon.json /etc/docker/daemon.json
-      else
-        echo "daemon.json不存在，将进行创建..."
-        echo '{"insecure-registries": ["harbor.nanjiren.online:8099"]}' > /etc/docker/daemon.json
-      fi
+      # if [ -e /etc/docker/daemon.json ]; then
+      #   echo "daemon.json已存在，将进行更新..."
+      #   jq '.["insecure-registries"] += ["harbor.nanjiren.online:8099"]' /etc/docker/daemon.json > /tmp/daemon.json && mv /tmp/daemon.json /etc/docker/daemon.json
+      # else
+      #   echo "daemon.json不存在，将进行创建..."
+      #   echo '{"insecure-registries": ["harbor.nanjiren.online:8099"]}' > /etc/docker/daemon.json
+      # fi
     
       # Restart Docker daemon
       echo "重启Docker daemon..."
@@ -330,7 +330,7 @@ EOT
         # Log in to the AIChat Pro private repository
         echo ""
         echo "正在登录到AIChat专业版的Docker私有仓库..."
-        if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD http://harbor.nanjiren.online:8099; then
+        if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD https://harbor.nanjiren.online:8099; then
           break
         else
           echo "AIChat专业版私有库登录失败，请重新输入您的账户和密码。"
@@ -629,7 +629,7 @@ EOT
           # Log in to the AIChat Pro private repository
           echo ""
           echo "Logging in to AIChat Pro Docker Private Repository..."
-          if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD http://harbor.nanjiren.online:8099; then
+          if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD https://harbor.nanjiren.online:8099; then
             break
           else
             echo "AIChat Pro authorization failed, please re-enter your account and password."
@@ -822,13 +822,13 @@ EOT
       fi
     
       # Check if /etc/docker/daemon.json exists and modify it
-      if [ -e /etc/docker/daemon.json ]; then
-        echo "daemon.json exists, updating it..."
-        jq '.["insecure-registries"] += ["harbor.nanjiren.online:8099"]' /etc/docker/daemon.json > /tmp/daemon.json && mv /tmp/daemon.json /etc/docker/daemon.json
-      else
-        echo "daemon.json does not exist, creating it..."
-        echo '{"insecure-registries": ["harbor.nanjiren.online:8099"]}' > /etc/docker/daemon.json
-      fi
+      # if [ -e /etc/docker/daemon.json ]; then
+      #   echo "daemon.json exists, updating it..."
+      #   jq '.["insecure-registries"] += ["harbor.nanjiren.online:8099"]' /etc/docker/daemon.json > /tmp/daemon.json && mv /tmp/daemon.json /etc/docker/daemon.json
+      # else
+      #   echo "daemon.json does not exist, creating it..."
+      #   echo '{"insecure-registries": ["harbor.nanjiren.online:8099"]}' > /etc/docker/daemon.json
+      # fi
     
       # Restart Docker daemon
       echo "Restarting Docker daemon..."
@@ -854,7 +854,7 @@ EOT
         # Log in to the AIChat Pro private repository
         echo ""
         echo "Logging in to AIChat Pro Docker Private Repository..."
-        if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD http://harbor.nanjiren.online:8099; then
+        if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD https://harbor.nanjiren.online:8099; then
           break
         else
           echo "AIChat Pro authorization failed, please re-enter your account and password."
@@ -1153,7 +1153,7 @@ EOT
           # Log in to the AIChat Pro private repository
           echo ""
           echo "Logging in to AIChat Pro Docker Private Repository..."
-          if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD http://harbor.nanjiren.online:8099; then
+          if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD https://harbor.nanjiren.online:8099; then
             break
           else
             echo "AIChat Pro authorization failed, please re-enter your account and password."
@@ -1346,13 +1346,13 @@ EOT
       fi
     
       # Check if /etc/docker/daemon.json exists and modify it
-      if [ -e /etc/docker/daemon.json ]; then
-        echo "daemon.json exists, updating it..."
-        jq '.["insecure-registries"] += ["harbor.nanjiren.online:8099"]' /etc/docker/daemon.json > /tmp/daemon.json && mv /tmp/daemon.json /etc/docker/daemon.json
-      else
-        echo "daemon.json does not exist, creating it..."
-        echo '{"insecure-registries": ["harbor.nanjiren.online:8099"]}' > /etc/docker/daemon.json
-      fi
+      # if [ -e /etc/docker/daemon.json ]; then
+      #   echo "daemon.json exists, updating it..."
+      #   jq '.["insecure-registries"] += ["harbor.nanjiren.online:8099"]' /etc/docker/daemon.json > /tmp/daemon.json && mv /tmp/daemon.json /etc/docker/daemon.json
+      # else
+      #   echo "daemon.json does not exist, creating it..."
+      #   echo '{"insecure-registries": ["harbor.nanjiren.online:8099"]}' > /etc/docker/daemon.json
+      # fi
     
       # Restart Docker daemon
       echo "Restarting Docker daemon..."
@@ -1378,7 +1378,7 @@ EOT
         # Log in to the AIChat Pro private repository
         echo ""
         echo "Logging in to AIChat Pro Docker Private Repository..."
-        if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD http://harbor.nanjiren.online:8099; then
+        if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD https://harbor.nanjiren.online:8099; then
           break
         else
           echo "AIChat Pro authorization failed, please re-enter your account and password."
