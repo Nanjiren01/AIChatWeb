@@ -3,7 +3,7 @@ version: '3'
 services:
 
   admin:
-    image: harbor.nanjiren.online:8099/aichat/aichat-admin:latest
+    image: harbor.nanjiren.online/aichat/aichat-admin:latest
     container_name: aichat-admin
     restart: always
     depends_on:
@@ -82,7 +82,7 @@ services:
   #      - "6380:6379"
 
   util:
-    image: harbor.nanjiren.online:8099/aichat/aichat-util:latest
+    image: harbor.nanjiren.online/aichat/aichat-util:latest
     container_name: aichat-util
     restart: always
     network_mode: host
