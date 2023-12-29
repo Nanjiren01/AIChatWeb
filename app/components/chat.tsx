@@ -78,7 +78,6 @@ import {
   selectOrCopy,
   autoGrowTextArea,
   useMobileScreen,
-  getSecondsDiff,
   fromYYYYMMDD_HHMMSS,
 } from "../utils";
 
@@ -988,9 +987,54 @@ export function EditMessageModal(props: {
   );
 }
 
-function _Chat() {
-  type RenderMessage = ChatMessage & { preview?: boolean };
+function RefreshDrawStatus(props: {
+  message: RenderMessage;
+  session: ChatSession;
+  refreshDrawStatus: (
+    session: ChatSession,
+    userMessage: ChatMessage | null,
+    botMessage: ChatMessage,
+  ) => void;
+  ChatFetchTaskPool: Map<string, NodeJS.Timeout | null>;
+}) {
+  const message = props.message;
+  const session = props.session;
+  const ChatFetchTaskPool = props.ChatFetchTaskPool;
 
+  const [now, SetNow] = useState(+new Date());
+  useEffect(() => {
+    const interval = setInterval(() => {
+      SetNow(+new Date());
+    }, 100);
+
+    return () => {
+      console.log("clearInterval", interval);
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <>
+      {!ChatFetchTaskPool.get(message.attr?.taskId) &&
+        message.attr?.submitTime &&
+        now - +fromYYYYMMDD_HHMMSS(message.attr.submitTime) > 1000 && (
+          <div>
+            <button
+              onClick={() => props.refreshDrawStatus(session, null, message)}
+              className={`${styles["chat-message-mj-action-btn"]} clickable`}
+              style={{ width: "150px" }}
+            >
+              {Locale.Midjourney.Refresh}
+            </button>
+          </div>
+        )}
+    </>
+  );
+}
+
+type RenderMessage = ChatMessage & { preview?: boolean };
+
+function _Chat() {
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
   const config = useAppConfig();
@@ -1107,30 +1151,37 @@ function _Chat() {
     new Map<string, NodeJS.Timeout | null>(),
   );
 
-  const refreshDrawStatus = (session: ChatSession, botMessage: ChatMessage) => {
+  const refreshDrawStatus = (
+    session: ChatSession,
+    userMessage: ChatMessage | null,
+    botMessage: ChatMessage,
+  ) => {
     if (ChatFetchTaskPool.get(botMessage.attr.taskId)) {
       return;
     }
+    const getDrawTaskProgressAfter3seconds = setTimeout(async () => {
+      const fetch = await chatStore.getDrawTaskProgress(
+        session,
+        userMessage,
+        botMessage,
+        websiteConfigStore,
+        authStore,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
+      );
+      ChatFetchTaskPool.set(botMessage.attr.taskId, null);
+      if (fetch) {
+        refreshDrawStatus(session, userMessage, botMessage);
+      }
+    }, 3000);
     ChatFetchTaskPool.set(
       botMessage.attr.taskId,
-      setTimeout(async () => {
-        const fetch = await chatStore.getDrawTaskProgress(
-          session,
-          botMessage,
-          websiteConfigStore,
-          authStore,
-          () => {
-            authStore.logout();
-            navigate(Path.Login);
-          },
-        );
-        ChatFetchTaskPool.set(botMessage.attr.taskId, null);
-        if (fetch) {
-          refreshDrawStatus(session, botMessage);
-        }
-      }, 3000),
+      getDrawTaskProgressAfter3seconds,
     );
     setChatFetchTaskPool(ChatFetchTaskPool);
+    // console.log('ChatFetchTaskPool update', ChatFetchTaskPool.get(botMessage.attr.taskId))
   };
 
   const doSubmit = (userInput: string) => {
@@ -1196,7 +1247,7 @@ function _Chat() {
       .then((result) => {
         setIsLoading(false);
         if (result && result.fetch) {
-          refreshDrawStatus(session, result.botMessage);
+          refreshDrawStatus(session, result.userMessage!, result.botMessage);
         }
       });
     localStorage.setItem(LAST_INPUT_KEY, userInput);
@@ -1474,7 +1525,12 @@ function _Chat() {
           navigate(Path.Login);
         },
       )
-      .then(() => setIsLoading(false));
+      .then((result) => {
+        setIsLoading(false);
+        if (result && result.fetch) {
+          refreshDrawStatus(session, result.userMessage!, result.botMessage);
+        }
+      });
     inputRef.current?.focus();
   };
 
@@ -1503,8 +1559,6 @@ function _Chat() {
       },
     });
   };
-
-  const now = new Date();
 
   const context: RenderMessage[] = (() => {
     return session.mask.hideContext ? [] : session.mask.context.slice();
@@ -2184,22 +2238,14 @@ function _Chat() {
                       )}
                     {!isUser &&
                       message.attr?.status !== "SUCCESS" &&
-                      message.attr?.taskId &&
-                      !ChatFetchTaskPool.get(message.attr?.taskId) &&
-                      message.attr?.submitTime &&
-                      getSecondsDiff(
-                        fromYYYYMMDD_HHMMSS(message.attr.submitTime),
-                        now,
-                      ) && (
-                        <div>
-                          <button
-                            onClick={() => refreshDrawStatus(session, message)}
-                            className={`${styles["chat-message-mj-action-btn"]} clickable`}
-                            style={{ width: "150px" }}
-                          >
-                            {Locale.Midjourney.Refresh}
-                          </button>
-                        </div>
+                      message.attr?.status !== "FAILURE" &&
+                      message.attr?.taskId && (
+                        <RefreshDrawStatus
+                          message={message}
+                          session={session}
+                          refreshDrawStatus={refreshDrawStatus}
+                          ChatFetchTaskPool={ChatFetchTaskPool}
+                        />
                       )}
 
                     {showActions && (

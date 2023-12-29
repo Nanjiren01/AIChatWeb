@@ -685,13 +685,11 @@ export const useChatStore = createPersistStore(
                 navigateToLogin,
               );
               if (session.uuid) {
-                setTimeout(() => {
-                  get().fetchServerMessageId(
-                    session,
-                    [userMessage, botMessage],
-                    token,
-                  );
-                }, 2000);
+                get().fetchServerMessageId(
+                  session,
+                  [userMessage, botMessage],
+                  token,
+                );
               }
             }
             ChatControllerPool.remove(session.id, botMessage.id);
@@ -796,12 +794,12 @@ export const useChatStore = createPersistStore(
 
       async getDrawTaskProgress(
         session: ChatSession,
-        message: ChatMessage,
+        userMessage: ChatMessage | null,
+        botMessage: ChatMessage,
         websiteConfigStore: WebsiteConfigStore,
         authStore: AuthStore,
         logout: () => void,
       ) {
-        const botMessage = message;
         const sensitiveWordsTip = websiteConfigStore.sensitiveWordsTip;
         const balanceNotEnough = websiteConfigStore.balanceNotEnough;
         return api.llm.fetchDrawStatus(
@@ -815,6 +813,13 @@ export const useChatStore = createPersistStore(
               get().updateLocalCurrentSession((session) => {
                 session.messages = session.messages.concat();
               });
+            }
+            if (session.uuid) {
+              get().fetchServerMessageId(
+                session,
+                userMessage ? [userMessage, botMessage] : [botMessage],
+                authStore.token,
+              );
             }
           },
           (message) => {
@@ -851,6 +856,7 @@ export const useChatStore = createPersistStore(
                 // ignore
               }
               botMessage.content = message;
+              // console.log('botMessage', botMessage, JSON.stringify(botMessage))
               get().onNewMessage(
                 websiteConfigStore,
                 botMessage,
@@ -858,13 +864,11 @@ export const useChatStore = createPersistStore(
                 logout,
               );
               if (session.uuid) {
-                setTimeout(() => {
-                  get().fetchServerMessageId(
-                    session,
-                    [botMessage],
-                    authStore.token,
-                  );
-                }, 2000);
+                get().fetchServerMessageId(
+                  session,
+                  userMessage ? [userMessage, botMessage] : [botMessage],
+                  authStore.token,
+                );
               }
             }
             // ChatControllerPool.remove(
@@ -1715,6 +1719,7 @@ export const useChatStore = createPersistStore(
       async syncSessions(token: string) {
         const sessions = get().sessions;
         const noUuidSessions = sessions.filter((s) => !s.uuid);
+        // console.log('noUuidSessions.length', noUuidSessions.length)
         if (noUuidSessions.length) {
           // 将本地会话内容上传
           const sync = async (sessions: ChatSession[]) => {
@@ -1750,7 +1755,7 @@ export const useChatStore = createPersistStore(
               .then((res: Response<any>) => {
                 console.log("[SessionEntity] get sessions", res);
                 if (res.code !== 0) {
-                  showToast(res.message);
+                  showToast("同步失败：" + (res.cnMessage || res.message));
                   return false;
                 }
                 return true;
@@ -1783,7 +1788,6 @@ export const useChatStore = createPersistStore(
           }
         }
 
-        const remoteSessionToLocalSession = this.remoteSessionToLocalSession;
         const result = await (async () => {
           const url = "/session/my";
           const BASE_URL = process.env.BASE_URL;
@@ -1803,11 +1807,11 @@ export const useChatStore = createPersistStore(
             .then((res: Response<any>) => {
               console.log("[SessionEntity] get sessions", res);
               if (res.code !== 0) {
-                showToast(res.message);
+                showToast("获取会话失败：" + (res.cnMessage || res.message));
                 return false;
               }
               const sessions = res.data.list.map((msg: any) => {
-                return remoteSessionToLocalSession(msg);
+                return this.remoteSessionToLocalSession(msg);
               });
               set(() => ({ sessions: sessions }));
               return true;
