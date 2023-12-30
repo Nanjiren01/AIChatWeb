@@ -498,12 +498,14 @@ export class ChatGPTApi implements LLMApi {
             break;
           }
           case "DESCRIBE": {
+            // 识图
             res = await reqFn("draw/describe", "POST", {
               fileUuid: options.baseImages[0].uuid,
             });
             break;
           }
           case "BLEND": {
+            // 混图
             const fileUuidArray = options.baseImages.map((ui: any) => ui.uuid);
             res = await reqFn("draw/blend", "POST", {
               fileUuidArray,
@@ -626,7 +628,7 @@ export class ChatGPTApi implements LLMApi {
     return await startFn();
   }
   async fetchDrawStatus(
-    onUpdate: ((message: string, chunk: string) => void) | undefined,
+    onUpdate: (message: string, chunk: string) => void,
     onFinish: (message: string) => void,
     botMessage: ChatMessage,
   ) {
@@ -759,7 +761,7 @@ export class ChatGPTApi implements LLMApi {
         botMessage.attr.imgUrl = imgUrl;
         entireContent += `\n[![${taskId}](${imgUrl})](${imgUrl})`;
       }
-      onUpdate?.(entireContent, "");
+      onUpdate(entireContent, "");
       return true;
     }
   }

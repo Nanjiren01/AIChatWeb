@@ -80,7 +80,7 @@ export abstract class LLMApi {
   abstract usage(): Promise<LLMUsage>;
   abstract models(): Promise<LLMModel[]>;
   abstract fetchDrawStatus: (
-    onUpdate: ((message: string, chunk: string) => void) | undefined,
+    onUpdate: (message: string, chunk: string) => void,
     onFinish: (message: string) => void,
     botMessage: ChatMessage,
   ) => Promise<boolean | void>;

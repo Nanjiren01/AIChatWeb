@@ -779,7 +779,7 @@ export const useChatStore = createPersistStore(
               const message = session.messages.find((m) => m.id === msg.id);
               if (message) {
                 message.uuid = msg.uuid;
-                console.log("set message uuid=" + msg.uuid);
+                // console.log("set message uuid=" + msg.uuid);
               }
             });
             get().updateLocalCurrentSession((session) => {
