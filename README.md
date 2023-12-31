@@ -143,8 +143,9 @@
 | 全局JS配置项                                | ✔已完成(v0.9)  |
 | 邀请记录                                | ✔已完成(v0.9)  |
 | 注册审核机制                                | ✔已完成(v0.9)  |
-| 对接Azure OpenAI          | 进行中（v0.9.6）   |
-| 消息同步          | 进行中   |
+| 对接Azure OpenAI          | v0.11   |
+| 消息同步          | v0.11   |
+| gpt-4-vision     | v0.11  |
 | 对接发卡平台          | 进行中   |
 | 多模型支持                         | 长期进行 |
 
@@ -261,7 +262,8 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 > AI好望角为本项目自建平台，目前仍在筹建中，只能以赞赏形式加入（不支持退款），赞赏后可立即进入AIChat专业版内测群获取专业版专属信息。
 > 新平台筹建完毕后，会将知识星球中的内容迁移至新平台，新用户无需进入星球。
 
-当前加入AI好望角价格仅为**￥358**，随着功能的不断完善，价格逐步提升
+当前加入AI好望角价格仅为**￥588**，喜迎2024新年到来，1月3日24点前仅需 ¥518。
+随着功能的不断完善，价格逐步提升
 
 <img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI好望角"/>
 
@@ -530,7 +532,7 @@ Join the **AI Cape of Good Hope - AIChat User Exclusive Community** and enjoy th
 > AI Cape of Good Hope is a self-built platform for this project, which is currently under construction. Joining is only possible through appreciation (no refunds are supported). After showing your appreciation, you can immediately join the AIChat Pro beta group and gain access to exclusive information for the professional version.
 > Once the new platform is ready, the content from the Knowledge Planet will be migrated to the new platform, and new users will not need to join the Planet.
 
-The current price to join AI Cape of Good Hope is only **￥358**. As the functionality continues to improve, the price will gradually increase.
+The current price to join AI Cape of Good Hope is only **￥588**. As the functionality continues to improve, the price will gradually increase.
 
 <img src="https://nanjiren.online/images/qrcode.png" width="200px" alt="AI Cape of Good Hope"/>
 
