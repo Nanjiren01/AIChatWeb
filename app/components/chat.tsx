@@ -636,6 +636,7 @@ export function ChatActions(props: {
     messageStruct: chatStore.currentSession().mask.modelConfig.messageStruct,
     processModes: chatStore.currentSession().mask.modelConfig.processModes,
     processMode: chatStore.currentSession().mask.modelConfig.processMode,
+    drawActions: chatStore.currentSession().mask.modelConfig.drawActions,
   } as SimpleModel;
 
   const [showModelSelector, setShowModelSelector] = useState(false);
@@ -827,6 +828,7 @@ export function ChatActions(props: {
                 } else {
                   mask.modelConfig.processMode = null;
                 }
+                mask.modelConfig.drawActions = selectedModel.drawActions;
                 mask.syncGlobalConfig = false;
               },
               authStore.token,

@@ -21,6 +21,7 @@ export interface SimpleModel {
   summarizeModel: string | null;
   processModes: SPEED_MAP_KEY[];
   processMode: SPEED_MAP_KEY | null;
+  drawActions: DrawAction[];
 }
 
 export interface WebsiteConfigStore {
@@ -92,6 +93,7 @@ export interface WebsiteConfigData {
 }
 
 import { Response } from "../api/common";
+import { DrawAction } from ".";
 export type WebsiteConfigResponse = Response<WebsiteConfigData>;
 
 export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
