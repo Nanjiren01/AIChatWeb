@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { StoreKey } from "../constant";
+import { SPEED_MAP_KEY, StoreKey } from "../constant";
 
 export interface AiPlugin {
   id: number;
@@ -13,9 +13,14 @@ export interface AiPlugin {
 }
 
 export type ModelContentType = "Text" | "Image";
+export type ModelMessageStruct = "normal" | "complex";
 export interface SimpleModel {
   name: string;
   contentType: ModelContentType;
+  messageStruct: ModelMessageStruct;
+  summarizeModel: string | null;
+  processModes: SPEED_MAP_KEY[];
+  processMode: SPEED_MAP_KEY | null;
 }
 
 export interface WebsiteConfigStore {

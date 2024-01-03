@@ -1,12 +1,17 @@
+import { SimpleChatMessage } from "../components/exporter";
 import { getClientConfig } from "../config/client";
-import { ACCESS_CODE_PREFIX } from "../constant";
+import { ACCESS_CODE_PREFIX, Azure, ServiceProvider } from "../constant";
 import {
   ChatMessage,
+  ImageMode,
+  MessageAction,
+  ModelContentType,
   ModelType,
   PluginActionModel,
   useAccessStore,
   useAuthStore,
 } from "../store";
+import { Mask } from "../store/mask";
 import { ChatGPTApi } from "./platforms/openai";
 
 export const ROLES = ["system", "user", "assistant"] as const;
@@ -18,6 +23,7 @@ export type ChatModel = ModelType;
 export type ContentType = "Text" | "Image";
 
 export interface RequestMessage {
+  id?: string;
   role: MessageRole;
   content: string;
 }
@@ -33,6 +39,7 @@ export interface LLMConfig {
 }
 
 export interface ChatOptions {
+  sessionUuid?: string;
   messages: RequestMessage[];
   userMessage?: ChatMessage;
   botMessage: ChatMessage;
@@ -40,10 +47,13 @@ export interface ChatOptions {
 
   config: LLMConfig;
   plugins: PluginActionModel[];
-  imageMode: string;
+  mask: Mask | null;
+  resend: boolean;
+  imageMode: ImageMode;
   baseImages: any[];
 
   onUpdate?: (message: string, chunk: string) => void;
+  onToolUpdate?: (toolName: string, toolInput: string) => void;
   onFinish: (message: string) => void;
   onError?: (err: Error) => void;
   onController?: (controller: AbortController) => void;
@@ -54,6 +64,12 @@ export interface LLMUsage {
   total: number;
 }
 
+export interface LLMModel {
+  name: string;
+  available: boolean;
+  contentType?: ModelContentType;
+}
+
 export interface ChatSubmitResult {
   userMessage?: ChatMessage;
   botMessage: ChatMessage;
@@ -62,33 +78,34 @@ export interface ChatSubmitResult {
 export abstract class LLMApi {
   abstract chat(options: ChatOptions): Promise<ChatSubmitResult | void>;
   abstract usage(): Promise<LLMUsage>;
+  abstract models(): Promise<LLMModel[]>;
   abstract fetchDrawStatus: (
-    onUpdate: ((message: string, chunk: string) => void) | undefined,
+    onUpdate: (message: string, chunk: string) => void,
     onFinish: (message: string) => void,
     botMessage: ChatMessage,
   ) => Promise<boolean | void>;
 }
 
-type ProviderName = "openai" | "azure" | "claude" | "palm";
+// type ProviderName = "openai" | "azure" | "claude" | "palm";
 
-interface Model {
-  name: string;
-  provider: ProviderName;
-  ctxlen: number;
-}
+// interface Model {
+//   name: string;
+//   provider: ProviderName;
+//   ctxlen: number;
+// }
 
-interface ChatProvider {
-  name: ProviderName;
-  apiConfig: {
-    baseUrl: string;
-    apiKey: string;
-    summaryModel: Model;
-  };
-  models: Model[];
+// interface ChatProvider {
+//   name: ProviderName;
+//   apiConfig: {
+//     baseUrl: string;
+//     apiKey: string;
+//     summaryModel: Model;
+//   };
+//   models: Model[];
 
-  chat: () => void;
-  usage: () => void;
-}
+//   chat: () => void;
+//   usage: () => void;
+// }
 
 export class ClientApi {
   public llm: LLMApi;
@@ -103,7 +120,7 @@ export class ClientApi {
 
   masks() {}
 
-  async share(messages: ChatMessage[], avatarUrl: string | null = null) {
+  async share(messages: SimpleChatMessage[], avatarUrl: string | null = null) {
     const msgs = messages
       .map((m) => ({
         from: m.role === "user" ? "human" : "gpt",
@@ -119,7 +136,7 @@ export class ClientApi {
     // 敬告二开开发者们，为了开源大模型的发展，请不要修改上述消息，此消息用于后续数据清洗使用
     // Please do not modify this message
 
-    console.log("[Share]", msgs);
+    console.log("[Share]", messages, msgs);
     const clientConfig = getClientConfig();
     const proxyUrl = "/sharegpt";
     const rawUrl = "https://sharegpt.com/api/conversations";
@@ -148,25 +165,29 @@ export const api = new ClientApi();
 export function getHeaders() {
   const authStore = useAuthStore.getState();
   const accessStore = useAccessStore.getState();
-  let headers: Record<string, string> = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "x-requested-with": "XMLHttpRequest",
   };
 
-  const makeBearer = (token: string) => `Bearer ${token.trim()}`;
+  const isAzure = accessStore.provider === ServiceProvider.Azure;
+  const authHeader = isAzure ? "api-key" : "Authorization";
+  const apiKey = isAzure ? accessStore.azureApiKey : accessStore.openaiApiKey;
+
+  const makeBearer = (s: string) => `${isAzure ? "" : "Bearer "}${s.trim()}`;
   const validString = (x: string) => x && x.length > 0;
 
   if (validString(authStore.token)) {
     headers.Authorization = makeBearer(authStore.token);
   }
   // use user's api key first
-  else if (validString(accessStore.token)) {
-    headers.Authorization = makeBearer(accessStore.token);
+  else if (validString(apiKey)) {
+    headers[authHeader] = makeBearer(apiKey);
   } else if (
     accessStore.enabledAccessControl() &&
     validString(accessStore.accessCode)
   ) {
-    headers.Authorization = makeBearer(
+    headers[authHeader] = makeBearer(
       ACCESS_CODE_PREFIX + accessStore.accessCode,
     );
   }

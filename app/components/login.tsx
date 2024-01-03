@@ -20,6 +20,7 @@ import {
   useWebsiteConfigStore,
   useWechatConfigStore,
   useAppConfig,
+  useChatStore,
 } from "../store";
 
 import Locale from "../locales";
@@ -37,6 +38,7 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   const accessStore = useAccessStore();
+  const chatStore = useChatStore();
   const wechatStore = useWechatConfigStore();
   const {
     loginPageSubTitle,
@@ -102,6 +104,7 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [fetchingSessions, setFetchingSessions] = useState(false);
   function login() {
     if (username === "") {
       showToast(Locale.LoginPage.Toast.EmptyUserName);
@@ -115,13 +118,20 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
     showToast(Locale.LoginPage.Toast.Logining);
     authStore
       .login(username, password)
-      .then((result) => {
+      .then(async (result) => {
         if (result && result.code == 0) {
           showToast(Locale.LoginPage.Toast.Success);
-          navigate(Path.Chat);
-        } else if (result && result.code == 11151) {
-          showToast(result.cnMessage || result.message);
-        } else if (result && result.message) {
+          // console.log('result', authStore.token, result)
+          setFetchingSessions(true);
+          const syncResult = await chatStore.syncSessions(result.data.token);
+          setFetchingSessions(false);
+          if (syncResult) {
+            navigate(Path.Chat);
+          } else {
+            console.error("sync session failed");
+            authStore.logout();
+          }
+        } else if (result && (result.cnMessage || result.message)) {
           showToast(result.cnMessage || result.message);
         }
       })
@@ -263,10 +273,13 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
               <IconButton
                 type="primary"
                 text={
-                  authStore.token
-                    ? Locale.LoginPage.Actions.Logout
-                    : Locale.LoginPage.Actions.Login
+                  fetchingSessions
+                    ? Locale.LoginPage.FetchingSessions
+                    : authStore.token
+                      ? Locale.LoginPage.Actions.Logout
+                      : Locale.LoginPage.Actions.Login
                 }
+                disabled={loadingUsage}
                 block={true}
                 onClick={() => {
                   if (authStore.token) {

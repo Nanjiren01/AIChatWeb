@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSideConfig } from "../config/server";
+import { DEFAULT_MODELS, OPENAI_BASE_URL } from "../constant";
+import { collectModelTable } from "../utils/model";
+import { makeAzurePath } from "../azure";
 
 export const OPENAI_URL = "api.openai.com";
 const DEFAULT_PROTOCOL = "https";
-const PROTOCOL = process.env.PROTOCOL ?? DEFAULT_PROTOCOL;
-const BASE_URL = process.env.BASE_URL ?? OPENAI_URL;
-const DISABLE_GPT4 = !!process.env.DISABLE_GPT4;
+const PROTOCOL = process.env.PROTOCOL || DEFAULT_PROTOCOL;
+const BASE_URL = process.env.BASE_URL || OPENAI_URL;
 
-export async function requestOpenai(req: NextRequest) {
-  const controller = new AbortController();
-  const authValue = req.headers.get("Authorization") ?? "";
+const serverConfig = getServerSideConfig();
+
+export function getBaseUrl(req: NextRequest) {
   const openaiPath = `${req.nextUrl.pathname}${req.nextUrl.search}`.replaceAll(
     "/api/",
     "",
   );
-
   let baseUrl = BASE_URL;
 
   if (!baseUrl.startsWith("http")) {
@@ -22,27 +24,66 @@ export async function requestOpenai(req: NextRequest) {
 
   console.log("[Proxy] ", openaiPath);
   console.log("[Base Url]", baseUrl);
+  return baseUrl;
+}
 
-  // if (process.env.OPENAI_ORG_ID) {
-  //   console.log("[Org ID]", process.env.OPENAI_ORG_ID);
-  // }
+export async function requestOpenai(req: NextRequest, reqBody: any) {
+  const controller = new AbortController();
 
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, 10 * 60 * 1000);
+  const authValue = req.headers.get("Authorization") ?? "";
+  const authHeaderName = serverConfig.isAzure ? "api-key" : "Authorization";
 
-  const fetchUrl = `${baseUrl}/${openaiPath}`;
+  let path = `${req.nextUrl.pathname}${req.nextUrl.search}`.replaceAll(
+    "/api/",
+    "",
+  );
+
+  let baseUrl =
+    serverConfig.azureUrl ?? serverConfig.baseUrl ?? OPENAI_BASE_URL;
+
+  if (!baseUrl.startsWith("http")) {
+    baseUrl = `https://${baseUrl}`;
+  }
+
+  if (baseUrl.endsWith("/")) {
+    baseUrl = baseUrl.slice(0, -1);
+  }
+
+  console.log("[Proxy] ", path);
+  console.log("[Base Url]", baseUrl);
+  console.log("[Org ID]", serverConfig.openaiOrgId);
+
+  const timeoutId = setTimeout(
+    () => {
+      controller.abort();
+    },
+    10 * 60 * 1000,
+  );
+
+  if (serverConfig.isAzure) {
+    if (!serverConfig.azureApiVersion) {
+      return NextResponse.json({
+        error: true,
+        message: `missing AZURE_API_VERSION in server env vars`,
+      });
+    }
+    path = makeAzurePath(path, serverConfig.azureApiVersion);
+  }
+
+  const fetchUrl = `${baseUrl}/${path}`;
   const fetchOptions: RequestInit = {
     headers: {
       "Content-Type": "application/json",
-      Authorization: authValue,
-      ...(process.env.OPENAI_ORG_ID && {
-        "OpenAI-Organization": process.env.OPENAI_ORG_ID,
+      "Cache-Control": "no-store",
+      [authHeaderName]: authValue,
+      ...(serverConfig.openaiOrgId && {
+        "OpenAI-Organization": serverConfig.openaiOrgId,
       }),
     },
-    cache: "no-store",
     method: req.method,
-    body: req.body,
+    body: JSON.stringify(reqBody),
+    // to fix #2485: https://stackoverflow.com/questions/55920957/cloudflare-worker-typeerror-one-time-use-body
+    redirect: "manual",
     // @ts-ignore
     duplex: "half",
     signal: controller.signal,
@@ -54,8 +95,7 @@ export async function requestOpenai(req: NextRequest) {
     // to prevent browser prompt for credentials
     const newHeaders = new Headers(res.headers);
     newHeaders.delete("www-authenticate");
-
-    // to disbale ngnix buffering
+    // to disable nginx buffering
     newHeaders.set("X-Accel-Buffering", "no");
 
     return new Response(res.body, {
@@ -81,9 +121,12 @@ export async function request(req: NextRequest) {
     "",
   );
 
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, 10 * 60 * 1000);
+  const timeoutId = setTimeout(
+    () => {
+      controller.abort();
+    },
+    10 * 60 * 1000,
+  );
 
   try {
     console.log(`url = ${baseUrl}/${uri}`);
@@ -130,6 +173,8 @@ export interface Response<T> {
   code: number;
 
   message: string;
+
+  cnMessage?: string;
 
   data: T;
 }

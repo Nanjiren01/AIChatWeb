@@ -5,10 +5,12 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
+  Fragment,
 } from "react";
 
 import SendWhiteIcon from "../icons/send-white.svg";
 import BrainIcon from "../icons/brain.svg";
+import PollIcon from "../icons/poll.svg";
 import RenameIcon from "../icons/rename.svg";
 import UserIcon from "../icons/user.svg";
 import CartIcon from "../icons/cart-outline.svg";
@@ -28,6 +30,8 @@ import SettingsIcon from "../icons/chat-settings.svg";
 import DeleteIcon from "../icons/clear.svg";
 import PinIcon from "../icons/pin.svg";
 import EditIcon from "../icons/rename.svg";
+import ConfirmIcon from "../icons/confirm.svg";
+import CancelIcon from "../icons/cancel.svg";
 import MenuIcon from "../icons/boldmenu.svg";
 
 import LightIcon from "../icons/light.svg";
@@ -44,6 +48,7 @@ import PanRightIcon from "../icons/pan-right.svg";
 import PanUpIcon from "../icons/pan-up.svg";
 import PanDownIcon from "../icons/pan-down.svg";
 import UploadIcon from "../icons/upload.svg";
+import CheckmarkIcon from "../icons/checkmark.svg";
 
 import {
   ChatMessage,
@@ -59,15 +64,20 @@ import {
   ModelType,
   AiPlugin,
   PluginActionModel,
+  SimpleModel,
+  ModelMessageStruct,
+  ModelContentType,
+  ChatSession,
+  BaseImageItem,
+  FileEntity,
+  ImageMode,
 } from "../store";
 
 import {
   copyToClipboard,
-  downloadAs,
   selectOrCopy,
   autoGrowTextArea,
   useMobileScreen,
-  getSecondsDiff,
   fromYYYYMMDD_HHMMSS,
 } from "../utils";
 
@@ -80,35 +90,77 @@ import Locale from "../locales";
 import { IconButton } from "./button";
 import styles from "./chat.module.scss";
 
-import { ListItem, Modal, showConfirm, showPrompt, showToast } from "./ui-lib";
-import { useLocation, useNavigate } from "react-router-dom";
-import { LAST_INPUT_KEY, Path, REQUEST_TIMEOUT_MS } from "../constant";
+import {
+  List,
+  ListItem,
+  Modal,
+  Selector,
+  showConfirm,
+  showPowerfulConfirm,
+  showPrompt,
+  showToast,
+} from "./ui-lib";
+import { useNavigate } from "react-router-dom";
+import {
+  CHAT_PAGE_SIZE,
+  LAST_INPUT_KEY,
+  Path,
+  REQUEST_TIMEOUT_MS,
+  SPEED_MAP,
+  SPEED_MAP_KEY,
+  UNFINISHED_INPUT,
+} from "../constant";
 import { Avatar } from "./emoji";
-import { MaskAvatar, MaskConfig } from "./mask";
-import { useMaskStore } from "../store/mask";
+import { ContextPrompts, MaskAvatar, MaskConfig } from "./mask";
+import { Mask, useMaskStore } from "../store/mask";
 import { ChatCommandPrefix, useChatCommand, useCommand } from "../command";
 import { prettyObject } from "../utils/format";
 import { ExportMessageModal } from "./exporter";
 import { getClientConfig } from "../config/client";
 import { useWebsiteConfigStore } from "../store";
+import { nanoid } from "nanoid";
 
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
 });
 
-//const ChatFetchTaskPool: Record<string, any> = {};
+const MAX_IMAGE_SIZE = 5;
 
-export function SessionConfigModel(props: { onClose: () => void }) {
+export function SessionConfigModel(props: {
+  session: ChatSession;
+  onClose: () => void;
+}) {
   const chatStore = useChatStore();
-  const session = chatStore.currentSession();
+  //const session = chatStore.currentSession();
   const maskStore = useMaskStore();
+  const authStore = useAuthStore();
   const navigate = useNavigate();
+
+  console.log("props.session.mask", props.session.mask);
+  const [mask, setMask] = useState(
+    JSON.parse(JSON.stringify(props.session.mask)) as Mask,
+  );
+  const [changed, setChanged] = useState(false);
 
   return (
     <div className="modal-mask">
       <Modal
         title={Locale.Context.Edit}
-        onClose={() => props.onClose()}
+        onClose={async () => {
+          console.log("changed", changed);
+          if (changed) {
+            if (
+              await showPowerfulConfirm({
+                content: Locale.Memory.CloseConfirm,
+                confirmText: Locale.Memory.ConfirmText,
+              })
+            ) {
+              props.onClose();
+            }
+          } else {
+            props.onClose();
+          }
+        }}
         actions={[
           <IconButton
             key="reset"
@@ -117,8 +169,12 @@ export function SessionConfigModel(props: { onClose: () => void }) {
             text={Locale.Chat.Config.Reset}
             onClick={async () => {
               if (await showConfirm(Locale.Memory.ResetConfirm)) {
-                chatStore.updateCurrentSession(
-                  (session) => (session.memoryPrompt = ""),
+                chatStore.clearCurrentSessionMemoryPrompt(
+                  authStore.token,
+                  () => {
+                    authStore.logout();
+                    navigate(Path.Login);
+                  },
                 );
               }
             }}
@@ -131,25 +187,52 @@ export function SessionConfigModel(props: { onClose: () => void }) {
             onClick={() => {
               navigate(Path.Masks);
               setTimeout(() => {
-                maskStore.create(session.mask);
+                maskStore.create(props.session.mask);
               }, 500);
+            }}
+          />,
+          <IconButton
+            key="confirm"
+            icon={<CopyIcon />}
+            bordered
+            type="primary"
+            text={Locale.Chat.Config.Confirm}
+            onClick={async () => {
+              // console.log('confirm', mask)
+              const result = await chatStore.updateCurrentSessionMask(
+                mask,
+                authStore.token,
+                () => {
+                  authStore.logout();
+                  navigate(Path.Login);
+                },
+              );
+              if (result) {
+                props.onClose();
+              }
             }}
           />,
         ]}
       >
         <MaskConfig
-          mask={session.mask}
+          mask={mask}
           updateMask={(updater) => {
-            const mask = { ...session.mask };
+            // const mask = { ...session.mask };
             updater(mask);
-            chatStore.updateCurrentSession((session) => (session.mask = mask));
+            setMask({ ...mask });
+            console.log("update mask, set changed=true", mask);
+            setChanged(true);
+            // chatStore.updateCurrentSession((session) => (session.mask = mask));
           }}
           shouldSyncFromGlobal
           extraListItems={
-            session.mask.modelConfig.sendMemory ? (
+            props.session.mask.modelConfig.sendMemory ? (
               <ListItem
-                title={`${Locale.Memory.Title} (${session.lastSummarizeIndex} of ${session.messages.length})`}
-                subTitle={session.memoryPrompt || Locale.Memory.EmptyContent}
+                className="copyable"
+                title={`${Locale.Memory.Title} (${props.session.lastSummarizeIndex} of ${props.session.messages.length})`}
+                subTitle={
+                  props.session.memoryPrompt || Locale.Memory.EmptyContent
+                }
               ></ListItem>
             ) : (
               <></>
@@ -185,7 +268,10 @@ function PromptToast(props: {
         </div>
       )}
       {props.showModal && (
-        <SessionConfigModel onClose={() => props.setShowModal(false)} />
+        <SessionConfigModel
+          session={session}
+          onClose={() => props.setShowModal(false)}
+        />
       )}
     </div>
   );
@@ -194,10 +280,29 @@ function PromptToast(props: {
 function useSubmitHandler() {
   const config = useAppConfig();
   const submitKey = config.submitKey;
+  const isComposing = useRef(false);
+
+  useEffect(() => {
+    const onCompositionStart = () => {
+      isComposing.current = true;
+    };
+    const onCompositionEnd = () => {
+      isComposing.current = false;
+    };
+
+    window.addEventListener("compositionstart", onCompositionStart);
+    window.addEventListener("compositionend", onCompositionEnd);
+
+    return () => {
+      window.removeEventListener("compositionstart", onCompositionStart);
+      window.removeEventListener("compositionend", onCompositionEnd);
+    };
+  }, []);
 
   const shouldSubmit = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key !== "Enter") return false;
-    if (e.key === "Enter" && e.nativeEvent.isComposing) return false;
+    if (e.key === "Enter" && (e.nativeEvent.isComposing || isComposing.current))
+      return false;
     return (
       (config.submitKey === SubmitKey.AltEnter && e.altKey) ||
       (config.submitKey === SubmitKey.CtrlEnter && e.ctrlKey) ||
@@ -217,9 +322,11 @@ function useSubmitHandler() {
   };
 }
 
+export type RenderPrompt = Pick<Prompt, "title" | "content">;
+
 export function PromptHints(props: {
-  prompts: Prompt[];
-  onPromptSelect: (prompt: Prompt) => void;
+  prompts: RenderPrompt[];
+  onPromptSelect: (prompt: RenderPrompt) => void;
 }) {
   const noPrompts = props.prompts.length === 0;
   const [selectIndex, setSelectIndex] = useState(0);
@@ -289,16 +396,22 @@ export function PromptHints(props: {
 }
 
 function ClearContextDivider() {
+  const authStore = useAuthStore();
+  const navigate = useNavigate();
   const chatStore = useChatStore();
 
   return (
     <div
       className={styles["clear-context"]}
-      onClick={() =>
-        chatStore.updateCurrentSession(
-          (session) => (session.clearContextIndex = undefined),
-        )
-      }
+      onClick={() => {
+        chatStore.updateCurrentSessionClearContextIndex(authStore.token, () => {
+          authStore.logout();
+          navigate(Path.Login);
+        });
+        // chatStore.updateCurrentSession(
+        //   (session) => (session.clearContextIndex = undefined),
+        // )
+      }}
     >
       <div className={styles["clear-context-tips"]}>{Locale.Context.Clear}</div>
       <div className={styles["clear-context-revert-btn"]}>
@@ -308,135 +421,172 @@ function ClearContextDivider() {
   );
 }
 
-function ChatAction(props: {
-  text: string;
-  icon: JSX.Element;
-  onClick: () => void;
-}) {
-  const iconRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState({
-    full: 16,
-    icon: 16,
-  });
-
-  function updateWidth() {
-    console.log("updateWidth", iconRef, textRef);
-    if (!iconRef.current || !textRef.current) return;
-    console.log("1");
-    const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
-    const textWidth = getWidth(textRef.current);
-    const iconWidth = getWidth(iconRef.current);
-    setWidth({
-      full: textWidth + iconWidth,
-      icon: iconWidth,
+const ChatAction = React.forwardRef(
+  (
+    props: {
+      text: string;
+      icon: JSX.Element;
+      alwaysShowText?: boolean;
+      onClick: () => void;
+    },
+    ref,
+  ) => {
+    const iconRef = useRef<HTMLDivElement>(null);
+    const textRef = useRef<HTMLDivElement>(null);
+    const [width, setWidth] = useState({
+      full: 16,
+      icon: 16,
     });
-  }
 
-  return (
-    <div
-      className={`${styles["chat-input-action"]} clickable`}
-      onClick={() => {
-        props.onClick();
+    function updateWidth() {
+      if (!iconRef.current || !textRef.current) return;
+      const getWidth = (dom: HTMLDivElement) =>
+        dom.getBoundingClientRect().width;
+      const textWidth = getWidth(textRef.current);
+      const iconWidth = getWidth(iconRef.current);
+      const newWidth = {
+        full: textWidth + iconWidth,
+        icon: iconWidth,
+      };
+      setWidth(newWidth);
+    }
+    useEffect(() => {
+      if (props.alwaysShowText) {
         setTimeout(updateWidth, 1);
-      }}
-      onMouseEnter={updateWidth}
-      onTouchStart={updateWidth}
-      style={
-        {
-          "--icon-width": `${width.icon}px`,
-          "--full-width": `${width.full}px`,
-        } as React.CSSProperties
       }
-    >
-      <div ref={iconRef} className={styles["icon"]}>
-        {props.icon}
-      </div>
-      <div className={styles["text"]} ref={textRef}>
-        {props.text}
-      </div>
-    </div>
-  );
-}
+    }, []);
 
-function SwitchChatAction(props: {
-  text: string;
-  icon?: JSX.Element;
-  value?: boolean;
-  onClick: () => void;
-}) {
-  const iconRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState({
-    full: 16,
-    icon: props.icon ? 16 : 0,
-  });
-  const [isClicked, setIsClicked] = useState(false); // 新增state
+    React.useImperativeHandle(ref, () => ({
+      updateWidth,
+    }));
 
-  function updateWidth() {
-    //console.log("updateWidth", iconRef, textRef);
-    if (!iconRef.current || !textRef.current) return;
-    //console.log("1");
-    const getWidth = (dom: HTMLDivElement) => dom.getBoundingClientRect().width;
-    const textWidth = getWidth(textRef.current);
-    const iconWidth = getWidth(iconRef.current);
-    setWidth({
-      full: textWidth + iconWidth,
-      icon: iconWidth,
-    });
-  }
-
-  return (
-    <div
-      className={`${styles["chat-input-action"]} clickable`}
-      onClick={() => {
-        props.onClick();
-        setIsClicked(!isClicked); // 更新isClicked的状态
-        setTimeout(updateWidth, 1);
-      }}
-      onMouseEnter={updateWidth}
-      onTouchStart={updateWidth}
-      style={
-        {
-          "--icon-width": `${width.icon}px`,
-          "--full-width": `${width.full}px`,
-          backgroundColor: isClicked ? "#dafbe1" : "", // 根据isClicked的状态设置背景颜色
-        } as React.CSSProperties
-      }
-    >
-      {props.icon && (
+    return (
+      <div
+        className={`${styles["chat-input-action"]} clickable ${
+          props.alwaysShowText ? styles["hover"] : ""
+        }`}
+        onClick={() => {
+          props.onClick();
+          setTimeout(updateWidth, 1);
+        }}
+        onMouseEnter={updateWidth}
+        onTouchStart={updateWidth}
+        style={
+          {
+            "--icon-width": `${width.icon}px`,
+            "--full-width": `${width.full}px`,
+          } as React.CSSProperties
+        }
+      >
         <div ref={iconRef} className={styles["icon"]}>
           {props.icon}
         </div>
-      )}
-      <div className={styles["text"]} ref={textRef}>
-        {props.text}
+        <div ref={textRef} className={styles["text"]}>
+          {props.text}
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  },
+);
+ChatAction.displayName = "ChatAction";
+
+const SwitchChatAction = React.forwardRef(
+  (
+    props: {
+      text: string;
+      icon?: JSX.Element;
+      value?: boolean;
+      alwaysShowText?: boolean;
+      onClick: () => void;
+    },
+    ref,
+  ) => {
+    const iconRef = useRef<HTMLDivElement>(null);
+    const textRef = useRef<HTMLDivElement>(null);
+    const [width, setWidth] = useState({
+      full: 16,
+      icon: props.icon ? 16 : 0,
+    });
+    const [isClicked, setIsClicked] = useState(props.value ?? false); // 新增state
+
+    function updateWidth() {
+      if (!iconRef.current || !textRef.current) return;
+      const getWidth = (dom: HTMLDivElement) =>
+        dom.getBoundingClientRect().width;
+      const textWidth = getWidth(textRef.current);
+      const iconWidth = getWidth(iconRef.current);
+      setWidth({
+        full: textWidth + iconWidth,
+        icon: iconWidth,
+      });
+    }
+    useEffect(() => {
+      if (props.alwaysShowText) {
+        setTimeout(updateWidth, 1);
+      }
+    }, []);
+
+    return (
+      <div
+        className={`${styles["chat-input-action"]} clickable ${
+          props.alwaysShowText ? styles["hover"] : ""
+        }`}
+        onClick={() => {
+          props.onClick();
+          setIsClicked(!isClicked); // 更新isClicked的状态
+          setTimeout(updateWidth, 1);
+        }}
+        onMouseEnter={updateWidth}
+        onTouchStart={updateWidth}
+        style={
+          {
+            "--icon-width": `${width.icon}px`,
+            "--full-width": `${width.full}px`,
+            backgroundColor: isClicked ? "#dafbe1" : "", // 根据isClicked的状态设置背景颜色
+          } as React.CSSProperties
+        }
+      >
+        {props.icon && (
+          <div ref={iconRef} className={styles["icon"]}>
+            {props.icon}
+          </div>
+        )}
+        <div className={styles["text"]} ref={textRef}>
+          {props.text}
+        </div>
+      </div>
+    );
+  },
+);
+SwitchChatAction.displayName = "SwitchChatAction";
 
 function useScrollToBottom() {
   // for auto-scroll
   const scrollRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
-  const scrollToBottom = useCallback(() => {
+
+  function scrollDomToBottom() {
     const dom = scrollRef.current;
     if (dom) {
-      requestAnimationFrame(() => dom.scrollTo(0, dom.scrollHeight));
+      requestAnimationFrame(() => {
+        setAutoScroll(true);
+        dom.scrollTo(0, dom.scrollHeight);
+      });
     }
-  }, []);
+  }
 
   // auto scroll
   useEffect(() => {
-    autoScroll && scrollToBottom();
+    if (autoScroll) {
+      scrollDomToBottom();
+    }
   });
 
   return {
     scrollRef,
     autoScroll,
     setAutoScroll,
-    scrollToBottom,
+    scrollDomToBottom,
   };
 }
 
@@ -444,13 +594,20 @@ export function ChatActions(props: {
   showPromptModal: () => void;
   scrollToBottom: () => void;
   showPromptHints: () => void;
-  imageSelected: (img: any) => void;
+  imageSelected: (img: BaseImageItem) => void;
+  beforeSelectImages: () => boolean;
   hitBottom: boolean;
   plugins: PluginActionModel[];
-  contentType: string;
+  togglePlugin: (
+    plugin: PluginActionModel,
+  ) => Promise<{ result: boolean; value: boolean }>;
+  contentType: ModelContentType;
+  messageStruct: ModelMessageStruct;
+  processModes: SPEED_MAP_KEY[];
+  selectedProcessMode: SPEED_MAP_KEY | null;
+  toggleProcessMode: (processMode: SPEED_MAP_KEY) => void;
   uploading: boolean;
   setUploading: React.Dispatch<React.SetStateAction<boolean>>;
-  SetOpenInternet: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
@@ -473,24 +630,20 @@ export function ChatActions(props: {
   const stopAll = () => ChatControllerPool.stopAll();
 
   // switch model
-  const currentModel = chatStore.currentSession().mask.modelConfig.model;
-  const currentContentType =
-    chatStore.currentSession().mask.modelConfig.contentType;
-  function nextModel() {
-    const models = availableModels;
-    const modelIndex = models.findIndex(
-      (m) => m.name === currentModel && m.contentType === currentContentType,
-    );
-    const nextIndex = (modelIndex + 1) % models.length;
-    const nextModel = models[nextIndex];
-    chatStore.updateCurrentSession((session) => {
-      session.mask.modelConfig.model = nextModel.name as ModelType;
-      session.mask.modelConfig.contentType = nextModel.contentType;
-      session.mask.syncGlobalConfig = false;
-    });
-  }
+  const currentModel = {
+    name: chatStore.currentSession().mask.modelConfig.model,
+    contentType: chatStore.currentSession().mask.modelConfig.contentType,
+    messageStruct: chatStore.currentSession().mask.modelConfig.messageStruct,
+    processModes: chatStore.currentSession().mask.modelConfig.processModes,
+    processMode: chatStore.currentSession().mask.modelConfig.processMode,
+  } as SimpleModel;
+
+  const [showModelSelector, setShowModelSelector] = useState(false);
 
   function selectImage() {
+    if (!props.beforeSelectImages()) {
+      return;
+    }
     document.getElementById("chat-image-file-select-upload")?.click();
   }
 
@@ -515,8 +668,17 @@ export function ChatActions(props: {
       .then((res) => {
         if (res.code === 413) {
           showToast(res.cnMessage || res.message, undefined, 5000);
+          if (Math.floor(res.code / 100) === 100) {
+            // 100XX
+            authStore.logout();
+            navigate(Path.Login);
+          }
         }
         return res;
+      })
+      .catch((e) => {
+        console.error(e);
+        showToast("上传失败！" + e);
       })
       .finally(() => {
         console.log("finally");
@@ -526,8 +688,17 @@ export function ChatActions(props: {
   const onImageSelected = (e: any) => {
     const file = e.target.files[0];
     uploadFile(file).then((res) => {
+      if (res.code !== 0) {
+        showToast(res.cnMessage || res.message, undefined, 5000);
+        if (Math.floor(res.code / 100) === 100) {
+          // 100XX
+          authStore.logout();
+          navigate(Path.Login);
+        }
+        return;
+      }
       const filename = file.name;
-      const fileEntity = res.data;
+      const fileEntity = res.data as FileEntity;
       props.imageSelected({
         filename,
         uuid: fileEntity.uuid,
@@ -539,6 +710,8 @@ export function ChatActions(props: {
     });
     e.target.value = null;
   };
+
+  const modelSelectorRef = useRef(null);
 
   return (
     <div className={styles["chat-input-actions"]}>
@@ -604,24 +777,76 @@ export function ChatActions(props: {
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}
         onClick={() => {
-          chatStore.updateCurrentSession((session) => {
-            if (session.clearContextIndex === session.messages.length) {
-              session.clearContextIndex = undefined;
-            } else {
-              session.clearContextIndex = session.messages.length;
-              session.memoryPrompt = ""; // will clear memory
-            }
-          });
+          chatStore.updateCurrentSessionClearContextIndex(
+            authStore.token,
+            () => {
+              authStore.logout();
+              navigate(Path.Login);
+            },
+          );
         }}
       />
 
       <ChatAction
-        onClick={nextModel}
-        text={currentModel}
+        ref={modelSelectorRef}
+        onClick={() => setShowModelSelector(true)}
+        text={currentModel.name}
+        alwaysShowText={true}
         icon={<RobotIcon />}
       />
 
-      {props.contentType === "Image" && (
+      {showModelSelector && (
+        <Selector
+          defaultSelectedValue={currentModel.name}
+          items={availableModels.map((m) => ({
+            title: m.name,
+            value: m.name,
+          }))}
+          onClose={() => setShowModelSelector(false)}
+          onSelection={async (s) => {
+            if (s.length === 0) return;
+            const selectedModel = availableModels.find((m) => m.name === s[0]);
+            if (!selectedModel) return;
+            const result = await chatStore.updateCurrentSessionMaskByUpdater(
+              (mask) => {
+                mask.modelConfig.model = selectedModel.name;
+                mask.modelConfig.contentType = selectedModel.contentType;
+                mask.modelConfig.messageStruct = selectedModel.messageStruct;
+                mask.modelConfig.processModes = selectedModel.processModes;
+                if (selectedModel.processModes.length) {
+                  if (
+                    selectedModel.processModes.includes(
+                      "mixed" as SPEED_MAP_KEY,
+                    )
+                  ) {
+                    mask.modelConfig.processMode = "mixed" as SPEED_MAP_KEY;
+                  } else {
+                    mask.modelConfig.processMode =
+                      selectedModel.processModes[0];
+                  }
+                } else {
+                  mask.modelConfig.processMode = null;
+                }
+                mask.syncGlobalConfig = false;
+              },
+              authStore.token,
+              () => {
+                authStore.logout();
+                navigate(Path.Login);
+              },
+            );
+            if (result) {
+              showToast(selectedModel.name);
+              if (modelSelectorRef.current) {
+                // @ts-ignore
+                modelSelectorRef.current.updateWidth();
+              }
+            }
+          }}
+        />
+      )}
+
+      {(props.contentType === "Image" || props.messageStruct === "complex") && (
         <div
           className={`${styles["chat-input-action"]} clickable`}
           onClick={selectImage}
@@ -642,11 +867,18 @@ export function ChatActions(props: {
           return (
             <SwitchChatAction
               key={model.plugin.uuid}
-              onClick={() => {
-                model.value = !model.value;
-                showToast(
-                  (model.value ? "已开启" : "已关闭") + model.plugin.name,
+              alwaysShowText={true}
+              onClick={async () => {
+                const { result, value } = await props.togglePlugin(model);
+                console.log(
+                  "toggle plugin result",
+                  model.plugin.name,
+                  result,
+                  value,
                 );
+                if (result) {
+                  showToast((value ? "已开启" : "已关闭") + model.plugin.name);
+                }
               }}
               text={model.plugin.name}
               icon={<Internet />}
@@ -655,18 +887,156 @@ export function ChatActions(props: {
           );
         })}
       </>
+
+      <>
+        {props.processModes?.length > 0 && (
+          <ChatAction
+            onClick={() => {
+              let index = props.processModes.indexOf(
+                props.selectedProcessMode as SPEED_MAP_KEY,
+              );
+              if (index >= 0) {
+                index = (index + 1) % props.processModes.length;
+              } else {
+                index = 0;
+              }
+              props.toggleProcessMode(props.processModes[index]);
+            }}
+            text={SPEED_MAP[props.selectedProcessMode as SPEED_MAP_KEY]}
+            alwaysShowText={true}
+            icon={<PollIcon />}
+          />
+        )}
+      </>
     </div>
   );
 }
 
-export function Chat() {
-  type RenderMessage = ChatMessage & { preview?: boolean };
-
+export function EditMessageModal(props: {
+  onClose: () => void;
+  updateTopic: (topic: string) => Promise<boolean>;
+  updateMessages: (messages: ChatMessage[]) => Promise<boolean>;
+}) {
   const chatStore = useChatStore();
-  const [session, sessionIndex] = useChatStore((state) => [
-    state.currentSession(),
-    state.currentSessionIndex,
-  ]);
+  const session = chatStore.currentSession();
+  const [messages, setMessages] = useState(session.messages.slice());
+  const [topic, setTopic] = useState("");
+  useEffect(() => {
+    setTopic(session.topic);
+  }, [session]);
+
+  return (
+    <div className="modal-mask">
+      <Modal
+        title={Locale.Chat.EditMessage.Title}
+        onClose={props.onClose}
+        actions={[
+          <IconButton
+            text={Locale.UI.Cancel}
+            icon={<CancelIcon />}
+            key="cancel"
+            onClick={() => {
+              props.onClose();
+            }}
+          />,
+          <IconButton
+            type="primary"
+            text={Locale.UI.Confirm}
+            icon={<ConfirmIcon />}
+            key="ok"
+            onClick={async () => {
+              const topicResult = await props.updateTopic(topic);
+              if (topicResult) {
+                const result = await props.updateMessages(messages);
+                if (result) {
+                  props.onClose();
+                }
+              }
+            }}
+          />,
+        ]}
+      >
+        <List>
+          <ListItem
+            title={Locale.Chat.EditMessage.Topic.Title}
+            subTitle={Locale.Chat.EditMessage.Topic.SubTitle}
+          >
+            <input
+              type="text"
+              value={topic}
+              onChange={(e) =>
+                // chatStore.updateCurrentSession(
+                //   (session) => (session.topic = e.currentTarget.value),
+                // )
+                setTopic(e.currentTarget.value)
+              }
+            ></input>
+          </ListItem>
+        </List>
+        <ContextPrompts
+          context={messages}
+          updateContext={(updater) => {
+            const newMessages = messages.slice();
+            updater(newMessages);
+            //console.log("newMessages", newMessages);
+            setMessages(newMessages);
+          }}
+        />
+      </Modal>
+    </div>
+  );
+}
+
+function RefreshDrawStatus(props: {
+  message: RenderMessage;
+  session: ChatSession;
+  refreshDrawStatus: (
+    session: ChatSession,
+    userMessage: ChatMessage | null,
+    botMessage: ChatMessage,
+  ) => void;
+  ChatFetchTaskPool: Map<string, NodeJS.Timeout | null>;
+}) {
+  const message = props.message;
+  const session = props.session;
+  const ChatFetchTaskPool = props.ChatFetchTaskPool;
+
+  const [now, SetNow] = useState(+new Date());
+  useEffect(() => {
+    const interval = setInterval(() => {
+      SetNow(+new Date());
+    }, 100);
+
+    return () => {
+      console.log("clearInterval", interval);
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <>
+      {!ChatFetchTaskPool.get(message.attr?.taskId) &&
+        message.attr?.submitTime &&
+        now - +fromYYYYMMDD_HHMMSS(message.attr.submitTime) > 1000 && (
+          <div>
+            <button
+              onClick={() => props.refreshDrawStatus(session, null, message)}
+              className={`${styles["chat-message-mj-action-btn"]} clickable`}
+              style={{ width: "150px" }}
+            >
+              {Locale.Midjourney.Refresh}
+            </button>
+          </div>
+        )}
+    </>
+  );
+}
+
+type RenderMessage = ChatMessage & { preview?: boolean };
+
+function _Chat() {
+  const chatStore = useChatStore();
+  const session = chatStore.currentSession();
   const config = useAppConfig();
   const fontSize = config.fontSize;
 
@@ -674,11 +1044,11 @@ export function Chat() {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState("");
-  const [useImages, setUseImages] = useState<any[]>([]);
-  const [mjImageMode, setMjImageMode] = useState<string>(""); // 垫图IMAGINE，混图BLEND，识图DESCRIBE
+  const [useImages, setUseImages] = useState<BaseImageItem[]>([]);
+  const [mjImageMode, setMjImageMode] = useState<ImageMode>(""); // 垫图IMAGINE，混图BLEND，识图DESCRIBE
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
-  const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
+  const { scrollRef, setAutoScroll, scrollDomToBottom } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const websiteConfigStore = useWebsiteConfigStore();
@@ -687,16 +1057,11 @@ export function Chat() {
 
   const authStore = useAuthStore();
 
-  const onChatBodyScroll = (e: HTMLElement) => {
-    const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 10;
-    setHitBottom(isTouchBottom);
-  };
-
   const [uploading, setUploading] = useState(false);
 
   // prompt hints
   const promptStore = usePromptStore();
-  const [promptHints, setPromptHints] = useState<Prompt[]>([]);
+  const [promptHints, setPromptHints] = useState<RenderPrompt[]>([]);
   const onSearch = useDebouncedCallback(
     (text: string) => {
       const matchedPrompts = promptStore.search(text);
@@ -729,15 +1094,37 @@ export function Chat() {
 
   // chat commands shortcuts
   const chatCommands = useChatCommand({
-    new: () => chatStore.newSession(),
+    new: (token: string) =>
+      chatStore.newSession(token, () => {
+        authStore.logout();
+        navigate(Path.Login);
+      }),
     newm: () => navigate(Path.NewChat),
     prev: () => chatStore.nextSession(-1),
     next: () => chatStore.nextSession(1),
-    clear: () =>
-      chatStore.updateCurrentSession(
-        (session) => (session.clearContextIndex = session.messages.length),
+    clear: () => {
+      chatStore.setCurrentSessionClearContextIndex(
+        session,
+        session.messages.length,
+        authStore.token,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
+      );
+      // chatStore.updateCurrentSession(
+      //   (session) => (session.clearContextIndex = session.messages.length),
+      // )
+    },
+    del: () =>
+      chatStore.deleteSession(
+        chatStore.currentSessionIndex,
+        authStore.token,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
       ),
-    del: () => chatStore.deleteSession(chatStore.currentSessionIndex),
   });
 
   // only search prompts when user input is short
@@ -760,61 +1147,69 @@ export function Chat() {
     }
   };
 
-  const [pluignModels, setPluginModels] = useState<PluginActionModel[]>([]);
-  useEffect(() => {
-    const models = (plugins || []).map((plugin) => {
-      return {
-        plugin: plugin,
-        value: false as boolean,
-      } as PluginActionModel;
-    });
-    setPluginModels(models);
-  }, [plugins]);
-
   const [ChatFetchTaskPool, setChatFetchTaskPool] = useState(
     new Map<string, NodeJS.Timeout | null>(),
   );
 
-  const refreshDrawStatus = (botMessage: ChatMessage) => {
+  const refreshDrawStatus = (
+    session: ChatSession,
+    userMessage: ChatMessage | null,
+    botMessage: ChatMessage,
+  ) => {
     if (ChatFetchTaskPool.get(botMessage.attr.taskId)) {
       return;
     }
+    const getDrawTaskProgressAfter3seconds = setTimeout(async () => {
+      const fetch = await chatStore.getDrawTaskProgress(
+        session,
+        userMessage,
+        botMessage,
+        websiteConfigStore,
+        authStore,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
+      );
+      ChatFetchTaskPool.set(botMessage.attr.taskId, null);
+      if (fetch) {
+        refreshDrawStatus(session, userMessage, botMessage);
+      }
+    }, 3000);
     ChatFetchTaskPool.set(
       botMessage.attr.taskId,
-      setTimeout(async () => {
-        const fetch = await chatStore.getDrawTaskProgress(
-          botMessage,
-          websiteConfigStore,
-          authStore,
-        );
-        ChatFetchTaskPool.set(botMessage.attr.taskId, null);
-        if (fetch) {
-          refreshDrawStatus(botMessage);
-        }
-      }, 3000),
+      getDrawTaskProgressAfter3seconds,
     );
     setChatFetchTaskPool(ChatFetchTaskPool);
+    // console.log('ChatFetchTaskPool update', ChatFetchTaskPool.get(botMessage.attr.taskId))
   };
 
   const doSubmit = (userInput: string) => {
     if (useImages.length > 0) {
-      if (mjImageMode === "IMAGINE") {
-        if (!userInput) {
-          showToast(Locale.Midjourney.NeedInputUseImgPrompt);
-          return;
+      if (session.mask?.modelConfig?.contentType === "Image") {
+        if (mjImageMode === "IMAGINE") {
+          if (!userInput) {
+            showToast(Locale.Midjourney.NeedInputUseImgPrompt);
+            return;
+          }
+          if (useImages.length > 1) {
+            showToast(Locale.Midjourney.ImagineMaxImg(1));
+            return;
+          }
+        } else if (mjImageMode === "BLEND") {
+          if (useImages.length < 2 || useImages.length > MAX_IMAGE_SIZE) {
+            showToast(Locale.Midjourney.BlendMinImg(2, MAX_IMAGE_SIZE));
+            return;
+          }
+        } else if (mjImageMode === "DESCRIBE") {
+          if (useImages.length > 1) {
+            showToast(Locale.Midjourney.DescribeMaxImg(1));
+            return;
+          }
         }
-        if (useImages.length > 1) {
-          showToast(Locale.Midjourney.ImagineMaxImg(1));
-          return;
-        }
-      } else if (mjImageMode === "BLEND") {
-        if (useImages.length < 2 || useImages.length > 5) {
-          showToast(Locale.Midjourney.BlendMinImg(2, 5));
-          return;
-        }
-      } else if (mjImageMode === "DESCRIBE") {
-        if (useImages.length > 1) {
-          showToast(Locale.Midjourney.DescribeMaxImg(1));
+      } else if (session.mask?.modelConfig?.messageStruct === "complex") {
+        if (useImages.length > MAX_IMAGE_SIZE) {
+          showToast(Locale.Midjourney.gpt4vMaxImg(MAX_IMAGE_SIZE));
           return;
         }
       }
@@ -834,18 +1229,25 @@ export function Chat() {
     setIsLoading(true);
     chatStore
       .onUserInput(
+        session,
         userInput,
         pluignModels,
         mjImageMode,
         useImages,
         websiteConfigStore,
         authStore,
-        () => navigate(Path.Login),
+        session.mask,
+        false,
+        authStore.token,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
       )
       .then((result) => {
         setIsLoading(false);
         if (result && result.fetch) {
-          refreshDrawStatus(result.botMessage);
+          refreshDrawStatus(session, result.userMessage!, result.botMessage);
         }
       });
     localStorage.setItem(LAST_INPUT_KEY, userInput);
@@ -857,7 +1259,7 @@ export function Chat() {
     setAutoScroll(true);
   };
 
-  const onPromptSelect = (prompt: Prompt) => {
+  const onPromptSelect = (prompt: RenderPrompt) => {
     setTimeout(() => {
       setPromptHints([]);
 
@@ -874,9 +1276,9 @@ export function Chat() {
     }, 30);
   };
 
-  const addBaseImage = (img: any) => {
-    if (useImages.length >= 5) {
-      showToast(Locale.Midjourney.SelectImgMax(5));
+  const addBaseImage = (img: BaseImageItem) => {
+    if (useImages.length >= MAX_IMAGE_SIZE) {
+      showToast(Locale.Midjourney.SelectImgMax(MAX_IMAGE_SIZE));
       return;
     }
     setUseImages([...useImages, img]);
@@ -886,40 +1288,136 @@ export function Chat() {
   };
 
   // stop response
-  const onUserStop = (messageId: number) => {
-    ChatControllerPool.stop(sessionIndex, messageId);
+  const onUserStop = (messageId: string) => {
+    ChatControllerPool.stop(session.id, messageId);
+  };
+
+  const [sessionLoading, setSessionLoading] = useState(false);
+  const [isSessionLoadingError, setIsSessionLoadingError] = useState(false);
+  const [sessionLoadingError, setSessionLoadingError] = useState(null);
+
+  const reloadSession = () => {
+    setSessionLoading(true);
+    console.log("session loading = true");
+    chatStore
+      .refreshSession(session, authStore.token)
+      .then(async ({ ok, resp, error }) => {
+        if (error) {
+          setIsSessionLoadingError(true);
+          setSessionLoadingError(error);
+          showToast(Locale.Chat.SessionLoadingError(error));
+          return;
+        }
+        setIsSessionLoadingError(false);
+        setSessionLoadingError(null);
+        if (!ok) {
+          if (resp && resp.code === 12302) {
+            // 会话已删除
+            if (await showConfirm(Locale.Chat.DeleteDeletedSessionConfirm)) {
+              chatStore.deleteLocalSession(
+                session,
+                authStore.token,
+                () => {
+                  authStore.logout();
+                  navigate(Path.Login);
+                },
+                true,
+              );
+            }
+            return;
+          } else {
+            console.warn("refresh error");
+          }
+          return;
+        }
+        // 更新本地message，如果还在等待输出，那么置为error
+        await chatStore.updateCurrentSessionMessagesByUpdater(
+          (session) => {
+            let messageChanged = false;
+            const changedMessages = [] as ChatMessage[];
+            const stopTiming = Date.now() - REQUEST_TIMEOUT_MS;
+            session.messages.forEach((m) => {
+              // check if should stop all stale messages
+              if (m.isError || new Date(m.date).getTime() < stopTiming) {
+                if (m.streaming) {
+                  m.streaming = false;
+                  messageChanged = true;
+                }
+
+                if ((m.content ?? "").length === 0 && m.role !== "user") {
+                  m.isError = true;
+                  m.content = prettyObject({
+                    error: true,
+                    message: "empty response",
+                  });
+                  messageChanged = true;
+                }
+                if (messageChanged) {
+                  changedMessages.push(m);
+                }
+              }
+            });
+            return {
+              messageChanged,
+              messages: changedMessages,
+            };
+          },
+          authStore.token,
+          () => {
+            authStore.logout();
+            navigate(Path.Login);
+          },
+        );
+        if (session.mask.syncGlobalConfig) {
+          await chatStore.updateCurrentSessionMaskByUpdater(
+            (mask) => {
+              const v1 = JSON.stringify(config.modelConfig);
+              const v2 = JSON.stringify(session.mask.modelConfig);
+              if (v1 === v2) {
+                console.log(
+                  "[Mask] same with global, not sync",
+                  session.mask.name,
+                );
+                return false;
+              }
+              console.log(
+                "[Mask] syncing from global, name = ",
+                session.mask.name,
+              );
+              session.mask.modelConfig = { ...config.modelConfig };
+            },
+            authStore.token,
+            () => {
+              authStore.logout();
+              navigate(Path.Login);
+            },
+          );
+        }
+      })
+      .finally(() => {
+        console.log("session loading = false");
+        setSessionLoading(false);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
   useEffect(() => {
-    chatStore.updateCurrentSession((session) => {
-      const stopTiming = Date.now() - REQUEST_TIMEOUT_MS;
-      session.messages.forEach((m) => {
-        // check if should stop all stale messages
-        if (m.isError || new Date(m.date).getTime() < stopTiming) {
-          if (m.streaming) {
-            m.streaming = false;
-          }
-
-          if (m.content.length === 0 && m.role !== "user") {
-            m.isError = true;
-            m.content = prettyObject({
-              error: true,
-              message: "empty response",
-            });
-          }
-        }
-      });
-
-      // auto sync mask config from global config
-      if (session.mask.syncGlobalConfig) {
-        console.log("[Mask] syncing from global, name = ", session.mask.name);
-        session.mask.modelConfig = { ...config.modelConfig };
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    reloadSession();
   }, []);
 
-  const [openInternet, SetOpenInternet] = useState(false);
+  const [pluignModels, setPluginModels] = useState<PluginActionModel[]>([]);
+  useEffect(() => {
+    const pluginUuids = session.mask.modelConfig.pluginUuids || [];
+    const models = (plugins || []).map((plugin) => {
+      return {
+        plugin: plugin,
+        value: pluginUuids.includes(plugin.uuid),
+      } as PluginActionModel;
+    });
+    // console.log('plugins', models)
+    setPluginModels(models);
+  }, []);
+
   // check if should send message
   const onInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // if ArrowUp and no userInput, fill with last input
@@ -948,66 +1446,110 @@ export function Chat() {
     }
   };
 
-  const findLastUserIndex = (messageId: number) => {
-    // find last user input message and resend
-    let lastUserMessageIndex: number | null = null;
-    for (let i = 0; i < session.messages.length; i += 1) {
-      const message = session.messages[i];
-      if (message.id === messageId) {
-        break;
+  const deleteMessage = (message?: ChatMessage) => {
+    if (!message) {
+      return;
+    }
+    chatStore.deleteMessageInCurrentSession(message, authStore.token);
+  };
+
+  const onDelete = (message: ChatMessage) => {
+    deleteMessage(message);
+  };
+
+  const onResend = (message: ChatMessage) => {
+    // when it is resending a message
+    // 1. for a user's message, find the next bot response
+    // 2. for a bot's message, find the last user's input
+    // 3. delete original user input and bot's message
+    // 4. resend the user's input
+
+    const resendingIndex = session.messages.findIndex(
+      (m) => m.id === message.id,
+    );
+
+    if (resendingIndex < 0 || resendingIndex >= session.messages.length) {
+      console.error("[Chat] failed to find resending message", message);
+      return;
+    }
+
+    let userMessage: ChatMessage | undefined;
+    let botMessage: ChatMessage | undefined;
+
+    if (message.role === "assistant") {
+      // if it is resending a bot's message, find the user input for it
+      botMessage = message;
+      for (let i = resendingIndex; i >= 0; i -= 1) {
+        if (session.messages[i].role === "user") {
+          userMessage = session.messages[i];
+          break;
+        }
       }
-      if (message.role === "user") {
-        lastUserMessageIndex = i;
+    } else if (message.role === "user") {
+      // if it is resending a user's input, find the bot's response
+      userMessage = message;
+      for (let i = resendingIndex; i < session.messages.length; i += 1) {
+        if (session.messages[i].role === "assistant") {
+          botMessage = session.messages[i];
+          break;
+        }
       }
     }
 
-    return lastUserMessageIndex;
-  };
+    if (userMessage === undefined) {
+      console.error("[Chat] failed to resend", message);
+      return;
+    }
 
-  const deleteMessage = (userIndex: number) => {
-    chatStore.updateCurrentSession((session) =>
-      session.messages.splice(userIndex, 2),
-    );
-  };
+    // delete the original messages
+    deleteMessage(userMessage);
+    deleteMessage(botMessage);
 
-  const onDelete = (botMessageId: number) => {
-    const userIndex = findLastUserIndex(botMessageId);
-    if (userIndex === null) return;
-    deleteMessage(userIndex);
-  };
-
-  const onResend = (botMessageId: number) => {
-    // find last user input message and resend
-    const userIndex = findLastUserIndex(botMessageId);
-    if (userIndex === null) return;
-
-    const message = session.messages[userIndex];
-
+    // resend the message
     setIsLoading(true);
-    const content = message.content;
-    deleteMessage(userIndex);
+    const content = userMessage.content;
     chatStore
       .onUserInput(
+        session,
         content,
         pluignModels,
-        message.attr?.imageMode ?? "",
-        message.attr?.baseImages || [],
+        userMessage.attr?.imageMode ?? "",
+        userMessage.attr?.baseImages || [],
         websiteConfigStore,
         authStore,
-        () => navigate(Path.Login),
+        session.mask,
+        true,
+        authStore.token,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
       )
-      .then(() => setIsLoading(false));
+      .then((result) => {
+        setIsLoading(false);
+        if (result && result.fetch) {
+          refreshDrawStatus(session, result.userMessage!, result.botMessage);
+        }
+      });
     inputRef.current?.focus();
   };
 
-  const onPinMessage = (botMessage: ChatMessage) => {
-    if (!botMessage.id) return;
-    const userMessageIndex = findLastUserIndex(botMessage.id);
-    if (userMessageIndex === null) return;
-
-    const userMessage = session.messages[userMessageIndex];
-    chatStore.updateCurrentSession((session) =>
-      session.mask.context.push(userMessage, botMessage),
+  const onPinMessage = (message: ChatMessage) => {
+    chatStore.updateCurrentSessionMaskByUpdater(
+      (mask) => {
+        // todo
+        const copy = {
+          ...message,
+          id: nanoid(),
+        };
+        delete copy.uuid;
+        mask.context.push(copy);
+      },
+      authStore.token,
+      () => {
+        authStore.logout();
+        navigate(Path.Login);
+      },
     );
 
     showToast(Locale.Chat.Actions.PinToastContent, {
@@ -1018,13 +1560,11 @@ export function Chat() {
     });
   };
 
-  const now = new Date();
+  const context: RenderMessage[] = (() => {
+    return session.mask.hideContext ? [] : session.mask.context.slice();
+  })();
 
-  const context: RenderMessage[] = session.mask.hideContext
-    ? []
-    : session.mask.context.slice();
-
-  // const accessStore = useAccessStore();
+  const accessStore = useAccessStore();
 
   if (
     context.length === 0 &&
@@ -1032,17 +1572,12 @@ export function Chat() {
   ) {
     const copiedHello = Object.assign({}, BOT_HELLO);
     if (!authStore.token) {
+      authStore.logout();
       navigate(Path.Login);
       copiedHello.content = Locale.Error.Unauthorized;
     }
     context.push(copiedHello);
   }
-
-  // clear context index = context length + index in messages
-  const clearContextIndex =
-    (session.clearContextIndex ?? -1) >= 0
-      ? session.clearContextIndex! + context.length
-      : -1;
 
   // preview messages
   const lastMessageIsDraw =
@@ -1050,53 +1585,98 @@ export function Chat() {
     session.messages[session.messages.length - 1].role === "assistant" &&
     session.messages[session.messages.length - 1].attr &&
     session.messages[session.messages.length - 1].attr.contentType === "Image";
-  const messages = context
-    .concat(session.messages as RenderMessage[])
-    .concat(
-      isLoading && !lastMessageIsDraw
-        ? [
-            {
-              ...createMessage({
-                role: "assistant",
-                content: "……",
-              }),
-              preview: true,
-            },
-          ]
-        : [],
-    )
-    .concat(
-      userInput.length > 0 && config.sendPreviewBubble
-        ? [
-            {
-              ...createMessage({
-                role: "user",
-                content: userInput,
-              }),
-              preview: true,
-            },
-          ]
-        : [],
+  const renderMessages = useMemo(() => {
+    return context
+      .concat(session.messages as RenderMessage[])
+      .concat(
+        isLoading && !lastMessageIsDraw
+          ? [
+              {
+                ...createMessage({
+                  role: "assistant",
+                  content: "……",
+                }),
+                preview: true,
+              },
+            ]
+          : [],
+      )
+      .concat(
+        userInput.length > 0 && config.sendPreviewBubble
+          ? [
+              {
+                ...createMessage({
+                  role: "user",
+                  content: userInput,
+                }),
+                preview: true,
+              },
+            ]
+          : [],
+      );
+  }, [
+    config.sendPreviewBubble,
+    context,
+    isLoading,
+    session.messages,
+    userInput,
+  ]);
+
+  const [msgRenderIndex, _setMsgRenderIndex] = useState(
+    Math.max(0, renderMessages.length - CHAT_PAGE_SIZE),
+  );
+  function setMsgRenderIndex(newIndex: number) {
+    newIndex = Math.min(renderMessages.length - CHAT_PAGE_SIZE, newIndex);
+    newIndex = Math.max(0, newIndex);
+    _setMsgRenderIndex(newIndex);
+  }
+
+  const messages = useMemo(() => {
+    const endRenderIndex = Math.min(
+      msgRenderIndex + 3 * CHAT_PAGE_SIZE,
+      renderMessages.length,
     );
+    return renderMessages.slice(msgRenderIndex, endRenderIndex);
+  }, [msgRenderIndex, renderMessages]);
+
+  const onChatBodyScroll = (e: HTMLElement) => {
+    const bottomHeight = e.scrollTop + e.clientHeight;
+    const edgeThreshold = e.clientHeight;
+
+    const isTouchTopEdge = e.scrollTop <= edgeThreshold;
+    const isTouchBottomEdge = bottomHeight >= e.scrollHeight - edgeThreshold;
+    const isHitBottom =
+      bottomHeight >= e.scrollHeight - (isMobileScreen ? 4 : 10);
+
+    const prevPageMsgIndex = msgRenderIndex - CHAT_PAGE_SIZE;
+    const nextPageMsgIndex = msgRenderIndex + CHAT_PAGE_SIZE;
+
+    if (isTouchTopEdge && !isTouchBottomEdge) {
+      setMsgRenderIndex(prevPageMsgIndex);
+    } else if (isTouchBottomEdge) {
+      setMsgRenderIndex(nextPageMsgIndex);
+    }
+
+    setHitBottom(isHitBottom);
+    setAutoScroll(isHitBottom);
+  };
+
+  function scrollToBottom() {
+    setMsgRenderIndex(renderMessages.length - CHAT_PAGE_SIZE);
+    scrollDomToBottom();
+  }
+
+  // clear context index = context length + index in messages
+  const clearContextIndex =
+    (session.clearContextIndex ?? -1) >= 0
+      ? session.clearContextIndex! + context.length - msgRenderIndex
+      : -1;
 
   const [showPromptModal, setShowPromptModal] = useState(false);
 
-  const renameSession = () => {
-    showPrompt(Locale.Chat.Rename, session.topic).then((newTopic) => {
-      if (newTopic && newTopic !== session.topic) {
-        chatStore.updateCurrentSession(
-          (session) => (session.topic = newTopic!),
-        );
-      }
-    });
-  };
-
   const clientConfig = useMemo(() => getClientConfig(), []);
 
-  const location = useLocation();
-  const isChat = location.pathname === Path.Chat;
-
-  const autoFocus = !isMobileScreen || isChat; // only focus in chat page
+  const autoFocus = !isMobileScreen; // wont auto focus on mobile screen
   const showMaxIcon = !isMobileScreen && !clientConfig?.isApp;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -1140,10 +1720,71 @@ export function Chat() {
     submit: (text) => {
       doSubmit(text);
     },
+    code: (text) => {
+      if (accessStore.disableFastLink) return;
+      console.log("[Command] got code from url: ", text);
+      showConfirm(Locale.URLCommand.Code + `code = ${text}`).then((res) => {
+        if (res) {
+          accessStore.update((access) => (access.accessCode = text));
+        }
+      });
+    },
+    settings: (text) => {
+      if (accessStore.disableFastLink) return;
+
+      try {
+        const payload = JSON.parse(text) as {
+          key?: string;
+          url?: string;
+        };
+
+        console.log("[Command] got settings from url: ", payload);
+
+        if (payload.key || payload.url) {
+          showConfirm(
+            Locale.URLCommand.Settings +
+              `\n${JSON.stringify(payload, null, 4)}`,
+          ).then((res) => {
+            if (!res) return;
+            if (payload.key) {
+              accessStore.update(
+                (access) => (access.openaiApiKey = payload.key!),
+              );
+            }
+            if (payload.url) {
+              accessStore.update((access) => (access.openaiUrl = payload.url!));
+            }
+          });
+        }
+      } catch {
+        console.error("[Command] failed to get settings from url: ", text);
+      }
+    },
   });
+
+  // edit / insert message modal
+  const [isEditingMessage, setIsEditingMessage] = useState(false);
+
+  // remember unfinished input
+  useEffect(() => {
+    // try to load from local storage
+    const key = UNFINISHED_INPUT(session.id);
+    const mayBeUnfinishedInput = localStorage.getItem(key);
+    if (mayBeUnfinishedInput && userInput.length === 0) {
+      setUserInput(mayBeUnfinishedInput);
+      localStorage.removeItem(key);
+    }
+
+    const dom = inputRef.current;
+    return () => {
+      localStorage.setItem(key, dom?.value ?? "");
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!authStore.token) {
+      // authStore.logout();
       //navigate(Path.Login)
       return;
     }
@@ -1181,7 +1822,7 @@ export function Chat() {
         <div className={`window-header-title ${styles["chat-body-title"]}`}>
           <div
             className={`window-header-main-title ${styles["chat-body-main-title"]}`}
-            onClickCapture={renameSession}
+            onClickCapture={() => setIsEditingMessage(true)}
           >
             {!session.topic ? DEFAULT_TOPIC : session.topic}
           </div>
@@ -1240,7 +1881,7 @@ export function Chat() {
                   <IconButton
                     icon={<RenameIcon />}
                     bordered
-                    onClick={renameSession}
+                    onClick={() => setIsEditingMessage(true)}
                   />
                 </div>
               )}
@@ -1278,17 +1919,36 @@ export function Chat() {
         />
       </div>
 
-      {uploading && (
+      {(uploading || sessionLoading) && (
         <div className={styles.mask}>
-          <div>{Locale.Midjourney.Uploading}</div>
+          <div>
+            {uploading
+              ? Locale.Midjourney.Uploading
+              : Locale.Chat.SessionLoading}
+          </div>
         </div>
       )}
+
+      {isSessionLoadingError && (
+        <div className={styles.mask + " " + styles["chat-mask"]}>
+          <div>{Locale.Chat.SessionLoadingError(sessionLoadingError)}</div>
+          <div style={{ marginTop: "10px" }}>
+            <IconButton
+              text={Locale.Chat.ReloadSesison}
+              disabled={sessionLoading}
+              onClick={() => {
+                reloadSession();
+              }}
+            ></IconButton>
+          </div>
+        </div>
+      )}
+
       <div
         className={styles["chat-body"]}
         ref={scrollRef}
         onScroll={(e) => onChatBodyScroll(e.currentTarget)}
         onMouseDown={() => inputRef.current?.blur()}
-        onWheel={(e) => setAutoScroll(hitBottom && e.deltaY > 0)}
         onTouchStart={() => {
           inputRef.current?.blur();
           setAutoScroll(false);
@@ -1296,60 +1956,93 @@ export function Chat() {
       >
         {messages.map((message, i) => {
           const isUser = message.role === "user";
+          const isContext = i < context.length;
           const showActions =
-            !isUser &&
             i > 0 &&
-            !(message.preview || message.content.length === 0);
+            !(message.preview || (message.content ?? "").length === 0) &&
+            !isContext;
           const showTyping = message.preview || message.streaming;
 
           const shouldShowClearContextDivider = i === clearContextIndex - 1;
 
           return (
-            <>
+            <Fragment key={message.id}>
               <div
-                key={i}
                 className={
                   isUser ? styles["chat-message-user"] : styles["chat-message"]
                 }
               >
                 <div className={styles["chat-message-container"]}>
-                  <div className={styles["chat-message-avatar"]}>
-                    <div className={styles["chat-message-edit"]}>
-                      <IconButton
-                        icon={<EditIcon />}
-                        onClick={async () => {
-                          const newMessage = await showPrompt(
-                            Locale.Chat.Actions.Edit,
-                            message.content,
-                          );
-                          chatStore.updateCurrentSession((session) => {
-                            const m = session.messages.find(
-                              (m) => m.id === message.id,
+                  <div className={styles["chat-message-header"]}>
+                    <div className={styles["chat-message-avatar"]}>
+                      <div className={styles["chat-message-edit"]}>
+                        <IconButton
+                          icon={<EditIcon />}
+                          onClick={async () => {
+                            const newMessage = await showPrompt(
+                              Locale.Chat.Actions.Edit,
+                              message.content,
+                              10,
                             );
-                            if (m) {
-                              m.content = newMessage;
-                            }
-                          });
-                        }}
-                      ></IconButton>
+
+                            message.content = newMessage;
+                            chatStore.updateCurrentSessionMessageContent(
+                              message,
+                              authStore.token,
+                              () => {
+                                authStore.logout();
+                                navigate(Path.Login);
+                              },
+                            );
+                          }}
+                        ></IconButton>
+                      </div>
+                      {isUser ? (
+                        <Avatar avatar={config.avatar} logoUrl={logoUrl} />
+                      ) : (
+                        <>
+                          {["system"].includes(message.role) ? (
+                            <Avatar avatar="2699-fe0f" logoUrl={logoUrl} />
+                          ) : (
+                            <MaskAvatar mask={session.mask} logoUrl={logoUrl} />
+                          )}
+                        </>
+                      )}
                     </div>
-                    {message.role === "user" ? (
-                      <Avatar avatar={config.avatar} logoUrl={logoUrl} />
-                    ) : (
-                      <MaskAvatar mask={session.mask} logoUrl={logoUrl} />
-                    )}
                   </div>
+                  {!isUser &&
+                    message.toolMessages &&
+                    message.toolMessages.map((tool, index) => (
+                      <div
+                        className={styles["chat-message-tools-status"]}
+                        key={index}
+                      >
+                        <div className={styles["chat-message-tools-name"]}>
+                          <CheckmarkIcon
+                            className={styles["chat-message-checkmark"]}
+                          />
+                          {tool.toolName}:
+                          <code
+                            className={styles["chat-message-tools-details"]}
+                          >
+                            {tool.toolInput}
+                          </code>
+                        </div>
+                      </div>
+                    ))}
+
                   {showTyping && (
                     <div className={styles["chat-message-status"]}>
                       {Locale.Chat.Typing}
                     </div>
                   )}
                   <div className={styles["chat-message-item"]}>
-                    {(!isUser || message.content.length > 0) && (
+                    {(!isUser || (message.content ?? "").length > 0) && (
                       <Markdown
                         content={message.content}
                         loading={
-                          (message.preview || message.content.length === 0) &&
+                          (message.preview ||
+                            (message.content ?? "").length === 0) &&
                           !isUser
                         }
                         onContextMenu={(e) => onRightClick(e, message)}
@@ -1359,7 +2052,7 @@ export function Chat() {
                         }}
                         fontSize={fontSize}
                         parentRef={scrollRef}
-                        defaultShow={i >= messages.length - 10}
+                        defaultShow={i >= messages.length - 6}
                       />
                     )}
                     {isUser && message.attr?.imageMode && (
@@ -1369,7 +2062,7 @@ export function Chat() {
                           style={{ marginTop: "10px" }}
                         >
                           {message.attr.baseImages.map(
-                            (img: any, index: number) => (
+                            (img: BaseImageItem, index: number) => (
                               <img
                                 src={img.url}
                                 key={index}
@@ -1418,16 +2111,6 @@ export function Chat() {
                                 </button>
                               );
                             })}
-                            {/* {message.attr?.action === 'PAN' && <button
-                              onClick={() =>
-                                doSubmit(
-                                  `SQUARE::1::${message.attr.taskId}`,
-                                )
-                              }
-                              className={`${styles["chat-message-mj-action-btn"]} clickable ${styles["chat-message-mj-emoji-btn"]}`}
-                            >
-                              <HorizontalIcon />
-                            </button>} */}
                           </div>
                           {message.attr?.action !== "PAN" && (
                             <div style={{ display: "flex" }}>
@@ -1555,32 +2238,19 @@ export function Chat() {
                       )}
                     {!isUser &&
                       message.attr?.status !== "SUCCESS" &&
-                      message.attr?.taskId &&
-                      !ChatFetchTaskPool.get(message.attr?.taskId) &&
-                      message.attr?.submitTime &&
-                      getSecondsDiff(
-                        fromYYYYMMDD_HHMMSS(message.attr.submitTime),
-                        now,
-                      ) && (
-                        <div>
-                          <button
-                            onClick={() => refreshDrawStatus(message)}
-                            className={`${styles["chat-message-mj-action-btn"]} clickable`}
-                            style={{ width: "150px" }}
-                          >
-                            {Locale.Midjourney.Refresh}
-                          </button>
-                        </div>
+                      message.attr?.status !== "FAILURE" &&
+                      message.attr?.taskId && (
+                        <RefreshDrawStatus
+                          message={message}
+                          session={session}
+                          refreshDrawStatus={refreshDrawStatus}
+                          ChatFetchTaskPool={ChatFetchTaskPool}
+                        />
                       )}
+
                     {showActions && (
                       <div className={styles["chat-message-actions"]}>
-                        <div
-                          className={styles["chat-input-actions"]}
-                          style={{
-                            marginTop: 10,
-                            marginBottom: 0,
-                          }}
-                        >
+                        <div className={styles["chat-input-actions"]}>
                           {message.streaming ? (
                             <ChatAction
                               text={Locale.Chat.Actions.Stop}
@@ -1592,13 +2262,13 @@ export function Chat() {
                               <ChatAction
                                 text={Locale.Chat.Actions.Retry}
                                 icon={<ResetIcon />}
-                                onClick={() => onResend(message.id ?? i)}
+                                onClick={() => onResend(message)}
                               />
 
                               <ChatAction
                                 text={Locale.Chat.Actions.Delete}
                                 icon={<DeleteIcon />}
-                                onClick={() => onDelete(message.id ?? i)}
+                                onClick={() => onDelete(message)}
                               />
 
                               <ChatAction
@@ -1618,15 +2288,15 @@ export function Chat() {
                     )}
                   </div>
 
-                  {showActions && (
-                    <div className={styles["chat-message-action-date"]}>
-                      {message.date.toLocaleString()}
-                    </div>
-                  )}
+                  <div className={styles["chat-message-action-date"]}>
+                    {isContext
+                      ? Locale.Chat.IsContext
+                      : message.date.toLocaleString()}
+                  </div>
                 </div>
               </div>
               {shouldShowClearContextDivider && <ClearContextDivider />}
-            </>
+            </Fragment>
           );
         })}
       </div>
@@ -1652,14 +2322,74 @@ export function Chat() {
             onSearch("");
           }}
           plugins={
-            session.mask?.modelConfig?.contentType !== "Image"
+            session.mask?.modelConfig?.contentType !== "Image" &&
+            session.mask?.modelConfig?.messageStruct !== "complex"
               ? pluignModels
               : []
           }
+          togglePlugin={async (plugin: PluginActionModel) => {
+            const value = !plugin.value;
+            const result = await chatStore.updateCurrentSessionMaskByUpdater(
+              (mask) => {
+                let pluginUuids = mask.modelConfig.pluginUuids || [];
+                if (value) {
+                  pluginUuids = [
+                    ...new Set([...pluginUuids, plugin.plugin.uuid]),
+                  ];
+                } else {
+                  const index = pluginUuids.findIndex(
+                    (u) => u === plugin.plugin.uuid,
+                  );
+                  if (index >= 0) {
+                    pluginUuids.splice(index, 1);
+                  }
+                }
+                mask.modelConfig.pluginUuids = pluginUuids;
+                mask.syncGlobalConfig = false;
+                return true;
+              },
+              authStore.token,
+              () => {
+                authStore.logout();
+                navigate(Path.Login);
+              },
+            );
+            if (result) {
+              plugin.value = value;
+            }
+            return { result, value: plugin.value };
+          }}
+          processModes={session.mask?.modelConfig?.processModes ?? []}
+          selectedProcessMode={session.mask?.modelConfig?.processMode}
+          toggleProcessMode={async (processMode: SPEED_MAP_KEY) => {
+            const result = await chatStore.updateCurrentSessionMaskByUpdater(
+              (mask) => {
+                mask.modelConfig.processMode = processMode;
+                mask.syncGlobalConfig = false;
+                return true;
+              },
+              authStore.token,
+              () => {
+                authStore.logout();
+                navigate(Path.Login);
+              },
+            );
+            if (result) {
+              session.mask.modelConfig.processMode = processMode;
+            }
+            return { result, value: processMode };
+          }}
           contentType={session.mask?.modelConfig?.contentType}
-          SetOpenInternet={SetOpenInternet}
-          imageSelected={(img: any) => {
+          messageStruct={session.mask?.modelConfig?.messageStruct}
+          imageSelected={(img: BaseImageItem) => {
             addBaseImage(img);
+          }}
+          beforeSelectImages={() => {
+            const ok = useImages.length < MAX_IMAGE_SIZE;
+            if (!ok) {
+              showToast(Locale.Midjourney.SelectImgMax(MAX_IMAGE_SIZE));
+            }
+            return ok;
           }}
         />
         {useImages.length > 0 && (
@@ -1679,29 +2409,36 @@ export function Chat() {
                 alt={img.filename}
               />
             ))}
-            <div style={{ fontSize: "12px", marginBottom: "5px" }}>
-              {[
-                { name: Locale.Midjourney.ModeImagineUseImg, value: "IMAGINE" },
-                { name: Locale.Midjourney.ModeBlend, value: "BLEND" },
-                { name: Locale.Midjourney.ModeDescribe, value: "DESCRIBE" },
-              ].map((item, i) => (
-                <label key={i}>
-                  <input
-                    type="radio"
-                    name="mj-img-mode"
-                    checked={mjImageMode == item.value}
-                    value={item.value}
-                    onChange={(e) => {
-                      setMjImageMode(e.target.value);
-                    }}
-                  />
-                  <span>{item.name}</span>
-                </label>
-              ))}
-            </div>
-            <div style={{ fontSize: "12px" }}>
-              <small>{Locale.Midjourney.HasImgTip}</small>
-            </div>
+            {session.mask?.modelConfig?.contentType === "Image" && (
+              <>
+                <div style={{ fontSize: "12px", marginBottom: "5px" }}>
+                  {[
+                    {
+                      name: Locale.Midjourney.ModeImagineUseImg,
+                      value: "IMAGINE",
+                    },
+                    { name: Locale.Midjourney.ModeBlend, value: "BLEND" },
+                    { name: Locale.Midjourney.ModeDescribe, value: "DESCRIBE" },
+                  ].map((item, i) => (
+                    <label key={i}>
+                      <input
+                        type="radio"
+                        name="mj-img-mode"
+                        checked={mjImageMode == item.value}
+                        value={item.value}
+                        onChange={(e) => {
+                          setMjImageMode(e.target.value as ImageMode);
+                        }}
+                      />
+                      <span>{item.name}</span>
+                    </label>
+                  ))}
+                </div>
+                <div style={{ fontSize: "12px" }}>
+                  <small>{Locale.Midjourney.HasImgTip}</small>
+                </div>
+              </>
+            )}
           </div>
         )}
         <div className={styles["chat-input-panel-inner"]}>
@@ -1723,8 +2460,8 @@ export function Chat() {
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}
-            onFocus={() => setAutoScroll(true)}
-            onBlur={() => setAutoScroll(false)}
+            onFocus={scrollToBottom}
+            onClick={scrollToBottom}
             rows={inputRows}
             autoFocus={autoFocus}
             style={{
@@ -1752,6 +2489,40 @@ export function Chat() {
       {showExport && (
         <ExportMessageModal onClose={() => setShowExport(false)} />
       )}
+
+      {isEditingMessage && (
+        <EditMessageModal
+          onClose={() => {
+            setIsEditingMessage(false);
+          }}
+          updateTopic={(topic) => {
+            return chatStore.updateCurrentSessionTopic(
+              topic,
+              authStore.token,
+              () => {
+                authStore.logout();
+                navigate(Path.Login);
+              },
+            );
+          }}
+          updateMessages={(messages) => {
+            return chatStore.updateCurrentSessionMessages(
+              messages,
+              authStore.token,
+              () => {
+                authStore.logout();
+                navigate(Path.Login);
+              },
+            );
+          }}
+        />
+      )}
     </div>
   );
+}
+
+export function Chat() {
+  const chatStore = useChatStore();
+  const sessionIndex = chatStore.currentSessionIndex;
+  return <_Chat key={sessionIndex}></_Chat>;
 }

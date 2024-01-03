@@ -11,10 +11,11 @@ import EyeIcon from "../icons/eye.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RemoteMask, Mask, useMaskStore } from "../store/mask";
 import Locale from "../locales";
-import { useAppConfig, useChatStore } from "../store";
+import { useAppConfig, useAuthStore, useChatStore } from "../store";
 import { MaskAvatar } from "./mask";
 import { useCommand } from "../command";
 import { showConfirm } from "./ui-lib";
+import { BUILTIN_MASK_STORE } from "../masks";
 
 function getIntersectionArea(aRect: DOMRect, bRect: DOMRect) {
   const xmin = Math.max(aRect.x, bRect.x);
@@ -31,7 +32,15 @@ function MaskItem(props: { mask: RemoteMask; onClick?: () => void }) {
   return (
     <div className={styles["mask"]} onClick={props.onClick}>
       <MaskAvatar mask={props.mask} />
-      <div className={styles["mask-name"] + " one-line"}>{props.mask.name}</div>
+      <div
+        className={
+          styles["mask-name"] +
+          " one-line " +
+          (props.mask.state === 0 ? styles["mask-gray"] : "")
+        }
+      >
+        {props.mask.name}
+      </div>
     </div>
   );
 }
@@ -99,6 +108,7 @@ function useMaskTypes(masks: RemoteMask[] | Mask[]) {
 export function NewChat() {
   const chatStore = useChatStore();
   const maskStore = useMaskStore();
+  const authStore = useAuthStore();
 
   let [masks, setMasks] = useState<RemoteMask[] | Mask[]>([]);
   const maskTypes = useMaskTypes(masks);
@@ -106,14 +116,14 @@ export function NewChat() {
   const [showMasks, setShowMasks] = useState<RemoteMask[] | Mask[]>([]);
   const groups = useMaskGroup(showMasks);
   useEffect(() => {
-    maskStore.fetch().then((remoteMasks) => {
+    maskStore.fetch(authStore.token).then((remoteMasks) => {
       if (remoteMasks.length === 0) {
         setMasks(maskStore.getAll());
       } else {
         setMasks(remoteMasks);
       }
     });
-  }, [maskStore]);
+  }, [maskStore, authStore.token]);
   useEffect(() => {
     setShowMasks(
       masks.filter(
@@ -132,15 +142,30 @@ export function NewChat() {
 
   const { state } = useLocation();
 
+  const [starting, setStarting] = useState(false);
+
   const startChat = (mask?: Mask | RemoteMask) => {
-    chatStore.newSession(mask as Mask);
-    setTimeout(() => navigate(Path.Chat), 1);
+    setTimeout(async () => {
+      setStarting(true);
+      const result = await chatStore.newSession(
+        authStore.token,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
+        mask as Mask,
+      );
+      setStarting(false);
+      if (result) {
+        navigate(Path.Chat);
+      }
+    }, 10);
   };
 
   useCommand({
     mask: (id) => {
       try {
-        const mask = maskStore.get(parseInt(id));
+        const mask = maskStore.get(id) ?? BUILTIN_MASK_STORE.get(id);
         startChat(mask ?? undefined);
       } catch {
         console.error("[New Chat] failed to create chat from mask id=", id);
@@ -197,6 +222,7 @@ export function NewChat() {
           text={Locale.NewChat.More}
           onClick={() => navigate(Path.Masks)}
           icon={<EyeIcon />}
+          disabled={starting}
           bordered
           shadow
         />
@@ -206,6 +232,7 @@ export function NewChat() {
           onClick={() => startChat()}
           icon={<LightningIcon />}
           type="primary"
+          disabled={starting}
           shadow
           className={styles["skip"]}
         />
