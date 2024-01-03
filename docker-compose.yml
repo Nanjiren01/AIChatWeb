@@ -31,15 +31,18 @@ services:
       LICENSE_SUBJECT: qq@qq.com
       LICENSE_SK: your-sk-please-get-from-http://console.nanjiren.online
       UTIL_ENDPOINT: http://aichat-util:7788
-      STORE_TYPE:
+      STORE_TYPE: local
+      LOCAL_PATH: /app/aichat/images
       OSS_ENDPOINT:
       OSS_BUCKET_NAME:
       OSS_ACCESS_KEY_ID:
       OSS_ACCESS_KEY_SECRET:
-      WEB_SECRET: aichatwebsecret
+      WEB_SECRET: '!laF^KZ@7~3xOrAr6Y_rJc%+WR79T4sd'
       LOG_LEVEL: INFO
     ports:
       - "8082:8080"
+    volumes:
+      - ./images:/app/aichat/images
 
   web:
     image: nanjiren01/aichat-web:pro-latest
@@ -52,7 +55,7 @@ services:
     environment:
       BASE_URL: http://aichat-admin:8080
       TZ: Asia/Shanghai
-      SECRET: aichatwebsecret
+      SECRET: '!laF^KZ@7~3xOrAr6Y_rJc%+WR79T4sd'
 
   console:
     image: nanjiren01/aichat-console:pro-latest
