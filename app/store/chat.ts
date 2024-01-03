@@ -1679,7 +1679,16 @@ export const useChatStore = createPersistStore(
 
       localMessageToServerMessage(message: ChatMessage) {
         const msg: any = { ...message };
-        msg.date = toYYYYMMDD_HHMMSS(fromYYYYMMDD_HHMMSS2(msg.date));
+        if (/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(msg.date)) {
+          msg.date = toYYYYMMDD_HHMMSS(fromYYYYMMDD_HHMMSS2(msg.date));
+        } else {
+          // 对于一些历史数据，可能不是yyyy-MM-dd HH:mm:ss格式的
+          try {
+            msg.date = toYYYYMMDD_HHMMSS(new Date(msg.date));
+          } catch (e) {
+            console.error("new Date(msg.date) failed", msg.date, e);
+          }
+        }
         msg.attrJson = msg.attr ? JSON.stringify(msg.attr) : null;
         msg.toolMessagesJson = msg.toolMessages
           ? JSON.stringify(msg.toolMessages)
