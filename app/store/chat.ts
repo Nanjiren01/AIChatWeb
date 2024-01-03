@@ -132,7 +132,7 @@ type SessionMessageQueryResponse = Response<any>;
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
   return {
     id: nanoid(),
-    date: new Date().toLocaleString(),
+    date: toYYYYMMDD_HHMMSS(new Date()),
     role: "user",
     content: "",
     toolMessages: [] as ChatToolMessage[],
