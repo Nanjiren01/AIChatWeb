@@ -37,7 +37,7 @@ services:
       OSS_BUCKET_NAME:
       OSS_ACCESS_KEY_ID:
       OSS_ACCESS_KEY_SECRET:
-      WEB_SECRET: !laF^KZ@7~3xOrAr6Y_rJc%+WR79T4sd
+      WEB_SECRET: '!laF^KZ@7~3xOrAr6Y_rJc%+WR79T4sd'
       LOG_LEVEL: INFO
     ports:
       - "8082:8080"
@@ -55,7 +55,7 @@ services:
     environment:
       BASE_URL: http://aichat-admin:8080
       TZ: Asia/Shanghai
-      SECRET: !laF^KZ@7~3xOrAr6Y_rJc%+WR79T4sd
+      SECRET: '!laF^KZ@7~3xOrAr6Y_rJc%+WR79T4sd'
 
   console:
     image: nanjiren01/aichat-console:pro-latest
