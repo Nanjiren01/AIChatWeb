@@ -12,6 +12,20 @@ export interface AiPlugin {
   state: number;
 }
 
+export interface AiAssistant {
+  id: number;
+  uuid: string;
+  modelId: number;
+  apiKeyId: number;
+  name: string;
+  description: string;
+  instructions: string;
+  tools: string;
+  thirdpartId: string;
+  thirdpartInfo: string;
+  state: number;
+}
+
 export type ModelContentType = "Text" | "Image";
 export type ModelMessageStruct = "normal" | "complex";
 export interface SimpleModel {
@@ -54,6 +68,7 @@ export interface WebsiteConfigStore {
   availableModels: SimpleModel[];
   defaultSystemTemplate?: string;
   plugins?: AiPlugin[];
+  assistants: AiAssistant[];
   fetchWebsiteConfig: () => Promise<any>;
 }
 
@@ -87,6 +102,7 @@ export interface WebsiteConfig {
   defaultSystemTemplate: string;
   availableModels: SimpleModel[];
   plugins?: AiPlugin[];
+  assistants: AiAssistant[];
 }
 export interface WebsiteConfigData {
   websiteContent: WebsiteConfig;
@@ -128,6 +144,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       redeemCodePageBottom: "",
       defaultSystemTemplate: "",
       plugins: [] as AiPlugin[],
+      assistants: [] as AiAssistant[],
 
       async fetchWebsiteConfig() {
         const url = "/globalConfig/website";
@@ -187,6 +204,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               availableModels: website.availableModels,
               defaultSystemTemplate: website.defaultSystemTemplate,
               plugins: website.plugins,
+              assistants: website.assistants,
             }));
             return res;
           })

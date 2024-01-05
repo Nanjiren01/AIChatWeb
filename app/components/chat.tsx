@@ -1946,6 +1946,10 @@ function _Chat() {
         </div>
       )}
 
+      {session.assistant && (
+        <div className={styles["top-box"]}>{session.assistant?.name}</div>
+      )}
+
       <div
         className={styles["chat-body"]}
         ref={scrollRef}
@@ -2032,6 +2036,83 @@ function _Chat() {
                         </div>
                       </div>
                     ))}
+                  {!isUser && message.attr && message.attr.run && (
+                    <div className={styles["chat-message-tools-status"]}>
+                      <div className={styles["chat-message-tools-name"]}>
+                        <CheckmarkIcon
+                          className={styles["chat-message-checkmark"]}
+                        />
+                        助手:
+                        <code className={styles["chat-message-tools-details"]}>
+                          {
+                            {
+                              init: "正在初始化",
+                              queued: "已进入队列",
+                              in_progress: "思考中",
+                              requires_action: "等待工具返回结果",
+                              cancelling: "取消中",
+                              cancelled: "已取消",
+                              failed: "思考失败",
+                              completed: "思考完成",
+                              expired: "思考时间过长",
+                            }[message.attr.run.status]
+                          }
+                        </code>
+                      </div>
+                    </div>
+                  )}
+                  {!isUser &&
+                    message.attr.runSteps &&
+                    message.attr.runSteps.map((runStep, index) => {
+                      const stepInfo = JSON.parse(runStep.thirdpartInfo);
+                      const stepDetails = stepInfo?.step_details;
+                      const type = stepDetails?.type;
+                      return (
+                        <div
+                          className={styles["chat-message-tools-status"]}
+                          key={index}
+                        >
+                          <div className={styles["chat-message-tools-name"]}>
+                            <CheckmarkIcon
+                              className={styles["chat-message-checkmark"]}
+                            />
+                            {type === "message_creation" && (
+                              <>
+                                创建消息：
+                                <code>
+                                  {stepDetails.message_creation?.message_id}
+                                </code>
+                              </>
+                            )}
+                            {type === "code_interpreter" && (
+                              <>
+                                code_interpreter：
+                                <code>
+                                  {stepDetails.code_interpreter.input}
+                                </code>
+                              </>
+                            )}
+                            {type === "tool_calls" && (
+                              <>
+                                调用
+                                {stepDetails.tool_calls.map((call: any) => {
+                                  return (
+                                    <>
+                                      代码解释器：
+                                      {call.type === "code_interpreter" && (
+                                        <code>
+                                          {call.code_interpreter.input}
+                                        </code>
+                                      )}
+                                    </>
+                                  );
+                                })}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
 
                   {showTyping && (
                     <div className={styles["chat-message-status"]}>

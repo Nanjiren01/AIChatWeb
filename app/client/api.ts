@@ -1,3 +1,8 @@
+import {
+  RunEntity,
+  RunStepEntity,
+  ThreadMessageEntity,
+} from "../api/openai/[...path]/assistant";
 import { SimpleChatMessage } from "../components/exporter";
 import { getClientConfig } from "../config/client";
 import { ACCESS_CODE_PREFIX, Azure, ServiceProvider } from "../constant";
@@ -51,12 +56,19 @@ export interface ChatOptions {
   resend: boolean;
   imageMode: ImageMode;
   baseImages: any[];
+  assistantUuid?: string;
+  threadUuid?: string;
 
   onUpdate?: (message: string, chunk: string) => void;
   onToolUpdate?: (toolName: string, toolInput: string) => void;
   onFinish: (message: string) => void;
   onError?: (err: Error) => void;
   onController?: (controller: AbortController) => void;
+
+  onCreateRun?: (run: RunEntity) => void;
+  onUpdateRun?: (run: RunEntity) => void;
+  onUpdateRunStep?: (runSteps: RunStepEntity[]) => void;
+  onUpdateMessages?: (messages: ThreadMessageEntity[]) => void;
 }
 
 export interface LLMUsage {

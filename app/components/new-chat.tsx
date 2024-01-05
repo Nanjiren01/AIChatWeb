@@ -10,8 +10,14 @@ import EyeIcon from "../icons/eye.svg";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { RemoteMask, Mask, useMaskStore } from "../store/mask";
-import Locale from "../locales";
-import { useAppConfig, useAuthStore, useChatStore } from "../store";
+import Locale, { Lang } from "../locales";
+import {
+  ModelConfig,
+  useAppConfig,
+  useAuthStore,
+  useChatStore,
+  useWebsiteConfigStore,
+} from "../store";
 import { MaskAvatar } from "./mask";
 import { useCommand } from "../command";
 import { showConfirm } from "./ui-lib";
@@ -109,6 +115,7 @@ export function NewChat() {
   const chatStore = useChatStore();
   const maskStore = useMaskStore();
   const authStore = useAuthStore();
+  const assistants = useWebsiteConfigStore().assistants;
 
   let [masks, setMasks] = useState<RemoteMask[] | Mask[]>([]);
   const maskTypes = useMaskTypes(masks);
@@ -154,6 +161,30 @@ export function NewChat() {
           navigate(Path.Login);
         },
         mask as Mask,
+      );
+      setStarting(false);
+      if (result) {
+        navigate(Path.Chat);
+      }
+    }, 10);
+  };
+
+  const startChatWithAssistant = (uuid: string) => {
+    const assistant = assistants.find((a) => a.uuid === uuid);
+    console.log("assistant", assistant);
+    if (!assistant) {
+      return;
+    }
+    setTimeout(async () => {
+      setStarting(true);
+      const result = await chatStore.newSession(
+        authStore.token,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
+        undefined,
+        assistant,
       );
       setStarting(false);
       if (result) {
@@ -236,6 +267,33 @@ export function NewChat() {
           shadow
           className={styles["skip"]}
         />
+      </div>
+
+      <div className={styles["assistant-container"]} ref={maskRef}>
+        <div className={styles["assistant-row"]}>
+          <div className={styles["assistant-tip"]}>体验全新智能助手 →</div>
+          {assistants
+            .map((assistant) => {
+              return {
+                id: assistant.uuid,
+                createdAt: 0,
+                avatar: "1f430",
+                name: assistant.name,
+                hideContext: true,
+                context: [],
+                modelConfig: {} as ModelConfig,
+                lang: "cn" as Lang,
+                builtin: true,
+              } as Mask;
+            })
+            .map((assistant) => (
+              <MaskItem
+                key={assistant.id}
+                mask={assistant}
+                onClick={() => startChatWithAssistant(assistant.id)}
+              />
+            ))}
+        </div>
       </div>
 
       {maskTypes.length > 1 && (

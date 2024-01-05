@@ -9,6 +9,7 @@ import { requestOpenai } from "../../common";
 const ALLOWD_PATH = new Set(Object.values(OpenaiPath));
 
 import { handle as langchainHandle } from "./langchain";
+import { handle as assistantHandle } from "./assistant";
 
 function getModels(remoteModelRes: OpenAIListModelResponse) {
   const config = getServerSideConfig();
@@ -62,6 +63,8 @@ async function handle(
       reqBody.plugins[0].value
     ) {
       return await langchainHandle(req, reqBody);
+    } else if (reqBody.assistantUuid) {
+      return await assistantHandle(req, reqBody);
     } else {
       const response = await requestOpenai(req, reqBody);
 

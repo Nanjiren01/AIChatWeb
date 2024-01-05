@@ -35,7 +35,7 @@ interface RequestMessage {
   content: string;
 }
 
-interface RequestBody {
+export interface RequestBody {
   messages: RequestMessage[];
   model: string;
   stream?: boolean;
@@ -48,6 +48,8 @@ interface RequestBody {
   maxIterations: number;
   returnIntermediateSteps: boolean;
   useTools: (undefined | string)[];
+  assistantUuid?: string;
+  threadUuid?: string;
 }
 
 class ResponseBody {
