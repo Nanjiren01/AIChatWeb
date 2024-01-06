@@ -2079,45 +2079,44 @@ function _Chat() {
                           className={styles["chat-message-tools-status"]}
                           key={index}
                         >
-                          <div className={styles["chat-message-tools-name"]}>
-                            <CheckmarkIcon
-                              className={styles["chat-message-checkmark"]}
-                            />
-                            {/* {type === "message_creation" && (
-                              <>
-                                创建消息：
-                                <code>
-                                  {stepDetails.message_creation?.message_id}
-                                </code>
-                              </>
-                            )} */}
-                            {type === "code_interpreter" && (
-                              <>
-                                调用代码解释器：
-                                <code>
-                                  {cut(stepDetails.code_interpreter.input)}
-                                </code>
-                              </>
+                          {type === "code_interpreter" && (
+                            <div className={styles["chat-message-tools-name"]}>
+                              <CheckmarkIcon
+                                className={styles["chat-message-checkmark"]}
+                              />
+                              调用代码解释器：
+                              <code>
+                                {cut(stepDetails.code_interpreter.input)}
+                              </code>
+                            </div>
+                          )}
+                          {type === "tool_calls" &&
+                            stepDetails.tool_calls.map(
+                              (call: any, index: number) => {
+                                return (
+                                  <div
+                                    className={
+                                      styles["chat-message-tools-name"]
+                                    }
+                                    key={index}
+                                  >
+                                    {call.type === "code_interpreter" && (
+                                      <>
+                                        <CheckmarkIcon
+                                          className={
+                                            styles["chat-message-checkmark"]
+                                          }
+                                        />
+                                        调用代码解释器：
+                                        <code>
+                                          {cut(call.code_interpreter.input)}
+                                        </code>
+                                      </>
+                                    )}
+                                  </div>
+                                );
+                              },
                             )}
-                            {type === "tool_calls" && (
-                              <>
-                                {stepDetails.tool_calls.map((call: any) => {
-                                  return (
-                                    <>
-                                      {call.type === "code_interpreter" && (
-                                        <>
-                                          调用代码解释器：
-                                          <code>
-                                            {cut(call.code_interpreter.input)}
-                                          </code>
-                                        </>
-                                      )}
-                                    </>
-                                  );
-                                })}
-                              </>
-                            )}
-                          </div>
                         </div>
                       );
                     })}
