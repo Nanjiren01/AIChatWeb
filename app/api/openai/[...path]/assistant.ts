@@ -141,6 +141,7 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
       if (result === false) {
         return;
       }
+      const globalMessageIds = new Set<string>();
       const setTimer = () =>
         setTimeout(async () => {
           const reuslt = await retrieveRun(
@@ -150,6 +151,7 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
             runEntity,
             writer,
             encoder,
+            globalMessageIds,
           );
           if (reuslt) {
             console.log("result is true, setTimeout 3000ms");
@@ -174,6 +176,7 @@ async function retrieveRun(
   runEntity: RunEntity,
   writer: WritableStreamDefaultWriter<any>,
   encoder: TextEncoder,
+  globalMessageIds: Set<string>,
 ) {
   const runResp = await fetch(
     baseUrl + "/threadRun/retrieve/" + runEntity.uuid,
@@ -223,6 +226,7 @@ async function retrieveRun(
       writer,
       encoder,
       messageIds,
+      globalMessageIds,
     );
     if (result === false) {
       return false;
@@ -337,6 +341,7 @@ async function retrieveMessages(
   writer: WritableStreamDefaultWriter<any>,
   encoder: TextEncoder,
   messageIds: Set<string>,
+  globalMessageIds: Set<string>,
 ) {
   const messageResp = await fetch(baseUrl + "/threadMessage/" + threadUuid, {
     method: "get",
@@ -360,9 +365,13 @@ async function retrieveMessages(
     return false;
   }
   console.log("获取thread messages成功", JSON.stringify(messageIds));
-  const messages = messageRespJson.data.filter((m: any) =>
-    messageIds.has(m.thirdpartId),
+  const messages = messageRespJson.data.filter(
+    (m: any) =>
+      messageIds.has(m.thirdpartId) && !globalMessageIds.has(m.thirdpartId),
   );
+  messages.forEach((msg: any) => {
+    globalMessageIds.add(msg.thirdpartId);
+  });
   const outputResult = await output(
     writer,
     encoder,
