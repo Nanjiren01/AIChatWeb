@@ -1668,6 +1668,13 @@ function _Chat() {
     scrollDomToBottom();
   }
 
+  const cut = (str: string, length: number = 30) => {
+    if (!str) {
+      return str;
+    }
+    return str.length >= length - 3 ? str.substring(0, length) + "..." : str;
+  };
+
   // clear context index = context length + index in messages
   const clearContextIndex =
     (session.clearContextIndex ?? -1) >= 0
@@ -2036,12 +2043,12 @@ function _Chat() {
                         </div>
                       </div>
                     ))}
-                  {!isUser && message.attr && message.attr.run && (
+                  {!isUser && message.attr?.run && (
                     <div className={styles["chat-message-tools-status"]}>
                       <div className={styles["chat-message-tools-name"]}>
-                        <CheckmarkIcon
+                        {/* <CheckmarkIcon
                           className={styles["chat-message-checkmark"]}
-                        />
+                        /> */}
                         助手:
                         <code className={styles["chat-message-tools-details"]}>
                           {
@@ -2062,7 +2069,7 @@ function _Chat() {
                     </div>
                   )}
                   {!isUser &&
-                    message.attr.runSteps &&
+                    message.attr?.runSteps &&
                     message.attr.runSteps.map((runStep, index) => {
                       const stepInfo = JSON.parse(runStep.thirdpartInfo);
                       const stepDetails = stepInfo?.step_details;
@@ -2076,33 +2083,34 @@ function _Chat() {
                             <CheckmarkIcon
                               className={styles["chat-message-checkmark"]}
                             />
-                            {type === "message_creation" && (
+                            {/* {type === "message_creation" && (
                               <>
                                 创建消息：
                                 <code>
                                   {stepDetails.message_creation?.message_id}
                                 </code>
                               </>
-                            )}
+                            )} */}
                             {type === "code_interpreter" && (
                               <>
-                                code_interpreter：
+                                调用代码解释器：
                                 <code>
-                                  {stepDetails.code_interpreter.input}
+                                  {cut(stepDetails.code_interpreter.input)}
                                 </code>
                               </>
                             )}
                             {type === "tool_calls" && (
                               <>
-                                调用
                                 {stepDetails.tool_calls.map((call: any) => {
                                   return (
                                     <>
-                                      代码解释器：
                                       {call.type === "code_interpreter" && (
-                                        <code>
-                                          {call.code_interpreter.input}
-                                        </code>
+                                        <>
+                                          调用代码解释器：
+                                          <code>
+                                            {cut(call.code_interpreter.input)}
+                                          </code>
+                                        </>
                                       )}
                                     </>
                                   );

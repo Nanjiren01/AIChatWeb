@@ -303,6 +303,9 @@ export class ChatGPTApi implements LLMApi {
                           // console.log('message text', text)
                           responseText += text;
                           options.onUpdate?.(responseText, text);
+                        } else if (content.type === "image_file") {
+                          const fileId = content.image_file!.fileId;
+                          responseText += `\n<img src="/api/threadMessage/file/${fileId}?assistantUuid=${options.assistantUuid}" />\n`;
                         }
                       });
                   });
