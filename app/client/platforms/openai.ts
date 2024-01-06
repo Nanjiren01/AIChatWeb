@@ -256,7 +256,7 @@ export class ChatGPTApi implements LLMApi {
             }
           },
           onmessage(msg) {
-            // console.log("msg", msg);
+            console.log("msg", msg);
             if (msg.data === "[DONE]" || finished) {
               return finish();
             }
@@ -266,7 +266,7 @@ export class ChatGPTApi implements LLMApi {
             }
             try {
               const json = JSON.parse(text);
-              // console.log('json', json)
+              console.log("json", json);
               if (json && json.isToolMessage) {
                 if (!json.isSuccess) {
                   console.error("[Request]", msg.data);
@@ -295,12 +295,12 @@ export class ChatGPTApi implements LLMApi {
                     const thirdpartInfo = JSON.parse(
                       message.thirdpartInfo,
                     ) as any;
-                    // console.log('message', message, thirdpartInfo);
+                    console.log("message", message, thirdpartInfo);
                     thirdpartInfo.content.forEach &&
                       thirdpartInfo.content.forEach((content: any) => {
                         if (content.type === "text") {
                           const text = content.text.value ?? content.text;
-                          // console.log('message text', text)
+                          console.log("message text", text);
                           responseText += text;
                           options.onUpdate?.(responseText, text);
                         } else if (content.type === "image_file") {
