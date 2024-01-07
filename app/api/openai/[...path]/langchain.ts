@@ -33,6 +33,7 @@ const SECRET = process.env.SECRET || "";
 interface RequestMessage {
   role: string;
   content: string;
+  fileIds?: string[];
 }
 
 export interface RequestBody {

@@ -71,6 +71,7 @@ import {
   BaseImageItem,
   FileEntity,
   ImageMode,
+  AiAssistant,
 } from "../store";
 
 import {
@@ -608,6 +609,7 @@ export function ChatActions(props: {
   toggleProcessMode: (processMode: SPEED_MAP_KEY) => void;
   uploading: boolean;
   setUploading: React.Dispatch<React.SetStateAction<boolean>>;
+  assistant?: AiAssistant;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
@@ -657,6 +659,9 @@ export function ChatActions(props: {
     const formData = new FormData();
     formData.append("usage", "chat");
     formData.append("file", file);
+    if (props.assistant) {
+      formData.append("assistantUuid", props.assistant!.uuid);
+    }
     return fetch(requestUrl, {
       method: "post",
       headers: {
@@ -707,6 +712,8 @@ export function ChatActions(props: {
           ? "/api" + fileEntity.url
           : fileEntity.url,
         entity: fileEntity,
+        assistantUuid: fileEntity.assistantUuid,
+        thirdpartId: fileEntity.thirdpartId,
       });
     });
     e.target.value = null;
@@ -788,13 +795,15 @@ export function ChatActions(props: {
         }}
       />
 
-      <ChatAction
-        ref={modelSelectorRef}
-        onClick={() => setShowModelSelector(true)}
-        text={currentModel.name}
-        alwaysShowText={true}
-        icon={<RobotIcon />}
-      />
+      {!props.assistant && (
+        <ChatAction
+          ref={modelSelectorRef}
+          onClick={() => setShowModelSelector(true)}
+          text={currentModel.name}
+          alwaysShowText={true}
+          icon={<RobotIcon />}
+        />
+      )}
 
       {showModelSelector && (
         <Selector
@@ -848,14 +857,20 @@ export function ChatActions(props: {
         />
       )}
 
-      {(props.contentType === "Image" || props.messageStruct === "complex") && (
+      {(props.contentType === "Image" ||
+        props.messageStruct === "complex" ||
+        props.assistant) && (
         <div
           className={`${styles["chat-input-action"]} clickable`}
           onClick={selectImage}
         >
           <input
             type="file"
-            accept=".png,.jpg,.webp,.jpeg"
+            accept={
+              props.assistant
+                ? ".c,.cpp,.csv,.docx,.html,.java,.json,.md,.pdf,.php,.pptx,.py,.rb,.tex,.txt,.css,.jpeg,.jpg,.js,.gif,.png,.tar,.ts,.xlsx,.xml,.zip'"
+                : ".png,.jpg,.webp,.jpeg"
+            }
             id="chat-image-file-select-upload"
             style={{ display: "none" }}
             onChange={onImageSelected}
@@ -865,29 +880,32 @@ export function ChatActions(props: {
       )}
 
       <>
-        {props.plugins.map((model) => {
-          return (
-            <SwitchChatAction
-              key={model.plugin.uuid}
-              alwaysShowText={true}
-              onClick={async () => {
-                const { result, value } = await props.togglePlugin(model);
-                console.log(
-                  "toggle plugin result",
-                  model.plugin.name,
-                  result,
-                  value,
-                );
-                if (result) {
-                  showToast((value ? "已开启" : "已关闭") + model.plugin.name);
-                }
-              }}
-              text={model.plugin.name}
-              icon={<Internet />}
-              value={model.value}
-            />
-          );
-        })}
+        {!props.assistant &&
+          props.plugins.map((model) => {
+            return (
+              <SwitchChatAction
+                key={model.plugin.uuid}
+                alwaysShowText={true}
+                onClick={async () => {
+                  const { result, value } = await props.togglePlugin(model);
+                  console.log(
+                    "toggle plugin result",
+                    model.plugin.name,
+                    result,
+                    value,
+                  );
+                  if (result) {
+                    showToast(
+                      (value ? "已开启" : "已关闭") + model.plugin.name,
+                    );
+                  }
+                }}
+                text={model.plugin.name}
+                icon={<Internet />}
+                value={model.value}
+              />
+            );
+          })}
       </>
 
       <>
@@ -2481,6 +2499,7 @@ function _Chat() {
             }
             return ok;
           }}
+          assistant={session.assistant}
         />
         {useImages.length > 0 && (
           <div className={styles["chat-select-images"]}>

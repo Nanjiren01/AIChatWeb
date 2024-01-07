@@ -7,6 +7,7 @@ import { SimpleChatMessage } from "../components/exporter";
 import { getClientConfig } from "../config/client";
 import { ACCESS_CODE_PREFIX, Azure, ServiceProvider } from "../constant";
 import {
+  BaseImageItem,
   ChatMessage,
   ImageMode,
   MessageAction,
@@ -55,7 +56,7 @@ export interface ChatOptions {
   mask: Mask | null;
   resend: boolean;
   imageMode: ImageMode;
-  baseImages: any[];
+  baseImages: BaseImageItem[];
   assistantUuid?: string;
   threadUuid?: string;
 

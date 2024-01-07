@@ -78,6 +78,7 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
       threadUuid: threadUuid,
       role: "user",
       content: lastMessage.content,
+      fileIds: lastMessage.fileIds || [],
     }),
   });
   if (!messageResp.ok) {

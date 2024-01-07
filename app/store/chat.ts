@@ -39,6 +39,8 @@ export interface FileEntity {
   id: number;
   uuid: string;
   url: string;
+  assistantUuid: string;
+  thirdpartId?: string;
 }
 
 export interface BaseImageItem {
@@ -46,6 +48,8 @@ export interface BaseImageItem {
   filename: string;
   url: string;
   uuid: string;
+  assistantUuid?: string;
+  thirdpartId?: string;
 }
 
 export type AttrDirection = "horizontal" | "vertical";

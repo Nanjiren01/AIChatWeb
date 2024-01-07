@@ -85,11 +85,20 @@ export class ChatGPTApi implements LLMApi {
         : options.messages
     ).map((message) => {
       if (!isMessageStructComplex) {
-        return {
-          id: message.id,
-          role: message.role,
-          content: message.content,
-        };
+        if (options.baseImages?.length > 0) {
+          return {
+            id: message.id,
+            role: message.role,
+            content: message.content,
+            fileIds: options.baseImages.map((img) => img.thirdpartId),
+          };
+        } else {
+          return {
+            id: message.id,
+            role: message.role,
+            content: message.content,
+          };
+        }
       }
       const content = [
         {
@@ -163,7 +172,7 @@ export class ChatGPTApi implements LLMApi {
               context: options.mask.context,
             }
           : null, // 没有session uuid的情况下messages中已经包含了mask上下文，所以无需传递
-      assistantMessageId: options.botMessage?.id, // 同时告诉服务器bot message id，以便后续sync messages找到对应的条目
+      // assistantMessageId: options.botMessage?.id, // 同时告诉服务器bot message id，以便后续sync messages找到对应的条目
       assistantUuid: options.assistantUuid,
       threadUuid: options.threadUuid,
       // max_tokens: Math.max(modelConfig.max_tokens, 1024),
