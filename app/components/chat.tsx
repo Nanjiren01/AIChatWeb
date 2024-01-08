@@ -71,6 +71,7 @@ import {
   BaseImageItem,
   FileEntity,
   ImageMode,
+  AiAssistant,
 } from "../store";
 
 import {
@@ -608,6 +609,7 @@ export function ChatActions(props: {
   toggleProcessMode: (processMode: SPEED_MAP_KEY) => void;
   uploading: boolean;
   setUploading: React.Dispatch<React.SetStateAction<boolean>>;
+  assistant?: AiAssistant;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
@@ -636,6 +638,7 @@ export function ChatActions(props: {
     messageStruct: chatStore.currentSession().mask.modelConfig.messageStruct,
     processModes: chatStore.currentSession().mask.modelConfig.processModes,
     processMode: chatStore.currentSession().mask.modelConfig.processMode,
+    drawActions: chatStore.currentSession().mask.modelConfig.drawActions,
   } as SimpleModel;
 
   const [showModelSelector, setShowModelSelector] = useState(false);
@@ -656,6 +659,9 @@ export function ChatActions(props: {
     const formData = new FormData();
     formData.append("usage", "chat");
     formData.append("file", file);
+    if (props.assistant) {
+      formData.append("assistantUuid", props.assistant!.uuid);
+    }
     return fetch(requestUrl, {
       method: "post",
       headers: {
@@ -706,6 +712,8 @@ export function ChatActions(props: {
           ? "/api" + fileEntity.url
           : fileEntity.url,
         entity: fileEntity,
+        assistantUuid: fileEntity.assistantUuid,
+        thirdpartId: fileEntity.thirdpartId,
       });
     });
     e.target.value = null;
@@ -787,13 +795,15 @@ export function ChatActions(props: {
         }}
       />
 
-      <ChatAction
-        ref={modelSelectorRef}
-        onClick={() => setShowModelSelector(true)}
-        text={currentModel.name}
-        alwaysShowText={true}
-        icon={<RobotIcon />}
-      />
+      {!props.assistant && (
+        <ChatAction
+          ref={modelSelectorRef}
+          onClick={() => setShowModelSelector(true)}
+          text={currentModel.name}
+          alwaysShowText={true}
+          icon={<RobotIcon />}
+        />
+      )}
 
       {showModelSelector && (
         <Selector
@@ -827,6 +837,7 @@ export function ChatActions(props: {
                 } else {
                   mask.modelConfig.processMode = null;
                 }
+                mask.modelConfig.drawActions = selectedModel.drawActions;
                 mask.syncGlobalConfig = false;
               },
               authStore.token,
@@ -846,14 +857,20 @@ export function ChatActions(props: {
         />
       )}
 
-      {(props.contentType === "Image" || props.messageStruct === "complex") && (
+      {(props.contentType === "Image" ||
+        props.messageStruct === "complex" ||
+        props.assistant) && (
         <div
           className={`${styles["chat-input-action"]} clickable`}
           onClick={selectImage}
         >
           <input
             type="file"
-            accept=".png,.jpg,.webp,.jpeg"
+            accept={
+              props.assistant
+                ? ".c,.cpp,.csv,.docx,.html,.java,.json,.md,.pdf,.php,.pptx,.py,.rb,.tex,.txt,.css,.jpeg,.jpg,.js,.gif,.png,.tar,.ts,.xlsx,.xml,.zip'"
+                : ".png,.jpg,.webp,.jpeg"
+            }
             id="chat-image-file-select-upload"
             style={{ display: "none" }}
             onChange={onImageSelected}
@@ -863,29 +880,32 @@ export function ChatActions(props: {
       )}
 
       <>
-        {props.plugins.map((model) => {
-          return (
-            <SwitchChatAction
-              key={model.plugin.uuid}
-              alwaysShowText={true}
-              onClick={async () => {
-                const { result, value } = await props.togglePlugin(model);
-                console.log(
-                  "toggle plugin result",
-                  model.plugin.name,
-                  result,
-                  value,
-                );
-                if (result) {
-                  showToast((value ? "已开启" : "已关闭") + model.plugin.name);
-                }
-              }}
-              text={model.plugin.name}
-              icon={<Internet />}
-              value={model.value}
-            />
-          );
-        })}
+        {!props.assistant &&
+          props.plugins.map((model) => {
+            return (
+              <SwitchChatAction
+                key={model.plugin.uuid}
+                alwaysShowText={true}
+                onClick={async () => {
+                  const { result, value } = await props.togglePlugin(model);
+                  console.log(
+                    "toggle plugin result",
+                    model.plugin.name,
+                    result,
+                    value,
+                  );
+                  if (result) {
+                    showToast(
+                      (value ? "已开启" : "已关闭") + model.plugin.name,
+                    );
+                  }
+                }}
+                text={model.plugin.name}
+                icon={<Internet />}
+                value={model.value}
+              />
+            );
+          })}
       </>
 
       <>
@@ -1666,6 +1686,13 @@ function _Chat() {
     scrollDomToBottom();
   }
 
+  const cut = (str: string, length: number = 30) => {
+    if (!str) {
+      return str;
+    }
+    return str.length >= length - 3 ? str.substring(0, length) + "..." : str;
+  };
+
   // clear context index = context length + index in messages
   const clearContextIndex =
     (session.clearContextIndex ?? -1) >= 0
@@ -1944,6 +1971,10 @@ function _Chat() {
         </div>
       )}
 
+      {session.assistant && (
+        <div className={styles["top-box"]}>{session.assistant?.name}</div>
+      )}
+
       <div
         className={styles["chat-body"]}
         ref={scrollRef}
@@ -2030,6 +2061,83 @@ function _Chat() {
                         </div>
                       </div>
                     ))}
+                  {!isUser && message.attr?.run && (
+                    <div className={styles["chat-message-tools-status"]}>
+                      <div className={styles["chat-message-tools-name"]}>
+                        {/* <CheckmarkIcon
+                          className={styles["chat-message-checkmark"]}
+                        /> */}
+                        助手:
+                        <code className={styles["chat-message-tools-details"]}>
+                          {
+                            {
+                              init: "正在初始化",
+                              queued: "已进入队列",
+                              in_progress: "思考中",
+                              requires_action: "等待工具返回结果",
+                              cancelling: "取消中",
+                              cancelled: "已取消",
+                              failed: "思考失败",
+                              completed: "思考完成",
+                              expired: "思考时间过长",
+                            }[message.attr.run.status]
+                          }
+                        </code>
+                      </div>
+                    </div>
+                  )}
+                  {!isUser &&
+                    message.attr?.runSteps &&
+                    message.attr.runSteps.map((runStep, index) => {
+                      const stepInfo = JSON.parse(runStep.thirdpartInfo);
+                      const stepDetails = stepInfo?.step_details;
+                      const type = stepDetails?.type;
+                      return (
+                        <div
+                          className={styles["chat-message-tools-status"]}
+                          key={index}
+                        >
+                          {type === "code_interpreter" && (
+                            <div className={styles["chat-message-tools-name"]}>
+                              <CheckmarkIcon
+                                className={styles["chat-message-checkmark"]}
+                              />
+                              调用代码解释器：
+                              <code>
+                                {cut(stepDetails.code_interpreter.input)}
+                              </code>
+                            </div>
+                          )}
+                          {type === "tool_calls" &&
+                            stepDetails.tool_calls.map(
+                              (call: any, index: number) => {
+                                return (
+                                  <div
+                                    className={
+                                      styles["chat-message-tools-name"]
+                                    }
+                                    key={index}
+                                  >
+                                    {call.type === "code_interpreter" && (
+                                      <>
+                                        <CheckmarkIcon
+                                          className={
+                                            styles["chat-message-checkmark"]
+                                          }
+                                        />
+                                        调用代码解释器：
+                                        <code>
+                                          {cut(call.code_interpreter.input)}
+                                        </code>
+                                      </>
+                                    )}
+                                  </div>
+                                );
+                              },
+                            )}
+                        </div>
+                      );
+                    })}
 
                   {showTyping && (
                     <div className={styles["chat-message-status"]}>
@@ -2391,6 +2499,7 @@ function _Chat() {
             }
             return ok;
           }}
+          assistant={session.assistant}
         />
         {useImages.length > 0 && (
           <div className={styles["chat-select-images"]}>

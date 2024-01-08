@@ -1,5 +1,20 @@
 @import "../styles/animation.scss";
 
+@keyframes paddingAnimation {
+  0% {
+    padding-left: 5px;
+    padding-right: 0;
+  }
+  50% {
+    padding-left: 0;
+    padding-right: 5px;
+  }
+  100% {
+    padding-left: 5px;
+    padding-right: 0;
+  }
+}
+
 .new-chat {
   height: 100%;
   width: 100%;
@@ -157,6 +172,74 @@
     }
   }
 
+  .assistant-container {
+    flex-grow: 1;
+    width: 100%;
+    overflow: auto;
+    align-items: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+
+    $linear: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0),
+      rgba(0, 0, 0, 1),
+      rgba(0, 0, 0, 0)
+    );
+
+    animation: slide-in ease 0.5s;
+
+    .assistant-row {
+      display: flex;
+      // justify-content: center;
+      margin-bottom: 10px;
+      overflow: auto;
+
+      @for $i from 1 to 10 {
+        &:nth-child(#{$i * 2}) {
+          margin-left: 50px;
+        }
+      }
+
+      .assistant-tip {
+        line-height: 54px;
+        margin: 0 10px;
+        max-height: 54px;
+        overflow: hidden;
+        flex-shrink: 0;
+        padding: 0 5px;
+        animation-name: paddingAnimation;
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
+      }
+
+      .mask {
+        display: flex;
+        align-items: center;
+        padding: 10px 14px;
+        border: var(--border-in-light);
+        box-shadow: var(--card-shadow);
+        background-color: var(--white);
+        border-radius: 10px;
+        margin-right: 10px;
+        max-width: 8em;
+        transform: scale(1);
+        cursor: pointer;
+        transition: all ease 0.3s;
+
+        &:hover {
+          transform: translateY(-5px) scale(1.1);
+          z-index: 999;
+          border-color: var(--primary);
+        }
+
+        .mask-name {
+          margin-left: 10px;
+          font-size: 14px;
+        }
+      }
+    }
+  }
 
 }
 

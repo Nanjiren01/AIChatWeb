@@ -34,6 +34,11 @@ import { toYYYYMMDD_HHMMSS } from "@/app/utils";
 // import { prettyObject } from "@/app/utils/format";
 import { getClientConfig } from "@/app/config/client";
 import { makeAzurePath } from "@/app/azure";
+import {
+  RunEntity,
+  RunStepEntity,
+  ThreadMessageEntity,
+} from "@/app/api/openai/[...path]/assistant";
 
 export interface OpenAIListModelResponse {
   object: string;
@@ -80,11 +85,20 @@ export class ChatGPTApi implements LLMApi {
         : options.messages
     ).map((message) => {
       if (!isMessageStructComplex) {
-        return {
-          id: message.id,
-          role: message.role,
-          content: message.content,
-        };
+        if (options.baseImages?.length > 0) {
+          return {
+            id: message.id,
+            role: message.role,
+            content: message.content,
+            fileIds: options.baseImages.map((img) => img.thirdpartId),
+          };
+        } else {
+          return {
+            id: message.id,
+            role: message.role,
+            content: message.content,
+          };
+        }
       }
       const content = [
         {
@@ -158,7 +172,9 @@ export class ChatGPTApi implements LLMApi {
               context: options.mask.context,
             }
           : null, // 没有session uuid的情况下messages中已经包含了mask上下文，所以无需传递
-      assistantMessageId: options.botMessage?.id, // 同时告诉服务器bot message id，以便后续sync messages找到对应的条目
+      // assistantMessageId: options.botMessage?.id, // 同时告诉服务器bot message id，以便后续sync messages找到对应的条目
+      assistantUuid: options.assistantUuid,
+      threadUuid: options.threadUuid,
       // max_tokens: Math.max(modelConfig.max_tokens, 1024),
       // Please do not ask me why not send max_tokens, no reason, this param is just shit, I dont want to explain anymore.
       // baseUrl: useAccessStore.getState().openaiUrl,
@@ -249,7 +265,7 @@ export class ChatGPTApi implements LLMApi {
             }
           },
           onmessage(msg) {
-            // console.log("msg", msg);
+            console.log("msg", msg);
             if (msg.data === "[DONE]" || finished) {
               return finish();
             }
@@ -259,6 +275,7 @@ export class ChatGPTApi implements LLMApi {
             }
             try {
               const json = JSON.parse(text);
+              console.log("json", json);
               if (json && json.isToolMessage) {
                 if (!json.isSuccess) {
                   console.error("[Request]", msg.data);
@@ -268,7 +285,44 @@ export class ChatGPTApi implements LLMApi {
                 options.onToolUpdate?.(json.toolName!, json.message);
                 return;
               }
-              if (json.choices) {
+              if (json.type) {
+                // assistant
+                if (json.type === "createRun") {
+                  options.onCreateRun!(json.run as RunEntity);
+                } else if (json.type === "updateRun") {
+                  options.onUpdateRun!(json.run as RunEntity);
+                } else if (json.type === "updateRunSteps") {
+                  options.onUpdateRunStep!(json.runSteps);
+                } else if (json.type === "updateMessages") {
+                  json.messages.forEach((message: ThreadMessageEntity) => {
+                    if (!message.thirdpartInfo) {
+                      console.warn(
+                        "message.thirdpartInfo is null, id is" + message.id,
+                      );
+                      return;
+                    }
+                    const thirdpartInfo = JSON.parse(
+                      message.thirdpartInfo,
+                    ) as any;
+                    console.log("message", message, thirdpartInfo);
+                    thirdpartInfo.content.forEach &&
+                      thirdpartInfo.content.forEach((content: any) => {
+                        if (content.type === "text") {
+                          const text = content.text.value ?? content.text;
+                          console.log("message text", text);
+                          responseText += text;
+                          options.onUpdate?.(responseText, text);
+                        } else if (content.type === "image_file") {
+                          const fileId = content.image_file!.file_id;
+                          const src = `/api/threadMessage/file/${fileId}?assistantUuid=${options.assistantUuid}`;
+                          responseText += `\n![${fileId}](${src})\n`;
+                        }
+                      });
+                  });
+                } else if (json.type === "errorResp") {
+                  options.onUpdate?.(JSON.stringify(json.resp), json.message);
+                }
+              } else if (json.choices) {
                 const delta = (
                   json as {
                     choices: Array<{

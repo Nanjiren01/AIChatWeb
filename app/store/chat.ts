@@ -22,7 +22,12 @@ import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
-import { AiPlugin, ModelContentType, WebsiteConfigStore } from "./website";
+import {
+  AiAssistant,
+  AiPlugin,
+  ModelContentType,
+  WebsiteConfigStore,
+} from "./website";
 import { AuthStore, useAuthStore } from "./auth";
 
 export interface ChatToolMessage {
@@ -34,6 +39,8 @@ export interface FileEntity {
   id: number;
   uuid: string;
   url: string;
+  assistantUuid: string;
+  thirdpartId?: string;
 }
 
 export interface BaseImageItem {
@@ -41,6 +48,8 @@ export interface BaseImageItem {
   filename: string;
   url: string;
   uuid: string;
+  assistantUuid?: string;
+  thirdpartId?: string;
 }
 
 export type AttrDirection = "horizontal" | "vertical";
@@ -88,6 +97,10 @@ export interface Attr {
   imgUrl: string;
   finished: boolean;
   direction: AttrDirection;
+  assistantUuid?: string;
+  assistantName?: string;
+  run?: RunEntity;
+  runSteps?: RunStepEntity[];
 }
 
 export type ChatMessage = RequestMessage & {
@@ -125,14 +138,21 @@ export interface SessionEntity {
 }
 
 import { Response } from "../api/common";
-export type SessionCreateResponse = Response<SessionEntity>;
+import {
+  RunEntity,
+  RunStepEntity,
+  ThreadMessageEntity,
+} from "../api/openai/[...path]/assistant";
+export type SessionCreateResponse = Response<
+  SessionEntity & { threadUuid?: string }
+>;
 
 type SessionMessageQueryResponse = Response<any>;
 
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
   return {
     id: nanoid(),
-    date: new Date().toLocaleString(),
+    date: toYYYYMMDD_HHMMSS(new Date()),
     role: "user",
     content: "",
     toolMessages: [] as ChatToolMessage[],
@@ -160,6 +180,8 @@ export interface ChatSession {
   clearContextIndex?: number;
 
   mask: Mask;
+  assistant?: AiAssistant;
+  threadUuid?: string; // 服务器返回的
 }
 
 export const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
@@ -287,6 +309,7 @@ export const useChatStore = createPersistStore(
         token: string,
         logout: () => void,
         mask?: Mask,
+        assistant?: AiAssistant,
         callback?: (session: ChatSession) => void,
       ) {
         const session = createEmptySession();
@@ -303,6 +326,9 @@ export const useChatStore = createPersistStore(
             },
           };
           session.topic = mask.name;
+        } else if (assistant) {
+          session.assistant = { ...assistant };
+          session.topic = assistant.name;
         } else {
           session.topic = "新的聊天";
         }
@@ -323,6 +349,7 @@ export const useChatStore = createPersistStore(
             lastSummarizeIndex: session.lastSummarizeIndex,
             maskJson: JSON.stringify(session.mask),
             statJson: JSON.stringify(session.stat),
+            assistantJson: JSON.stringify(session.assistant),
           }),
         })
           .then((res) => res.json())
@@ -337,6 +364,7 @@ export const useChatStore = createPersistStore(
             }
             const sessionEntity = res.data;
             session.uuid = sessionEntity.uuid;
+            session.threadUuid = sessionEntity.threadUuid;
 
             if (callback) {
               callback(session);
@@ -387,6 +415,7 @@ export const useChatStore = createPersistStore(
           const result = await this.newSession(
             token,
             logout,
+            undefined,
             undefined,
             (session) => {},
           );
@@ -576,6 +605,8 @@ export const useChatStore = createPersistStore(
         });
         userMessage.attr.imageMode = imageMode;
         userMessage.attr.baseImages = baseImages;
+        userMessage.attr.assistantUuid = session.assistant?.uuid;
+        userMessage.attr.assistantName = session.assistant?.name;
 
         const botMessage: ChatMessage = createMessage({
           role: "assistant",
@@ -616,6 +647,8 @@ export const useChatStore = createPersistStore(
           resend,
           imageMode,
           baseImages,
+          assistantUuid: session.assistant?.uuid,
+          threadUuid: session.threadUuid,
           onUpdate(message) {
             // console.log("onUpdate", message);
             botMessage.streaming = true;
@@ -639,6 +672,28 @@ export const useChatStore = createPersistStore(
               session.messages = session.messages.concat();
             });
           },
+          onCreateRun(run: RunEntity) {
+            botMessage.attr.run = run;
+            get().updateLocalCurrentSession((session) => {
+              // todo
+              session.messages = session.messages.concat();
+            });
+          },
+          onUpdateRun(run: RunEntity) {
+            botMessage.attr.run = run;
+            get().updateLocalCurrentSession((session) => {
+              // todo
+              session.messages = session.messages.concat();
+            });
+          },
+          onUpdateRunStep(runSteps: RunStepEntity[]) {
+            botMessage.attr.runSteps = runSteps;
+            get().updateLocalCurrentSession((session) => {
+              // todo
+              session.messages = session.messages.concat();
+            });
+          },
+          onUpdateMessages(messages) {},
           onFinish(message) {
             // console.log("onFinish", message);
             botMessage.streaming = false;
@@ -1656,6 +1711,7 @@ export const useChatStore = createPersistStore(
             session.lastSummarizeIndex = newSession.lastSummarizeIndex;
             session.lastUpdate = newSession.lastUpdate;
             session.mask = newSession.mask;
+            session.assistant = newSession.assistant;
             session.memoryPrompt = newSession.memoryPrompt;
             session.messages = newSession.messages;
             session.stat = newSession.stat;
@@ -1679,7 +1735,16 @@ export const useChatStore = createPersistStore(
 
       localMessageToServerMessage(message: ChatMessage) {
         const msg: any = { ...message };
-        msg.date = toYYYYMMDD_HHMMSS(fromYYYYMMDD_HHMMSS2(msg.date));
+        if (/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(msg.date)) {
+          msg.date = toYYYYMMDD_HHMMSS(fromYYYYMMDD_HHMMSS2(msg.date));
+        } else {
+          // 对于一些历史数据，可能不是yyyy-MM-dd HH:mm:ss格式的
+          try {
+            msg.date = toYYYYMMDD_HHMMSS(new Date(msg.date));
+          } catch (e) {
+            console.error("new Date(msg.date) failed", msg.date, e);
+          }
+        }
         msg.attrJson = msg.attr ? JSON.stringify(msg.attr) : null;
         msg.toolMessagesJson = msg.toolMessages
           ? JSON.stringify(msg.toolMessages)
@@ -1697,6 +1762,7 @@ export const useChatStore = createPersistStore(
           lastSummarizeIndex: msg.lastSummarizeIndex,
           lastUpdate: msg.lastUpdate,
           mask: msg.mask ? msg.mask : createEmptyMask(),
+          assistant: msg.assistant,
           memoryPrompt: msg.memoryPrompt ? msg.memoryPrompt : "",
           messages: msg.messageList.map((item: any) => {
             item = { ...item };
