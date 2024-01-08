@@ -34,6 +34,11 @@ import { toYYYYMMDD_HHMMSS } from "@/app/utils";
 // import { prettyObject } from "@/app/utils/format";
 import { getClientConfig } from "@/app/config/client";
 import { makeAzurePath } from "@/app/azure";
+import {
+  RunEntity,
+  RunStepEntity,
+  ThreadMessageEntity,
+} from "@/app/api/openai/[...path]/assistant";
 
 export interface OpenAIListModelResponse {
   object: string;
@@ -80,11 +85,20 @@ export class ChatGPTApi implements LLMApi {
         : options.messages
     ).map((message) => {
       if (!isMessageStructComplex) {
-        return {
-          id: message.id,
-          role: message.role,
-          content: message.content,
-        };
+        if (options.baseImages?.length > 0) {
+          return {
+            id: message.id,
+            role: message.role,
+            content: message.content,
+            fileIds: options.baseImages.map((img) => img.thirdpartId),
+          };
+        } else {
+          return {
+            id: message.id,
+            role: message.role,
+            content: message.content,
+          };
+        }
       }
       const content = [
         {
@@ -158,7 +172,9 @@ export class ChatGPTApi implements LLMApi {
               context: options.mask.context,
             }
           : null, // 没有session uuid的情况下messages中已经包含了mask上下文，所以无需传递
-      assistantMessageId: options.botMessage?.id, // 同时告诉服务器bot message id，以便后续sync messages找到对应的条目
+      // assistantMessageId: options.botMessage?.id, // 同时告诉服务器bot message id，以便后续sync messages找到对应的条目
+      assistantUuid: options.assistantUuid,
+      threadUuid: options.threadUuid,
       // max_tokens: Math.max(modelConfig.max_tokens, 1024),
       // Please do not ask me why not send max_tokens, no reason, this param is just shit, I dont want to explain anymore.
       // baseUrl: useAccessStore.getState().openaiUrl,
@@ -249,7 +265,7 @@ export class ChatGPTApi implements LLMApi {
             }
           },
           onmessage(msg) {
-            // console.log("msg", msg);
+            console.log("msg", msg);
             if (msg.data === "[DONE]" || finished) {
               return finish();
             }
@@ -259,6 +275,7 @@ export class ChatGPTApi implements LLMApi {
             }
             try {
               const json = JSON.parse(text);
+              console.log("json", json);
               if (json && json.isToolMessage) {
                 if (!json.isSuccess) {
                   console.error("[Request]", msg.data);
@@ -268,7 +285,44 @@ export class ChatGPTApi implements LLMApi {
                 options.onToolUpdate?.(json.toolName!, json.message);
                 return;
               }
-              if (json.choices) {
+              if (json.type) {
+                // assistant
+                if (json.type === "createRun") {
+                  options.onCreateRun!(json.run as RunEntity);
+                } else if (json.type === "updateRun") {
+                  options.onUpdateRun!(json.run as RunEntity);
+                } else if (json.type === "updateRunSteps") {
+                  options.onUpdateRunStep!(json.runSteps);
+                } else if (json.type === "updateMessages") {
+                  json.messages.forEach((message: ThreadMessageEntity) => {
+                    if (!message.thirdpartInfo) {
+                      console.warn(
+                        "message.thirdpartInfo is null, id is" + message.id,
+                      );
+                      return;
+                    }
+                    const thirdpartInfo = JSON.parse(
+                      message.thirdpartInfo,
+                    ) as any;
+                    console.log("message", message, thirdpartInfo);
+                    thirdpartInfo.content.forEach &&
+                      thirdpartInfo.content.forEach((content: any) => {
+                        if (content.type === "text") {
+                          const text = content.text.value ?? content.text;
+                          console.log("message text", text);
+                          responseText += text;
+                          options.onUpdate?.(responseText, text);
+                        } else if (content.type === "image_file") {
+                          const fileId = content.image_file!.file_id;
+                          const src = `/api/threadMessage/file/${fileId}?assistantUuid=${options.assistantUuid}`;
+                          responseText += `\n![${fileId}](${src})\n`;
+                        }
+                      });
+                  });
+                } else if (json.type === "errorResp") {
+                  options.onUpdate?.(JSON.stringify(json.resp), json.message);
+                }
+              } else if (json.choices) {
                 const delta = (
                   json as {
                     choices: Array<{
@@ -498,12 +552,14 @@ export class ChatGPTApi implements LLMApi {
             break;
           }
           case "DESCRIBE": {
+            // 识图
             res = await reqFn("draw/describe", "POST", {
               fileUuid: options.baseImages[0].uuid,
             });
             break;
           }
           case "BLEND": {
+            // 混图
             const fileUuidArray = options.baseImages.map((ui: any) => ui.uuid);
             res = await reqFn("draw/blend", "POST", {
               fileUuidArray,
@@ -588,12 +644,6 @@ export class ChatGPTApi implements LLMApi {
         const resJson = await res.json();
         console.log("resJson", resJson);
         if (res.status < 200 || res.status >= 300 || resJson.code != 0) {
-          // options.onUpdate?.(Locale.Midjourney.TaskSubmitErr(
-          //   resJson?.message ||
-          //   resJson?.error ||
-          //   resJson?.description ||
-          //   Locale.Midjourney.UnknownError,
-          // ), '');
           botMessage.attr.code = resJson.code;
           options.onFinish(JSON.stringify(resJson));
           return false;
@@ -613,7 +663,6 @@ export class ChatGPTApi implements LLMApi {
             "",
           );
           return true;
-          // this.fetchDrawStatus(options.onUpdate, options.onFinish, botMessage);
         }
       } catch (e: any) {
         console.error(e);
@@ -633,13 +682,13 @@ export class ChatGPTApi implements LLMApi {
     return await startFn();
   }
   async fetchDrawStatus(
-    onUpdate: ((message: string, chunk: string) => void) | undefined,
+    onUpdate: (message: string, chunk: string) => void,
     onFinish: (message: string) => void,
     botMessage: ChatMessage,
   ) {
     const taskId = botMessage?.attr?.taskId;
     if (!taskId || ["SUCCESS", "FAILURE"].includes(botMessage?.attr?.status)) {
-      return;
+      return false;
     }
 
     const url = this.path(`draw/info?uuid=${taskId}`);
@@ -650,6 +699,7 @@ export class ChatGPTApi implements LLMApi {
     const statusResJson = await statusRes.json();
     console.log("statusResJson", statusResJson);
     if (statusRes.status < 200 || statusRes.status >= 300) {
+      console.error("fetch status error", statusRes);
       onFinish(
         Locale.Midjourney.TaskStatusFetchFail +
           ": " +
@@ -657,8 +707,8 @@ export class ChatGPTApi implements LLMApi {
             statusResJson?.error ||
             statusResJson?.description) || Locale.Midjourney.UnknownReason,
       );
+      return false;
     } else {
-      let isFinished = false;
       let content;
       if (!botMessage.attr.prompt || botMessage.attr.prompt === "") {
         botMessage.attr.prompt = statusResJson.data.prompt;
@@ -703,6 +753,7 @@ export class ChatGPTApi implements LLMApi {
       const state = statusResJson?.data?.state;
       switch (state) {
         case 30: {
+          // 成功
           const result = JSON.parse(statusResJson.data.result);
           let imgUrl = result.url;
           if (imgUrl.startsWith("/")) {
@@ -714,7 +765,6 @@ export class ChatGPTApi implements LLMApi {
             statusResJson.data.type === "describe"
               ? prefixContent + "\n" + prompt
               : prefixContent + `[![${taskId}](${imgUrl})](${imgUrl})`;
-          isFinished = true;
 
           botMessage.attr.imgUrl = imgUrl;
           botMessage.attr.prompt = prompt;
@@ -723,11 +773,10 @@ export class ChatGPTApi implements LLMApi {
           botMessage.attr.direction = statusResJson.data
             .direction as AttrDirection;
           onFinish(entireContent);
-          break;
+          return false;
         }
-        case 40:
+        case 40: // 失败
           content = statusResJson.data.error || Locale.Midjourney.UnknownReason;
-          isFinished = true;
           botMessage.attr.status = "FAILURE";
           botMessage.attr.finished = true;
           onFinish(
@@ -736,47 +785,38 @@ export class ChatGPTApi implements LLMApi {
                 Locale.Midjourney.TaskStatus
               }:** [${new Date().toLocaleString()}] - ${content}`,
           );
-          break;
-        case 0:
+          return false;
+        case 0: // 待提交
           content = Locale.Midjourney.TaskNotStart;
           botMessage.attr.status = "NOT_START";
           break;
-        case 20:
+        case 20: // 第三方处理中
           content = Locale.Midjourney.TaskProgressTip(
             statusResJson.data.progress,
           );
           botMessage.attr.status = "IN_PROGRESS";
           break;
-        case 10:
+        case 10: // 已提交第三方
           content = Locale.Midjourney.TaskRemoteSubmit;
           botMessage.attr.status = "SUBMITTED";
           break;
         default:
           content = statusResJson.status;
       }
-      if (!isFinished) {
-        let entireContent =
-          prefixContent +
-          `**${
-            Locale.Midjourney.TaskStatus
-          }:** [${new Date().toLocaleString()}] - ${content}`;
-        if (statusResJson.data.state === 20 && statusResJson.data.result) {
-          const result = JSON.parse(statusResJson.data.result);
-          let imgUrl = result.url;
-          // useGetMidjourneySelfProxyUrl(
-          //     statusResJson.imageUrl,
-          // );
-          botMessage.attr.imgUrl = imgUrl;
-          entireContent += `\n[![${taskId}](${imgUrl})](${imgUrl})`;
-        }
-        onUpdate?.(entireContent, "");
-        // this.fetchDrawStatus(onUpdate, onFinish, botMessage);
-        return true;
+
+      let entireContent =
+        prefixContent +
+        `**${
+          Locale.Midjourney.TaskStatus
+        }:** [${new Date().toLocaleString()}] - ${content}`;
+      if (statusResJson.data.state === 20 && statusResJson.data.result) {
+        const result = JSON.parse(statusResJson.data.result);
+        let imgUrl = result.url;
+        botMessage.attr.imgUrl = imgUrl;
+        entireContent += `\n[![${taskId}](${imgUrl})](${imgUrl})`;
       }
-      // set(() => ({}));
-      // if (isFinished) {
-      //     extAttr?.setAutoScroll(true);
-      // }
+      onUpdate(entireContent, "");
+      return true;
     }
   }
 }

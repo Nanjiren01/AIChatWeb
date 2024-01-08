@@ -27,6 +27,18 @@ export enum Theme {
   Light = "light",
 }
 
+export type DrawAction =
+  | "upscale"
+  | "variation"
+  | "imagine"
+  | "describe"
+  | "blend"
+  | "reroll"
+  | "zoomout"
+  | "pan"
+  | "square"
+  | "vary";
+
 export const DEFAULT_CONFIG = {
   lastUpdate: Date.now(), // timestamp, to merge state
 
@@ -64,6 +76,7 @@ export const DEFAULT_CONFIG = {
     pluginUuids: [] as string[],
     processModes: [] as SPEED_MAP_KEY[],
     processMode: null as SPEED_MAP_KEY | null,
+    drawActions: [] as DrawAction[],
   },
 };
 

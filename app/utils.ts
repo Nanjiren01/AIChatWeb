@@ -259,3 +259,7 @@ export function getSecondsDiff(date1: Date, date2: Date) {
   const diff = Math.abs(date1.getTime() - date2.getTime());
   return Math.floor(diff / 1000);
 }
+
+export function getMillisecondsDiff(date1: Date, date2: Date) {
+  return Math.abs(date1.getTime() - date2.getTime());
+}

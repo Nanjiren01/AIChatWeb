@@ -1,7 +1,13 @@
+import {
+  RunEntity,
+  RunStepEntity,
+  ThreadMessageEntity,
+} from "../api/openai/[...path]/assistant";
 import { SimpleChatMessage } from "../components/exporter";
 import { getClientConfig } from "../config/client";
 import { ACCESS_CODE_PREFIX, Azure, ServiceProvider } from "../constant";
 import {
+  BaseImageItem,
   ChatMessage,
   ImageMode,
   MessageAction,
@@ -50,13 +56,20 @@ export interface ChatOptions {
   mask: Mask | null;
   resend: boolean;
   imageMode: ImageMode;
-  baseImages: any[];
+  baseImages: BaseImageItem[];
+  assistantUuid?: string;
+  threadUuid?: string;
 
   onUpdate?: (message: string, chunk: string) => void;
   onToolUpdate?: (toolName: string, toolInput: string) => void;
   onFinish: (message: string) => void;
   onError?: (err: Error) => void;
   onController?: (controller: AbortController) => void;
+
+  onCreateRun?: (run: RunEntity) => void;
+  onUpdateRun?: (run: RunEntity) => void;
+  onUpdateRunStep?: (runSteps: RunStepEntity[]) => void;
+  onUpdateMessages?: (messages: ThreadMessageEntity[]) => void;
 }
 
 export interface LLMUsage {
@@ -80,7 +93,7 @@ export abstract class LLMApi {
   abstract usage(): Promise<LLMUsage>;
   abstract models(): Promise<LLMModel[]>;
   abstract fetchDrawStatus: (
-    onUpdate: ((message: string, chunk: string) => void) | undefined,
+    onUpdate: (message: string, chunk: string) => void,
     onFinish: (message: string) => void,
     botMessage: ChatMessage,
   ) => Promise<boolean | void>;

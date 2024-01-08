@@ -71,6 +71,7 @@ import {
   BaseImageItem,
   FileEntity,
   ImageMode,
+  AiAssistant,
 } from "../store";
 
 import {
@@ -78,7 +79,6 @@ import {
   selectOrCopy,
   autoGrowTextArea,
   useMobileScreen,
-  getSecondsDiff,
   fromYYYYMMDD_HHMMSS,
 } from "../utils";
 
@@ -609,6 +609,7 @@ export function ChatActions(props: {
   toggleProcessMode: (processMode: SPEED_MAP_KEY) => void;
   uploading: boolean;
   setUploading: React.Dispatch<React.SetStateAction<boolean>>;
+  assistant?: AiAssistant;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
@@ -637,6 +638,7 @@ export function ChatActions(props: {
     messageStruct: chatStore.currentSession().mask.modelConfig.messageStruct,
     processModes: chatStore.currentSession().mask.modelConfig.processModes,
     processMode: chatStore.currentSession().mask.modelConfig.processMode,
+    drawActions: chatStore.currentSession().mask.modelConfig.drawActions,
   } as SimpleModel;
 
   const [showModelSelector, setShowModelSelector] = useState(false);
@@ -657,6 +659,9 @@ export function ChatActions(props: {
     const formData = new FormData();
     formData.append("usage", "chat");
     formData.append("file", file);
+    if (props.assistant) {
+      formData.append("assistantUuid", props.assistant!.uuid);
+    }
     return fetch(requestUrl, {
       method: "post",
       headers: {
@@ -707,6 +712,8 @@ export function ChatActions(props: {
           ? "/api" + fileEntity.url
           : fileEntity.url,
         entity: fileEntity,
+        assistantUuid: fileEntity.assistantUuid,
+        thirdpartId: fileEntity.thirdpartId,
       });
     });
     e.target.value = null;
@@ -788,13 +795,15 @@ export function ChatActions(props: {
         }}
       />
 
-      <ChatAction
-        ref={modelSelectorRef}
-        onClick={() => setShowModelSelector(true)}
-        text={currentModel.name}
-        alwaysShowText={true}
-        icon={<RobotIcon />}
-      />
+      {!props.assistant && (
+        <ChatAction
+          ref={modelSelectorRef}
+          onClick={() => setShowModelSelector(true)}
+          text={currentModel.name}
+          alwaysShowText={true}
+          icon={<RobotIcon />}
+        />
+      )}
 
       {showModelSelector && (
         <Selector
@@ -828,6 +837,7 @@ export function ChatActions(props: {
                 } else {
                   mask.modelConfig.processMode = null;
                 }
+                mask.modelConfig.drawActions = selectedModel.drawActions;
                 mask.syncGlobalConfig = false;
               },
               authStore.token,
@@ -847,14 +857,20 @@ export function ChatActions(props: {
         />
       )}
 
-      {(props.contentType === "Image" || props.messageStruct === "complex") && (
+      {(props.contentType === "Image" ||
+        props.messageStruct === "complex" ||
+        props.assistant) && (
         <div
           className={`${styles["chat-input-action"]} clickable`}
           onClick={selectImage}
         >
           <input
             type="file"
-            accept=".png,.jpg,.webp,.jpeg"
+            accept={
+              props.assistant
+                ? ".c,.cpp,.csv,.docx,.html,.java,.json,.md,.pdf,.php,.pptx,.py,.rb,.tex,.txt,.css,.jpeg,.jpg,.js,.gif,.png,.tar,.ts,.xlsx,.xml,.zip'"
+                : ".png,.jpg,.webp,.jpeg"
+            }
             id="chat-image-file-select-upload"
             style={{ display: "none" }}
             onChange={onImageSelected}
@@ -864,29 +880,32 @@ export function ChatActions(props: {
       )}
 
       <>
-        {props.plugins.map((model) => {
-          return (
-            <SwitchChatAction
-              key={model.plugin.uuid}
-              alwaysShowText={true}
-              onClick={async () => {
-                const { result, value } = await props.togglePlugin(model);
-                console.log(
-                  "toggle plugin result",
-                  model.plugin.name,
-                  result,
-                  value,
-                );
-                if (result) {
-                  showToast((value ? "已开启" : "已关闭") + model.plugin.name);
-                }
-              }}
-              text={model.plugin.name}
-              icon={<Internet />}
-              value={model.value}
-            />
-          );
-        })}
+        {!props.assistant &&
+          props.plugins.map((model) => {
+            return (
+              <SwitchChatAction
+                key={model.plugin.uuid}
+                alwaysShowText={true}
+                onClick={async () => {
+                  const { result, value } = await props.togglePlugin(model);
+                  console.log(
+                    "toggle plugin result",
+                    model.plugin.name,
+                    result,
+                    value,
+                  );
+                  if (result) {
+                    showToast(
+                      (value ? "已开启" : "已关闭") + model.plugin.name,
+                    );
+                  }
+                }}
+                text={model.plugin.name}
+                icon={<Internet />}
+                value={model.value}
+              />
+            );
+          })}
       </>
 
       <>
@@ -988,9 +1007,54 @@ export function EditMessageModal(props: {
   );
 }
 
-function _Chat() {
-  type RenderMessage = ChatMessage & { preview?: boolean };
+function RefreshDrawStatus(props: {
+  message: RenderMessage;
+  session: ChatSession;
+  refreshDrawStatus: (
+    session: ChatSession,
+    userMessage: ChatMessage | null,
+    botMessage: ChatMessage,
+  ) => void;
+  ChatFetchTaskPool: Map<string, NodeJS.Timeout | null>;
+}) {
+  const message = props.message;
+  const session = props.session;
+  const ChatFetchTaskPool = props.ChatFetchTaskPool;
 
+  const [now, SetNow] = useState(+new Date());
+  useEffect(() => {
+    const interval = setInterval(() => {
+      SetNow(+new Date());
+    }, 100);
+
+    return () => {
+      console.log("clearInterval", interval);
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <>
+      {!ChatFetchTaskPool.get(message.attr?.taskId) &&
+        message.attr?.submitTime &&
+        now - +fromYYYYMMDD_HHMMSS(message.attr.submitTime) > 1000 && (
+          <div>
+            <button
+              onClick={() => props.refreshDrawStatus(session, null, message)}
+              className={`${styles["chat-message-mj-action-btn"]} clickable`}
+              style={{ width: "150px" }}
+            >
+              {Locale.Midjourney.Refresh}
+            </button>
+          </div>
+        )}
+    </>
+  );
+}
+
+type RenderMessage = ChatMessage & { preview?: boolean };
+
+function _Chat() {
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
   const config = useAppConfig();
@@ -1107,30 +1171,37 @@ function _Chat() {
     new Map<string, NodeJS.Timeout | null>(),
   );
 
-  const refreshDrawStatus = (session: ChatSession, botMessage: ChatMessage) => {
+  const refreshDrawStatus = (
+    session: ChatSession,
+    userMessage: ChatMessage | null,
+    botMessage: ChatMessage,
+  ) => {
     if (ChatFetchTaskPool.get(botMessage.attr.taskId)) {
       return;
     }
+    const getDrawTaskProgressAfter3seconds = setTimeout(async () => {
+      const fetch = await chatStore.getDrawTaskProgress(
+        session,
+        userMessage,
+        botMessage,
+        websiteConfigStore,
+        authStore,
+        () => {
+          authStore.logout();
+          navigate(Path.Login);
+        },
+      );
+      ChatFetchTaskPool.set(botMessage.attr.taskId, null);
+      if (fetch) {
+        refreshDrawStatus(session, userMessage, botMessage);
+      }
+    }, 3000);
     ChatFetchTaskPool.set(
       botMessage.attr.taskId,
-      setTimeout(async () => {
-        const fetch = await chatStore.getDrawTaskProgress(
-          session,
-          botMessage,
-          websiteConfigStore,
-          authStore,
-          () => {
-            authStore.logout();
-            navigate(Path.Login);
-          },
-        );
-        ChatFetchTaskPool.set(botMessage.attr.taskId, null);
-        if (fetch) {
-          refreshDrawStatus(session, botMessage);
-        }
-      }, 3000),
+      getDrawTaskProgressAfter3seconds,
     );
     setChatFetchTaskPool(ChatFetchTaskPool);
+    // console.log('ChatFetchTaskPool update', ChatFetchTaskPool.get(botMessage.attr.taskId))
   };
 
   const doSubmit = (userInput: string) => {
@@ -1196,7 +1267,7 @@ function _Chat() {
       .then((result) => {
         setIsLoading(false);
         if (result && result.fetch) {
-          refreshDrawStatus(session, result.botMessage);
+          refreshDrawStatus(session, result.userMessage!, result.botMessage);
         }
       });
     localStorage.setItem(LAST_INPUT_KEY, userInput);
@@ -1474,7 +1545,12 @@ function _Chat() {
           navigate(Path.Login);
         },
       )
-      .then(() => setIsLoading(false));
+      .then((result) => {
+        setIsLoading(false);
+        if (result && result.fetch) {
+          refreshDrawStatus(session, result.userMessage!, result.botMessage);
+        }
+      });
     inputRef.current?.focus();
   };
 
@@ -1503,8 +1579,6 @@ function _Chat() {
       },
     });
   };
-
-  const now = new Date();
 
   const context: RenderMessage[] = (() => {
     return session.mask.hideContext ? [] : session.mask.context.slice();
@@ -1611,6 +1685,13 @@ function _Chat() {
     setMsgRenderIndex(renderMessages.length - CHAT_PAGE_SIZE);
     scrollDomToBottom();
   }
+
+  const cut = (str: string, length: number = 30) => {
+    if (!str) {
+      return str;
+    }
+    return str.length >= length - 3 ? str.substring(0, length) + "..." : str;
+  };
 
   // clear context index = context length + index in messages
   const clearContextIndex =
@@ -1890,6 +1971,10 @@ function _Chat() {
         </div>
       )}
 
+      {session.assistant && (
+        <div className={styles["top-box"]}>{session.assistant?.name}</div>
+      )}
+
       <div
         className={styles["chat-body"]}
         ref={scrollRef}
@@ -1976,6 +2061,83 @@ function _Chat() {
                         </div>
                       </div>
                     ))}
+                  {!isUser && message.attr?.run && (
+                    <div className={styles["chat-message-tools-status"]}>
+                      <div className={styles["chat-message-tools-name"]}>
+                        {/* <CheckmarkIcon
+                          className={styles["chat-message-checkmark"]}
+                        /> */}
+                        助手:
+                        <code className={styles["chat-message-tools-details"]}>
+                          {
+                            {
+                              init: "正在初始化",
+                              queued: "已进入队列",
+                              in_progress: "思考中",
+                              requires_action: "等待工具返回结果",
+                              cancelling: "取消中",
+                              cancelled: "已取消",
+                              failed: "思考失败",
+                              completed: "思考完成",
+                              expired: "思考时间过长",
+                            }[message.attr.run.status]
+                          }
+                        </code>
+                      </div>
+                    </div>
+                  )}
+                  {!isUser &&
+                    message.attr?.runSteps &&
+                    message.attr.runSteps.map((runStep, index) => {
+                      const stepInfo = JSON.parse(runStep.thirdpartInfo);
+                      const stepDetails = stepInfo?.step_details;
+                      const type = stepDetails?.type;
+                      return (
+                        <div
+                          className={styles["chat-message-tools-status"]}
+                          key={index}
+                        >
+                          {type === "code_interpreter" && (
+                            <div className={styles["chat-message-tools-name"]}>
+                              <CheckmarkIcon
+                                className={styles["chat-message-checkmark"]}
+                              />
+                              调用代码解释器：
+                              <code>
+                                {cut(stepDetails.code_interpreter.input)}
+                              </code>
+                            </div>
+                          )}
+                          {type === "tool_calls" &&
+                            stepDetails.tool_calls.map(
+                              (call: any, index: number) => {
+                                return (
+                                  <div
+                                    className={
+                                      styles["chat-message-tools-name"]
+                                    }
+                                    key={index}
+                                  >
+                                    {call.type === "code_interpreter" && (
+                                      <>
+                                        <CheckmarkIcon
+                                          className={
+                                            styles["chat-message-checkmark"]
+                                          }
+                                        />
+                                        调用代码解释器：
+                                        <code>
+                                          {cut(call.code_interpreter.input)}
+                                        </code>
+                                      </>
+                                    )}
+                                  </div>
+                                );
+                              },
+                            )}
+                        </div>
+                      );
+                    })}
 
                   {showTyping && (
                     <div className={styles["chat-message-status"]}>
@@ -2184,22 +2346,14 @@ function _Chat() {
                       )}
                     {!isUser &&
                       message.attr?.status !== "SUCCESS" &&
-                      message.attr?.taskId &&
-                      !ChatFetchTaskPool.get(message.attr?.taskId) &&
-                      message.attr?.submitTime &&
-                      getSecondsDiff(
-                        fromYYYYMMDD_HHMMSS(message.attr.submitTime),
-                        now,
-                      ) && (
-                        <div>
-                          <button
-                            onClick={() => refreshDrawStatus(session, message)}
-                            className={`${styles["chat-message-mj-action-btn"]} clickable`}
-                            style={{ width: "150px" }}
-                          >
-                            {Locale.Midjourney.Refresh}
-                          </button>
-                        </div>
+                      message.attr?.status !== "FAILURE" &&
+                      message.attr?.taskId && (
+                        <RefreshDrawStatus
+                          message={message}
+                          session={session}
+                          refreshDrawStatus={refreshDrawStatus}
+                          ChatFetchTaskPool={ChatFetchTaskPool}
+                        />
                       )}
 
                     {showActions && (
@@ -2345,6 +2499,7 @@ function _Chat() {
             }
             return ok;
           }}
+          assistant={session.assistant}
         />
         {useImages.length > 0 && (
           <div className={styles["chat-select-images"]}>

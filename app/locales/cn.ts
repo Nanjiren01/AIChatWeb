@@ -203,13 +203,14 @@ const cn = {
       Logout: "退出登录",
     },
     Toast: {
-      Success: "登录成功",
+      Success: "登录成功，正在同步会话信息",
       Logining: "登录中……",
       EmptyUserName: "用户名或邮箱不能为空",
       EmptyPassword: "密码不能为空！",
     },
     GoToRegister: "前往注册",
     ForgetPassword: "忘记/重置密码",
+    FetchingSessions: "获取会话中……",
   },
   RegisterPage: {
     Title: "注册",
