@@ -101,6 +101,7 @@ export interface Attr {
   assistantName?: string;
   run?: RunEntity;
   runSteps?: RunStepEntity[];
+  threadMessages?: ThreadMessageEntity[];
 }
 
 export type ChatMessage = RequestMessage & {
@@ -634,7 +635,36 @@ export const useChatStore = createPersistStore(
           ]);
         });
 
+        const threadMessagesToResponseText = (
+          messages: ThreadMessageEntity[],
+        ) => {
+          let responseText = "";
+          messages.forEach((message: ThreadMessageEntity) => {
+            if (!message.thirdpartInfo) {
+              console.warn("message.thirdpartInfo is null, id is" + message.id);
+              return;
+            }
+            const thirdpartInfo = JSON.parse(message.thirdpartInfo) as any;
+            console.log("message", message, thirdpartInfo);
+            thirdpartInfo.content.forEach &&
+              thirdpartInfo.content.forEach((content: any) => {
+                if (content.type === "text") {
+                  const text = content.text.value ?? content.text;
+                  console.log("message text", text);
+                  responseText += text + "\n";
+                  // options.onUpdate?.(responseText, text);
+                } else if (content.type === "image_file") {
+                  const fileId = content.image_file!.file_id;
+                  const src = `/api/threadMessage/file/${fileId}?assistantUuid=${assistantUuid}`;
+                  responseText += `\n![${fileId}](${src})\n`;
+                }
+              });
+          });
+          return responseText;
+        };
+
         // make request
+        const assistantUuid = session.assistant?.uuid;
         return api.llm.chat({
           sessionUuid: session.uuid, // 携带上session uuuid，系统才会云同步
           messages: sendMessages,
@@ -647,7 +677,7 @@ export const useChatStore = createPersistStore(
           resend,
           imageMode,
           baseImages,
-          assistantUuid: session.assistant?.uuid,
+          assistantUuid: assistantUuid,
           threadUuid: session.threadUuid,
           onUpdate(message) {
             // console.log("onUpdate", message);
@@ -693,7 +723,16 @@ export const useChatStore = createPersistStore(
               session.messages = session.messages.concat();
             });
           },
-          onUpdateMessages(messages) {},
+          onUpdateMessages(messages: ThreadMessageEntity[]) {
+            botMessage.attr.threadMessages = messages;
+            botMessage.streaming = true;
+            const content = threadMessagesToResponseText(messages);
+            console.log("threadMessagesToResponseText in update = ", content);
+            botMessage.content = content;
+            get().updateLocalCurrentSession((session) => {
+              session.messages = session.messages.concat();
+            });
+          },
           onFinish(message) {
             // console.log("onFinish", message);
             botMessage.streaming = false;
@@ -731,6 +770,17 @@ export const useChatStore = createPersistStore(
                 }
               } catch (e) {
                 // ignore
+              }
+              if (botMessage.attr.threadMessages) {
+                const content = threadMessagesToResponseText(
+                  botMessage.attr.threadMessages,
+                );
+                console.log(
+                  "threadMessagesToResponseText in finished = ",
+                  content,
+                  message,
+                );
+                message = content + message;
               }
               botMessage.content = message;
               get().onNewMessage(

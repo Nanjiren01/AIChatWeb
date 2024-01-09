@@ -294,31 +294,7 @@ export class ChatGPTApi implements LLMApi {
                 } else if (json.type === "updateRunSteps") {
                   options.onUpdateRunStep!(json.runSteps);
                 } else if (json.type === "updateMessages") {
-                  json.messages.forEach((message: ThreadMessageEntity) => {
-                    if (!message.thirdpartInfo) {
-                      console.warn(
-                        "message.thirdpartInfo is null, id is" + message.id,
-                      );
-                      return;
-                    }
-                    const thirdpartInfo = JSON.parse(
-                      message.thirdpartInfo,
-                    ) as any;
-                    console.log("message", message, thirdpartInfo);
-                    thirdpartInfo.content.forEach &&
-                      thirdpartInfo.content.forEach((content: any) => {
-                        if (content.type === "text") {
-                          const text = content.text.value ?? content.text;
-                          console.log("message text", text);
-                          responseText += text;
-                          options.onUpdate?.(responseText, text);
-                        } else if (content.type === "image_file") {
-                          const fileId = content.image_file!.file_id;
-                          const src = `/api/threadMessage/file/${fileId}?assistantUuid=${options.assistantUuid}`;
-                          responseText += `\n![${fileId}](${src})\n`;
-                        }
-                      });
-                  });
+                  options.onUpdateMessages!(json.messages);
                 } else if (json.type === "errorResp") {
                   options.onUpdate?.(JSON.stringify(json.resp), json.message);
                 }
