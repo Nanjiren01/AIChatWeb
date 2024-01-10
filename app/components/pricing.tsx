@@ -223,6 +223,8 @@ export function Pricing() {
             } else {
               navigate(Path.Pay + "?uuid=" + order.uuid);
             }
+          } else if (order.payChannel === "yizhifu") {
+            router.push(order.payUrl);
           } else {
             // lantu
             if (inWechat || inMobile) {
