@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createRoot } from "react-dom/client";
 
 import styles from "./pricing.module.scss";
 
@@ -46,6 +47,71 @@ interface PackageResponse {
   data: Package[];
 }
 
+export function showPayChannelChooser(channels: string[]) {
+  const div = document.createElement("div");
+  div.className = "modal-mask";
+  document.body.appendChild(div);
+
+  const root = createRoot(div);
+  const closeModal = () => {
+    root.unmount();
+    div.remove();
+  };
+
+  return new Promise<string>((resolve, reject) => {
+    root.render(
+      <Modal
+        title={Locale.PricingPage.ChoosePayChannel}
+        actions={[]}
+        onClose={() => {
+          closeModal();
+          reject("cancel");
+        }}
+        size="small"
+      >
+        <div className={styles["pay-channel-container"]}>
+          {[
+            {
+              key: "alipay",
+              icon: "alipay.ico",
+              cnName: "支付宝",
+            },
+            {
+              key: "wxpay",
+              icon: "wxpay.ico",
+              cnName: "微信",
+            },
+            {
+              key: "qqpay",
+              icon: "qqpay.ico",
+              cnName: "钱包",
+            },
+          ]
+            .filter((c) => channels.includes(c.key))
+            .map((channel) => {
+              return (
+                <div
+                  key={channel.key}
+                  onClick={() => {
+                    closeModal();
+                    resolve(channel.key);
+                  }}
+                  className={styles["pay-channel-item"]}
+                >
+                  <img
+                    style={{ width: "20px", height: "20px" }}
+                    src={"/" + channel.icon}
+                  />
+                  {channel.cnName}
+                </div>
+              );
+            })}
+        </div>
+      </Modal>,
+    );
+  });
+}
+
 export function GoToPayModel(props: {
   title: string;
   wechatCodeUrl: string;
@@ -90,7 +156,8 @@ export function Pricing() {
   const navigate = useNavigate();
   const authStore = useAuthStore();
 
-  const { pricingPageTitle, pricingPageSubTitle } = useWebsiteConfigStore();
+  const { pricingPageTitle, pricingPageSubTitle, payChannels } =
+    useWebsiteConfigStore();
 
   const [packages, setPackages] = useState([] as Package[]);
   const [loading, setLoading] = useState(false);
@@ -172,7 +239,15 @@ export function Pricing() {
 
   const [goToPayModelShow, setGoToPayModelShow] = useState(false);
   const [wechatCodeUrl, setWechatCodeUrl] = useState("");
-  function handleClickBuy(pkg: Package) {
+  async function handleClickBuy(pkg: Package) {
+    let payChannel;
+    console.log("payChannels = " + payChannels);
+    if (payChannels.length > 1) {
+      payChannel = await showPayChannelChooser(payChannels);
+    } else {
+      payChannel = payChannels[0];
+    }
+    // await showPayChannelChooser()
     console.log("buy pkg", pkg);
     const inWechat = isInWechat();
     const inMobile = isMobile();
@@ -197,6 +272,7 @@ export function Pricing() {
         count: 1,
         inWechat,
         inMobile,
+        payChannel,
       }),
     })
       .then((res) => res.json())
