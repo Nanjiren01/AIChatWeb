@@ -392,8 +392,6 @@ export const useChatStore = createPersistStore(
       },
 
       // 删除本地会话
-      // deleteLocalSession() {
-      // },
       async deleteLocalSession(
         session: ChatSession,
         token: string,
@@ -496,7 +494,14 @@ export const useChatStore = createPersistStore(
 
       currentSession() {
         let index = get().currentSessionIndex;
-        const sessions = get().sessions;
+        let sessions = get().sessions;
+        if (sessions.length === 0) {
+          // 暂时不知道为什么有时候会是空的
+          console.warn("sessions.length === 0");
+          sessions = [createEmptySession()];
+          index = 0;
+          set(() => ({ sessions }));
+        }
 
         if (index < 0 || index >= sessions.length) {
           index = Math.min(sessions.length - 1, Math.max(0, index));
