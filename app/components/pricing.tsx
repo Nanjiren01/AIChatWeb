@@ -244,8 +244,10 @@ export function Pricing() {
     console.log("payChannels = " + payChannels);
     if (payChannels.length > 1) {
       payChannel = await showPayChannelChooser(payChannels);
-    } else {
+    } else if (payChannels.length > 0) {
       payChannel = payChannels[0];
+    } else {
+      payChannel = "wxpay";
     }
     // await showPayChannelChooser()
     console.log("buy pkg", pkg);
