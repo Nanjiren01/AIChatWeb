@@ -92,6 +92,9 @@
       flex-grow: 1;
     }
   }
+  &-small {
+    width: 600px;
+  }
 
   .modal-header {
     padding: var(--modal-padding);

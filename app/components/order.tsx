@@ -119,6 +119,8 @@ export function Order() {
     }
     if (order.payChannel === "xunhu") {
       router.push(order.payUrl);
+    } else if (order.payChannel === "yizhifu") {
+      router.push(order.payUrl);
     } else {
       if (order.payAgent === "wechat") {
         if (inWechat) {
