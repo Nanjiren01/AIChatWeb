@@ -1110,7 +1110,7 @@ export function Settings() {
             title={Locale.Settings.Version.Title}
             subTitle={Locale.Settings.Version.SubTitle}
           >
-            <span>v0.11.1-chatmj</span>
+            <span>v0.11.2-chatmj</span>
           </ListItem>
         </List>
 
