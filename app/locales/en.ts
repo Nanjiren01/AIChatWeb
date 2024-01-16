@@ -402,6 +402,7 @@ const en: LocaleType = {
     BuyFailedCause: "套餐购买失败！原因：",
     TOO_FREQUENCILY: "操作过于频繁，请稍后再试",
     CREATE_ORDER_FAILED: "创建订单失败",
+    ChoosePayChannel: "请选择支付方式",
   },
   PayPage: {
     PaidSuccess: "支付成功",
