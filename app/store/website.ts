@@ -69,6 +69,7 @@ export interface WebsiteConfigStore {
   defaultSystemTemplate?: string;
   plugins?: AiPlugin[];
   assistants: AiAssistant[];
+  payChannels: string[];
   fetchWebsiteConfig: () => Promise<any>;
 }
 
@@ -103,6 +104,7 @@ export interface WebsiteConfig {
   availableModels: SimpleModel[];
   plugins?: AiPlugin[];
   assistants: AiAssistant[];
+  payChannels: string[];
 }
 export interface WebsiteConfigData {
   websiteContent: WebsiteConfig;
@@ -145,6 +147,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
       defaultSystemTemplate: "",
       plugins: [] as AiPlugin[],
       assistants: [] as AiAssistant[],
+      payChannels: [] as string[],
 
       async fetchWebsiteConfig() {
         const url = "/globalConfig/website";
@@ -205,6 +208,7 @@ export const useWebsiteConfigStore = create<WebsiteConfigStore>()(
               defaultSystemTemplate: website.defaultSystemTemplate,
               plugins: website.plugins,
               assistants: website.assistants,
+              payChannels: website.payChannels,
             }));
             return res;
           })

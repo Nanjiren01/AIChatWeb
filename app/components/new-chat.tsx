@@ -269,32 +269,34 @@ export function NewChat() {
         />
       </div>
 
-      <div className={styles["assistant-container"]} ref={maskRef}>
-        <div className={styles["assistant-row"]}>
-          <div className={styles["assistant-tip"]}>体验全新智能助手 →</div>
-          {assistants
-            .map((assistant) => {
-              return {
-                id: assistant.uuid,
-                createdAt: 0,
-                avatar: "1f430",
-                name: assistant.name,
-                hideContext: true,
-                context: [],
-                modelConfig: {} as ModelConfig,
-                lang: "cn" as Lang,
-                builtin: true,
-              } as Mask;
-            })
-            .map((assistant) => (
-              <MaskItem
-                key={assistant.id}
-                mask={assistant}
-                onClick={() => startChatWithAssistant(assistant.id)}
-              />
-            ))}
+      {assistants && assistants.length > 0 && (
+        <div className={styles["assistant-container"]} ref={maskRef}>
+          <div className={styles["assistant-row"]}>
+            <div className={styles["assistant-tip"]}>体验全新智能助手 →</div>
+            {assistants
+              .map((assistant) => {
+                return {
+                  id: assistant.uuid,
+                  createdAt: 0,
+                  avatar: "1f430",
+                  name: assistant.name,
+                  hideContext: true,
+                  context: [],
+                  modelConfig: {} as ModelConfig,
+                  lang: "cn" as Lang,
+                  builtin: true,
+                } as Mask;
+              })
+              .map((assistant) => (
+                <MaskItem
+                  key={assistant.id}
+                  mask={assistant}
+                  onClick={() => startChatWithAssistant(assistant.id)}
+                />
+              ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {maskTypes.length > 1 && (
         <div className={styles["mask-type-container"]}>

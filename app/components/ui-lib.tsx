@@ -147,6 +147,7 @@ interface ModalProps {
   defaultMax?: boolean;
   footer?: JSX.Element;
   onClose?: () => void;
+  size?: "default" | "small";
 }
 export function Modal(props: ModalProps) {
   useEffect(() => {
@@ -169,7 +170,10 @@ export function Modal(props: ModalProps) {
   return (
     <div
       className={
-        styles["modal-container"] + ` ${isMax && styles["modal-container-max"]}`
+        styles["modal-container"] +
+        ` ${isMax && styles["modal-container-max"]} ${
+          props.size === "small" && styles["modal-container-small"]
+        }`
       }
     >
       <div className={styles["modal-header"]}>

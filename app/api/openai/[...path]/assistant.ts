@@ -24,11 +24,39 @@ export interface RunEntity {
   updateTime: Date;
 }
 
+// public static final String STATUS_INIT = "init";
+// public static final String STATUS_QUEUED = "queued";
+// public static final String STATUS_IN_PROGRESS = "in_progress";
+// public static final String STATUS_REQUIRES_ACTION = "requires_action";
+// public static final String STATUS_CANCELLING = "cancelling";
+// public static final String STATUS_CANCELLED = "cancelled";
+// public static final String STATUS_FAILED = "failed";
+// public static final String STATUS_COMPLETED = "completed";
+// public static final String STATUS_EXPIRED = "expired";
+// public static final ArrayList<String> UNCOMPLETED_STATUSES = Lists.newArrayList(
+//   STATUS_INIT,
+//   STATUS_QUEUED,
+//   STATUS_IN_PROGRESS,
+//   STATUS_REQUIRES_ACTION,
+//   STATUS_CANCELLING
+// );
+export type RunStatus =
+  | "init"
+  | "queued"
+  | "in_progress"
+  | "requires_action"
+  | "cancelling"
+  | "cancelled"
+  | "failed"
+  | "completed"
+  | "expired";
+export type RunStepStatus = RunStatus;
 export interface RunStepEntity {
   id: number;
   uuid: string;
   thirdpartId: string;
   thirdpartInfo: string;
+  status: RunStepStatus;
 }
 
 export interface ThreadMessageEntity {
@@ -142,7 +170,6 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
       if (result === false) {
         return;
       }
-      const globalMessageIds = new Set<string>();
       const setTimer = () =>
         setTimeout(async () => {
           const reuslt = await retrieveRun(
@@ -152,7 +179,6 @@ export async function handle(req: NextRequest, reqBody: RequestBody) {
             runEntity,
             writer,
             encoder,
-            globalMessageIds,
           );
           if (reuslt) {
             console.log("result is true, setTimeout 3000ms");
@@ -177,7 +203,6 @@ async function retrieveRun(
   runEntity: RunEntity,
   writer: WritableStreamDefaultWriter<any>,
   encoder: TextEncoder,
-  globalMessageIds: Set<string>,
 ) {
   const runResp = await fetch(
     baseUrl + "/threadRun/retrieve/" + runEntity.uuid,
@@ -206,7 +231,10 @@ async function retrieveRun(
   console.log("获取run状态成功");
   const newRun = runRespJson.data as RunEntity;
 
-  const messageIds = new Set<string>();
+  const messageIds = new Set<string>(); // 记录steps中创建出来的messages
+  const wrapper = {
+    allStepsFinished: true,
+  };
   const retrieveRunStepsResult = await retrieveRunSteps(
     baseUrl,
     authToken,
@@ -214,6 +242,7 @@ async function retrieveRun(
     writer,
     encoder,
     messageIds,
+    wrapper,
   );
   if (false === retrieveRunStepsResult) {
     console.log("retrieveRunStepsResult === false");
@@ -227,7 +256,6 @@ async function retrieveRun(
       writer,
       encoder,
       messageIds,
-      globalMessageIds,
     );
     if (result === false) {
       return false;
@@ -253,10 +281,11 @@ async function retrieveRun(
     false,
   );
   if (result === false) {
-    return;
+    return false;
   }
 
-  if (newRun.status === "completed") {
+  // 当前run状态已结束，并且所有step状态已结束
+  if (newRun.status === "completed" && wrapper.allStepsFinished) {
     console.log("run运行结束", newRun);
     await output(
       writer,
@@ -277,6 +306,7 @@ async function retrieveRun(
   return true;
 }
 
+// 失败会返回false，返回false就会不再继续查询状态
 async function retrieveRunSteps(
   baseUrl: string,
   authToken: string,
@@ -284,6 +314,9 @@ async function retrieveRunSteps(
   writer: WritableStreamDefaultWriter<any>,
   encoder: TextEncoder,
   messageIds: Set<string>,
+  wrapper: {
+    allStepsFinished: boolean;
+  },
 ) {
   const runResp = await fetch(
     baseUrl + "/threadRun/retrieve/" + runEntity.uuid + "/steps",
@@ -329,7 +362,18 @@ async function retrieveRunSteps(
     }
     const thirdpartInfo = JSON.parse(runStep.thirdpartInfo);
     if (thirdpartInfo.step_details?.type === "message_creation") {
-      messageIds.add(thirdpartInfo.step_details!.message_creation.message_id);
+      messageIds.add(thirdpartInfo.step_details!.message_creation!.message_id);
+    }
+    if (
+      [
+        "init",
+        "queued",
+        "in_progress",
+        "requires_action",
+        "cancelling",
+      ].includes(runStep.status)
+    ) {
+      wrapper.allStepsFinished = false;
     }
   });
   return true;
@@ -342,7 +386,6 @@ async function retrieveMessages(
   writer: WritableStreamDefaultWriter<any>,
   encoder: TextEncoder,
   messageIds: Set<string>,
-  globalMessageIds: Set<string>,
 ) {
   const messageResp = await fetch(baseUrl + "/threadMessage/" + threadUuid, {
     method: "get",
@@ -366,13 +409,11 @@ async function retrieveMessages(
     return false;
   }
   console.log("获取thread messages成功", JSON.stringify(messageIds));
-  const messages = messageRespJson.data.filter(
-    (m: any) =>
-      messageIds.has(m.thirdpartId) && !globalMessageIds.has(m.thirdpartId),
+  // 只要是steps中创建的messages都推送给客户端
+  const messages = messageRespJson.data.filter((m: any) =>
+    messageIds.has(m.thirdpartId),
   );
-  messages.forEach((msg: any) => {
-    globalMessageIds.add(msg.thirdpartId);
-  });
+
   const outputResult = await output(
     writer,
     encoder,
