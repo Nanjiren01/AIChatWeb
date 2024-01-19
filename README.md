@@ -5,7 +5,7 @@
   
 <h1 align="center">AIChat Web</h1>
 
-<div align="center">更新时间：2023-11-07</div>
+<div align="center">更新时间：2023-1-19</div>
 <div>本项目全面支持OpenAI 2023年11月6日放开的模型（gpt-3.5-turbo-1106、gpt-4-1106-preview、gpt-4-vision-preview）</div>
 <div>本项目全面支持清华智谱 2024年1月 16日放开的模型（gpt-4、gpt-4v）</div>
 
@@ -147,6 +147,7 @@
 | 对接Azure OpenAI          | ✔已完成(v0.11） |
 | 消息同步          | ✔已完成(v0.11）|
 | gpt-4-vision     | ✔已完成(v0.11） |
+| glm4，glm4v       | ✔已完成(v0.11.3）    |
 | 对接发卡平台          | 进行中   |
 | 多模型支持                         | 长期进行 |
 
