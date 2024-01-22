@@ -279,9 +279,9 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 网址：[https://neu.zxyt.top/](https://neu.zxyt.top/)
 用户：150+
 
-### AI Ultra
-网址：[https://chat.wzunjh.top/](https://chat.wzunjh.top/)
-用户：1100+
+### NineF AI
+网址：[https://www.9fai.com/](https://www.9fai.com/)
+用户：6100+
 
 ### AI佩奇
 网址：[https://new.aigc369.com/](https://new.aigc369.com/)
