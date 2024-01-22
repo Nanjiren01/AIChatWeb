@@ -90,11 +90,18 @@ export function requestResetPassword(
   password: string,
   email: string,
   code: string,
+  phone: string,
+  phoneCode: string,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
 ): Promise<RegisterResult> {
-  return request("/resetPassword", "POST", { password, code, email }, options);
+  return request(
+    "/resetPassword",
+    "POST",
+    { password, code, email, phone, phoneCode },
+    options,
+  );
 }
 
 export async function requestLogin(

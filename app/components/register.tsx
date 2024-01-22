@@ -137,7 +137,7 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
     }
     setPhoneCodeSending(true);
     authStore
-      .sendPhoneCode(phone, captchaId, captchaInput)
+      .sendPhoneCode(phone, captchaId, captchaInput, false)
       .then((resp) => {
         if (resp.code == 0) {
           showToast(Locale.RegisterPage.Toast.PhoneCodeSent);

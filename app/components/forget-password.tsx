@@ -23,12 +23,14 @@ export function ForgetPassword(props: {
   const navigate = useNavigate();
   const authStore = useAuthStore();
   // const accessStore = useAccessStore();
-  const { mainTitle, hideChatLogWhenNotLogin } = useWebsiteConfigStore();
-  // const registerType = registerTypes[0];
-  // const REG_TYPE_ONLY_USERNAME = "OnlyUsername";
-  // const REG_TYPE_USERNAME_WITH_CAPTCHA = "OnlyUsernameWithCaptcha";
-  // const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
-  //   "UsernameAndEmailWithCaptchaAndCode";
+  const { registerTypes, mainTitle, hideChatLogWhenNotLogin } =
+    useWebsiteConfigStore();
+  const registerType = registerTypes[0];
+  const REG_TYPE_ONLY_USERNAME = "OnlyUsername";
+  const REG_TYPE_USERNAME_WITH_CAPTCHA = "OnlyUsernameWithCaptcha";
+  const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
+    "UsernameAndEmailWithCaptchaAndCode";
+  const REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE = "PhoneWithCaptchaAndCode";
 
   const [loadingUsage, setLoadingUsage] = useState(false);
   // const [captcha, setCaptcha] = useState("");
@@ -59,23 +61,31 @@ export function ForgetPassword(props: {
     return uuid;
   }
 
-  const [captchaId] = useState("register-" + generateUUID());
+  const [captchaId, setCaptchaId] = useState("register-" + generateUUID());
+  const [captcha, setCaptcha] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [emailCode, setEmailCode] = useState("");
   const [emailCodeSending, setEmailCodeSending] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [phoneCode, setPhoneCode] = useState("");
+  const [phoneCodeSending, setPhoneCodeSending] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [comfirmedPassword, setComfirmedPassword] = useState("");
   const [captchaInput, setCaptchaInput] = useState("");
   function handleClickSendEmailCode() {
-    if (email === null || email == "") {
+    if (email === null || email === "") {
       showToast(Locale.RegisterPage.Toast.EmailIsEmpty);
+      return;
+    }
+    if (captchaInput == null || captchaInput === "") {
+      showToast(Locale.RegisterPage.CaptchaIsEmpty);
       return;
     }
     setEmailCodeSending(true);
     authStore
-      .sendEmailCodeForResetPassword(email)
+      .sendEmailCodeForResetPassword(email, captchaId, captchaInput)
       .then((resp) => {
         if (resp.code == 0) {
           showToast(Locale.RegisterPage.Toast.EmailCodeSent);
@@ -88,10 +98,40 @@ export function ForgetPassword(props: {
           showToast(Locale.RegisterPage.Toast.EmailCodeSentFrequently);
           return;
         }
-        showToast(resp.message);
+        showToast(resp.cnMessage || resp.message);
       })
       .finally(() => {
         setEmailCodeSending(false);
+      });
+  }
+  function handleClickSendPhoneCode() {
+    if (phone === null || phone === "") {
+      showToast(Locale.RegisterPage.Toast.PhoneIsEmpty);
+      return;
+    }
+    if (captchaInput == null || captchaInput === "") {
+      showToast(Locale.RegisterPage.CaptchaIsEmpty);
+      return;
+    }
+    setPhoneCodeSending(true);
+    authStore
+      .sendPhoneCode(phone, captchaId, captchaInput, true)
+      .then((resp) => {
+        if (resp.code == 0) {
+          showToast(Locale.RegisterPage.Toast.PhoneCodeSent);
+          return;
+        }
+        if (resp.code == 10121) {
+          showToast(Locale.RegisterPage.Toast.PhoneFormatError);
+          return;
+        } else if (resp.code == 10122) {
+          showToast(Locale.RegisterPage.Toast.PhoneCodeSentFrequently);
+          return;
+        }
+        showToast(resp.cnMessage || resp.message);
+      })
+      .finally(() => {
+        setPhoneCodeSending(false);
       });
   }
   function resetPassword() {
@@ -99,18 +139,29 @@ export function ForgetPassword(props: {
       showToast(Locale.RegisterPage.Toast.PasswordEmpty);
       return;
     }
-    if (email === null || email == "") {
-      showToast(Locale.RegisterPage.Toast.EmailIsEmpty);
-      return;
-    }
-    if (emailCode === null || emailCode === "") {
-      showToast(Locale.RegisterPage.Toast.EmailCodeEmpty);
-      return;
+    if (registerType === REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE) {
+      if (email === null || email == "") {
+        showToast(Locale.RegisterPage.Toast.EmailIsEmpty);
+        return;
+      }
+      if (emailCode === null || emailCode === "") {
+        showToast(Locale.RegisterPage.Toast.EmailCodeEmpty);
+        return;
+      }
+    } else if (registerType === REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE) {
+      if (phone === null || phone == "") {
+        showToast(Locale.RegisterPage.Toast.PhoneIsEmpty);
+        return;
+      }
+      if (phoneCode === null || phoneCode === "") {
+        showToast(Locale.RegisterPage.Toast.PhoneCodeEmpty);
+        return;
+      }
     }
     setLoadingUsage(true);
     showToast(Locale.ForgetPasswordPage.Toast.PasswordResetting);
     authStore
-      .resetPassword(password, email, emailCode)
+      .resetPassword(password, email, emailCode, phone, phoneCode)
       .then((result) => {
         console.log("result", result);
         if (!result) {
@@ -121,10 +172,10 @@ export function ForgetPassword(props: {
           showToast(Locale.ForgetPasswordPage.Toast.PasswordResetSuccess);
           navigate(Path.Chat);
         } else {
-          if (result.message) {
+          if (result.cnMessage || result.message) {
             showToast(
               Locale.ForgetPasswordPage.Toast.PasswordResetFailedWithReason +
-                result.message,
+                (result.cnMessage || result.message),
             );
           } else {
             showToast(Locale.RegisterPage.Toast.Failed);
@@ -135,6 +186,27 @@ export function ForgetPassword(props: {
         setLoadingUsage(false);
       });
   }
+
+  function getRegisterCaptcha(captchaId: string) {
+    // console.log('getRegisterCaptcha', captchaId)
+    const url = "/getRegisterCaptcha?captchaId=" + captchaId;
+    const BASE_URL = process.env.BASE_URL;
+    const mode = process.env.BUILD_MODE;
+    let requestUrl = (mode === "export" ? BASE_URL : "") + "/api" + url;
+    fetch(requestUrl, {
+      method: "get",
+    }).then(async (resp) => {
+      const result = await resp.json();
+      if (result.code != 0) {
+        showToast(result.message);
+      } else {
+        setCaptcha("data:image/jpg;base64," + result.data);
+      }
+    });
+  }
+  useEffect(() => {
+    getRegisterCaptcha(captchaId);
+  }, [captchaId]);
 
   return (
     <ErrorBoundary>
@@ -185,45 +257,129 @@ export function ForgetPassword(props: {
           </div>
         )}
         <List>
+          {registerType ===
+            REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE && (
+            <ListItem
+              title={Locale.RegisterPage.Email.Title}
+              subTitle={Locale.RegisterPage.Email.SubTitle}
+            >
+              <SingleInput
+                value={email}
+                placeholder={Locale.RegisterPage.Email.Placeholder}
+                onChange={(e) => {
+                  setEmail(e.currentTarget.value);
+                }}
+              />
+            </ListItem>
+          )}
+
+          {registerType === REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE && (
+            <ListItem
+              title={Locale.RegisterPage.Phone.Title}
+              subTitle={Locale.RegisterPage.Phone.SubTitle}
+            >
+              <SingleInput
+                value={phone}
+                placeholder={Locale.RegisterPage.Phone.Placeholder}
+                onChange={(e) => {
+                  setPhone(e.currentTarget.value);
+                }}
+              />
+            </ListItem>
+          )}
+
+          <ListItem title={Locale.RegisterPage.Captcha}>
+            <div>
+              {captcha ? (
+                <img
+                  alt={Locale.RegisterPage.Captcha}
+                  src={captcha}
+                  width="100"
+                  height="40"
+                  title={Locale.RegisterPage.CaptchaTitle}
+                  style={{ cursor: "pointer" }}
+                  onClick={(e) => getRegisterCaptcha(captchaId)}
+                />
+              ) : (
+                <></>
+              )}
+            </div>
+          </ListItem>
           <ListItem
-            title={Locale.RegisterPage.Email.Title}
-            subTitle={Locale.RegisterPage.Email.SubTitle}
+            title={Locale.RegisterPage.CaptchaInput.Title}
+            subTitle={Locale.RegisterPage.CaptchaInput.SubTitle}
           >
             <SingleInput
-              value={email}
-              placeholder={Locale.RegisterPage.Email.Placeholder}
+              value={captchaInput}
+              placeholder={Locale.RegisterPage.CaptchaInput.Placeholder}
               onChange={(e) => {
-                setEmail(e.currentTarget.value);
+                setCaptchaInput(e.currentTarget.value);
               }}
             />
           </ListItem>
 
-          <ListItem>
-            <IconButton
-              text={
-                emailCodeSending
-                  ? Locale.RegisterPage.Toast.EmailCodeSending
-                  : Locale.RegisterPage.Toast.SendEmailCode
-              }
-              disabled={emailCodeSending}
-              onClick={() => {
-                handleClickSendEmailCode();
-              }}
-            />
-          </ListItem>
+          {registerType ===
+            REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE && (
+            <>
+              <ListItem>
+                <IconButton
+                  text={
+                    emailCodeSending
+                      ? Locale.RegisterPage.Toast.EmailCodeSending
+                      : Locale.RegisterPage.Toast.SendEmailCode
+                  }
+                  disabled={emailCodeSending}
+                  onClick={() => {
+                    handleClickSendEmailCode();
+                  }}
+                />
+              </ListItem>
 
-          <ListItem
-            title={Locale.RegisterPage.EmailCode.Title}
-            subTitle={Locale.RegisterPage.EmailCode.SubTitle}
-          >
-            <SingleInput
-              value={emailCode}
-              placeholder={Locale.RegisterPage.EmailCode.Placeholder}
-              onChange={(e) => {
-                setEmailCode(e.currentTarget.value);
-              }}
-            />
-          </ListItem>
+              <ListItem
+                title={Locale.RegisterPage.EmailCode.Title}
+                subTitle={Locale.RegisterPage.EmailCode.SubTitle}
+              >
+                <SingleInput
+                  value={emailCode}
+                  placeholder={Locale.RegisterPage.EmailCode.Placeholder}
+                  onChange={(e) => {
+                    setEmailCode(e.currentTarget.value);
+                  }}
+                />
+              </ListItem>
+            </>
+          )}
+
+          {registerType === REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE && (
+            <>
+              <ListItem>
+                <IconButton
+                  text={
+                    phoneCodeSending
+                      ? Locale.RegisterPage.Toast.PhoneCodeSending
+                      : Locale.RegisterPage.Toast.SendPhoneCode
+                  }
+                  disabled={phoneCodeSending}
+                  onClick={() => {
+                    handleClickSendPhoneCode();
+                  }}
+                />
+              </ListItem>
+
+              <ListItem
+                title={Locale.RegisterPage.PhoneCode.Title}
+                subTitle={Locale.RegisterPage.PhoneCode.SubTitle}
+              >
+                <SingleInput
+                  value={phoneCode}
+                  placeholder={Locale.RegisterPage.PhoneCode.Placeholder}
+                  onChange={(e) => {
+                    setPhoneCode(e.currentTarget.value);
+                  }}
+                />
+              </ListItem>
+            </>
+          )}
 
           <ListItem
             title={Locale.RegisterPage.Password.Title}

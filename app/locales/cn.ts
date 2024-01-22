@@ -192,6 +192,11 @@ const cn = {
       SubTitle: "",
       Placeholder: "请输入用户名或邮箱",
     },
+    UsernameOrPhone: {
+      Title: "用户名或手机号",
+      SubTitle: "",
+      Placeholder: "请输入用户名或手机号",
+    },
     Password: {
       Title: "密码",
       SubTitle: "",

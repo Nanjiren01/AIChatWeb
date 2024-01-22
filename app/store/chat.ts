@@ -685,7 +685,7 @@ export const useChatStore = createPersistStore(
           assistantUuid: assistantUuid,
           threadUuid: session.threadUuid,
           onUpdate(message) {
-            // console.log("onUpdate", message);
+            console.log("onUpdate", message);
             botMessage.streaming = true;
             if (message) {
               botMessage.content = message;
@@ -1768,7 +1768,18 @@ export const useChatStore = createPersistStore(
             session.mask = newSession.mask;
             session.assistant = newSession.assistant;
             session.memoryPrompt = newSession.memoryPrompt;
-            session.messages = newSession.messages;
+
+            // 从后往前看哪些没有同步过去，都加入
+            const messages = [] as ChatMessage[];
+            for (let i = 0; i < session.messages.length; i++) {
+              const message = session.messages[i];
+              if (!message.uuid) {
+                messages.splice(0, 0, message);
+              } else {
+                break;
+              }
+            }
+            session.messages = newSession.messages.concat(...messages);
             session.stat = newSession.stat;
             session.topic = newSession.topic;
             const sessions = get().sessions;

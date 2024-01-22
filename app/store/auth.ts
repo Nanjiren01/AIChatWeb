@@ -29,6 +29,7 @@ export interface AuthStore {
     phone: string,
     captchaId: string,
     captchaInput: string,
+    resetPassword: boolean,
   ) => Promise<any>;
   sendEmailCodeForResetPassword: (
     email: string,
@@ -50,6 +51,8 @@ export interface AuthStore {
     password: string,
     email: string,
     code: string,
+    phone: string,
+    phoneCode: string,
   ) => Promise<any>;
   wechatLogin: (code: string, state: string, appType: string) => Promise<any>;
   removeToken: () => void;
@@ -146,12 +149,13 @@ export const useAuthStore = create<AuthStore>()(
         phone: string,
         captchaId: string,
         captchaInput: string,
+        resetPassword: boolean,
       ) {
         let result = await requestSendPhoneCode(
           phone,
           captchaId,
           captchaInput,
-          false,
+          resetPassword,
           {
             onError: (err) => {
               console.error(err);
@@ -201,12 +205,19 @@ export const useAuthStore = create<AuthStore>()(
 
         return result;
       },
-      async resetPassword(password, email, code) {
-        let result = await requestResetPassword(password, email, code, {
-          onError: (err) => {
-            console.error(err);
+      async resetPassword(password, email, code, phone, phoneCode) {
+        let result = await requestResetPassword(
+          password,
+          email,
+          code,
+          phone,
+          phoneCode,
+          {
+            onError: (err) => {
+              console.error(err);
+            },
           },
-        });
+        );
         //console.log("result", result);
         if (result && result.code == 0 && result.data) {
           const data = result.data;
