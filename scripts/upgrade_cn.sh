@@ -93,6 +93,7 @@ sed -i '/^  [a-z].*:/i\\' temp.yml # Add an empty line before each service defin
 
 # Move the merged content back to the original docker-compose.yml file
 mv temp.yml docker-compose.yml
+rm docker-compose-new.yml
 
 
 # Check if db service is used in the backup file
