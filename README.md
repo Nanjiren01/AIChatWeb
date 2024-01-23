@@ -544,9 +544,9 @@ Users: 300+
 Website: [https://neu.zxyt.top/](https://neu.zxyt.top/)
 Users: 150+
 
-### AI Ultra
-Website: [https://chat.wzunjh.top/](https://chat.wzunjh.top/)
-Users: 1100+
+### NineF AI
+Website: [https://www.9fai.com/](https://www.9fai.com/)
+Users: 1000+
 
 ### AI Peppa
 Website: [https://new.aigc369.com/](https://new.aigc369.com/)
