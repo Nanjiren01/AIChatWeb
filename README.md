@@ -271,10 +271,6 @@ Telegram：<a target="_blank" href="https://t.me/aichatadmin">aichatadmin</a>
 
 ## 优秀案例
 
-### YOURS-AI
-网址：[https://junmao.shop/](https://junmao.shop/)
-用户：300+
-
 ### NEU-GPT
 网址：[https://neu.zxyt.top/](https://neu.zxyt.top/)
 用户：150+
