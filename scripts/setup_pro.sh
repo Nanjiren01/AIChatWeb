@@ -47,10 +47,10 @@ fi
 # Check if /etc/docker/daemon.json exists and modify it
 if [ -e /etc/docker/daemon.json ]; then
   echo "daemon.json exists, updating it..."
-  jq '.["insecure-registries"] += ["harbor.nanjiren.online:8099"]' /etc/docker/daemon.json > /tmp/daemon.json && mv /tmp/daemon.json /etc/docker/daemon.json
+  jq '.["insecure-registries"] += ["https://harbor.nanjiren.online"]' /etc/docker/daemon.json > /tmp/daemon.json && mv /tmp/daemon.json /etc/docker/daemon.json
 else
   echo "daemon.json does not exist, creating it..."
-  echo '{"insecure-registries": ["harbor.nanjiren.online:8099"]}' > /etc/docker/daemon.json
+  echo '{"insecure-registries": ["https://harbor.nanjiren.online"]}' > /etc/docker/daemon.json
 fi
 
 # Restart Docker daemon
@@ -67,7 +67,7 @@ while true; do
   # Log in to the AIChat Pro private registry
   echo ""
   echo "Logging in to Docker private registry..."
-  if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD http://harbor.nanjiren.online:8099; then
+  if docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD https://harbor.nanjiren.online; then
     break
   else
     echo "AIChat Pro authorization failed, please re-enter your account and password."
@@ -102,9 +102,90 @@ else
     exit 1
 fi
 
+# Check current Web Secret in docker-compose.yml and prompt for change if needed
+CURRENT_WEB_SECRET=$(grep 'WEB_SECRET:' docker-compose.yml | cut -d ':' -f2 | xargs)
+echo "Current Web Secret is: $CURRENT_WEB_SECRET"
+read -p "Do you want to change the Web Secret? (y/N): " DECISION
+
+if [[ "$DECISION" =~ ^[Yy]$ ]]; then
+    echo "Please input the new Web Secret (at least 8 characters):"
+    read -p "Web Secret: " NEW_WEB_SECRET
+    regex='^[A-Za-z0-9]{8,}$'
+    if [[ $NEW_WEB_SECRET =~ $regex ]]; then
+        sed -i "s/WEB_SECRET:.*/WEB_SECRET: $NEW_WEB_SECRET/g" docker-compose.yml
+        echo "Web Secret updated."
+    else
+        echo "Invalid Web Secret. Keeping the current one."
+    fi
+fi
+
+# Check for STORE_TYPE and prompt for configuration
+STORE_TYPE=$(grep 'STORE_TYPE:' docker-compose.yml | cut -d ':' -f2 | xargs)
+
+if [ -z "$STORE_TYPE" ]; then
+    echo "Store type is not set. Please choose the store type by typing (local/oss):"
+    read -p "Store Type: " STORE_TYPE_CHOICE
+    STORE_TYPE=${STORE_TYPE_CHOICE:-local}
+fi
+
+attempt_count=0
+max_attempts=3
+
+while [ $attempt_count -lt $max_attempts ]; do
+    read -p "Please choose the store type by typing 'local' or 'oss' (Attempt $((attempt_count + 1))/$max_attempts): " STORE_TYPE_CHOICE
+    if [[ "$STORE_TYPE_CHOICE" == "local" ]] || [[ "$STORE_TYPE_CHOICE" == "oss" ]]; then
+        STORE_TYPE=$STORE_TYPE_CHOICE
+        break
+    else
+        echo "Invalid input. Please type 'local' or 'oss'."
+        attempt_count=$((attempt_count + 1))
+    fi
+
+    if [ $attempt_count -eq $max_attempts ]; then
+        echo "Maximum attempts reached. Exiting script."
+        exit 1
+    fi
+done
+
+if [[ "$STORE_TYPE" == "local" ]]; then
+    # Handle local storage configuration
+    EXISTING_LOCAL_PATH=$(grep 'LOCAL_PATH:' docker-compose.yml | cut -d ':' -f2 | xargs)
+    echo "Using local storage. Current path is: ${EXISTING_LOCAL_PATH:-/app/aichat/images}"
+    read -p "New local storage path (press enter to use existing/default): " NEW_LOCAL_PATH
+    LOCAL_PATH=${NEW_LOCAL_PATH:-$EXISTING_LOCAL_PATH}
+    sed -i "s#LOCAL_PATH:.*#LOCAL_PATH: $LOCAL_PATH#g" docker-compose.yml
+else
+    # Handle OSS storage configuration
+    EXISTING_OSS_ENDPOINT=$(grep 'OSS_ENDPOINT:' docker-compose.yml | cut -d ':' -f2 | xargs)
+    EXISTING_OSS_BUCKET_NAME=$(grep 'OSS_BUCKET_NAME:' docker-compose.yml | cut -d ':' -f2 | xargs)
+    EXISTING_OSS_ACCESS_KEY_ID=$(grep 'OSS_ACCESS_KEY_ID:' docker-compose.yml | cut -d ':' -f2 | xargs)
+    EXISTING_OSS_ACCESS_KEY_SECRET=$(grep 'OSS_ACCESS_KEY_SECRET:' docker-compose.yml | cut -d ':' -f2 | xargs)
+
+    echo "Using OSS storage. Please input the OSS configurations."
+    read -p "OSS Endpoint [${EXISTING_OSS_ENDPOINT}]: " OSS_ENDPOINT
+    OSS_ENDPOINT=${OSS_ENDPOINT:-$EXISTING_OSS_ENDPOINT}
+    read -p "OSS Bucket Name [${EXISTING_OSS_BUCKET_NAME}]: " OSS_BUCKET_NAME
+    OSS_BUCKET_NAME=${OSS_BUCKET_NAME:-$EXISTING_OSS_BUCKET_NAME}
+    read -p "OSS Access Key ID [${EXISTING_OSS_ACCESS_KEY_ID}]: " OSS_ACCESS_KEY_ID
+    OSS_ACCESS_KEY_ID=${OSS_ACCESS_KEY_ID:-$EXISTING_OSS_ACCESS_KEY_ID}
+    read -p "OSS Access Key Secret [${EXISTING_OSS_ACCESS_KEY_SECRET}]: " OSS_ACCESS_KEY_SECRET
+    OSS_ACCESS_KEY_SECRET=${OSS_ACCESS_KEY_SECRET:-$EXISTING_OSS_ACCESS_KEY_SECRET}
+
+    sed -i "s/STORE_TYPE:.*/STORE_TYPE: oss/g" docker-compose.yml
+    sed -i "s/OSS_ENDPOINT:.*/OSS_ENDPOINT: $OSS_ENDPOINT/g" docker-compose.yml
+    sed -i "s/OSS_BUCKET_NAME:.*/OSS_BUCKET_NAME: $OSS_BUCKET_NAME/g" docker-compose.yml
+    sed -i "s/OSS_ACCESS_KEY_ID:.*/OSS_ACCESS_KEY_ID: $OSS_ACCESS_KEY_ID/g" docker-compose.yml
+    sed -i "s/OSS_ACCESS_KEY_SECRET:.*/OSS_ACCESS_KEY_SECRET: $OSS_ACCESS_KEY_SECRET/g" docker-compose.yml
+fi
+
 sed -i "s/SUPERADMIN_USERNAME:.*/SUPERADMIN_USERNAME: $SUPER_USERNAME/g" docker-compose.yml
 sed -i "s/SUPERADMIN_PASSWORD:.*/SUPERADMIN_PASSWORD: $SUPER_PASSWORD/g" docker-compose.yml
+sed -i "s/WEB_SECRET:.*/WEB_SECRET: $WEB_SECRET/g" docker-compose.yml
+sed -i "s/SECRET:.*/SECRET: $WEB_SECRET/g" docker-compose.yml
+sed -i "s/LOG_LEVEL:.*/LOG_LEVEL: INFO/g" docker-compose.yml
 
+
+# Pull and start the Docker containers
 docker compose pull
 
 docker compose up -d
