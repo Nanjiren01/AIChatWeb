@@ -68,7 +68,9 @@ export function MaskAvatar(props: {
   mask: Mask | RemoteMask;
   logoUrl?: string;
 }) {
-  return props.mask.avatar !== DEFAULT_MASK_AVATAR ? (
+  return props.mask.modelConfig?.avatarEmoji ? (
+    <Avatar avatar={props.mask.modelConfig?.avatarEmoji} />
+  ) : props.mask.avatar !== DEFAULT_MASK_AVATAR ? (
     <Avatar avatar={props.mask.avatar} logoUrl={props.logoUrl} />
   ) : (
     <Avatar model={props.mask.modelConfig?.model} logoUrl={props.logoUrl} />

@@ -33,6 +33,7 @@ export function Avatar(props: {
   model?: ModelType;
   avatar?: string;
   logoUrl?: string;
+  inline?: boolean;
 }) {
   // console.log('refresh Avatar', props.logoUrl)
   if (props.model) {
@@ -62,10 +63,25 @@ export function Avatar(props: {
     );
   }
 
-  return (
-    <div className="user-avatar">
-      {props.avatar && <EmojiAvatar avatar={props.avatar} />}
-    </div>
+  return props.avatar ? (
+    props.inline ? (
+      <span style={{ display: props.inline ? "inline-block" : "" }}>
+        <span className="user-avatar">
+          <EmojiAvatar avatar={props.avatar} />
+        </span>
+      </span>
+    ) : (
+      <div className="user-avatar">
+        <EmojiAvatar avatar={props.avatar} />
+      </div>
+    )
+  ) : (
+    <img
+      src={props.logoUrl}
+      width={30}
+      height={30}
+      style={{ display: props.inline ? "inline-block" : "" }}
+    />
   );
 }
 

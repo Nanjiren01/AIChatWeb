@@ -93,6 +93,7 @@ const cn = {
     SessionLoadingError: (err: any) => "加载会话失败：" + err,
     ReloadSesison: "重新加载",
     DeleteDeletedSessionConfirm: "该会话已在其他客户端删除，确定删除本地会话？",
+    ModelNotAvailable: "当前模型已不可用，请更换模型进行会话",
   },
   Midjourney: {
     Uploading: "上传中……",

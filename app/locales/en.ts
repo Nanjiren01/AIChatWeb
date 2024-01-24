@@ -99,6 +99,8 @@ const en: LocaleType = {
     ReloadSesison: "Reload Session",
     DeleteDeletedSessionConfirm:
       "This session has been deleted by other client. Do you want to delete it from local storage?",
+    ModelNotAvailable:
+      "Current model is not available. Please Change the model for chatting",
   },
   Midjourney: {
     Uploading: "Uploading",
