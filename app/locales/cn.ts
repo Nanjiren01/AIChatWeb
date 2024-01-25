@@ -94,6 +94,7 @@ const cn = {
     ReloadSesison: "重新加载",
     DeleteDeletedSessionConfirm: "该会话已在其他客户端删除，确定删除本地会话？",
     ModelNotAvailable: "当前模型已不可用，请更换模型进行会话",
+    PleaseWaitForFinished: "请等待本次请求结束",
   },
   Midjourney: {
     Uploading: "上传中……",

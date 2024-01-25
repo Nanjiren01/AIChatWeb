@@ -101,6 +101,7 @@ const en: LocaleType = {
       "This session has been deleted by other client. Do you want to delete it from local storage?",
     ModelNotAvailable:
       "Current model is not available. Please Change the model for chatting",
+    PleaseWaitForFinished: "Please wait for the request finished",
   },
   Midjourney: {
     Uploading: "Uploading",

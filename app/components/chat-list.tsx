@@ -128,7 +128,7 @@ export function ChatList(props: {
               props.requestingSession !== null &&
               props.requestingSession !== item
             ) {
-              showToast("请等待本次请求结束！");
+              showToast(Locale.Chat.PleaseWaitForFinished);
               return;
             }
             navigate(Path.Chat);
@@ -136,7 +136,7 @@ export function ChatList(props: {
           }}
           onDelete={async () => {
             if (props.requestingSession === item) {
-              showToast("请等待本次请求结束！");
+              showToast(Locale.Chat.PleaseWaitForFinished);
               return;
             }
             if (
