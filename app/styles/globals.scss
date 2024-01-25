@@ -371,6 +371,13 @@ pre {
   border: var(--border-in-light);
   box-shadow: var(--card-shadow);
   border-radius: 11px;
+
+  &.no-border {
+    border: none;
+    box-shadow: none;
+    min-width: 18px;
+    width: 18px;
+  }
 }
 
 .one-line {

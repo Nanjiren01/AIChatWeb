@@ -802,7 +802,13 @@ export function ChatActions(props: {
           onClick={() => setShowModelSelector(true)}
           text={currentModel.name}
           alwaysShowText={true}
-          icon={<RobotIcon />}
+          icon={
+            currentModel.avatarEmoji ? (
+              <Avatar avatar={currentModel.avatarEmoji} noBorder={true} />
+            ) : (
+              <RobotIcon />
+            )
+          }
         />
       )}
 
@@ -811,6 +817,7 @@ export function ChatActions(props: {
           defaultSelectedValue={currentModel.name}
           items={availableModels.map((m) => ({
             title: m.name,
+            subTitle: m.desc,
             icon: m.avatarEmoji ? <Avatar avatar={m.avatarEmoji} /> : <></>,
             value: m.name,
           }))}
@@ -1600,6 +1607,24 @@ function _Chat() {
     deleteMessage(message);
   };
 
+  const onDeleteContext = (message: ChatMessage) => {
+    chatStore.updateCurrentSessionMaskByUpdater(
+      (mask) => {
+        const index = mask.context.findIndex((m) => message.id === m.id);
+        if (index < 0) {
+          return false;
+        }
+        mask.context.splice(index, 1);
+        return true;
+      },
+      authStore.token,
+      () => {
+        authStore.logout();
+        navigate(Path.Login);
+      },
+    );
+  };
+
   const onResend = (message: ChatMessage) => {
     // when it is resending a message
     // 1. for a user's message, find the next bot response
@@ -2177,6 +2202,55 @@ function _Chat() {
                         </>
                       )}
                     </div>
+                    {isUser && (
+                      <div className={styles["chat-message-actions"]}>
+                        <div className={styles["chat-input-actions"]}>
+                          {message.streaming ? (
+                            <ChatAction
+                              text={Locale.Chat.Actions.Stop}
+                              icon={<StopIcon />}
+                              onClick={() => onUserStop(message.id ?? i)}
+                            />
+                          ) : (
+                            <>
+                              {showActions && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Retry}
+                                  icon={<ResetIcon />}
+                                  onClick={() => onResend(message)}
+                                />
+                              )}
+
+                              {(!isContext ||
+                                session.mask.context.length > 0) && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Delete}
+                                  icon={<DeleteIcon />}
+                                  onClick={() =>
+                                    isContext
+                                      ? onDeleteContext(message)
+                                      : onDelete(message)
+                                  }
+                                />
+                              )}
+
+                              {showActions && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Pin}
+                                  icon={<PinIcon />}
+                                  onClick={() => onPinMessage(message)}
+                                />
+                              )}
+                              <ChatAction
+                                text={Locale.Chat.Actions.Copy}
+                                icon={<CopyIcon />}
+                                onClick={() => copyToClipboard(message.content)}
+                              />
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {!isUser &&
                     message.toolMessages &&
@@ -2493,8 +2567,14 @@ function _Chat() {
                         />
                       )}
 
-                    {showActions && (
-                      <div className={styles["chat-message-actions"]}>
+                    {!isUser && (
+                      <div
+                        className={
+                          styles["chat-message-actions"] +
+                          " " +
+                          styles["assistant"]
+                        }
+                      >
                         <div className={styles["chat-input-actions"]}>
                           {message.streaming ? (
                             <ChatAction
@@ -2504,23 +2584,34 @@ function _Chat() {
                             />
                           ) : (
                             <>
-                              <ChatAction
-                                text={Locale.Chat.Actions.Retry}
-                                icon={<ResetIcon />}
-                                onClick={() => onResend(message)}
-                              />
+                              {showActions && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Retry}
+                                  icon={<ResetIcon />}
+                                  onClick={() => onResend(message)}
+                                />
+                              )}
 
-                              <ChatAction
-                                text={Locale.Chat.Actions.Delete}
-                                icon={<DeleteIcon />}
-                                onClick={() => onDelete(message)}
-                              />
+                              {(!isContext ||
+                                session.mask.context.length > 0) && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Delete}
+                                  icon={<DeleteIcon />}
+                                  onClick={() =>
+                                    isContext
+                                      ? onDeleteContext(message)
+                                      : onDelete(message)
+                                  }
+                                />
+                              )}
 
-                              <ChatAction
-                                text={Locale.Chat.Actions.Pin}
-                                icon={<PinIcon />}
-                                onClick={() => onPinMessage(message)}
-                              />
+                              {showActions && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Pin}
+                                  icon={<PinIcon />}
+                                  onClick={() => onPinMessage(message)}
+                                />
+                              )}
                               <ChatAction
                                 text={Locale.Chat.Actions.Copy}
                                 icon={<CopyIcon />}

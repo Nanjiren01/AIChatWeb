@@ -34,9 +34,13 @@ export function Avatar(props: {
   avatar?: string;
   logoUrl?: string;
   inline?: boolean;
+  noBorder?: boolean;
 }) {
   // console.log('refresh Avatar', props.logoUrl)
   if (props.model) {
+    // 如果提供了模型名称，那么检查模型名称是不是gpt-4开头，如果是，那么展示aichat默认高级黑icon
+    // 否则展示logo，当然，如果logo没有在后台上传，那么展示aichat默认icon
+    // 仅MaskAvatar传入了model参数
     const logoUrl = props.logoUrl;
     return (
       <div className="no-dark">
@@ -46,7 +50,7 @@ export function Avatar(props: {
             width={30}
             height={30}
             alt="bot"
-            className="user-avatar"
+            className={`user-avatar ${props.noBorder ? "no-border" : ""}`}
           />
         ) : logoUrl !== undefined && logoUrl !== null && logoUrl !== "" ? (
           <img src={logoUrl} width={30} height={30} />
@@ -56,7 +60,7 @@ export function Avatar(props: {
             width={30}
             height={30}
             alt="bot"
-            className="user-avatar"
+            className={`user-avatar ${props.noBorder ? "no-border" : ""}`}
           />
         )}
       </div>
@@ -66,12 +70,12 @@ export function Avatar(props: {
   return props.avatar ? (
     props.inline ? (
       <span style={{ display: props.inline ? "inline-block" : "" }}>
-        <span className="user-avatar">
+        <span className={`user-avatar ${props.noBorder ? "no-border" : ""}`}>
           <EmojiAvatar avatar={props.avatar} />
         </span>
       </span>
     ) : (
-      <div className="user-avatar">
+      <div className={`user-avatar ${props.noBorder ? "no-border" : ""}`}>
         <EmojiAvatar avatar={props.avatar} />
       </div>
     )

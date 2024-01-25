@@ -30,6 +30,7 @@ export type ModelContentType = "Text" | "Image";
 export type ModelMessageStruct = "normal" | "complex";
 export interface SimpleModel {
   name: string;
+  desc?: string;
   avatarEmoji: string;
   contentType: ModelContentType;
   messageStruct: ModelMessageStruct;

@@ -1360,7 +1360,19 @@ export const useChatStore = createPersistStore(
             set(() => ({ sessions }));
             return Promise.resolve(true);
           }
-          // todo 更新服务器的面具
+          const result = await this.updateCurrentSessionMaskByUpdater(
+            (mask) => {
+              const item = mask.context.find((m) => m.id === message.id);
+              item!.content = message.content;
+            },
+            token,
+            logout,
+          );
+          if (result) {
+            msg.content = message.content;
+            set(() => ({ sessions }));
+          }
+          return true;
         }
 
         msg = session.messages.find((m) => m.id === message.id);
