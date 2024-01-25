@@ -208,12 +208,33 @@ export class ChatGPTApi implements LLMApi {
 
       if (shouldStream) {
         let responseText = "";
+        let remainText = "";
         let finished = false;
+
+        // animate response to make it looks smooth
+        function animateResponseText() {
+          if (finished || controller.signal.aborted) {
+            responseText += remainText;
+            console.log("[Response Animation] finished");
+            return;
+          }
+
+          if (remainText.length > 0) {
+            responseText += remainText[0];
+            remainText = remainText.slice(1);
+            options.onUpdate?.(responseText, remainText[0]);
+          }
+
+          requestAnimationFrame(animateResponseText);
+        }
+
+        // start animaion
+        animateResponseText();
 
         const finish = () => {
           if (!finished) {
-            options.onFinish(responseText);
             finished = true;
+            options.onFinish(responseText + remainText);
           }
         };
 
@@ -309,8 +330,7 @@ export class ChatGPTApi implements LLMApi {
                   }
                 ).choices?.at(0)?.delta.content;
                 if (delta) {
-                  responseText += delta;
-                  options.onUpdate?.(responseText, delta);
+                  remainText += delta;
                 }
               } else {
                 if (json.from === "aichat") {
