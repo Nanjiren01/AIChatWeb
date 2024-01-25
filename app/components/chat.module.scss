@@ -340,9 +340,9 @@
   display: flex;
   flex-direction: row;
 
-  &:last-child {
-    animation: slide-in ease 0.3s;
-  }
+  // &:last-child {
+  //   animation: slide-in ease 0.3s;
+  // }
 
   &:hover {
     .chat-message-actions {
