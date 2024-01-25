@@ -141,6 +141,8 @@ export async function requestRegister(
 
 export async function requestSendEmailCode(
   email: string,
+  captchaId: string,
+  captchaInput: string,
   resetPassword: boolean,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
@@ -151,6 +153,8 @@ export async function requestSendEmailCode(
     "POST",
     {
       email,
+      captchaId,
+      captcha: captchaInput,
       type: resetPassword ? "resetPassword" : "register",
     },
     options,
@@ -158,6 +162,8 @@ export async function requestSendEmailCode(
 }
 export async function requestSendPhoneCode(
   phone: string,
+  captchaId: string,
+  captchaInput: string,
   resetPassword: boolean,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
@@ -168,6 +174,8 @@ export async function requestSendPhoneCode(
     "POST",
     {
       phone,
+      captchaId,
+      captcha: captchaInput,
       type: resetPassword ? "resetPassword" : "register",
     },
     options,

@@ -97,13 +97,17 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
   const [captchaInput, setCaptchaInput] = useState("");
   const [inviteCode, setInviteCode] = useState(code || "");
   function handleClickSendEmailCode() {
-    if (email === null || email == "") {
+    if (email === null || email === "") {
       showToast(Locale.RegisterPage.Toast.EmailIsEmpty);
+      return;
+    }
+    if (captchaInput == null || captchaInput === "") {
+      showToast(Locale.RegisterPage.CaptchaIsEmpty);
       return;
     }
     setEmailCodeSending(true);
     authStore
-      .sendEmailCode(email)
+      .sendEmailCode(email, captchaId, captchaInput)
       .then((resp) => {
         if (resp.code == 0) {
           showToast(Locale.RegisterPage.Toast.EmailCodeSent);
@@ -116,20 +120,24 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
           showToast(Locale.RegisterPage.Toast.EmailCodeSentFrequently);
           return;
         }
-        showToast(resp.message);
+        showToast(resp.cnMessage || resp.message);
       })
       .finally(() => {
         setEmailCodeSending(false);
       });
   }
   function handleClickSendPhoneCode() {
-    if (phone === null || phone == "") {
+    if (phone === null || phone === "") {
       showToast(Locale.RegisterPage.Toast.PhoneIsEmpty);
+      return;
+    }
+    if (captchaInput == null || captchaInput === "") {
+      showToast(Locale.RegisterPage.CaptchaIsEmpty);
       return;
     }
     setPhoneCodeSending(true);
     authStore
-      .sendPhoneCode(phone)
+      .sendPhoneCode(phone, captchaId, captchaInput)
       .then((resp) => {
         if (resp.code == 0) {
           showToast(Locale.RegisterPage.Toast.PhoneCodeSent);
@@ -142,7 +150,7 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
           showToast(Locale.RegisterPage.Toast.PhoneCodeSentFrequently);
           return;
         }
-        showToast(resp.message);
+        showToast(resp.cnMessage || resp.message);
       })
       .finally(() => {
         setPhoneCodeSending(false);
@@ -342,6 +350,36 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
                 />
               </ListItem>
 
+              <ListItem title={Locale.RegisterPage.Captcha}>
+                <div>
+                  {captcha ? (
+                    <img
+                      alt={Locale.RegisterPage.Captcha}
+                      src={captcha}
+                      width="100"
+                      height="40"
+                      title={Locale.RegisterPage.CaptchaTitle}
+                      style={{ cursor: "pointer" }}
+                      onClick={(e) => getRegisterCaptcha(captchaId)}
+                    />
+                  ) : (
+                    <></>
+                  )}
+                </div>
+              </ListItem>
+              <ListItem
+                title={Locale.RegisterPage.CaptchaInput.Title}
+                subTitle={Locale.RegisterPage.CaptchaInput.SubTitle}
+              >
+                <SingleInput
+                  value={captchaInput}
+                  placeholder={Locale.RegisterPage.CaptchaInput.Placeholder}
+                  onChange={(e) => {
+                    setCaptchaInput(e.currentTarget.value);
+                  }}
+                />
+              </ListItem>
+
               <ListItem>
                 <IconButton
                   text={
@@ -388,6 +426,36 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
                 />
               </ListItem>
 
+              <ListItem title={Locale.RegisterPage.Captcha}>
+                <div>
+                  {captcha ? (
+                    <img
+                      alt={Locale.RegisterPage.Captcha}
+                      src={captcha}
+                      width="100"
+                      height="40"
+                      title={Locale.RegisterPage.CaptchaTitle}
+                      style={{ cursor: "pointer" }}
+                      onClick={(e) => getRegisterCaptcha(captchaId)}
+                    />
+                  ) : (
+                    <></>
+                  )}
+                </div>
+              </ListItem>
+              <ListItem
+                title={Locale.RegisterPage.CaptchaInput.Title}
+                subTitle={Locale.RegisterPage.CaptchaInput.SubTitle}
+              >
+                <SingleInput
+                  value={captchaInput}
+                  placeholder={Locale.RegisterPage.CaptchaInput.Placeholder}
+                  onChange={(e) => {
+                    setCaptchaInput(e.currentTarget.value);
+                  }}
+                />
+              </ListItem>
+
               <ListItem>
                 <IconButton
                   text={
@@ -419,6 +487,7 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
             <></>
           )}
 
+          {/* 手机号注册时，无需填写用户名 */}
           {registerType !== REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE ? (
             <ListItem
               title={Locale.RegisterPage.Username.Title}
@@ -436,6 +505,7 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
             <></>
           )}
 
+          {/* 无论何种注册方式，都需要输入密码 */}
           <ListItem
             title={Locale.RegisterPage.Password.Title}
             subTitle={Locale.RegisterPage.Password.SubTitle}
@@ -450,6 +520,7 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
             />
           </ListItem>
 
+          {/* 仅用户名(无验证码) 或 仅用户名(带验证码)，也就是非邮箱/手机号注册的情况下，需要二次确认密码 */}
           {registerType == REG_TYPE_ONLY_USERNAME ||
           registerType == REG_TYPE_USERNAME_WITH_CAPTCHA ? (
             <>
@@ -473,6 +544,7 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
             <></>
           )}
 
+          {/* 仅用户名(带验证码)的情况下，还需要图形验证码确认一下 */}
           {registerType == REG_TYPE_USERNAME_WITH_CAPTCHA ? (
             <>
               <ListItem title={Locale.RegisterPage.Captcha}>
@@ -509,6 +581,7 @@ export function Register(props: { logoLoading: boolean; logoUrl?: string }) {
             <></>
           )}
 
+          {/* 无论何种注册方式，都可以填写邀请码 */}
           <ListItem
             title={
               registerForInviteCodeOnly

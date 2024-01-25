@@ -20,9 +20,21 @@ export interface AuthStore {
   inviteCode: string;
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
-  sendEmailCode: (email: string) => Promise<any>;
-  sendPhoneCode: (phone: string) => Promise<any>;
-  sendEmailCodeForResetPassword: (email: string) => Promise<any>;
+  sendEmailCode: (
+    email: string,
+    captchaId: string,
+    captchaInput: string,
+  ) => Promise<any>;
+  sendPhoneCode: (
+    phone: string,
+    captchaId: string,
+    captchaInput: string,
+  ) => Promise<any>;
+  sendEmailCodeForResetPassword: (
+    email: string,
+    captchaId: string,
+    captchaInput: string,
+  ) => Promise<any>;
   register: (
     name: string,
     username: string,
@@ -94,28 +106,58 @@ export const useAuthStore = create<AuthStore>()(
           inviteCode: code,
         }));
       },
-      async sendEmailCodeForResetPassword(email) {
-        let result = await requestSendEmailCode(email, true, {
-          onError: (err) => {
-            console.error(err);
+      async sendEmailCodeForResetPassword(
+        email: string,
+        captchaId: string,
+        captchaInput: string,
+      ) {
+        let result = await requestSendEmailCode(
+          email,
+          captchaId,
+          captchaInput,
+          true,
+          {
+            onError: (err) => {
+              console.error(err);
+            },
           },
-        });
+        );
         return result;
       },
-      async sendEmailCode(email) {
-        let result = await requestSendEmailCode(email, false, {
-          onError: (err) => {
-            console.error(err);
+      async sendEmailCode(
+        email: string,
+        captchaId: string,
+        captchaInput: string,
+      ) {
+        let result = await requestSendEmailCode(
+          email,
+          captchaId,
+          captchaInput,
+          false,
+          {
+            onError: (err) => {
+              console.error(err);
+            },
           },
-        });
+        );
         return result;
       },
-      async sendPhoneCode(phone: string) {
-        let result = await requestSendPhoneCode(phone, false, {
-          onError: (err) => {
-            console.error(err);
+      async sendPhoneCode(
+        phone: string,
+        captchaId: string,
+        captchaInput: string,
+      ) {
+        let result = await requestSendPhoneCode(
+          phone,
+          captchaId,
+          captchaInput,
+          false,
+          {
+            onError: (err) => {
+              console.error(err);
+            },
           },
-        });
+        );
         return result;
       },
       async register(
