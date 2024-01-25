@@ -9,7 +9,12 @@ import {
   OnDragEndResponder,
 } from "@hello-pangea/dnd";
 
-import { useAuthStore, useChatStore, useWebsiteConfigStore } from "../store";
+import {
+  ChatSession,
+  useAuthStore,
+  useChatStore,
+  useWebsiteConfigStore,
+} from "../store";
 
 import Locale from "../locales";
 import { Link, useNavigate } from "react-router-dom";
@@ -17,7 +22,7 @@ import { Path } from "../constant";
 import { MaskAvatar } from "./mask";
 import { Mask } from "../store/mask";
 import { useRef, useEffect } from "react";
-import { showConfirm } from "./ui-lib";
+import { showConfirm, showToast } from "./ui-lib";
 import { useMobileScreen } from "../utils";
 
 export function ChatItem(props: {
@@ -74,7 +79,10 @@ export function ChatItem(props: {
   );
 }
 
-export function ChatList(props: { narrow?: boolean }) {
+export function ChatList(props: {
+  narrow?: boolean;
+  requestingSession: ChatSession | null;
+}) {
   const [sessions, selectedIndex, selectSession] = useChatStore((state) => [
     state.sessions,
     state.currentSessionIndex,
@@ -116,10 +124,21 @@ export function ChatList(props: { narrow?: boolean }) {
           selected={i === selectedIndex}
           logoUrl={logoUrl}
           onClick={() => {
+            if (
+              props.requestingSession !== null &&
+              props.requestingSession !== item
+            ) {
+              showToast("请等待本次请求结束！");
+              return;
+            }
             navigate(Path.Chat);
             selectSession(i);
           }}
           onDelete={async () => {
+            if (props.requestingSession === item) {
+              showToast("请等待本次请求结束！");
+              return;
+            }
             if (
               (!props.narrow && !isMobileScreen) ||
               (await showConfirm(Locale.Home.DeleteChat))

@@ -6,6 +6,8 @@ import React, {
   useMemo,
   useCallback,
   Fragment,
+  Dispatch,
+  SetStateAction,
 } from "react";
 
 import SendWhiteIcon from "../icons/send-white.svg";
@@ -1064,7 +1066,9 @@ function RefreshDrawStatus(props: {
 
 type RenderMessage = ChatMessage & { preview?: boolean };
 
-function _Chat() {
+function _Chat(props: {
+  setRequestingSession: Dispatch<SetStateAction<ChatSession | null>>;
+}) {
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
   const config = useAppConfig();
@@ -1258,6 +1262,7 @@ function _Chat() {
       return;
     }
     setIsLoading(true);
+    props.setRequestingSession(session);
     chatStore
       .onUserInput(
         session,
@@ -1274,6 +1279,7 @@ function _Chat() {
           authStore.logout();
           navigate(Path.Login);
         },
+        () => props.setRequestingSession(null),
       )
       .then((result) => {
         setIsLoading(false);
@@ -1675,6 +1681,7 @@ function _Chat() {
 
     // resend the message
     setIsLoading(true);
+    props.setRequestingSession(session);
     const content = userMessage.content;
     chatStore
       .onUserInput(
@@ -1692,6 +1699,7 @@ function _Chat() {
           authStore.logout();
           navigate(Path.Login);
         },
+        () => props.setRequestingSession(null),
       )
       .then((result) => {
         setIsLoading(false);
@@ -1999,7 +2007,7 @@ function _Chat() {
             className={`window-header-main-title ${styles["chat-body-main-title"]}`}
             onClickCapture={() => setIsEditingMessage(true)}
           >
-            {session.mask?.modelConfig?.avatarEmoji && (
+            {/* {session.mask?.modelConfig?.avatarEmoji && (
               <span style={{ marginRight: "5px" }}>
                 <Avatar
                   avatar={session.mask.modelConfig.avatarEmoji}
@@ -2007,7 +2015,7 @@ function _Chat() {
                   inline={true}
                 />
               </span>
-            )}
+            )} */}
             <span>{!session.topic ? DEFAULT_TOPIC : session.topic}</span>
           </div>
           <div className="window-header-sub-title">
@@ -2858,8 +2866,15 @@ function _Chat() {
   );
 }
 
-export function Chat() {
+export function Chat(props: {
+  setRequestingSession: Dispatch<SetStateAction<ChatSession | null>>;
+}) {
   const chatStore = useChatStore();
   const sessionIndex = chatStore.currentSessionIndex;
-  return <_Chat key={sessionIndex}></_Chat>;
+  return (
+    <_Chat
+      key={sessionIndex}
+      setRequestingSession={props.setRequestingSession}
+    ></_Chat>
+  );
 }

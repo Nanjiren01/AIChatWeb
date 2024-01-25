@@ -583,6 +583,7 @@ export const useChatStore = createPersistStore(
         resend: boolean,
         token: string,
         navigateToLogin: () => void,
+        onFinish: () => void,
       ) {
         // const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
@@ -671,7 +672,7 @@ export const useChatStore = createPersistStore(
         // make request
         const assistantUuid = session.assistant?.uuid;
         return api.llm.chat({
-          sessionUuid: session.uuid, // 携带上session uuuid，系统才会云同步
+          sessionUuid: session.uuid, // 携带上session uuid，系统才会云同步
           messages: sendMessages,
           userMessage: userMessage,
           botMessage: botMessage,
@@ -806,6 +807,7 @@ export const useChatStore = createPersistStore(
             if (logout) {
               navigateToLogin();
             }
+            onFinish();
           },
           onError(error) {
             const isAborted = error.message.includes("aborted");
@@ -834,6 +836,7 @@ export const useChatStore = createPersistStore(
               botMessage.id ?? messageIndex,
             );
 
+            onFinish();
             console.error("[Chat] failed ", error);
           },
           onController(controller) {
@@ -1786,11 +1789,13 @@ export const useChatStore = createPersistStore(
             for (let i = 0; i < session.messages.length; i++) {
               const message = session.messages[i];
               if (!message.uuid) {
-                messages.splice(0, 0, message);
+                messages.push(message);
               } else {
                 break;
               }
             }
+            messages.reverse();
+            console.log("no sync messages are", messages);
             session.messages = newSession.messages.concat(...messages);
             session.stat = newSession.stat;
             session.topic = newSession.topic;
