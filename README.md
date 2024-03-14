@@ -7,8 +7,7 @@
 
 <div align="center">更新时间：2023-2-10</div>
 <div>本项目全面支持OpenAI 2023年11月6日放开的模型（gpt-3.5-turbo-1106、gpt-4-1106-preview、gpt-4-vision-preview）</div>
-<div>本项目全面支持清华智谱 2024年1月 16日放开的模型（glm-4、glm-4v）</div>
-<div>本项目理论上支持月之暗面（moonshot AI）2024 年 2 月 5 日放开的模型（moonshot-v1-8k，moonshot-v1-32k，moonshot-v1-128k）</div>
+<div>本项目支持以下国产平台：百度文心一言，阿里通义千为，清华智谱（glm-4、glm-4v），月之暗面，零一万物</div>
 
 **简体中文** | [English](#english)
 
