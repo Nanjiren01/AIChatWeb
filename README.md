@@ -5,8 +5,9 @@
   
 <h1 align="center">AIChat Web</h1>
 
-<div align="center">更新时间：2023-3-14</div>
-<div>本项目支持以下国产平台：百度文心一言，阿里通义千为，清华智谱（glm-4、glm-4v），月之暗面，零一万物</div>
+<div align="center">更新时间：2024-3-28</div>
+<div style="margin: 10px">本项目支持国产平台：百度文心一言，阿里通义千问，清华智谱（glm-4、glm-4v），月之暗面，零一万物</div>
+<div style="margin: 10px">本项目支持文生音乐平台 suno </div>
 
 **简体中文** | [English](#english)
 
