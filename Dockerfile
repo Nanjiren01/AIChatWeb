@@ -1,9 +1,9 @@
 
 
 
-# docker build -t nanjiren01/aichat-web:0.11.3 ../AIChatWeb
-# docker push nanjiren01/aichat-web:0.11.3
-# docker tag nanjiren01/aichat-web:0.11.3 nanjiren01/aichat-web:pro-latest
+# docker build -t nanjiren01/aichat-web:0.11.4 ../AIChatWeb
+# docker push nanjiren01/aichat-web:0.11.4
+# docker tag nanjiren01/aichat-web:0.11.4 nanjiren01/aichat-web:pro-latest
 # docker push nanjiren01/aichat-web:pro-latest
 
 FROM node:18-alpine AS builder
