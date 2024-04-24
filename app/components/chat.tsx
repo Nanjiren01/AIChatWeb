@@ -1283,8 +1283,11 @@ function _Chat(props: {
       )
       .then((result) => {
         setIsLoading(false);
-        if (result && result.fetch) {
-          refreshDrawStatus(session, result.userMessage!, result.botMessage);
+        if (result && result.fetch !== undefined) {
+          props.setRequestingSession(null);
+          if (result.fetch) {
+            refreshDrawStatus(session, result.userMessage!, result.botMessage);
+          }
         }
       });
     localStorage.setItem(LAST_INPUT_KEY, userInput);

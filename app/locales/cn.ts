@@ -6,7 +6,7 @@ const isApp = !!getClientConfig()?.isApp;
 const cn = {
   WIP: "该功能仍在开发中……",
   Error: {
-    Unauthorized: "登录信息已过期，请前往[登录页](/#/login)",
+    Unauthorized: "登录信息已过期，请前往[登录页](/login)",
     Login: "您已登录，请点击下方「重试」按钮",
   },
   Auth: {
@@ -73,7 +73,7 @@ const cn = {
     Typing: "正在输入…",
     SensitiveWordsTip: (question: string) =>
       `您的提问中包含敏感词：${question}`,
-    BalanceNotEnough: "您的额度不足，请联系管理员",
+    BalanceNotEnough: "您的额度不足，请前往套餐页充值或联系管理员",
     Input: (submitKey: string, action: string, append?: boolean) => {
       var inputHints = `${submitKey} ${action}`;
       if (submitKey === String(SubmitKey.Enter)) {

@@ -803,11 +803,11 @@ export const useChatStore = createPersistStore(
                 );
               }
             }
+            onFinish();
             ChatControllerPool.remove(session.id, botMessage.id);
             if (logout) {
               navigateToLogin();
             }
-            onFinish();
           },
           onError(error) {
             const isAborted = error.message.includes("aborted");
