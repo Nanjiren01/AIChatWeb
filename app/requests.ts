@@ -90,11 +90,18 @@ export function requestResetPassword(
   password: string,
   email: string,
   code: string,
+  phone: string,
+  phoneCode: string,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
   },
 ): Promise<RegisterResult> {
-  return request("/resetPassword", "POST", { password, code, email }, options);
+  return request(
+    "/resetPassword",
+    "POST",
+    { password, code, email, phone, phoneCode },
+    options,
+  );
 }
 
 export async function requestLogin(
@@ -141,6 +148,8 @@ export async function requestRegister(
 
 export async function requestSendEmailCode(
   email: string,
+  captchaId: string,
+  captchaInput: string,
   resetPassword: boolean,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
@@ -151,6 +160,8 @@ export async function requestSendEmailCode(
     "POST",
     {
       email,
+      captchaId,
+      captcha: captchaInput,
       type: resetPassword ? "resetPassword" : "register",
     },
     options,
@@ -158,6 +169,8 @@ export async function requestSendEmailCode(
 }
 export async function requestSendPhoneCode(
   phone: string,
+  captchaId: string,
+  captchaInput: string,
   resetPassword: boolean,
   options?: {
     onError: (error: Error, statusCode?: number) => void;
@@ -168,6 +181,8 @@ export async function requestSendPhoneCode(
     "POST",
     {
       phone,
+      captchaId,
+      captcha: captchaInput,
       type: resetPassword ? "resetPassword" : "register",
     },
     options,

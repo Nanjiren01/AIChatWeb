@@ -49,6 +49,7 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
   const registerType = registerTypes[0];
   const REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE =
     "UsernameAndEmailWithCaptchaAndCode";
+  const REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE = "PhoneWithCaptchaAndCode";
   const REG_TYPE_CLOSE = "Close";
 
   const [loadingUsage, setLoadingUsage] = useState(false);
@@ -229,15 +230,27 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
         <List>
           {!showWechatCode ? (
             <ListItem
-              title={Locale.LoginPage.Username.Title}
-              subTitle={Locale.LoginPage.Username.SubTitle}
+              title={
+                registerType === REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE
+                  ? Locale.LoginPage.UsernameOrPhone.Title
+                  : Locale.LoginPage.Username.Title
+              }
+              subTitle={
+                registerType === REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE
+                  ? Locale.LoginPage.UsernameOrPhone.SubTitle
+                  : Locale.LoginPage.Username.SubTitle
+              }
             >
               {authStore.token ? (
                 <span>{authStore.username}</span>
               ) : (
                 <SingleInput
                   value={username}
-                  placeholder={Locale.LoginPage.Username.Placeholder}
+                  placeholder={
+                    registerType === REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE
+                      ? Locale.LoginPage.UsernameOrPhone.Placeholder
+                      : Locale.LoginPage.Username.Placeholder
+                  }
                   onChange={(e) => {
                     setUsername(e.currentTarget.value);
                     //console.log(e)
@@ -354,8 +367,9 @@ export function Login(props: { logoLoading: boolean; logoUrl?: string }) {
             <></>
           ) : (
             <>
-              {registerType ==
-                REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE && (
+              {(registerType ==
+                REG_TYPE_USERNAME_AND_EMAIL_WITH_CAPTCHA_AND_CODE ||
+                registerType === REG_TYPE_PHONE_WITH_CAPTCHA_AND_CODE) && (
                 <ListItem>
                   <IconButton
                     text={Locale.LoginPage.ForgetPassword}

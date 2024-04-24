@@ -24,7 +24,12 @@ import Locale from "../locales";
 
 import { Modal } from "./ui-lib";
 
-import { useAppConfig, useAuthStore, useChatStore } from "../store";
+import {
+  ChatSession,
+  useAppConfig,
+  useAuthStore,
+  useChatStore,
+} from "../store";
 import { useWebsiteConfigStore, useNoticeConfigStore } from "../store";
 
 import {
@@ -233,6 +238,7 @@ export function SideBar(props: {
   setNoticeShow: (show: boolean, notShowToday: boolean) => void;
   logoLoading: boolean;
   logoUrl?: string;
+  requestingSession: ChatSession | null;
 }) {
   const chatStore = useChatStore();
   const authStore = useAuthStore();
@@ -316,7 +322,10 @@ export function SideBar(props: {
           }
         }}
       >
-        <ChatList narrow={shouldNarrow} />
+        <ChatList
+          narrow={shouldNarrow}
+          requestingSession={props.requestingSession}
+        />
       </div>
 
       <div className={styles["sidebar-tail"]}>

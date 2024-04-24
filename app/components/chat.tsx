@@ -6,6 +6,8 @@ import React, {
   useMemo,
   useCallback,
   Fragment,
+  Dispatch,
+  SetStateAction,
 } from "react";
 
 import SendWhiteIcon from "../icons/send-white.svg";
@@ -634,6 +636,7 @@ export function ChatActions(props: {
   // switch model
   const currentModel = {
     name: chatStore.currentSession().mask.modelConfig.model,
+    avatarEmoji: chatStore.currentSession().mask.modelConfig.avatarEmoji,
     contentType: chatStore.currentSession().mask.modelConfig.contentType,
     messageStruct: chatStore.currentSession().mask.modelConfig.messageStruct,
     processModes: chatStore.currentSession().mask.modelConfig.processModes,
@@ -801,7 +804,13 @@ export function ChatActions(props: {
           onClick={() => setShowModelSelector(true)}
           text={currentModel.name}
           alwaysShowText={true}
-          icon={<RobotIcon />}
+          icon={
+            currentModel.avatarEmoji ? (
+              <Avatar avatar={currentModel.avatarEmoji} noBorder={true} />
+            ) : (
+              <RobotIcon />
+            )
+          }
         />
       )}
 
@@ -810,6 +819,8 @@ export function ChatActions(props: {
           defaultSelectedValue={currentModel.name}
           items={availableModels.map((m) => ({
             title: m.name,
+            subTitle: m.desc,
+            icon: m.avatarEmoji ? <Avatar avatar={m.avatarEmoji} /> : <></>,
             value: m.name,
           }))}
           onClose={() => setShowModelSelector(false)}
@@ -820,6 +831,7 @@ export function ChatActions(props: {
             const result = await chatStore.updateCurrentSessionMaskByUpdater(
               (mask) => {
                 mask.modelConfig.model = selectedModel.name;
+                mask.modelConfig.avatarEmoji = selectedModel.avatarEmoji;
                 mask.modelConfig.contentType = selectedModel.contentType;
                 mask.modelConfig.messageStruct = selectedModel.messageStruct;
                 mask.modelConfig.processModes = selectedModel.processModes;
@@ -1054,7 +1066,9 @@ function RefreshDrawStatus(props: {
 
 type RenderMessage = ChatMessage & { preview?: boolean };
 
-function _Chat() {
+function _Chat(props: {
+  setRequestingSession: Dispatch<SetStateAction<ChatSession | null>>;
+}) {
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
   const config = useAppConfig();
@@ -1076,6 +1090,7 @@ function _Chat() {
   const navigate = useNavigate();
 
   const authStore = useAuthStore();
+  const { availableModels } = useWebsiteConfigStore();
 
   const [uploading, setUploading] = useState(false);
 
@@ -1247,6 +1262,7 @@ function _Chat() {
       return;
     }
     setIsLoading(true);
+    props.setRequestingSession(session);
     chatStore
       .onUserInput(
         session,
@@ -1263,6 +1279,7 @@ function _Chat() {
           authStore.logout();
           navigate(Path.Login);
         },
+        () => props.setRequestingSession(null),
       )
       .then((result) => {
         setIsLoading(false);
@@ -1388,9 +1405,10 @@ function _Chat() {
             navigate(Path.Login);
           },
         );
-        if (session.mask.syncGlobalConfig) {
-          await chatStore.updateCurrentSessionMaskByUpdater(
-            (mask) => {
+        await chatStore.updateCurrentSessionMaskByUpdater(
+          (mask) => {
+            if (session.mask.syncGlobalConfig) {
+              console.log("session.mask.syncGlobalConfig is true");
               const v1 = JSON.stringify(config.modelConfig);
               const v2 = JSON.stringify(session.mask.modelConfig);
               if (v1 === v2) {
@@ -1405,14 +1423,132 @@ function _Chat() {
                 session.mask.name,
               );
               session.mask.modelConfig = { ...config.modelConfig };
-            },
-            authStore.token,
-            () => {
-              authStore.logout();
-              navigate(Path.Login);
-            },
-          );
-        }
+            } else {
+              const selectedModel = availableModels.filter(
+                (m) => m.name === session.mask.modelConfig.model,
+              )[0];
+              if (selectedModel) {
+                console.log(
+                  "session.mask.syncGlobalConfig is false, check contentType, messageStruct, processModes",
+                  session.mask.modelConfig,
+                  selectedModel,
+                );
+                let same = true;
+                if (
+                  session.mask.modelConfig.contentType !=
+                  selectedModel.contentType
+                ) {
+                  console.log(
+                    "contentType has been changed, old = ",
+                    session.mask.modelConfig.contentType,
+                    ", new = ",
+                    selectedModel.contentType,
+                  );
+                  same = false;
+                  session.mask.modelConfig.contentType =
+                    selectedModel.contentType;
+                }
+                if (
+                  session.mask.modelConfig.messageStruct !=
+                  selectedModel.messageStruct
+                ) {
+                  console.log(
+                    "messageStruct has been changed, old = ",
+                    session.mask.modelConfig.messageStruct,
+                    ", new = ",
+                    selectedModel.messageStruct,
+                  );
+                  same = false;
+                  session.mask.modelConfig.messageStruct =
+                    selectedModel.messageStruct;
+                }
+                if (
+                  session.mask.modelConfig.avatarEmoji !=
+                  selectedModel.avatarEmoji
+                ) {
+                  console.log(
+                    "avatarEmoji has been changed, old = ",
+                    session.mask.modelConfig.avatarEmoji,
+                    ", new = ",
+                    selectedModel.avatarEmoji,
+                  );
+                  same = false;
+                  session.mask.modelConfig.avatarEmoji =
+                    selectedModel.avatarEmoji;
+                }
+                const sameArray = (a: string[], b: string[]) => {
+                  if (
+                    (a === null || a === undefined) &&
+                    (b === null || b === undefined)
+                  ) {
+                    return true;
+                  } else if (
+                    a === null ||
+                    a === undefined ||
+                    b === null ||
+                    b === undefined
+                  ) {
+                    return false;
+                  }
+                  if (a.length !== b.length) {
+                    return false;
+                  }
+                  for (let i = 0; i < a.length; i++) {
+                    if (!b.includes(a[i])) {
+                      return false;
+                    }
+                  }
+                  return true;
+                };
+                if (
+                  !sameArray(
+                    session.mask.modelConfig.processModes,
+                    selectedModel.processModes,
+                  )
+                ) {
+                  console.log(
+                    "processModes has been changed, old = ",
+                    session.mask.modelConfig.processModes,
+                    ", new = ",
+                    selectedModel.processModes,
+                  );
+                  session.mask.modelConfig.processModes =
+                    selectedModel.processModes
+                      ? [...selectedModel.processModes]
+                      : selectedModel.processModes;
+                  session.mask.modelConfig.processMode =
+                    selectedModel.processModes &&
+                    selectedModel.processModes.length
+                      ? selectedModel.processModes[0]
+                      : null;
+                  same = false;
+                }
+                if (same) {
+                  console.log(
+                    "[Mask] same with global, not sync",
+                    session.mask.name,
+                  );
+                  return false;
+                }
+
+                console.log(
+                  "[Mask] syncing from global, name = ",
+                  session.mask.name,
+                );
+                // session.mask.modelConfig = { ...config.modelConfig };
+              } else {
+                // selectedModel 不存在
+                showToast(Locale.Chat.ModelNotAvailable);
+                return false;
+              }
+            }
+          },
+          authStore.token,
+          () => {
+            authStore.logout();
+            navigate(Path.Login);
+          },
+        );
       })
       .finally(() => {
         console.log("session loading = false");
@@ -1477,6 +1613,24 @@ function _Chat() {
     deleteMessage(message);
   };
 
+  const onDeleteContext = (message: ChatMessage) => {
+    chatStore.updateCurrentSessionMaskByUpdater(
+      (mask) => {
+        const index = mask.context.findIndex((m) => message.id === m.id);
+        if (index < 0) {
+          return false;
+        }
+        mask.context.splice(index, 1);
+        return true;
+      },
+      authStore.token,
+      () => {
+        authStore.logout();
+        navigate(Path.Login);
+      },
+    );
+  };
+
   const onResend = (message: ChatMessage) => {
     // when it is resending a message
     // 1. for a user's message, find the next bot response
@@ -1527,6 +1681,7 @@ function _Chat() {
 
     // resend the message
     setIsLoading(true);
+    props.setRequestingSession(session);
     const content = userMessage.content;
     chatStore
       .onUserInput(
@@ -1544,6 +1699,7 @@ function _Chat() {
           authStore.logout();
           navigate(Path.Login);
         },
+        () => props.setRequestingSession(null),
       )
       .then((result) => {
         setIsLoading(false);
@@ -1851,7 +2007,16 @@ function _Chat() {
             className={`window-header-main-title ${styles["chat-body-main-title"]}`}
             onClickCapture={() => setIsEditingMessage(true)}
           >
-            {!session.topic ? DEFAULT_TOPIC : session.topic}
+            {/* {session.mask?.modelConfig?.avatarEmoji && (
+              <span style={{ marginRight: "5px" }}>
+                <Avatar
+                  avatar={session.mask.modelConfig.avatarEmoji}
+                  logoUrl={logoUrl}
+                  inline={true}
+                />
+              </span>
+            )} */}
+            <span>{!session.topic ? DEFAULT_TOPIC : session.topic}</span>
           </div>
           <div className="window-header-sub-title">
             {chatPageSubTitle
@@ -1996,6 +2161,11 @@ function _Chat() {
 
           const shouldShowClearContextDivider = i === clearContextIndex - 1;
 
+          const messageModel = availableModels.filter(
+            (m) => m.name === message.model,
+          )[0];
+          const messageEmoji = messageModel?.avatarEmoji;
+
           return (
             <Fragment key={message.id}>
               <div
@@ -2035,11 +2205,60 @@ function _Chat() {
                           {["system"].includes(message.role) ? (
                             <Avatar avatar="2699-fe0f" logoUrl={logoUrl} />
                           ) : (
-                            <MaskAvatar mask={session.mask} logoUrl={logoUrl} />
+                            <Avatar avatar={messageEmoji} logoUrl={logoUrl} />
                           )}
                         </>
                       )}
                     </div>
+                    {isUser && (
+                      <div className={styles["chat-message-actions"]}>
+                        <div className={styles["chat-input-actions"]}>
+                          {message.streaming ? (
+                            <ChatAction
+                              text={Locale.Chat.Actions.Stop}
+                              icon={<StopIcon />}
+                              onClick={() => onUserStop(message.id ?? i)}
+                            />
+                          ) : (
+                            <>
+                              {showActions && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Retry}
+                                  icon={<ResetIcon />}
+                                  onClick={() => onResend(message)}
+                                />
+                              )}
+
+                              {(!isContext ||
+                                session.mask.context.length > 0) && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Delete}
+                                  icon={<DeleteIcon />}
+                                  onClick={() =>
+                                    isContext
+                                      ? onDeleteContext(message)
+                                      : onDelete(message)
+                                  }
+                                />
+                              )}
+
+                              {showActions && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Pin}
+                                  icon={<PinIcon />}
+                                  onClick={() => onPinMessage(message)}
+                                />
+                              )}
+                              <ChatAction
+                                text={Locale.Chat.Actions.Copy}
+                                icon={<CopyIcon />}
+                                onClick={() => copyToClipboard(message.content)}
+                              />
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {!isUser &&
                     message.toolMessages &&
@@ -2356,8 +2575,14 @@ function _Chat() {
                         />
                       )}
 
-                    {showActions && (
-                      <div className={styles["chat-message-actions"]}>
+                    {!isUser && (
+                      <div
+                        className={
+                          styles["chat-message-actions"] +
+                          " " +
+                          styles["assistant"]
+                        }
+                      >
                         <div className={styles["chat-input-actions"]}>
                           {message.streaming ? (
                             <ChatAction
@@ -2367,23 +2592,34 @@ function _Chat() {
                             />
                           ) : (
                             <>
-                              <ChatAction
-                                text={Locale.Chat.Actions.Retry}
-                                icon={<ResetIcon />}
-                                onClick={() => onResend(message)}
-                              />
+                              {showActions && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Retry}
+                                  icon={<ResetIcon />}
+                                  onClick={() => onResend(message)}
+                                />
+                              )}
 
-                              <ChatAction
-                                text={Locale.Chat.Actions.Delete}
-                                icon={<DeleteIcon />}
-                                onClick={() => onDelete(message)}
-                              />
+                              {(!isContext ||
+                                session.mask.context.length > 0) && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Delete}
+                                  icon={<DeleteIcon />}
+                                  onClick={() =>
+                                    isContext
+                                      ? onDeleteContext(message)
+                                      : onDelete(message)
+                                  }
+                                />
+                              )}
 
-                              <ChatAction
-                                text={Locale.Chat.Actions.Pin}
-                                icon={<PinIcon />}
-                                onClick={() => onPinMessage(message)}
-                              />
+                              {showActions && (
+                                <ChatAction
+                                  text={Locale.Chat.Actions.Pin}
+                                  icon={<PinIcon />}
+                                  onClick={() => onPinMessage(message)}
+                                />
+                              )}
                               <ChatAction
                                 text={Locale.Chat.Actions.Copy}
                                 icon={<CopyIcon />}
@@ -2630,8 +2866,15 @@ function _Chat() {
   );
 }
 
-export function Chat() {
+export function Chat(props: {
+  setRequestingSession: Dispatch<SetStateAction<ChatSession | null>>;
+}) {
   const chatStore = useChatStore();
   const sessionIndex = chatStore.currentSessionIndex;
-  return <_Chat key={sessionIndex}></_Chat>;
+  return (
+    <_Chat
+      key={sessionIndex}
+      setRequestingSession={props.setRequestingSession}
+    ></_Chat>
+  );
 }

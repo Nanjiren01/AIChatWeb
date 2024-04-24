@@ -68,9 +68,15 @@ export function MaskAvatar(props: {
   mask: Mask | RemoteMask;
   logoUrl?: string;
 }) {
-  return props.mask.avatar !== DEFAULT_MASK_AVATAR ? (
+  // 如果后台配置了展示模型的头像，那么会传给mask.modelConfig?.avatarEmoji，此时优先显示展示模型的头像，忽略用户自己的配置
+  return props.mask.modelConfig?.avatarEmoji ? (
+    <Avatar avatar={props.mask.modelConfig?.avatarEmoji} />
+  ) : props.mask.avatar !== DEFAULT_MASK_AVATAR ? (
+    // mask.avatar !== DEFAULT_MASK_AVATAR 说明用户（或管理员在后台）自定义了头像，此时显示用户自己（或管理员）设定的头像
     <Avatar avatar={props.mask.avatar} logoUrl={props.logoUrl} />
   ) : (
+    // 当后台没有配置展示模型的头像，并且用户（或管理员）也没有自己重新设定面具时，传入model参数给Avatar，让Avatar自行判断
+    // 但好像这种情况已经不存在了，因为管理员在后台设定面具时，总会选择一个头像，不会等于DEFAULT_MASK_AVATAR
     <Avatar model={props.mask.modelConfig?.model} logoUrl={props.logoUrl} />
   );
 }

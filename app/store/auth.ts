@@ -20,9 +20,22 @@ export interface AuthStore {
   inviteCode: string;
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
-  sendEmailCode: (email: string) => Promise<any>;
-  sendPhoneCode: (phone: string) => Promise<any>;
-  sendEmailCodeForResetPassword: (email: string) => Promise<any>;
+  sendEmailCode: (
+    email: string,
+    captchaId: string,
+    captchaInput: string,
+  ) => Promise<any>;
+  sendPhoneCode: (
+    phone: string,
+    captchaId: string,
+    captchaInput: string,
+    resetPassword: boolean,
+  ) => Promise<any>;
+  sendEmailCodeForResetPassword: (
+    email: string,
+    captchaId: string,
+    captchaInput: string,
+  ) => Promise<any>;
   register: (
     name: string,
     username: string,
@@ -38,6 +51,8 @@ export interface AuthStore {
     password: string,
     email: string,
     code: string,
+    phone: string,
+    phoneCode: string,
   ) => Promise<any>;
   wechatLogin: (code: string, state: string, appType: string) => Promise<any>;
   removeToken: () => void;
@@ -94,28 +109,59 @@ export const useAuthStore = create<AuthStore>()(
           inviteCode: code,
         }));
       },
-      async sendEmailCodeForResetPassword(email) {
-        let result = await requestSendEmailCode(email, true, {
-          onError: (err) => {
-            console.error(err);
+      async sendEmailCodeForResetPassword(
+        email: string,
+        captchaId: string,
+        captchaInput: string,
+      ) {
+        let result = await requestSendEmailCode(
+          email,
+          captchaId,
+          captchaInput,
+          true,
+          {
+            onError: (err) => {
+              console.error(err);
+            },
           },
-        });
+        );
         return result;
       },
-      async sendEmailCode(email) {
-        let result = await requestSendEmailCode(email, false, {
-          onError: (err) => {
-            console.error(err);
+      async sendEmailCode(
+        email: string,
+        captchaId: string,
+        captchaInput: string,
+      ) {
+        let result = await requestSendEmailCode(
+          email,
+          captchaId,
+          captchaInput,
+          false,
+          {
+            onError: (err) => {
+              console.error(err);
+            },
           },
-        });
+        );
         return result;
       },
-      async sendPhoneCode(phone: string) {
-        let result = await requestSendPhoneCode(phone, false, {
-          onError: (err) => {
-            console.error(err);
+      async sendPhoneCode(
+        phone: string,
+        captchaId: string,
+        captchaInput: string,
+        resetPassword: boolean,
+      ) {
+        let result = await requestSendPhoneCode(
+          phone,
+          captchaId,
+          captchaInput,
+          resetPassword,
+          {
+            onError: (err) => {
+              console.error(err);
+            },
           },
-        });
+        );
         return result;
       },
       async register(
@@ -159,12 +205,19 @@ export const useAuthStore = create<AuthStore>()(
 
         return result;
       },
-      async resetPassword(password, email, code) {
-        let result = await requestResetPassword(password, email, code, {
-          onError: (err) => {
-            console.error(err);
+      async resetPassword(password, email, code, phone, phoneCode) {
+        let result = await requestResetPassword(
+          password,
+          email,
+          code,
+          phone,
+          phoneCode,
+          {
+            onError: (err) => {
+              console.error(err);
+            },
           },
-        });
+        );
         //console.log("result", result);
         if (result && result.code == 0 && result.data) {
           const data = result.data;

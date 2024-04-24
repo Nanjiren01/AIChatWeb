@@ -404,7 +404,10 @@ export function showPowerfulConfirm(props: {
             shadow
           ></IconButton>,
         ]}
-        onClose={closeModal}
+        onClose={() => {
+          resolve(false);
+          closeModal();
+        }}
       >
         {props.content}
       </Modal>,
@@ -509,6 +512,7 @@ export function showImageModal(img: string) {
 export function Selector<T>(props: {
   items: Array<{
     title: string;
+    icon?: JSX.Element;
     subTitle?: string;
     value: T;
   }>;
@@ -528,6 +532,7 @@ export function Selector<T>(props: {
                 className={styles["selector-item"]}
                 key={i}
                 title={item.title}
+                icon={item.icon}
                 subTitle={item.subTitle}
                 onClick={() => {
                   props.onSelection?.([item.value]);

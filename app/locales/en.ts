@@ -99,6 +99,9 @@ const en: LocaleType = {
     ReloadSesison: "Reload Session",
     DeleteDeletedSessionConfirm:
       "This session has been deleted by other client. Do you want to delete it from local storage?",
+    ModelNotAvailable:
+      "Current model is not available. Please Change the model for chatting",
+    PleaseWaitForFinished: "Please wait for the request finished",
   },
   Midjourney: {
     Uploading: "Uploading",
@@ -203,6 +206,11 @@ const en: LocaleType = {
       Title: "用户名或邮箱",
       SubTitle: "",
       Placeholder: "请输入用户名或邮箱",
+    },
+    UsernameOrPhone: {
+      Title: "用户名或手机号",
+      SubTitle: "",
+      Placeholder: "请输入用户名或手机号",
     },
     Password: {
       Title: "密码",

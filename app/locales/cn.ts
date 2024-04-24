@@ -93,6 +93,8 @@ const cn = {
     SessionLoadingError: (err: any) => "加载会话失败：" + err,
     ReloadSesison: "重新加载",
     DeleteDeletedSessionConfirm: "该会话已在其他客户端删除，确定删除本地会话？",
+    ModelNotAvailable: "当前模型已不可用，请更换模型进行会话",
+    PleaseWaitForFinished: "请等待本次请求结束",
   },
   Midjourney: {
     Uploading: "上传中……",
@@ -191,6 +193,11 @@ const cn = {
       Title: "用户名或邮箱",
       SubTitle: "",
       Placeholder: "请输入用户名或邮箱",
+    },
+    UsernameOrPhone: {
+      Title: "用户名或手机号",
+      SubTitle: "",
+      Placeholder: "请输入用户名或手机号",
     },
     Password: {
       Title: "密码",

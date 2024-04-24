@@ -583,6 +583,7 @@ export const useChatStore = createPersistStore(
         resend: boolean,
         token: string,
         navigateToLogin: () => void,
+        onFinish: () => void,
       ) {
         // const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
@@ -671,7 +672,7 @@ export const useChatStore = createPersistStore(
         // make request
         const assistantUuid = session.assistant?.uuid;
         return api.llm.chat({
-          sessionUuid: session.uuid, // 携带上session uuuid，系统才会云同步
+          sessionUuid: session.uuid, // 携带上session uuid，系统才会云同步
           messages: sendMessages,
           userMessage: userMessage,
           botMessage: botMessage,
@@ -685,7 +686,7 @@ export const useChatStore = createPersistStore(
           assistantUuid: assistantUuid,
           threadUuid: session.threadUuid,
           onUpdate(message) {
-            // console.log("onUpdate", message);
+            console.log("onUpdate", message);
             botMessage.streaming = true;
             if (message) {
               botMessage.content = message;
@@ -806,6 +807,7 @@ export const useChatStore = createPersistStore(
             if (logout) {
               navigateToLogin();
             }
+            onFinish();
           },
           onError(error) {
             const isAborted = error.message.includes("aborted");
@@ -834,6 +836,7 @@ export const useChatStore = createPersistStore(
               botMessage.id ?? messageIndex,
             );
 
+            onFinish();
             console.error("[Chat] failed ", error);
           },
           onController(controller) {
@@ -1360,7 +1363,19 @@ export const useChatStore = createPersistStore(
             set(() => ({ sessions }));
             return Promise.resolve(true);
           }
-          // todo 更新服务器的面具
+          const result = await this.updateCurrentSessionMaskByUpdater(
+            (mask) => {
+              const item = mask.context.find((m) => m.id === message.id);
+              item!.content = message.content;
+            },
+            token,
+            logout,
+          );
+          if (result) {
+            msg.content = message.content;
+            set(() => ({ sessions }));
+          }
+          return true;
         }
 
         msg = session.messages.find((m) => m.id === message.id);
@@ -1768,7 +1783,20 @@ export const useChatStore = createPersistStore(
             session.mask = newSession.mask;
             session.assistant = newSession.assistant;
             session.memoryPrompt = newSession.memoryPrompt;
-            session.messages = newSession.messages;
+
+            // 从后往前看哪些没有同步过去，都加入
+            const messages = [] as ChatMessage[];
+            for (let i = 0; i < session.messages.length; i++) {
+              const message = session.messages[i];
+              if (!message.uuid) {
+                messages.push(message);
+              } else {
+                break;
+              }
+            }
+            messages.reverse();
+            console.log("no sync messages are", messages);
+            session.messages = newSession.messages.concat(...messages);
             session.stat = newSession.stat;
             session.topic = newSession.topic;
             const sessions = get().sessions;

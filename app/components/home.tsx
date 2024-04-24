@@ -29,7 +29,7 @@ import { useAppConfig } from "../store/config";
 import { AuthPage } from "./auth";
 import { getClientConfig } from "../config/client";
 import { api } from "../client/api";
-import { useAccessStore } from "../store";
+import { ChatSession, useAccessStore } from "../store";
 import {
   useWebsiteConfigStore,
   useAuthStore,
@@ -329,6 +329,9 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
       ] as string[]
     ).includes(location.pathname);
 
+  const [requestingSession, setRequestingSession] =
+    useState<ChatSession | null>(null);
+
   return (
     <>
       <div className={(separator ? "separator-page " : "") + "body"}>
@@ -360,15 +363,26 @@ function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
                   }}
                   logoLoading={logoLoading}
                   logoUrl={logoUrl}
+                  requestingSession={requestingSession}
                 />
               )}
 
               <div className={styles["window-content"]} id={SlotID.AppBody}>
                 <Routes>
-                  <Route path={Path.Home} element={<Chat />} />
+                  <Route
+                    path={Path.Home}
+                    element={
+                      <Chat setRequestingSession={setRequestingSession} />
+                    }
+                  />
                   <Route path={Path.NewChat} element={<NewChat />} />
                   <Route path={Path.Masks} element={<MaskPage />} />
-                  <Route path={Path.Chat} element={<Chat />} />
+                  <Route
+                    path={Path.Chat}
+                    element={
+                      <Chat setRequestingSession={setRequestingSession} />
+                    }
+                  />
                   <Route path={Path.Settings} element={<Settings />} />
                   <Route
                     path={Path.Login}

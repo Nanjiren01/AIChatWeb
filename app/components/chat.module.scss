@@ -340,19 +340,22 @@
   display: flex;
   flex-direction: row;
 
-  &:last-child {
-    animation: slide-in ease 0.3s;
-  }
+  // &:last-child {
+  //   animation: slide-in ease 0.3s;
+  // }
 
   &:hover {
     .chat-message-actions {
       opacity: 1;
       transform: translateY(0px);
       max-width: 100%;
-      height: 40px;
       //
-      //pointer-events: all;
-      //transform: scale(1) translateY(0);
+      pointer-events: all;
+      transform: scale(1) translateY(0);
+
+      &.assistant {
+        height: 40px;
+      }
     }
 
     .chat-message-action-date {
@@ -582,9 +585,9 @@
   background-color: var(--second);
 
   transition: all ease-in-out 2s;
-  &:hover {
-    min-width: 200px;
-  }
+  // &:hover {
+  //   min-width: 200px;
+  // }
 }
 
 .chat-input-panel {
