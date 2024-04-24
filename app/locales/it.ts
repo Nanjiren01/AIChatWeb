@@ -29,7 +29,7 @@ const it: PartialLocaleType = {
     Typing: "Typing…",
     SensitiveWordsTip: (question: string) =>
       `您的提问中包含敏感词：${question}`,
-    BalanceNotEnough: "您的额度不足，请联系管理员",
+    BalanceNotEnough: "您的额度不足，请前往套餐页充值或联系管理员",
     Input: (submitKey: string) => {
       var inputHints = `Scrivi qualcosa e premi ${submitKey} per inviare`;
       if (submitKey === String(SubmitKey.Enter)) {
