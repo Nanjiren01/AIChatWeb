@@ -5,7 +5,7 @@
   
 <h1 align="center">AIChat Web</h1>
 
-<div align="center">更新时间：2024-3-28</div>
+<div align="center">更新时间：2024-4-25</div>
 <div style="margin: 10px">本项目支持国产平台：百度文心一言，阿里通义千问，清华智谱（glm-4、glm-4v），月之暗面，零一万物，阶跃星辰</div>
 
 **简体中文** | [English](#english)
