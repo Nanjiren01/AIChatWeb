@@ -18,12 +18,12 @@ import { useNavigate } from "react-router-dom";
 // import { Avatar, AvatarPicker } from "./emoji";
 
 import { useRouter } from "next/navigation";
-import { Balance } from "../api/users/[...path]/route";
+import { Balance as BalanceType } from "../api/users/[...path]/route";
 
 interface BalanceListResponse {
   code: number;
   message?: string;
-  data: Balance[];
+  data: BalanceType[];
 }
 
 interface UniversalResponse {
@@ -64,7 +64,7 @@ export function Balance() {
     }
   }, [profileStore, navigate, authStore]);
 
-  function getSubTitle(pkg: Balance) {
+  function getSubTitle(pkg: BalanceType) {
     const prefix = {
       1: "总额剩余",
       2: "每天",
@@ -101,7 +101,7 @@ export function Balance() {
     );
   }
 
-  const [balanceList, setBalanceList] = useState<Balance[]>([]);
+  const [balanceList, setBalanceList] = useState<BalanceType[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 
   const reloadBalanceList = useCallback((token: string) => {
