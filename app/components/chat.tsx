@@ -1043,7 +1043,7 @@ export function Chat() {
           const shouldShowClearContextDivider = i === clearContextIndex - 1;
 
           return (
-            <>
+            <React.Fragment key={message.id}>
               <div
                 key={i}
                 className={
@@ -1227,7 +1227,7 @@ export function Chat() {
                 </div>
               </div>
               {shouldShowClearContextDivider && <ClearContextDivider />}
-            </>
+            </React.Fragment>
           );
         })}
       </div>
